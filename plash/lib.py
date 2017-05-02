@@ -10,6 +10,7 @@ import stat
 import subprocess
 import sys
 import uuid
+from base64 import b64encode
 from collections import namedtuple
 from os import environ, path
 from os.path import expanduser
@@ -91,9 +92,20 @@ class Pip(PackageManager):
     name = 'pip'
     install = 'pip install {}'
 
+class PipRequirements(PackageManager):
+    name = 'pip-requirements'
+    def __str__(self):
+        assert len(self._packages) == 1
+        fname = self._packages[0]
+        with open(fname) as f:
+            encoded = b64encode(f.read().encode())
+        return 'pip install -r <(echo {} | base64 --decode)'.format(
+            encoded.decode())
+
 class Emerge(PackageManager):
     name = 'emerge'
     install = 'emerge {}'
+
 
 class DockerBuildable:
 
@@ -126,7 +138,7 @@ class DockerBuildable:
         # print('Building', cmds)
 
         exit = subprocess.Popen([
-        'docker', 'run', '-ti', '--name', rand_name, self.get_base_image_name(), 'sh', '-cx', cmds]).wait()
+        'docker', 'run', '-ti', '--name', rand_name, self.get_base_image_name(), 'bash', '-cx', cmds]).wait()
         assert exit == 0
 
         # get cotnainer id
@@ -289,6 +301,10 @@ def main():
 
     build_cmds = []
     for pm, pm_obj in package_managers.items():
+
+        # argparse makes this conversion
+        pm = pm.replace('-', '_')
+
         packages = getattr(args, pm)
         if packages:
             build_cmds.append(str(pm_obj(packages)))
@@ -332,8 +348,7 @@ def main():
         install_index =  argv.index('--install')
         argv.pop(install_index)
         argv.pop(install_index)
-        run_script = '#!/bin/sh\n{} {} "$@"\n'.format(
-            path.abspath(__file__), ' '.join(argv))
+        run_script = '#!/bin/sh\nplash {} "$@"\n'.format(' '.join(argv))
         create_executable_file(install_to, run_script)
         print('Installed to {}'.format(install_to))
     # print(args)
