@@ -315,9 +315,6 @@ def main():
     if not args.install:
         exit = pi.run(
             args.exec,
-            extra_envs={
-                'HOST_IP': HOST_IP,
-            })
         sys.exit(exit)
 
     else:
