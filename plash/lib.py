@@ -16,24 +16,13 @@ from os import environ, path
 from os.path import expanduser
 from urllib.parse import urlparse
 
-from pyftpdlib.authorizers import DummyAuthorizer
-from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.servers import FTPServer
-
 home_directory = expanduser("~")
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
 
 
 # make pyftpdlib silent
 logging.basicConfig(level=logging.ERROR)
-
-
-if platform.system() == 'Darwin':
-    # host ip is always the same but must be set with
-    # sudo ifconfig lo0 alias 10.200.10.1/24
-    # before this programs works
-    HOST_IP = environ.get('HOST_IP', '10.200.10.1')
-else:
-    HOST_IP = '127.0.0.1' # because of dockers --net=host
 
 
 def rand():
@@ -79,18 +68,26 @@ class Apt(PackageManager):
     pre_install = 'apt-get update'
     install = 'apt-get install -y {}'
 
+
 class Apk(PackageManager):
     name = 'apk'
     pre_install = 'apk update'
     install = 'apk add {}'
 
+
 class Yum(PackageManager):
     name = 'yum'
     install = 'yum install -y {}'
 
+
 class Pip(PackageManager):
     name = 'pip'
     install = 'pip install {}'
+
+
+class Npm(PackageManager):
+    name = 'npm'
+    install = 'npm install -g {}'
 
 class PipRequirements(PackageManager):
     name = 'pip-requirements'
@@ -187,17 +184,17 @@ class OS(DockerBuildable, metaclass=OSMeta):
 class Debian(OS):
     name = 'debian'
     base_image= 'debian'
-    packages = Apt(['python-pip', 'curlftpfs'])
+    packages = Apt(['python-pip'])
 
 class Ubuntu(OS):
     name = 'ubuntu'
     base_image = 'ubuntu'
-    packages = Apt(['python-pip', 'curlftpfs'])
+    packages = Apt(['python-pip', 'npm'])
 
 class Centos(OS):
     name = 'centos'
     base_image = 'centos'
-    packages = Yum(['epel-release', 'python-pip', 'curlftpfs'])
+    packages = Yum(['epel-release', 'python-pip'])
 
 # class Alpine(OS):
 #     name = 'alpine'
@@ -208,7 +205,7 @@ class Centos(OS):
 class Gentoo(OS):
     name = 'gentoo'
     base_image = 'thedcg/gentoo'
-    packages = Emerge(['dev-python/pip', 'curlftpfs'])
+    packages = Emerge(['dev-python/pip'])
 
 
 class PackageImage(DockerBuildable):
@@ -240,22 +237,21 @@ class PackageImage(DockerBuildable):
             '--net=host', # does not bind the port on mac
             '--privileged',
             '--cap-add=ALL',
+            '--workdir', os.getcwd(),
             '-v', '/dev:/dev',
             '-v', '/lib/modules:/lib/modules',
-            '-v', '/Users/iraehueckcosta/dopkg/run.sh:/run.sh',
-            '-e', 'HOST_PWD={}'.format(os.getcwd()),
-            '-e', 'HOST_HOME={}'.format(environ['HOME']),
+            '-v', '{}/run.sh:/run.sh'.format(script_dir),
+            '-v', '{}:{}'.format(home_directory, home_directory),
             '--rm',
             self.get_image_name(),
-            'bash', '/run.sh',
         ] + list(cmd_with_args)
 
         for env, env_val in dict(environ, **extra_envs).items():
-            if env not in ['HOME', 'PWD']:
+            if env not in ['PATH']: # blacklist more envs
                 args.insert(2, '-e')
                 args.insert(3, '{}={}'.format(env, shlex.quote(env_val)))  # SECURITY: is shlex.quote safe?
 
-        return subprocess.Popen(args)
+        return subprocess.Popen(args).wait()
 
 
 
@@ -317,30 +313,12 @@ def main():
         pi.build_all()
 
     if not args.install:
-
-        # start a FTP Server
-        ftp_password = rand()
-        authorizer = DummyAuthorizer()
-        authorizer.add_user("user", ftp_password, home_directory, perm="elradfmw")
-        handler = FTPHandler
-        handler.authorizer = authorizer
-        server = FTPServer((HOST_IP, 0), handler)
-        used_port = server.socket.getsockname()[1]
-        proc = pi.run(
+        exit = pi.run(
             args.exec,
             extra_envs={
-                'HOST_FTP_PORT': str(used_port),
                 'HOST_IP': HOST_IP,
-                'HOST_FTP_PASSWORD': ftp_password,
             })
-
-        # mainloop
-        while True:
-            server.serve_forever(blocking=False, timeout=0.05)
-            exit = proc.poll()
-            if exit is not None:
-                server.close_all()
-                sys.exit(exit)
+        sys.exit(exit)
 
     else:
         install_to = args.install
