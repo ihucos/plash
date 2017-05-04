@@ -21,10 +21,6 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 
-# make pyftpdlib silent
-logging.basicConfig(level=logging.ERROR)
-
-
 def rand():
     return str(uuid.uuid4()).split('-')[-1]
 
@@ -40,16 +36,20 @@ def create_executable_file(fname, script):
     st = os.stat(fname)
     os.chmod(fname, st.st_mode | stat.S_IEXEC)
 
-package_managers = {}
+package_managers = []
 class PackageManagerMeta(type):
     def __new__(cls, clsname, superclasses, attributedict):
         cls = type.__new__(cls, clsname, superclasses, attributedict)
         for sp in superclasses:
-            package_managers[cls.name] = cls
+            package_managers.append(cls)
         return cls
 
 class PackageManager(metaclass=PackageManagerMeta):
     pre_install = None
+
+    @property
+    def name(self):
+        return self.__class__.__name__.lower()
 
     def __init__(self, packages):
         self._packages = packages
@@ -64,29 +64,27 @@ class PackageManager(metaclass=PackageManagerMeta):
 
 
 class Apt(PackageManager):
-    name = 'apt'
+    short_name = 'a'
     pre_install = 'apt-get update'
     install = 'apt-get install -y {}'
 
 
 class Apk(PackageManager):
-    name = 'apk'
     pre_install = 'apk update'
     install = 'apk add {}'
 
 
 class Yum(PackageManager):
-    name = 'yum'
+    short_name = 'y'
     install = 'yum install -y {}'
 
 
 class Pip(PackageManager):
-    name = 'pip'
+    short_name = 'p'
     install = 'pip install {}'
 
 
 class Npm(PackageManager):
-    name = 'npm'
     install = 'npm install -g {}'
 
 class PipRequirements(PackageManager):
@@ -156,17 +154,22 @@ class DockerBuildable:
 
 
 
-operating_systems = {}
+operating_systems = []
 class OSMeta(type):
     def __new__(cls, clsname, superclasses, attributedict):
         cls = type.__new__(cls, clsname, superclasses, attributedict)
         for sp in superclasses:
-            operating_systems[cls.name] = cls()
+            operating_systems.append(cls())
         return cls
 
 
 class OS(DockerBuildable, metaclass=OSMeta):
     packages = None
+
+
+    @property
+    def short_name(self):
+        return self.name[0].upper()
 
     @property
     def name(self):
@@ -182,17 +185,14 @@ class OS(DockerBuildable, metaclass=OSMeta):
 
 
 class Debian(OS):
-    name = 'debian'
     base_image= 'debian'
     packages = Apt(['python-pip'])
 
 class Ubuntu(OS):
-    name = 'ubuntu'
     base_image = 'ubuntu'
     packages = Apt(['python-pip', 'npm'])
 
 class Centos(OS):
-    name = 'centos'
     base_image = 'centos'
     packages = Yum(['epel-release', 'python-pip'])
 
@@ -201,9 +201,7 @@ class Centos(OS):
 #     base_image = 'alpine'
 #     packages = Apk(['sshfs'])
 
-
 class Gentoo(OS):
-    name = 'gentoo'
     base_image = 'thedcg/gentoo'
     packages = Emerge(['dev-python/pip'])
 
@@ -213,6 +211,15 @@ class PackageImage(DockerBuildable):
     def __init__(self, os_obj, cmds):
         self.os_obj = os_obj
         self.cmds = cmds
+
+    @property
+    def short_name(self):
+        return self.name[0]
+
+    @property
+    def name(self):
+        return self.__class__.__name__.lower()
+
 
     def get_base_image_name(self):
         return self.os_obj.get_image_name()
@@ -266,12 +273,20 @@ def main():
     parser.add_argument(
         "exec", type=str, nargs='*', default=['bash'], help='What to execute in container')
     for pm in package_managers:
-        parser.add_argument(
-            "--{}".format(pm), type=str, nargs="+", help='install with {}'.format(pm))
+
+        # HACK, initialize it to get name and short_name
+        pm = pm(['dummy'])
+
+        args = ["--{}".format(pm.name)]
+        short_name = getattr(pm, 'short_name', None)
+        if short_name:
+            args.insert(0, "-{}".format(pm.short_name))
+
+        parser.add_argument(*args, type=str, nargs="+", help='install with {}'.format(pm.name))
 
     
-    for os in operating_systems:
-        parser.add_argument('--{}'.format(os), dest='os', action='append_const', const=os)
+    for os in sorted(operating_systems, key=lambda o: o.name):
+        parser.add_argument('-{}'.format(os.short_name), '--{}'.format(os.name), dest='os', action='append_const', const=os)
 
     parser.add_argument("--rebuild", default=False, action='store_true')
     parser.add_argument("--install", default=False)
@@ -295,17 +310,20 @@ def main():
     #     parser.error('--install needs one or no argument')
 
     build_cmds = []
-    for pm, pm_obj in package_managers.items():
+    for pm_cls in package_managers:
+
+        # HACK, initialize it to get name and short_name
+        pm_name = pm_cls(['dummy']).name
 
         # argparse makes this conversion
-        pm = pm.replace('-', '_')
+        pm_name = pm_name.replace('-', '_')
 
-        packages = getattr(args, pm)
+        packages = getattr(args, pm_name)
         if packages:
-            build_cmds.append(str(pm_obj(packages)))
+            build_cmds.append(str(pm_cls(packages)))
     build_cmds = ' && '.join(build_cmds)
     
-    pi = PackageImage(operating_systems[args.os[0]], build_cmds)
+    pi = PackageImage(args.os[0], build_cmds)
     if not args.rebuild:
         pi.ensure_builded_all()
     else:
