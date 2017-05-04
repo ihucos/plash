@@ -10,7 +10,6 @@ setup(name='plash',
       packages=['plash'],
       scripts=['plash/plash'],
       install_requires=[
-          'pyftpdlib==1.5.2'
       ],
       include_package_data=True,
       zip_safe=True)
