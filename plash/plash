@@ -240,7 +240,6 @@ class PackageImage(DockerBuildable):
             '--workdir', os.getcwd(),
             '-v', '/dev:/dev',
             '-v', '/lib/modules:/lib/modules',
-            '-v', '{}/run.sh:/run.sh'.format(script_dir),
             '-v', '{}:{}'.format(home_directory, home_directory),
             '--rm',
             self.get_image_name(),
