@@ -116,20 +116,35 @@ class Pip(PackageManager):
 class Npm(PackageManager):
     install = 'npm install -g {}'
 
-class PipRequirements(SystemModifier):
-    name = 'pip-requirements'
+
+class FileCommand(SystemModifier):
 
     def __str__(self):
         assert len(self._args) == 1
         fname = self._args[0]
         with open(fname) as f:
             encoded = b64encode(f.read().encode())
-        return 'pip install -r <(echo {} | base64 --decode)'.format(
+        inline_file = '<(echo {} | base64 --decode)'.format(
             encoded.decode())
+        return self.cmd.format(inline_file)
+
+class PipRequirements(FileCommand):
+    name = 'pip-requirements'
+    cmd = 'pip install -r {}'
+
+class Execute(FileCommand):
+    cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
+
+class Eval(SystemModifier):
+    def __str__(self):
+        return self._args[0]
+
+class Interactive(SystemModifier):
+    def __str__(self):
+        return "echo 'Exit shell when ready' && bash && : {}".format(shlex.quote(self._args[0]))
 
 
 class Emerge(PackageManager):
-    name = 'emerge'
     install = 'emerge {}'
 
 
@@ -163,7 +178,6 @@ class DockerBuildable:
         new_image_name = self.get_image_name()
 
         quiet_kw = {'stderr': subprocess.DEVNULL, 'stdout': subprocess.DEVNULL}
-
         exit = subprocess.Popen([
         'docker', 'run', '-ti', '--name', rand_name, self.get_base_image_name(), 'bash', '-cx', cmds],
         **(quiet_kw if quiet else {})).wait()
