@@ -73,6 +73,30 @@ class Apt(PackageManager):
     pre_install = 'apt-get update'
     install = 'apt-get install -y {}'
 
+class AptByCommandName(SystemModifier):
+    name = 'from-command'
+    def __str__(self):
+        p = subprocess.Popen([
+            __file__,
+            '--ubuntu',
+            '--apt', 'command-not-found',
+            '--quiet',
+            '--',
+            '/usr/lib/command-not-found',
+            '--ignore-installed',
+            '--no-failure-msg',
+            self._args[0]],
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        )
+        p.wait()
+        out = p.stdout.read()
+        if not out:
+            raise SystemExit('Command {} not found'.format(self._args[0]))
+        line2 = out.splitlines()[1]
+        package = line2.split()[-1]
+
+        return str(Apt([package.decode()]))
 
 class Apk(PackageManager):
     pre_install = 'apk update'
@@ -129,17 +153,20 @@ class DockerBuildable:
              "reference={ref}".format(ref=ref)])
         return bool(out)
     
-    def ensure_builded(self):
+    def ensure_builded(self, quiet=False):
         if not self.image_exists(self.get_image_name()):
-            self.build()
+            self.build(quiet)
 
-    def build(self):
+    def build(self, quiet=True):
         rand_name = rand()
         cmds = self.get_build_commands()
         new_image_name = self.get_image_name()
 
+        quiet_kw = {'stderr': subprocess.DEVNULL, 'stdout': subprocess.DEVNULL}
+
         exit = subprocess.Popen([
-        'docker', 'run', '-ti', '--name', rand_name, self.get_base_image_name(), 'bash', '-cx', cmds]).wait()
+        'docker', 'run', '-ti', '--name', rand_name, self.get_base_image_name(), 'bash', '-cx', cmds],
+        **(quiet_kw if quiet else {})).wait()
         assert exit == 0
 
         # get cotnainer id
@@ -151,11 +178,11 @@ class DockerBuildable:
         # create image out of the container
         from time import sleep
         sleep(0.2) # race condition in docker?
-        exit = subprocess.Popen(['docker', 'commit', container_id, new_image_name]).wait()
+        exit = subprocess.Popen(['docker', 'commit', container_id, new_image_name], **quiet_kw).wait()
         assert exit == 0
 
         # remove the container to save space
-        exit = subprocess.Popen(['docker', 'rm', container_id]).wait()
+        exit = subprocess.Popen(['docker', 'rm', container_id], **quiet_kw).wait()
         assert exit == 0
 
 
@@ -233,13 +260,13 @@ class PackageImage(DockerBuildable):
     def get_build_commands(self):
         return self.cmds
 
-    def build_all(self):
-        self.os_obj.build()
-        self.build()
+    def build_all(self, quiet=False):
+        self.os_obj.build(quiet)
+        self.build(quiet)
 
-    def ensure_builded_all(self):
-        self.os_obj.ensure_builded()
-        self.ensure_builded()
+    def ensure_builded_all(self, quiet=False):
+        self.os_obj.ensure_builded(quiet)
+        self.ensure_builded(quiet)
 
     def run(self, cmd_with_args, extra_envs={}):
 
@@ -269,19 +296,21 @@ class PackageImage(DockerBuildable):
 
 def main():
     HELP = 'my help'
-    PROG = 'packy'
+    PROG = 'plash'
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description='Run programm from any Linux',
         prog=PROG,
         epilog=HELP)
 
+
+    parser.add_argument("--quiet", action='store_true')
+
     parser.add_argument(
         "exec", type=str, nargs='*', default=['bash'], help='What to execute in container')
     for pm in system_modifiers:
 
         # HACK, initialize it to get name and short_name
-        print(pm)
         pm = pm(['dummy'])
 
         args = ["--{}".format(pm.name)]
@@ -299,7 +328,10 @@ def main():
     parser.add_argument("--install", default=False)
 
 
-    args = parser.parse_args(sys.argv[1:])
+    prog_args = sys.argv[1:]
+    if len(prog_args) >= 1 and not prog_args[0].startswith('-'):
+        prog_args = ['--ubuntu', '--from-command', prog_args[0], '--'] + prog_args
+    args = parser.parse_args(prog_args)
 
     if not args.os:
         parser.error('specify at least on operating system')
@@ -332,9 +364,9 @@ def main():
     
     pi = PackageImage(args.os[0], build_cmds)
     if not args.rebuild:
-        pi.ensure_builded_all()
+        pi.ensure_builded_all(quiet=args.quiet)
     else:
-        pi.build_all()
+        pi.build_all(quiet=args.quiet)
 
     if not args.install:
         exit = pi.run(args.exec)
