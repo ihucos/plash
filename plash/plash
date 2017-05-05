@@ -36,20 +36,25 @@ def create_executable_file(fname, script):
     st = os.stat(fname)
     os.chmod(fname, st.st_mode | stat.S_IEXEC)
 
-package_managers = []
-class PackageManagerMeta(type):
+system_modifiers = []
+class SystemModifierMeta(type):
     def __new__(cls, clsname, superclasses, attributedict):
         cls = type.__new__(cls, clsname, superclasses, attributedict)
         for sp in superclasses:
-            package_managers.append(cls)
+            system_modifiers.append(cls)
         return cls
 
-class PackageManager(metaclass=PackageManagerMeta):
+class SystemModifier(metaclass=SystemModifierMeta):
     pre_install = None
+
+    def __init__(self, args):
+        self._args = args
 
     @property
     def name(self):
         return self.__class__.__name__.lower()
+
+class PackageManager(SystemModifier):
 
     def __init__(self, packages):
         self._packages = packages
@@ -87,15 +92,17 @@ class Pip(PackageManager):
 class Npm(PackageManager):
     install = 'npm install -g {}'
 
-class PipRequirements(PackageManager):
+class PipRequirements(SystemModifier):
     name = 'pip-requirements'
+
     def __str__(self):
-        assert len(self._packages) == 1
-        fname = self._packages[0]
+        assert len(self._args) == 1
+        fname = self._args[0]
         with open(fname) as f:
             encoded = b64encode(f.read().encode())
         return 'pip install -r <(echo {} | base64 --decode)'.format(
             encoded.decode())
+
 
 class Emerge(PackageManager):
     name = 'emerge'
@@ -130,7 +137,6 @@ class DockerBuildable:
         rand_name = rand()
         cmds = self.get_build_commands()
         new_image_name = self.get_image_name()
-        # print('Building', cmds)
 
         exit = subprocess.Popen([
         'docker', 'run', '-ti', '--name', rand_name, self.get_base_image_name(), 'bash', '-cx', cmds]).wait()
@@ -272,9 +278,10 @@ def main():
 
     parser.add_argument(
         "exec", type=str, nargs='*', default=['bash'], help='What to execute in container')
-    for pm in package_managers:
+    for pm in system_modifiers:
 
         # HACK, initialize it to get name and short_name
+        print(pm)
         pm = pm(['dummy'])
 
         args = ["--{}".format(pm.name)]
@@ -310,7 +317,7 @@ def main():
     #     parser.error('--install needs one or no argument')
 
     build_cmds = []
-    for pm_cls in package_managers:
+    for pm_cls in system_modifiers:
 
         # HACK, initialize it to get name and short_name
         pm_name = pm_cls(['dummy']).name
