@@ -131,7 +131,6 @@ class RebuildOnChanged(SystemModifier):
             hasher.update(self._hash_str(fread))
 
         hash = hasher.hexdigest() 
-        assert False, hash
         return "echo 'rebuild-when-changed: hashed to {}'".format(hash)
 
     def _extract_files(self, dir):
