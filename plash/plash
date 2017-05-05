@@ -106,6 +106,49 @@ class AptByCommandName(SystemModifier):
 
         return str(Apt.call(package.decode()))
 
+
+class RebuildOnChanged(SystemModifier):
+    name = 'rebuild-when-changed'
+
+    def __call__(self, *paths):
+        all_files = []
+        for path in paths:
+            if os.path.isdir(path):
+                all_files.extend(self._extract_files(path))
+            else:
+                all_files.append(path)
+        
+        hasher = hashlib.sha1()
+        for fname in sorted(all_files):
+            perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
+                      ).encode()
+
+            with open(fname, 'rb') as f:
+                fread = f.read()
+
+            hasher.update(self._hash_str(fname.encode()))
+            hasher.update(self._hash_str(perm))
+            hasher.update(self._hash_str(fread))
+
+        hash = hasher.hexdigest() 
+        assert False, hash
+        return "echo 'rebuild-when-changed: hashed to {}'".format(hash)
+
+    def _extract_files(self, dir):
+        for (dirpath, dirnames, filenames) in os.walk(dir):
+            for filename in filenames:
+                fname = os.sep.join([dirpath, filename])
+                yield fname
+
+
+    
+    def _hash_str(self, stri):
+        hasher = hashlib.sha1()
+        hasher.update(stri)
+        return hasher.digest()
+
+
+
 class Apk(PackageManager):
     pre_install = 'apk update'
     install = 'apk add {}'
@@ -188,7 +231,9 @@ class DockerBuildable:
 
         quiet_kw = {'stderr': subprocess.DEVNULL, 'stdout': subprocess.DEVNULL}
         exit = subprocess.Popen([
-        'docker', 'run', '-ti', '--name', rand_name, self.get_base_image_name(), 'bash', '-cx', cmds],
+        'docker', 'run', '-ti',
+            # '-v', '/Users/iraehueckcosta/.aptcache:/var/cache/apt/archives', # cache apt packages -- implement that later!
+            '--name', rand_name, self.get_base_image_name(), 'bash', '-cx', cmds],
         **(quiet_kw if quiet else {})).wait()
         assert exit == 0
 
@@ -246,7 +291,7 @@ class Debian(OS):
 
 class Ubuntu(OS):
     base_image = 'ubuntu:rolling'
-    packages = Apt.call('python-pip', 'npm', 'software-properties-common')
+    packages = 'rm /etc/apt/apt.conf.d/docker-clean && '+ Apt.call('python-pip', 'npm', 'software-properties-common')
 
 class Centos(OS):
     base_image = 'centos'
@@ -335,6 +380,7 @@ def main():
 
 
     parser.add_argument("--quiet", action='store_true')
+    parser.add_argument("--noop", action='store_true')
 
     parser.add_argument(
         "exec", type=str, nargs='*', default=['bash'], help='What to execute in container')
@@ -395,8 +441,9 @@ def main():
         pi.build_all(quiet=args.quiet)
 
     if not args.install:
-        exit = pi.run(args.exec)
-        sys.exit(exit)
+        if not args.noop:
+            exit = pi.run(args.exec)
+            sys.exit(exit)
 
     else:
         install_to = args.install
