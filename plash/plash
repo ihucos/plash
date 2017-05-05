@@ -36,35 +36,37 @@ def create_executable_file(fname, script):
     st = os.stat(fname)
     os.chmod(fname, st.st_mode | stat.S_IEXEC)
 
-system_modifiers = []
+system_modifiers = {}
 class SystemModifierMeta(type):
     def __new__(cls, clsname, superclasses, attributedict):
         cls = type.__new__(cls, clsname, superclasses, attributedict)
         for sp in superclasses:
-            system_modifiers.append(cls)
+            o = cls()
+            system_modifiers[o.name] = o
         return cls
 
 class SystemModifier(metaclass=SystemModifierMeta):
-    pre_install = None
-
-    def __init__(self, args):
-        self._args = args
 
     @property
     def name(self):
         return self.__class__.__name__.lower()
 
+    @classmethod
+    def call(cls, *args):
+        return cls()(*args)
+
 class PackageManager(SystemModifier):
+    pre_install = None
+    post_install = None
 
-    def __init__(self, packages):
-        self._packages = packages
-
-    def __str__(self):
+    def __call__(self, *packages):
         cmds = []
         if self.pre_install:
             cmds.append(self.pre_install)
-        for p in self._packages:
+        for p in packages:
             cmds.append(self.install.format(p))
+        if self.post_install:
+            cmds.append(self.post_install)
         return ' && '.join(cmds)
 
 
@@ -73,9 +75,15 @@ class Apt(PackageManager):
     pre_install = 'apt-get update'
     install = 'apt-get install -y {}'
 
+
+class AddAptRepository(PackageManager):
+    name = 'add-apt-repository'
+    install = 'add-apt-repository {} '
+    post_install = 'apt-get update'
+
 class AptByCommandName(SystemModifier):
     name = 'from-command'
-    def __str__(self):
+    def __call__(self, command):
         p = subprocess.Popen([
             __file__,
             '--ubuntu',
@@ -92,11 +100,11 @@ class AptByCommandName(SystemModifier):
         p.wait()
         out = p.stdout.read()
         if not out:
-            raise SystemExit('Command {} not found'.format(self._args[0]))
+            raise SystemExit('Command {} not found'.format(command))
         line2 = out.splitlines()[1]
         package = line2.split()[-1]
 
-        return str(Apt([package.decode()]))
+        return str(Apt.call(package.decode()))
 
 class Apk(PackageManager):
     pre_install = 'apk update'
@@ -119,7 +127,7 @@ class Npm(PackageManager):
 
 class FileCommand(SystemModifier):
 
-    def __str__(self):
+    def __call__(self):
         assert len(self._args) == 1
         fname = self._args[0]
         with open(fname) as f:
@@ -136,12 +144,13 @@ class Execute(FileCommand):
     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
 class Eval(SystemModifier):
-    def __str__(self):
-        return self._args[0]
+    def __call__(self, stri):
+        return stri
 
 class Interactive(SystemModifier):
-    def __str__(self):
-        return "echo 'Exit shell when ready' && bash && : {}".format(shlex.quote(self._args[0]))
+    def __call__(self, name):
+        return "echo 'Exit shell when ready' && bash && : modifier name is {}".format(
+            shlex.quote(name))
 
 
 class Emerge(PackageManager):
@@ -233,15 +242,15 @@ class OS(DockerBuildable, metaclass=OSMeta):
 
 class Debian(OS):
     base_image= 'debian'
-    packages = Apt(['python-pip'])
+    packages = Apt.call('python-pip')
 
 class Ubuntu(OS):
-    base_image = 'ubuntu'
-    packages = Apt(['python-pip', 'npm'])
+    base_image = 'ubuntu:rolling'
+    packages = Apt.call('python-pip', 'npm')
 
 class Centos(OS):
     base_image = 'centos'
-    packages = Yum(['epel-release', 'python-pip'])
+    packages = Yum.call('epel-release', 'python-pip')
 
 # class Alpine(OS):
 #     name = 'alpine'
@@ -250,7 +259,7 @@ class Centos(OS):
 
 class Gentoo(OS):
     base_image = 'thedcg/gentoo'
-    packages = Emerge(['dev-python/pip'])
+    packages = Emerge.call('dev-python/pip')
 
 
 class PackageImage(DockerBuildable):
@@ -307,6 +316,13 @@ class PackageImage(DockerBuildable):
         return subprocess.Popen(args).wait()
 
 
+class OrderAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not 'ordered_args' in namespace:
+            setattr(namespace, 'ordered_args', [])
+        previous = namespace.ordered_args
+        previous.append((self.dest, values))
+        setattr(namespace, 'ordered_args', previous)
 
 def main():
     HELP = 'my help'
@@ -322,17 +338,15 @@ def main():
 
     parser.add_argument(
         "exec", type=str, nargs='*', default=['bash'], help='What to execute in container')
-    for pm in system_modifiers:
 
-        # HACK, initialize it to get name and short_name
-        pm = pm(['dummy'])
+    for pm in system_modifiers.values():
 
         args = ["--{}".format(pm.name)]
         short_name = getattr(pm, 'short_name', None)
         if short_name:
             args.insert(0, "-{}".format(pm.short_name))
 
-        parser.add_argument(*args, type=str, nargs="+", help='install with {}'.format(pm.name))
+        parser.add_argument(*args, type=str, nargs="+", help='install with {}'.format(pm.name), action=OrderAction)
 
     
     for os in sorted(operating_systems, key=lambda o: o.name):
@@ -363,17 +377,15 @@ def main():
     #     parser.error('--install needs one or no argument')
 
     build_cmds = []
-    for pm_cls in system_modifiers:
-
-        # HACK, initialize it to get name and short_name
-        pm_name = pm_cls(['dummy']).name
+    for name, values in getattr(args, 'ordered_args', []):
 
         # argparse makes this conversion
-        pm_name = pm_name.replace('-', '_')
+        name = name.replace('_', '-')
 
-        packages = getattr(args, pm_name)
-        if packages:
-            build_cmds.append(str(pm_cls(packages)))
+        sm = system_modifiers[name]
+
+        build_cmds.append(sm(*values))
+
     build_cmds = ' && '.join(build_cmds)
     
     pi = PackageImage(args.os[0], build_cmds)
