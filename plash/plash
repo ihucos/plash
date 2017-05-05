@@ -78,7 +78,7 @@ class Apt(PackageManager):
 
 class AddAptRepository(PackageManager):
     name = 'add-apt-repository'
-    install = 'add-apt-repository {} '
+    install = 'add-apt-repository -y {}'
     post_install = 'apt-get update'
 
 class AptByCommandName(SystemModifier):
@@ -242,11 +242,11 @@ class OS(DockerBuildable, metaclass=OSMeta):
 
 class Debian(OS):
     base_image= 'debian'
-    packages = Apt.call('python-pip')
+    packages = Apt.call('python-pip', 'software-properties-common')
 
 class Ubuntu(OS):
     base_image = 'ubuntu:rolling'
-    packages = Apt.call('python-pip', 'npm')
+    packages = Apt.call('python-pip', 'npm', 'software-properties-common')
 
 class Centos(OS):
     base_image = 'centos'
