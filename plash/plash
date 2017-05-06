@@ -142,17 +142,10 @@ def main():
     # else:
     #     parser.error('--install needs one or no argument')
 
-    build_cmds = []
-    for name, values in getattr(args, 'ordered_args', []):
-
-        # argparse makes this conversion
-        name = name.replace('_', '-')
-
-        sm = ACTIONS[name]
-
-        build_cmds.append(sm.friendly_call(*values))
-
-    build_cmds = ' && '.join(build_cmds)
+    instrs = getattr(args, 'ordered_args', [])
+    from actions.core import action_list_to_layers # FIXME: take that from somewhere else
+    layers =  action_list_to_layers(instrs)
+    assert False, layers
     
     pi = RunImage(args.os[0], build_cmds)
 

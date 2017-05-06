@@ -11,12 +11,13 @@
 - eval:
   - cd $PWD
 
+- layer
 
 - eval: pip install -r ./requirements.txt
 
 
-- cache:
-- cmd: ls -a
+- layer
+# - cmd: ls -a
 
 
 # ======================================

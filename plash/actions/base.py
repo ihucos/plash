@@ -33,7 +33,8 @@ class Action(metaclass=ActionMeta):
             self.base_friendly_exceptions + self.friendly_exceptions):
             debug = "echo \*\*\* plash is running --{} {}".format(
                 shlex.quote(self.name), ' '.join(shlex.quote(i) for i in args))
-            return debug + ' && ' + self(*args)
+            # return debug + ' && ' + self(*args)
+            return self(*args)
 
     def friendly_exception(self, exceptions):
         return friendly_exception(exceptions, self.name)

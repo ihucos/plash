@@ -12,6 +12,30 @@ from actions.base import actions as ACTIONS
 from actions.base import Action, ArgError
 
 
+
+# should not be here
+def action_list_to_layers(actions):
+    layers = []
+    current_layer = []
+    for action_name, args in actions:
+        if action_name == 'layer':
+            layers.append(' && '.join(current_layer))
+            current_layer = []
+        else:
+            action = ACTIONS[action_name]
+            cmd = action.friendly_call(*args)
+            if isinstance(cmd, str):
+                cmd = [cmd]
+            current_layer.extend(cmd)
+    if current_layer:
+        print(current_layer)
+        layers.append(' && '.join(current_layer))
+    assert layers
+    return layers
+
+
+
+
 class IncludeError(Exception):
     pass
 
@@ -188,26 +212,29 @@ class Include(Action):
     ]
 
     def __call__(self, fname):
+        # from .plash import action_list_to_layers
         with open(fname) as f:
             config = f.read()
         loaded = yaml.load(config)
         if not isinstance(loaded, list):
             raise IncludeError('yaml root element must be a list')
-        cmds = []
+        actions = []
         for elem in loaded:
+            if elem == 'layer': # special case # FIXME: nicer and align with err msg
+                elem = {'layer': None}
             if not isinstance(elem, dict):
                 raise IncludeError('yaml file must be a list of dicts')
             if not len(elem) == 1:
                 raise IncludeError('yaml dictionaries should contain only one element')
             sm, values = next(iter(elem.items()))
             sm_obj = ACTIONS.get(sm)
-            if not sm_obj:
+            if not sm_obj and sm != 'layer':
                 raise IncludeError('No such system modifier: {}'.format(sm))
             if not isinstance(values, list):
                 values = [values]
             values = [str(i) for i in values]
-            cmds.append(sm_obj.friendly_call(*values))
-        return  ' && '.join(cmds)
+            actions.append((sm, values))
+        return action_list_to_layers(actions)
 
 class Emerge(PackageManager):
     install = 'emerge {}'
