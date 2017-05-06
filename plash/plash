@@ -47,6 +47,9 @@ class IncludeError(Exception):
 class BuildError(Exception):
     pass
 
+class ArgError(Exception):
+    pass
+
 @contextmanager
 def friendly_exception(exceptions, debug=None):
     try:
@@ -83,7 +86,7 @@ class SystemModifierMeta(type):
 
 class SystemModifier(metaclass=SystemModifierMeta):
 
-    base_friendly_exceptions = [IOError]
+    base_friendly_exceptions = [IOError, ArgError]
     friendly_exceptions = []
 
     @property
@@ -241,9 +244,14 @@ class Interactive(SystemModifier):
 
 class Mount(SystemModifier):
     def __call__(self, mountpoint):
-        # something like that, implement this!!!
-        assert False
-        return "mount --bind /.host_home_fs{}, mountpoint"
+        mountpoint = os.path.realpath(mountpoint)
+        if not os.path.isdir(mountpoint):
+            raise ArgError('{} is not a directory'.format(mountpoint))
+        from_ = os.path.join('/.host_fs_do_not_use', mountpoint.lstrip('/'))
+        cmd = "mkdir -p {dst} && mount --bind {src} {dst}".format(
+            src=shlex.quote(from_),
+            dst=shlex.quote(mountpoint))
+        return cmd
 
 class Include(SystemModifier):
 
@@ -314,6 +322,12 @@ class DockerBuildable:
             'run',
             '-ti',
             # '-v', '/Users/iraehueckcosta/.aptcache:/var/cache/apt/archives', # cache apt packages -- implement that later!
+            '-v', '/:/.host_fs_do_not_use', # cache apt packages -- implement that later!
+            '--net=host', # does not bind the port on mac
+            '--privileged',
+            '--cap-add=ALL',
+            '-v', '/dev:/dev',
+            '-v', '/lib/modules:/lib/modules',
             '--name',
             rand_name, self.get_base_image_name(),
             # 'bash', '-cx', cmds], # with bash debug script
