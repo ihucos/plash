@@ -42,12 +42,15 @@ def hashstr(stri):
     return hashlib.sha1(stri).hexdigest()
 
 
+class IncludeError(Exception):
+    pass
+
 @contextmanager
 def friendly_exception(exceptions, debug='main'):
     try:
         yield
     except tuple(exceptions) as exc:
-        msg = 'plash at {debug}: {message}'.format(
+        msg = 'plash: {debug}: {message}'.format(
             debug=debug,
             exception=exc.__class__.__name__,
             message=str(exc))
@@ -75,6 +78,9 @@ class SystemModifierMeta(type):
 
 class SystemModifier(metaclass=SystemModifierMeta):
 
+    base_friendly_exceptions = [IOError]
+    friendly_exceptions = []
+
     @property
     def name(self):
         return self.__class__.__name__.lower()
@@ -84,7 +90,8 @@ class SystemModifier(metaclass=SystemModifierMeta):
         return cls()(*args)
 
     def friendly_call(self, *args, **kwargs):
-        with self.friendly_exception([IOError]):
+        with self.friendly_exception(
+            self.base_friendly_exceptions + self.friendly_exceptions):
             return self(*args, **kwargs)
 
     def friendly_exception(self, exceptions):
@@ -225,19 +232,26 @@ class Interactive(SystemModifier):
             shlex.quote(name))
 
 
-class Load(SystemModifier):
+class Include(SystemModifier):
+
+    friendly_exceptions = [IncludeError]
+
     def __call__(self, fname):
         with open(fname) as f:
             config = f.read()
         loaded = yaml_ordered_load(config)
+        if not isinstance(loaded, dict):
+            raise IncludeError('Root element must be a dictionary')
         cmds = []
-        for sm, value in loaded.items():
-            sm_obj = system_modifiers[sm]
-            if isinstance(value, str):
-                value = [value]
-            cmds.append(sm_obj.friendly_call(*value))
+        for sm, values in loaded.items():
+            sm_obj = system_modifiers.get(sm)
+            if not sm_obj:
+                raise IncludeError('No such system modifier: {}'.format(sm))
+            if not isinstance(values, list):
+                values = [values]
+            values = (str(i) for i in values)
+            cmds.append(sm_obj.friendly_call(*values))
         assert False, cmds
-
 
 class Emerge(PackageManager):
     install = 'emerge {}'
