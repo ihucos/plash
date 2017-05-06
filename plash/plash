@@ -19,272 +19,19 @@ from urllib.parse import urlparse
 
 import yaml
 
+from plash.actions.base import actions as ACTIONS
+import plash.actions.core
+
+from plash.distros.base import distros as DISTROS
+import plash.distros.core
+
 home_directory = expanduser("~")
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
-
-# def yaml_ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
-#     class OrderedLoader(Loader):
-#         pass
-#     def construct_mapping(loader, node):
-#         loader.flatten_mapping(node)
-#         return object_pairs_hook(loader.construct_pairs(node))
-#     OrderedLoader.add_constructor(
-#         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-#         construct_mapping)
-#     return yaml.load(stream, OrderedLoader)
-
-
-def rand():
-    return str(uuid.uuid4()).split('-')[-1]
-
-def hashstr(stri):
-    return hashlib.sha1(stri).hexdigest()
-
-class IncludeError(Exception):
-    pass
+assert False, actions
 
 class BuildError(Exception):
     pass
-
-class ArgError(Exception):
-    pass
-
-@contextmanager
-def friendly_exception(exceptions, debug=None):
-    try:
-        yield
-    except tuple(exceptions) as exc:
-        if debug:
-            msg = 'plash error at {debug}: {message}'.format(
-                debug=debug,
-                message=str(exc))
-        else:
-            msg = 'plash error: {message}'.format(message=str(exc))
-
-        print("\033[91m{}\033[0m".format(msg))
-        # raise exc # TODO: experiment with nested friendly_exception for example at load
-        sys.exit(1)
-
-def create_executable_file(fname, script):
-    if os.path.exists(fname):
-        raise SystemExit('File {} already exists - deal with this'.format(fname))
-
-    with open(fname, 'w') as f:
-        f.write(script)
-    st = os.stat(fname)
-    os.chmod(fname, st.st_mode | stat.S_IEXEC)
-
-system_modifiers = {}
-class SystemModifierMeta(type):
-    def __new__(cls, clsname, superclasses, attributedict):
-        cls = type.__new__(cls, clsname, superclasses, attributedict)
-        for sp in superclasses:
-            o = cls()
-            system_modifiers[o.name] = o
-        return cls
-
-class SystemModifier(metaclass=SystemModifierMeta):
-
-    base_friendly_exceptions = [IOError, ArgError]
-    friendly_exceptions = []
-
-    @property
-    def name(self):
-        return self.__class__.__name__.lower()
-
-    @classmethod
-    def call(cls, *args):
-        return cls()(*args)
-
-    def friendly_call(self, *args, **kwargs):
-        with self.friendly_exception(
-            self.base_friendly_exceptions + self.friendly_exceptions):
-            debug = "echo \*\*\* plash is running --{} {}".format(
-                shlex.quote(self.name), ' '.join(shlex.quote(i) for i in args))
-            return debug + ' && ' + self(*args)
-
-    def friendly_exception(self, exceptions):
-        return friendly_exception(exceptions, self.name)
-
-class PackageManager(SystemModifier):
-    pre_install = None
-    # post_install = None
-
-    def __call__(self, *packages):
-        cmds = []
-        if self.pre_install:
-            cmds.append(self.pre_install)
-        for p in packages:
-            cmds.append(self.install.format(p))
-        # if self.post_install:
-        #     cmds.append(self.post_install)
-        return ' && '.join(cmds)
-
-
-class Apt(PackageManager):
-    short_name = 'a'
-    pre_install = 'apt-get update'
-    install = 'apt-get install -y {}'
-
-
-class AddAptRepository(PackageManager):
-    name = 'add-apt-repository'
-    install = 'add-apt-repository -y {}'
-
-class AptByCommandName(SystemModifier):
-    name = 'apt-from-command'
-    def __call__(self, command):
-        p = subprocess.Popen([
-            __file__,
-            '--ubuntu',
-            '--apt', 'command-not-found',
-            '--quiet',
-            '--',
-            '/usr/lib/command-not-found',
-            '--ignore-installed',
-            '--no-failure-msg',
-            self._args[0]],
-        stderr=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        )
-        p.wait()
-        out = p.stdout.read()
-        if not out:
-            raise SystemExit('Command {} not found'.format(command))
-        line2 = out.splitlines()[1]
-        package = line2.split()[-1]
-
-        return str(Apt.call(package.decode()))
-
-
-class RebuildWhenChanged(SystemModifier):
-    name = 'rebuild-when-changed'
-
-    def __call__(self, *paths):
-        all_files = []
-        for path in paths:
-            if os.path.isdir(path):
-                all_files.extend(self._extract_files(path))
-            else:
-                all_files.append(path)
-        
-        hasher = hashlib.sha1()
-        for fname in sorted(all_files):
-            perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
-                      ).encode()
-            with self.open(fname, 'rb') as f:
-                fread = f.read()
-            hasher.update(fname.encode())
-            hasher.update(perm)
-            hasher.update(self._hash_str(fread))
-
-        hash = hasher.hexdigest() 
-        return "echo 'rebuild-when-changed: hash {}'".format(hash)
-
-    def _extract_files(self, dir):
-        for (dirpath, dirnames, filenames) in os.walk(dir):
-            for filename in filenames:
-                fname = os.sep.join([dirpath, filename])
-                yield fname
-
-
-    
-    def _hash_str(self, stri):
-        hasher = hashlib.sha1()
-        hasher.update(stri)
-        return hasher.digest()
-
-
-
-class Apk(PackageManager):
-    pre_install = 'apk update'
-    install = 'apk add {}'
-
-
-class Yum(PackageManager):
-    short_name = 'y'
-    install = 'yum install -y {}'
-
-
-class Pip(PackageManager):
-    short_name = 'p'
-    install = 'pip install {}'
-
-
-class Npm(PackageManager):
-    install = 'npm install -g {}'
-
-
-class FileCommand(SystemModifier):
-
-    def __call__(self, fname):
-        with open(fname) as f:
-            encoded = b64encode(f.read().encode())
-        inline_file = '<(echo {} | base64 --decode)'.format(
-            encoded.decode())
-        return self.cmd.format(inline_file)
-
-class PipRequirements(FileCommand):
-    name = 'pip-requirements'
-    cmd = 'pip install -r {}'
-
-class Execute(FileCommand):
-    cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
-
-class Eval(SystemModifier):
-    def __call__(self, *stris):
-        return ' && '.join(stris)
-
-class Interactive(SystemModifier):
-    def __call__(self, name):
-        return "echo 'Exit shell when ready' && bash && : modifier name is {}".format(
-            shlex.quote(name))
-
-
-class Mount(SystemModifier):
-    def __call__(self, mountpoint):
-        mountpoint = os.path.realpath(mountpoint)
-        if not os.path.isdir(mountpoint):
-            raise ArgError('{} is not a directory'.format(mountpoint))
-        from_ = os.path.join('/.host_fs_do_not_use', mountpoint.lstrip('/'))
-        cmd = "mkdir -p {dst} && mount --bind {src} {dst}".format(
-            src=shlex.quote(from_),
-            dst=shlex.quote(mountpoint))
-        return cmd
-
-class Include(SystemModifier):
-
-    friendly_exceptions = [
-        IncludeError,
-        yaml.parser.ParserError,
-        yaml.scanner.ScannerError,
-    ]
-
-    def __call__(self, fname):
-        with open(fname) as f:
-            config = f.read()
-        loaded = yaml.load(config)
-        if not isinstance(loaded, list):
-            raise IncludeError('yaml root element must be a list')
-        cmds = []
-        for elem in loaded:
-            if not isinstance(elem, dict):
-                raise IncludeError('yaml file must be a list of dicts')
-            if not len(elem) == 1:
-                raise IncludeError('yaml dictionaries should contain only one element')
-            sm, values = next(iter(elem.items()))
-            sm_obj = system_modifiers.get(sm)
-            if not sm_obj:
-                raise IncludeError('No such system modifier: {}'.format(sm))
-            if not isinstance(values, list):
-                values = [values]
-            values = [str(i) for i in values]
-            cmds.append(sm_obj.friendly_call(*values))
-        return  ' && '.join(cmds)
-
-class Emerge(PackageManager):
-    install = 'emerge {}'
 
 
 class DockerBuildable:
@@ -353,59 +100,6 @@ class DockerBuildable:
         assert exit == 0
 
 
-
-operating_systems = []
-class OSMeta(type):
-    def __new__(cls, clsname, superclasses, attributedict):
-        cls = type.__new__(cls, clsname, superclasses, attributedict)
-        for sp in superclasses:
-            operating_systems.append(cls())
-        return cls
-
-
-class OS(DockerBuildable, metaclass=OSMeta):
-    packages = None
-
-
-    @property
-    def short_name(self):
-        return self.name[0].upper()
-
-    @property
-    def name(self):
-        return self.__class__.__name__.lower()
-
-    def get_build_commands(self):
-        if not self.packages:
-            return ''
-        return str(self.packages)
-
-    def get_base_image_name(self):
-        return self.base_image
-
-
-class Debian(OS):
-    base_image= 'debian'
-    packages = Apt.call('python-pip', 'software-properties-common')
-
-class Ubuntu(OS):
-    base_image = 'ubuntu:rolling'
-    packages = 'rm /etc/apt/apt.conf.d/docker-clean && '+ Apt.call('python-pip', 'npm', 'software-properties-common')
-
-class Centos(OS):
-    base_image = 'centos'
-    packages = Yum.call('epel-release', 'python-pip')
-
-# class Alpine(OS):
-#     name = 'alpine'
-#     base_image = 'alpine'
-#     packages = Apk(['sshfs'])
-
-class Gentoo(OS):
-    base_image = 'thedcg/gentoo'
-    packages = Emerge.call('dev-python/pip')
-
-
 class PackageImage(DockerBuildable):
 
     def __init__(self, os_obj, cmds):
@@ -419,7 +113,6 @@ class PackageImage(DockerBuildable):
     @property
     def name(self):
         return self.__class__.__name__.lower()
-
 
     def get_base_image_name(self):
         return self.os_obj.get_image_name()
@@ -484,7 +177,7 @@ def main():
     parser.add_argument(
         "exec", type=str, nargs='*', default=['bash'], help='What to execute in container')
 
-    for pm in system_modifiers.values():
+    for pm in ACTIONS.values():
 
         args = ["--{}".format(pm.name)]
         short_name = getattr(pm, 'short_name', None)
@@ -494,7 +187,7 @@ def main():
         parser.add_argument(*args, type=str, nargs="+", help='install with {}'.format(pm.name), action=OrderAction)
 
     
-    for os in sorted(operating_systems, key=lambda o: o.name):
+    for os in sorted(DISTROS, key=lambda o: o.name):
         parser.add_argument('-{}'.format(os.short_name), '--{}'.format(os.name), dest='os', action='append_const', const=os)
 
     parser.add_argument("--rebuild", default=False, action='store_true')
@@ -527,7 +220,7 @@ def main():
         # argparse makes this conversion
         name = name.replace('_', '-')
 
-        sm = system_modifiers[name]
+        sm = ACTIONS[name]
 
         build_cmds.append(sm.friendly_call(*values))
 
