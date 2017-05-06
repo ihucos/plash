@@ -23,16 +23,16 @@ home_directory = expanduser("~")
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-def yaml_ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
-    class OrderedLoader(Loader):
-        pass
-    def construct_mapping(loader, node):
-        loader.flatten_mapping(node)
-        return object_pairs_hook(loader.construct_pairs(node))
-    OrderedLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        construct_mapping)
-    return yaml.load(stream, OrderedLoader)
+# def yaml_ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
+#     class OrderedLoader(Loader):
+#         pass
+#     def construct_mapping(loader, node):
+#         loader.flatten_mapping(node)
+#         return object_pairs_hook(loader.construct_pairs(node))
+#     OrderedLoader.add_constructor(
+#         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+#         construct_mapping)
+#     return yaml.load(stream, OrderedLoader)
 
 
 def rand():
@@ -50,7 +50,7 @@ def friendly_exception(exceptions, debug='main'):
     try:
         yield
     except tuple(exceptions) as exc:
-        msg = 'plash: {debug}: {message}'.format(
+        msg = 'plash error at {debug}: {message}'.format(
             debug=debug,
             exception=exc.__class__.__name__,
             message=str(exc))
@@ -234,24 +234,33 @@ class Interactive(SystemModifier):
 
 class Include(SystemModifier):
 
-    friendly_exceptions = [IncludeError]
+    friendly_exceptions = [
+        IncludeError,
+        yaml.parser.ParserError,
+        yaml.scanner.ScannerError,
+    ]
 
     def __call__(self, fname):
         with open(fname) as f:
             config = f.read()
-        loaded = yaml_ordered_load(config)
-        if not isinstance(loaded, dict):
-            raise IncludeError('Root element must be a dictionary')
+        loaded = yaml.load(config)
+        if not isinstance(loaded, list):
+            raise IncludeError('yaml root element must be a list')
         cmds = []
-        for sm, values in loaded.items():
+        for elem in loaded:
+            if not isinstance(elem, dict):
+                raise IncludeError('yaml file must be a list of dicts')
+            if not len(elem) == 1:
+                raise IncludeError('yaml dictionaries should contain only one element')
+            sm, values = next(iter(elem.items()))
             sm_obj = system_modifiers.get(sm)
             if not sm_obj:
                 raise IncludeError('No such system modifier: {}'.format(sm))
             if not isinstance(values, list):
                 values = [values]
-            values = (str(i) for i in values)
+            values = [str(i) for i in values]
             cmds.append(sm_obj.friendly_call(*values))
-        assert False, cmds
+        return  ' && '.join(cmds)
 
 class Emerge(PackageManager):
     install = 'emerge {}'
