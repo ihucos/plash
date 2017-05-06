@@ -11,10 +11,13 @@ import subprocess
 import sys
 import uuid
 from base64 import b64encode
-from collections import namedtuple
+from collections import OrderedDict, namedtuple
+from contextlib import contextmanager
 from os import environ, path
 from os.path import expanduser
 from urllib.parse import urlparse
+
+import yaml
 
 home_directory = expanduser("~")
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -37,6 +40,20 @@ def rand():
 
 def hashstr(stri):
     return hashlib.sha1(stri).hexdigest()
+
+
+@contextmanager
+def friendly_exception(exceptions, debug='main'):
+    try:
+        yield
+    except tuple(exceptions) as exc:
+        msg = 'plash at {debug}: {message}'.format(
+            debug=debug,
+            exception=exc.__class__.__name__,
+            message=str(exc))
+        print("\033[91m{}\033[0m".format(msg))
+        # raise exc # TODO: experiment with nested friendly_exception for example at load
+        sys.exit(1)
 
 def create_executable_file(fname, script):
     if os.path.exists(fname):
@@ -66,9 +83,16 @@ class SystemModifier(metaclass=SystemModifierMeta):
     def call(cls, *args):
         return cls()(*args)
 
+    def friendly_call(self, *args, **kwargs):
+        with self.friendly_exception([IOError]):
+            return self(*args, **kwargs)
+
+    def friendly_exception(self, exceptions):
+        return friendly_exception(exceptions, self.name)
+
 class PackageManager(SystemModifier):
     pre_install = None
-    post_install = None
+    # post_install = None
 
     def __call__(self, *packages):
         cmds = []
@@ -76,8 +100,8 @@ class PackageManager(SystemModifier):
             cmds.append(self.pre_install)
         for p in packages:
             cmds.append(self.install.format(p))
-        if self.post_install:
-            cmds.append(self.post_install)
+        # if self.post_install:
+        #     cmds.append(self.post_install)
         return ' && '.join(cmds)
 
 
@@ -90,7 +114,6 @@ class Apt(PackageManager):
 class AddAptRepository(PackageManager):
     name = 'add-apt-repository'
     install = 'add-apt-repository -y {}'
-    post_install = 'apt-get update'
 
 class AptByCommandName(SystemModifier):
     name = 'from-command'
@@ -133,16 +156,14 @@ class RebuildWhenChanged(SystemModifier):
         for fname in sorted(all_files):
             perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
                       ).encode()
-
-            with open(fname, 'rb') as f:
+            with self.open(fname, 'rb') as f:
                 fread = f.read()
-
             hasher.update(fname.encode())
             hasher.update(perm)
             hasher.update(self._hash_str(fread))
 
         hash = hasher.hexdigest() 
-        return "echo 'rebuild-when-changed: hashed to {}'".format(hash)
+        return "echo 'rebuild-when-changed: hash {}'".format(hash)
 
     def _extract_files(self, dir):
         for (dirpath, dirnames, filenames) in os.walk(dir):
@@ -180,9 +201,7 @@ class Npm(PackageManager):
 
 class FileCommand(SystemModifier):
 
-    def __call__(self):
-        assert len(self._args) == 1
-        fname = self._args[0]
+    def __call__(self, fname):
         with open(fname) as f:
             encoded = b64encode(f.read().encode())
         inline_file = '<(echo {} | base64 --decode)'.format(
@@ -197,8 +216,8 @@ class Execute(FileCommand):
     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
 class Eval(SystemModifier):
-    def __call__(self, stri):
-        return stri
+    def __call__(self, *stris):
+        return ' && '.join(stris)
 
 class Interactive(SystemModifier):
     def __call__(self, name):
@@ -213,10 +232,10 @@ class Load(SystemModifier):
         loaded = yaml_ordered_load(config)
         cmds = []
         for sm, value in loaded.items():
-            if isinstance(sm, basestring):
-                cmds.append(sm(value))
-            else:
-                cmds.append(sm(*value))
+            sm_obj = system_modifiers[sm]
+            if isinstance(value, str):
+                value = [value]
+            cmds.append(sm_obj.friendly_call(*value))
         assert False, cmds
 
 
@@ -255,9 +274,13 @@ class DockerBuildable:
 
         quiet_kw = {'stderr': subprocess.DEVNULL, 'stdout': subprocess.DEVNULL}
         exit = subprocess.Popen([
-        'docker', 'run', '-ti',
+            'docker',
+            'run',
+            '-ti',
             # '-v', '/Users/iraehueckcosta/.aptcache:/var/cache/apt/archives', # cache apt packages -- implement that later!
-            '--name', rand_name, self.get_base_image_name(), 'bash', '-cx', cmds],
+            '--name',
+            rand_name, self.get_base_image_name(),
+            'bash', '-cx', cmds],
         **(quiet_kw if quiet else {})).wait()
         assert exit == 0
 
@@ -454,7 +477,7 @@ def main():
 
         sm = system_modifiers[name]
 
-        build_cmds.append(sm(*values))
+        build_cmds.append(sm.friendly_call(*values))
 
     build_cmds = ' && '.join(build_cmds)
     
@@ -476,10 +499,12 @@ def main():
         argv.pop(install_index)
         argv.pop(install_index)
         run_script = '#!/bin/sh\nplash {} "$@"\n'.format(' '.join(argv))
-        create_executable_file(install_to, run_script)
+        with friendly_exception([IOError], 'install'):
+            create_executable_file(install_to, run_script)
         print('Installed to {}'.format(install_to))
     # print(args)
 
 
 if __name__ == '__main__':
-    main()
+    # with friendly_exception(FileNotFoundError, IOError):
+        main()
