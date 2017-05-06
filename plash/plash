@@ -97,7 +97,7 @@ class SystemModifier(metaclass=SystemModifierMeta):
     def friendly_call(self, *args, **kwargs):
         with self.friendly_exception(
             self.base_friendly_exceptions + self.friendly_exceptions):
-            debug = "echo plash is running --{} {}".format(
+            debug = "echo \*\*\* plash is running --{} {}".format(
                 shlex.quote(self.name), ' '.join(shlex.quote(i) for i in args))
             return debug + ' && ' + self(*args)
 
@@ -130,7 +130,7 @@ class AddAptRepository(PackageManager):
     install = 'add-apt-repository -y {}'
 
 class AptByCommandName(SystemModifier):
-    name = 'from-command'
+    name = 'apt-from-command'
     def __call__(self, command):
         p = subprocess.Popen([
             __file__,
@@ -238,6 +238,12 @@ class Interactive(SystemModifier):
         return "echo 'Exit shell when ready' && bash && : modifier name is {}".format(
             shlex.quote(name))
 
+
+class Mount(SystemModifier):
+    def __call__(self, mountpoint):
+        # something like that, implement this!!!
+        assert False
+        return "mount --bind /.host_home_fs{}, mountpoint"
 
 class Include(SystemModifier):
 
@@ -483,7 +489,7 @@ def main():
 
     prog_args = sys.argv[1:]
     if len(prog_args) >= 1 and not prog_args[0].startswith('-'):
-        prog_args = ['--ubuntu', '--from-command', prog_args[0], '--'] + prog_args
+        prog_args = ['--ubuntu', '--apt-from-command', prog_args[0], '--'] + prog_args
     args = parser.parse_args(prog_args)
 
     if not args.os:
