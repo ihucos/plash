@@ -81,7 +81,7 @@ class RebuildWhenChanged(Action):
         for fname in sorted(all_files):
             perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
                       ).encode()
-            with self.open(fname, 'rb') as f:
+            with open(fname, 'rb') as f:
                 fread = f.read()
             hasher.update(fname.encode())
             hasher.update(perm)
@@ -160,6 +160,24 @@ class Mount(Action):
             src=shlex.quote(from_),
             dst=shlex.quote(mountpoint))
         return cmd
+
+class Pwd(Action):
+    def __call__(self, pwd):
+        return 'cd {}'.format(os.path.realpath(pwd))
+
+
+class ImportEnv(Action):
+    name = 'import-env'
+
+    def __call__(self, *envs):
+        cmds = []
+        for env in envs:
+            val = os.environ.get(env)
+            if val is None:
+                raise ArgError('No such env in host: {}'.format(env))
+            cmds.append('{}={}'.format(env, shlex.quote(val)))
+        return '  && '.join(cmds)
+
 
 class Include(Action):
 
