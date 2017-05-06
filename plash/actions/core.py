@@ -8,12 +8,10 @@ from base64 import b64encode
 
 import yaml
 
-from plash.actions.base import Action
+from actions.base import ArgError, Action
+
 
 class IncludeError(Exception):
-    pass
-
-class ArgError(Exception):
     pass
 
 class PackageManager(Action):

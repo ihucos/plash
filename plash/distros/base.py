@@ -1,10 +1,11 @@
+from virt import DockerBuildable
 
-operating_systems = []
+distros = []
 class OSMeta(type):
     def __new__(cls, clsname, superclasses, attributedict):
         cls = type.__new__(cls, clsname, superclasses, attributedict)
         for sp in superclasses:
-            operating_systems.append(cls())
+            distros.append(cls())
         return cls
 
 class OS(DockerBuildable, metaclass=OSMeta):

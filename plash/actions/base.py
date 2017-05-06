@@ -1,12 +1,15 @@
-from plash.utils import friendly_exception
+from utils import friendly_exception
 
-system_modifiers = {}
+class ArgError(Exception):
+    pass
+
+actions = {}
 class ActionMeta(type):
     def __new__(cls, clsname, superclasses, attributedict):
         cls = type.__new__(cls, clsname, superclasses, attributedict)
         for sp in superclasses:
             o = cls()
-            system_modifiers[o.name] = o
+            actions[o.name] = o
         return cls
 
 class Action(metaclass=ActionMeta):

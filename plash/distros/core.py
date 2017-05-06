@@ -1,4 +1,6 @@
-from plash.distros.base import OS
+from actions import Apt, Yum, Emerge, Apk
+from distros.base import OS
+
 
 class Debian(OS):
     base_image= 'debian'
@@ -19,4 +21,3 @@ class Alpine(OS):
 class Gentoo(OS):
     base_image = 'thedcg/gentoo'
     packages = Emerge.call('dev-python/pip')
-
