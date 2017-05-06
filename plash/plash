@@ -41,19 +41,24 @@ def rand():
 def hashstr(stri):
     return hashlib.sha1(stri).hexdigest()
 
-
 class IncludeError(Exception):
     pass
 
+class BuildError(Exception):
+    pass
+
 @contextmanager
-def friendly_exception(exceptions, debug='main'):
+def friendly_exception(exceptions, debug=None):
     try:
         yield
     except tuple(exceptions) as exc:
-        msg = 'plash error at {debug}: {message}'.format(
-            debug=debug,
-            exception=exc.__class__.__name__,
-            message=str(exc))
+        if debug:
+            msg = 'plash error at {debug}: {message}'.format(
+                debug=debug,
+                message=str(exc))
+        else:
+            msg = 'plash error: {message}'.format(message=str(exc))
+
         print("\033[91m{}\033[0m".format(msg))
         # raise exc # TODO: experiment with nested friendly_exception for example at load
         sys.exit(1)
@@ -92,7 +97,9 @@ class SystemModifier(metaclass=SystemModifierMeta):
     def friendly_call(self, *args, **kwargs):
         with self.friendly_exception(
             self.base_friendly_exceptions + self.friendly_exceptions):
-            return self(*args, **kwargs)
+            debug = "echo plash is running --{} {}".format(
+                shlex.quote(self.name), ' '.join(shlex.quote(i) for i in args))
+            return debug + ' && ' + self(*args)
 
     def friendly_exception(self, exceptions):
         return friendly_exception(exceptions, self.name)
@@ -303,9 +310,11 @@ class DockerBuildable:
             # '-v', '/Users/iraehueckcosta/.aptcache:/var/cache/apt/archives', # cache apt packages -- implement that later!
             '--name',
             rand_name, self.get_base_image_name(),
-            'bash', '-cx', cmds],
+            # 'bash', '-cx', cmds], # with bash debug script
+            'bash', '-c', cmds],
         **(quiet_kw if quiet else {})).wait()
-        assert exit == 0
+        if not exit == 0:
+            raise BuildError('building returned exit status {}'.format(exit))
 
         # get cotnainer id
         container_id = subprocess.check_output(
@@ -505,10 +514,13 @@ def main():
     build_cmds = ' && '.join(build_cmds)
     
     pi = PackageImage(args.os[0], build_cmds)
-    if not args.rebuild:
-        pi.ensure_builded_all(quiet=args.quiet)
-    else:
-        pi.build_all(quiet=args.quiet)
+
+    with friendly_exception([BuildError]):
+        if not args.rebuild:
+            pi.ensure_builded_all(quiet=args.quiet)
+        else:
+            pi.build_all(quiet=args.quiet)
+
 
     if not args.install:
         if not args.noop:
