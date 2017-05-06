@@ -1,0 +1,24 @@
+#!/bin/bash
+# vim: set filetype=yaml:
+./plash --ubuntu --include <(cat <<'YamlConfigDelimiter'
+# ========== [YOUR CONFIG] ==============
+
+- rebuild-when-changed: requirements.txt
+
+- mount: .
+# - pwd: .
+- import-env: PWD
+- eval:
+  - cd $PWD
+
+
+- eval: pip install -r ./requirements.txt
+
+
+- cache:
+- cmd: ls -a
+
+
+# ======================================
+YamlConfigDelimiter
+)
