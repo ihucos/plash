@@ -20,6 +20,17 @@ home_directory = expanduser("~")
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
+def yaml_ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
+    class OrderedLoader(Loader):
+        pass
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return object_pairs_hook(loader.construct_pairs(node))
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping)
+    return yaml.load(stream, OrderedLoader)
+
 
 def rand():
     return str(uuid.uuid4()).split('-')[-1]
@@ -107,7 +118,7 @@ class AptByCommandName(SystemModifier):
         return str(Apt.call(package.decode()))
 
 
-class RebuildOnChanged(SystemModifier):
+class RebuildWhenChanged(SystemModifier):
     name = 'rebuild-when-changed'
 
     def __call__(self, *paths):
@@ -126,8 +137,8 @@ class RebuildOnChanged(SystemModifier):
             with open(fname, 'rb') as f:
                 fread = f.read()
 
-            hasher.update(self._hash_str(fname.encode()))
-            hasher.update(self._hash_str(perm))
+            hasher.update(fname.encode())
+            hasher.update(perm)
             hasher.update(self._hash_str(fread))
 
         hash = hasher.hexdigest() 
@@ -193,6 +204,20 @@ class Interactive(SystemModifier):
     def __call__(self, name):
         return "echo 'Exit shell when ready' && bash && : modifier name is {}".format(
             shlex.quote(name))
+
+
+class Load(SystemModifier):
+    def __call__(self, fname):
+        with open(fname) as f:
+            config = f.read()
+        loaded = yaml_ordered_load(config)
+        cmds = []
+        for sm, value in loaded.items():
+            if isinstance(sm, basestring):
+                cmds.append(sm(value))
+            else:
+                cmds.append(sm(*value))
+        assert False, cmds
 
 
 class Emerge(PackageManager):
