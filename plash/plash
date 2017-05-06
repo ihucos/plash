@@ -28,7 +28,7 @@ home_directory = expanduser("~")
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-class PackageImage(DockerBuildable):
+class RunImage(DockerBuildable):
 
     def __init__(self, os_obj, cmds):
         self.os_obj = os_obj
@@ -154,7 +154,7 @@ def main():
 
     build_cmds = ' && '.join(build_cmds)
     
-    pi = PackageImage(args.os[0], build_cmds)
+    pi = RunImage(args.os[0], build_cmds)
 
     with friendly_exception([BuildError]):
         if not args.rebuild:
