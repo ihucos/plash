@@ -8,7 +8,8 @@ from base64 import b64encode
 
 import yaml
 
-from actions.base import ArgError, Action
+from actions.base import actions as ACTIONS
+from actions.base import Action, ArgError
 
 
 class IncludeError(Exception):
@@ -181,7 +182,7 @@ class Include(Action):
             if not len(elem) == 1:
                 raise IncludeError('yaml dictionaries should contain only one element')
             sm, values = next(iter(elem.items()))
-            sm_obj = system_modifiers.get(sm)
+            sm_obj = ACTIONS.get(sm)
             if not sm_obj:
                 raise IncludeError('No such system modifier: {}'.format(sm))
             if not isinstance(values, list):

@@ -1,2 +1,1 @@
-from distros import core
-del core
+from distros.core import *

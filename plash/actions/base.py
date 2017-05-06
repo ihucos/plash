@@ -1,4 +1,7 @@
+import shlex
+
 from utils import friendly_exception
+
 
 class ArgError(Exception):
     pass
