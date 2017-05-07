@@ -10,6 +10,7 @@ setup(name='plash',
       packages=['plash', 'plash.actions', 'plash.distros'],
       scripts=['bin/plash'],
       install_requires=[
+            'PyYAML==3.12'
       ],
       include_package_data=True,
       zip_safe=True)
