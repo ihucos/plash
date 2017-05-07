@@ -162,6 +162,7 @@ class Execute(FileCommand):
     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
 class Eval(Action):
+    short_name = 'x'
     def __call__(self, *stris):
         return ' && '.join(stris)
 
