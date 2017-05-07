@@ -181,9 +181,7 @@ def main():
         with friendly_exception([IOError], 'install'):
             create_executable_file(install_to, run_script)
         print('Installed to {}'.format(install_to))
-    # print(args)
 
 
 if __name__ == '__main__':
-    # with friendly_exception(FileNotFoundError, IOError):
-        main()
+    main()
