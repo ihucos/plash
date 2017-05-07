@@ -78,6 +78,8 @@ Plash can include command line arguments labeled as "actions" from YAML files.
 
 - eval: touch myfile
 ```
+Again, that is essential the same as writing:
+plash --ubuntu --apt package1 package2 --layer --eval touch myfile
 
 #### Build time arguments
 ```
@@ -88,17 +90,36 @@ Plash can include command line arguments labeled as "actions" from YAML files.
 ```
 
 
-#### Build time mounts
+## Build time mounts
 ```
+- mount: .
+- pwd: .
 - rebuild-when-changed:
   - myfile
   - mydir
-- mount: .
-- pwd: .
 ```
 
-#### Eexecutable configuratio files
+#### includes
+Includes can includes includes
+```
+- include: myfile
+```
 
 
-> ## Extensive
+#### Executable configuratio files
+If you like the idea, you can have configuration files that when executed run the machine they configure.
+```
+#!/bin/bash
+# vim: set filetype=yaml:
+./plash --ubuntu --include <(cat <<'YamlConfigDelimiter'
+# ========== [YOUR CONFIG] ==============
 
+- rebuild-when-changed: somethingconfig
+- mount: .
+- pwd: .
+- eval: make install
+
+# ======================================
+YamlConfigDelimiter
+) -- ./myprogramm # <-- command to execute here
+```
