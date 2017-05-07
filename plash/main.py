@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import hashlib
 import logging
@@ -19,11 +17,11 @@ from urllib.parse import urlparse
 
 import yaml
 
-from actions.base import actions as ACTIONS
-from actions.core import LAYER
-from distros.base import distros as DISTROS
-from utils import friendly_exception
-from virt import BuildError, LayeredDockerBuildable
+from .actions.base import actions as ACTIONS
+from .actions.core import LAYER
+from .distros.base import distros as DISTROS
+from .utils import friendly_exception
+from .virt import BuildError, LayeredDockerBuildable
 
 home_directory = expanduser("~")
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -144,7 +142,7 @@ def main():
     #     parser.error('--install needs one or no argument')
 
     instrs = getattr(args, 'ordered_args', [])
-    from actions.core import tokenize_actions # FIXME: take that from somewhere else
+    from .actions.core import tokenize_actions # FIXME: take that from somewhere else
     tokens =  tokenize_actions(instrs)
 
     # split tokens by LAYER
@@ -181,7 +179,3 @@ def main():
         with friendly_exception([IOError], 'install'):
             create_executable_file(install_to, run_script)
         print('Installed to {}'.format(install_to))
-
-
-if __name__ == '__main__':
-    main()

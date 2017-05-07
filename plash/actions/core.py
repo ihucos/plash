@@ -8,8 +8,8 @@ from base64 import b64encode
 
 import yaml
 
-from actions.base import actions as ACTIONS
-from actions.base import Action, ArgError
+from .base import actions as ACTIONS
+from .base import Action, ArgError
 
 
 class LAYER:

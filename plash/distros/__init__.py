@@ -1,1 +1,1 @@
-from distros.core import *
+from .core import *

@@ -1,4 +1,4 @@
-from virt import DockerBuildable
+from ..virt import DockerBuildable
 
 distros = []
 class OSMeta(type):

@@ -7,7 +7,7 @@ setup(name='plash',
       author='Irae Hueck Costa',
       author_email='irae.hueck.costa@gmail.com',
       license='MIT',
-      packages=['plash'],
+      packages=['plash', 'plash.actions', 'plash.distros'],
       scripts=['bin/plash'],
       install_requires=[
       ],

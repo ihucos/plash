@@ -1,6 +1,6 @@
 import shlex
 
-from utils import friendly_exception
+from ..utils import friendly_exception
 
 
 class ArgError(Exception):

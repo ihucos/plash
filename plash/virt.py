@@ -1,6 +1,6 @@
 import subprocess
 
-from utils import hashstr, rand
+from .utils import hashstr, rand
 
 class BuildError(Exception):
     pass

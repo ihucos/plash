@@ -1,5 +1,5 @@
-from actions import Apt, Yum, Emerge, Apk
-from distros.base import OS
+from ..actions import Apt, Yum, Emerge, Apk
+from .base import OS
 
 
 class Debian(OS):
