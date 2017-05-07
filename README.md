@@ -66,7 +66,7 @@ Plash can include command line arguments labeled as "actions" from YAML files.
  $ plash --ubuntu --include plash.yaml
 ```
 
-#### Explicit layering
+* Explicit layering
 ```
 # a plash.yaml
 
@@ -81,7 +81,7 @@ Plash can include command line arguments labeled as "actions" from YAML files.
 Again, that is essential the same as writing:
 plash --ubuntu --apt package1 package2 --layer --eval touch myfile
 
-#### Build time arguments
+* Build time arguments
 ```
 - import-envs: MYDIR
 - eval:
@@ -90,7 +90,7 @@ plash --ubuntu --apt package1 package2 --layer --eval touch myfile
 ```
 
 
-#### Build time mounts
+* Build time mounts
 ```
 - mount: .
 - pwd: .
@@ -99,14 +99,14 @@ plash --ubuntu --apt package1 package2 --layer --eval touch myfile
   - mydir
 ```
 
-#### includes
+* includes
 Includes can includes includes
 ```
 - include: myfile
 ```
 
 
-#### Executable configuratio files
+* Executable configuration files
 If you like the idea, you can have configuration files that when executed run the machine they configure.
 ```
 #!/bin/bash
