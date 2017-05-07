@@ -4,6 +4,7 @@ import os
 import shlex
 import stat
 import subprocess
+import sys
 from base64 import b64encode
 
 import yaml
@@ -65,7 +66,7 @@ class AptByCommandName(Action):
     name = 'apt-from-command'
     def __call__(self, command):
         p = subprocess.Popen([
-            os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plash'),
+            sys.argv[0],
             '--ubuntu',
             '--apt', 'command-not-found',
             '--quiet',
