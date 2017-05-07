@@ -12,26 +12,23 @@ from actions.base import actions as ACTIONS
 from actions.base import Action, ArgError
 
 
+class LAYER:
+    pass
+LAYER = LAYER()
 
 # should not be here
-def action_list_to_layers(actions):
-    layers = []
-    current_layer = []
+def tokenize_actions(actions):
+    tokens = []
     for action_name, args in actions:
-        if action_name == 'layer':
-            layers.append(' && '.join(current_layer))
-            current_layer = []
+        action = ACTIONS[action_name]
+        cmd = action.friendly_call(*args)
+        if isinstance(cmd, str) or cmd is LAYER:
+            tokens.append(cmd)
+        elif isinstance(cmd, list):
+            tokens.extend(cmd)
         else:
-            action = ACTIONS[action_name]
-            cmd = action.friendly_call(*args)
-            if isinstance(cmd, str):
-                cmd = [cmd]
-            current_layer.extend(cmd)
-    if current_layer:
-        print(current_layer)
-        layers.append(' && '.join(current_layer))
-    assert layers
-    return layers
+            raise ValueError('bad action return value')
+    return tokens
 
 
 
@@ -220,21 +217,24 @@ class Include(Action):
             raise IncludeError('yaml root element must be a list')
         actions = []
         for elem in loaded:
-            if elem == 'layer': # special case # FIXME: nicer and align with err msg
-                elem = {'layer': None}
             if not isinstance(elem, dict):
                 raise IncludeError('yaml file must be a list of dicts')
             if not len(elem) == 1:
                 raise IncludeError('yaml dictionaries should contain only one element')
             sm, values = next(iter(elem.items()))
-            sm_obj = ACTIONS.get(sm)
-            if not sm_obj and sm != 'layer':
-                raise IncludeError('No such system modifier: {}'.format(sm))
+            if values is None:
+                values = []
             if not isinstance(values, list):
                 values = [values]
+            if not sm in ACTIONS:
+                raise IncludeError('No such system modifier: {}'.format(sm))
             values = [str(i) for i in values]
             actions.append((sm, values))
-        return action_list_to_layers(actions)
+        return tokenize_actions(actions)
 
 class Emerge(PackageManager):
     install = 'emerge {}'
+
+class Layer(Action):
+    def __call__(self):
+        return LAYER

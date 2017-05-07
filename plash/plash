@@ -20,15 +20,16 @@ from urllib.parse import urlparse
 import yaml
 
 from actions.base import actions as ACTIONS
+from actions.core import LAYER
 from distros.base import distros as DISTROS
 from utils import friendly_exception
-from virt import BuildError, DockerBuildable
+from virt import BuildError, LayeredDockerBuildable
 
 home_directory = expanduser("~")
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-class RunImage(DockerBuildable):
+class RunImage(LayeredDockerBuildable):
 
     def __init__(self, os_obj, cmds):
         self.os_obj = os_obj
@@ -112,7 +113,7 @@ def main():
         if short_name:
             args.insert(0, "-{}".format(pm.short_name))
 
-        parser.add_argument(*args, type=str, nargs="+", help='install with {}'.format(pm.name), action=OrderAction)
+        parser.add_argument(*args, type=str, nargs="*", help='install with {}'.format(pm.name), action=OrderAction)
 
     
     for os in sorted(DISTROS, key=lambda o: o.name):
@@ -143,11 +144,20 @@ def main():
     #     parser.error('--install needs one or no argument')
 
     instrs = getattr(args, 'ordered_args', [])
-    from actions.core import action_list_to_layers # FIXME: take that from somewhere else
-    layers =  action_list_to_layers(instrs)
-    assert False, layers
+    from actions.core import tokenize_actions # FIXME: take that from somewhere else
+    tokens =  tokenize_actions(instrs)
+
+    # split tokens by LAYER
+    layers = [[]]
+    while tokens:
+        elem = tokens.pop(0)
+        if not elem is LAYER:
+            layers[-1].append(elem)
+        else:
+            layers.append([])
     
-    pi = RunImage(args.os[0], build_cmds)
+    command_layers = [' && '.join(layer) for layer in layers]
+    pi = RunImage(args.os[0], command_layers)
 
     with friendly_exception([BuildError]):
         if not args.rebuild:

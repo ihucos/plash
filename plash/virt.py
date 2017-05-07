@@ -61,8 +61,8 @@ class DockerBuildable(BaseDockerBuildable):
             '-v', '/lib/modules:/lib/modules',
             '--name',
             rand_name, self.get_base_image_name(),
-            'bash', '-cx', cmds], # with bash debug script
-            # 'sh', '-c', cmds],
+            # 'bash', '-cx', cmds], # with bash debug script
+            'sh', '-c', cmds],
         **(quiet_kw if quiet else {})).wait()
         if not exit == 0:
             raise BuildError('building returned exit status {}'.format(exit))
