@@ -65,7 +65,7 @@ class AptByCommandName(Action):
     name = 'apt-from-command'
     def __call__(self, command):
         p = subprocess.Popen([
-            __file__,
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plash'),
             '--ubuntu',
             '--apt', 'command-not-found',
             '--quiet',
@@ -73,7 +73,7 @@ class AptByCommandName(Action):
             '/usr/lib/command-not-found',
             '--ignore-installed',
             '--no-failure-msg',
-            self._args[0]],
+            command],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
         )
@@ -81,6 +81,7 @@ class AptByCommandName(Action):
         out = p.stdout.read()
         if not out:
             raise SystemExit('Command {} not found'.format(command))
+        print(out)
         line2 = out.splitlines()[1]
         package = line2.split()[-1]
 

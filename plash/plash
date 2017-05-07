@@ -87,7 +87,7 @@ class OrderAction(argparse.Action):
         if not 'ordered_args' in namespace:
             setattr(namespace, 'ordered_args', [])
         previous = namespace.ordered_args
-        previous.append((self.dest, values))
+        previous.append((self.dest.replace('_', '-'), values))
         setattr(namespace, 'ordered_args', previous)
 
 def main():
