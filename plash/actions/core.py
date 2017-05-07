@@ -188,7 +188,7 @@ class Pwd(Action):
 
 
 class ImportEnv(Action):
-    name = 'import-env'
+    name = 'import-envs'
 
     def __call__(self, *envs):
         cmds = []

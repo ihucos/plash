@@ -1,6 +1,6 @@
 # plash
 
-Plash is a swiss army knife for containers. Current version is 0.1 alpha.
+Plash is a swiss army knife for containers that easily turns into a Machete. Current version is 0.1 alpha.
 
 
 ## Install
@@ -8,7 +8,7 @@ Plash is a swiss army knife for containers. Current version is 0.1 alpha.
 
 
 
-## Examples
+## Use Cases
 
 
 ### Get newer version of a package
@@ -59,7 +59,46 @@ plash --debian --apt binutils python-dev --pip-requirements ./requirements.txt -
 ```
 
 
-### Man anything
+### Dockerfile alternative
+
+Plash can include command line arguments labeled as "actions" from YAML files.
 ```
- $ plash --ubuntu --apt man rolldice -- man rolldice
+ $ plash --ubuntu --include plash.yaml
 ```
+
+## Explicit layering
+```
+# a plash.yaml
+
+- apt:
+ - package1
+ - package2
+
+- layer
+
+- eval: touch myfile
+```
+
+## Build time arguments
+```
+- import-envs: MYDIR
+- eval:
+  - mkdir $MYDIR
+  - cd $MYDIR
+```
+
+
+## Build time mounts
+```
+- rebuild-when-changed:
+  - myfile
+  - mydir
+- mount: .
+- pwd: .
+```
+
+## Eexecutable configuratio files
+
+
+> ## Extensive
+
