@@ -46,7 +46,7 @@ One of Python's virtualenvs shortcoming is that packages often can not be compil
  Installed to ./python
 ```
 
-This will give you an executable file named `./python` that can be commited to version control and should behave just like the python installed in you operating system. Behind the scenes the requierements are installed in an fresh debian system.
+This will give you an executable file named `./python` that can be commited to version control and should behave just like the python installed in your operating system. Behind the scenes the requierements are installed in an fresh debian system. Rebuilding happens automatically.
 
 
 
@@ -66,7 +66,7 @@ Plash can include command line arguments labeled as "actions" from YAML files.
  $ plash --ubuntu --include plash.yaml
 ```
 
-## Explicit layering
+#### Explicit layering
 ```
 # a plash.yaml
 
@@ -79,7 +79,7 @@ Plash can include command line arguments labeled as "actions" from YAML files.
 - eval: touch myfile
 ```
 
-## Build time arguments
+#### Build time arguments
 ```
 - import-envs: MYDIR
 - eval:
@@ -88,7 +88,7 @@ Plash can include command line arguments labeled as "actions" from YAML files.
 ```
 
 
-## Build time mounts
+#### Build time mounts
 ```
 - rebuild-when-changed:
   - myfile
@@ -97,7 +97,7 @@ Plash can include command line arguments labeled as "actions" from YAML files.
 - pwd: .
 ```
 
-## Eexecutable configuratio files
+#### Eexecutable configuratio files
 
 
 > ## Extensive
