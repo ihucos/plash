@@ -7,7 +7,8 @@ class Debian(OS):
     packages = Apt.call('python-pip', 'software-properties-common')
 
 class Ubuntu(OS):
-    base_image = 'ubuntu:rolling'
+    # base_image = 'ubuntu:rolling' # breaks apt-from-command
+    base_image = 'ubuntu'
     packages = 'rm /etc/apt/apt.conf.d/docker-clean && '+ Apt.call('python-pip', 'npm', 'software-properties-common')
 
 class Centos(OS):

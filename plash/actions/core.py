@@ -74,14 +74,13 @@ class AptByCommandName(Action):
             '--ignore-installed',
             '--no-failure-msg',
             command],
-        stderr=subprocess.PIPE,
-        stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
         )
         p.wait()
         out = p.stdout.read()
-        if not out:
+        if not out or b'No command' in out:
             raise SystemExit('Command {} not found'.format(command))
-        print(out)
         line2 = out.splitlines()[1]
         package = line2.split()[-1]
 

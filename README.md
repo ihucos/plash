@@ -10,6 +10,13 @@ Plash is a swiss army knife for containers that easily turns into a machete. Cur
 
 ## Use Cases
 
+### Run something from ubuntu
+
+
+```
+$ plash tcl myfile.tc
+
+```
 
 ### Get newer version of a package
 Use a newer package than what your package manager provides.
