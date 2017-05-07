@@ -1,6 +1,6 @@
 # plash
 
-Plash is a swiss army knife for containers that easily turns into a Machete. Current version is 0.1 alpha.
+Plash is a swiss army knife for containers that easily turns into a machete. Current version is 0.1 alpha.
 
 
 ## Install
@@ -79,7 +79,7 @@ Plash can include command line arguments labeled as "actions" from YAML files.
 - eval: touch myfile
 ```
 Again, that is essential the same as writing:
-plash --ubuntu --apt package1 package2 --layer --eval touch myfile
+`plash --ubuntu --apt package1 package2 --layer --eval touch myfile`
 
 ##### Build time arguments
 ```
@@ -100,13 +100,13 @@ plash --ubuntu --apt package1 package2 --layer --eval touch myfile
 ```
 
 ##### includes
-Includes can includes includes
+Includes can include includes
 ```
 - include: myfile
 ```
 
 
-##### Executable configuratio files
+##### Executable configuration files
 If you like the idea, you can have configuration files that when executed run the machine they configure.
 ```
 #!/bin/bash
