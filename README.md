@@ -4,7 +4,6 @@ Plash is a swiss army knife for containers that easily turns into a machete. Cur
 
 
 ## Install
-INSTALL BROKEN RIGHT NOW
 `pip3 install git+https://github.com/ihucos/plash.git`
 
 
