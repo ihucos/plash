@@ -106,7 +106,7 @@ Includes can includes includes
 ```
 
 
-#### Executable configuratio files
+##### Executable configuratio files
 If you like the idea, you can have configuration files that when executed run the machine they configure.
 ```
 #!/bin/bash
