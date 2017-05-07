@@ -15,7 +15,7 @@ INSTALL BROKEN RIGHT NOW
 
 
 ```
-$ plash tcl myfile.tc
+$ plash nmap myhost
 
 ```
 
