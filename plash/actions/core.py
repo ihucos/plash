@@ -9,6 +9,8 @@ from base64 import b64encode
 
 import yaml
 
+import uuid
+
 from .base import actions as ACTIONS
 from .base import Action, ArgError
 
@@ -240,3 +242,35 @@ class Emerge(PackageManager):
 class Layer(Action):
     def __call__(self):
         return LAYER
+
+
+class BustCashe(Action):
+    name = 'bustcache'
+
+    def __call__(self):
+        return ': bust cache with {}'.format(uuid.uuid4()) 
+
+# class RebuildEvery(Action):
+#     name = 'rebuild-every'
+
+#     def __call__(self, value, unit):
+#         """
+#         for example 
+#         --rebuild-every 2 weeks
+#         --rebuild-every 1 year
+
+#         an then in the very end of a config
+
+#         ...
+#         - layer
+#         - rebuild-every: 2 months
+#         - apt: update
+#         - apt: upgrade -y
+
+#         the implementation prints the next time there will be a rebuild
+#         rebuilds are preconfigured, its time.time() % EVERY_SECONDS
+#         Later add an jitter 
+
+#         """
+
+
