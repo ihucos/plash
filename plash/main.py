@@ -68,7 +68,7 @@ class RunImage(LayeredDockerBuildable):
             '--workdir', os.getcwd(),
             '-v', '/dev:/dev',
             '-v', '/lib/modules:/lib/modules',
-            # '-v', '/var/run/docker.sock:/var/run/docker.sock',
+            '-v', '/var/run/docker.sock:/var/run/docker.sock',
             '-v', '/tmp:/tmp',
             '-v', '{}:{}'.format(home_directory, home_directory),
             '--rm',
