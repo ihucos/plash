@@ -61,19 +61,22 @@ class RunImage(LayeredDockerBuildable):
             'docker',
             'run',
             '-ti',
+            # '--expose', '8000',
             '--net=host', # does not bind the port on mac
             '--privileged',
             '--cap-add=ALL',
             '--workdir', os.getcwd(),
             '-v', '/dev:/dev',
             '-v', '/lib/modules:/lib/modules',
+            '-v', '/var/run/docker.sock:/var/run/docker.sock',
             '-v', '{}:{}'.format(home_directory, home_directory),
             '--rm',
             self.get_image_name(),
         ] + list(cmd_with_args)
 
         for env, env_val in dict(environ, **extra_envs).items():
-            if env not in ['PATH']: # blacklist more envs
+            if env not in ['PATH', 'LC_ALL', 'LANG']: # blacklist more envs
+            # if env not in ['PATH']: # blacklist more envs
                 args.insert(2, '-e')
                 args.insert(3, '{}={}'.format(env, shlex.quote(env_val)))  # SECURITY: is shlex.quote safe?
 
@@ -166,7 +169,9 @@ def main():
 
     if not args.install:
         if not args.noop:
-            exit = pi.run(args.exec)
+            exit = pi.run(args.exec, extra_envs={
+                'PLASH_ENV': args.os[0].name,
+            })
             sys.exit(exit)
 
     else:

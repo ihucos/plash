@@ -212,6 +212,7 @@ class Include(Action):
 
     def __call__(self, fname):
         # from .plash import action_list_to_layers
+        fname = os.path.realpath(fname)
         with open(fname) as f:
             config = f.read()
         loaded = yaml.load(config)
@@ -236,6 +237,12 @@ class Include(Action):
 
 class Emerge(PackageManager):
     install = 'emerge {}'
+
+class Home(Action):
+    short_name = 's'
+    def __call__(self, *args):
+        path = os.path.join(os.path.expanduser("~"), '.plash.yaml')
+        return Include.call(path) + [Layer.call()]
 
 class Layer(Action):
     def __call__(self):
