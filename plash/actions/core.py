@@ -192,7 +192,7 @@ class Pwd(Action):
 
 
 class ImportEnv(Action):
-    name = 'import-envs'
+    name = 'import-prefixed-envs'
 
     def __call__(self, *envs):
         cmds = []
@@ -200,7 +200,7 @@ class ImportEnv(Action):
             val = os.environ.get(env)
             if val is None:
                 raise ArgError('No such env in host: {}'.format(env))
-            cmds.append('{}={}'.format(env, shlex.quote(val)))
+            cmds.append('HOST_{}={}'.format(env, shlex.quote(val)))
         return '  && '.join(cmds)
 
 
@@ -223,7 +223,7 @@ class Include(Action):
         actions = []
         for elem in loaded:
             if not isinstance(elem, list):
-                raise IncludeError('yaml file must be a list of lists')
+                raise IncludeError('yaml file must be a list of lists, not a list: {}'.format(repr(elem)))
             sm, values = elem[0], elem[1:]
             if values is None:
                 values = []
@@ -255,6 +255,28 @@ class BustCashe(Action):
 
     def __call__(self):
         return ': bust cache with {}'.format(uuid.uuid4()) 
+
+
+# # have this as some kind of macro
+# - 
+#   - layer-each
+#   - apt
+#   - curl
+#   - wget
+# class LayeEach(Action):
+#     name = 'layer-each'
+
+#     def __call__(self, command, *args):
+#         lst = []
+#         for arg in args:
+#             lst.append(ACTIONS[command].call(arg))
+#             lst.append(Layer.call())
+#         return lst
+
+
+
+
+
 
 # class RebuildEvery(Action):
 #     name = 'rebuild-every'
