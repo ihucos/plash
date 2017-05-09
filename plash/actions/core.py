@@ -222,11 +222,9 @@ class Include(Action):
             raise IncludeError('yaml root element must be a list')
         actions = []
         for elem in loaded:
-            if not isinstance(elem, dict):
-                raise IncludeError('yaml file must be a list of dicts')
-            if not len(elem) == 1:
-                raise IncludeError('yaml dictionaries should contain only one element')
-            sm, values = next(iter(elem.items()))
+            if not isinstance(elem, list):
+                raise IncludeError('yaml file must be a list of lists')
+            sm, values = elem[0], elem[1:]
             if values is None:
                 values = []
             if not isinstance(values, list):
@@ -241,7 +239,8 @@ class Emerge(PackageManager):
     install = 'emerge {}'
 
 class Home(Action):
-    short_name = 's'
+    name = 'rc'
+    short_name = 'r'
     def __call__(self, *args):
         path = os.path.join(os.path.expanduser("~"), '.plash.yaml')
         return Include.call(path) + [Layer.call()]
