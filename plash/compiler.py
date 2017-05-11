@@ -114,3 +114,8 @@ class Inline(Action):
     name = 'inline'
     def handle_arg(self, arg):
         return arg
+
+# class Home(Action):
+
+#     def __call__(self):
+#         return self.eval([['include', path.join(home_path, '.plash.yaml')]])

@@ -269,9 +269,9 @@ class BustCashe(Action):
 #     def __call__(self, command, *args):
 #         lst = []
 #         for arg in args:
-#             lst.append(ACTIONS[command].call(arg))
-#             lst.append(Layer.call())
-#         return lst
+#             lst.append([command, arg])
+#             lst.append(['layer'])
+#         return self.eval(lst)
 
 
 
