@@ -3,6 +3,6 @@
 
 :with-layers apt
 	cowsay
-	hi
+	rolldice
 
 :eval echo hi 

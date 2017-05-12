@@ -1,6 +1,8 @@
 import argparse
 import sys
 
+from .runos import runos
+
 from .actions import layer
 from .eval import eval
 
@@ -51,15 +53,17 @@ def read_lsp_from_args(args):
     return lsp, unknown
 
 def main():
-    lsp, unknown = (read_lsp_from_args(sys.argv[1:]))
+    lsp, unused_args = (read_lsp_from_args(sys.argv[1:]))
     # print(unknown)
     # print(lsp)
     script = eval(lsp)
-    print('=================')
-    print(script)
-    print('=================')
+    # print('=================')
+    # print(script)
+    # print('=================')
     # assert False, layer()
     layers = script.split('{}'.format(layer()))
+
+    exit = runos('ubuntu', layers, 'bash')
     # from pprint import pprint
     # # pprint(layers)
     # for l in layers:
