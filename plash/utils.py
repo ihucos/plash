@@ -6,8 +6,8 @@ import uuid
 from contextlib import contextmanager
 
 
-# def rand():
-#     return str(uuid.uuid4()).split('-')[-1]
+def rand():
+    return str(uuid.uuid4()).split('-')[-1]
 
 # def hashstr(stri):
 #     return hashlib.sha1(stri).hexdigest()

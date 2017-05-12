@@ -1,15 +1,18 @@
-from .baseaction import Action, action
 import hashlib
 import os
 import shlex
 import stat
 import subprocess
 import sys
+import uuid
 from base64 import b64encode
 
 import yaml
 
-import uuid
+from .baseaction import Action, ArgError, action
+from .utils import rand
+
+layer_marker_rand = rand()
 
 @action('pdb')
 def pdb():
@@ -18,7 +21,7 @@ def pdb():
 
 @action('layer')
 def layer():
-    return "echo 'MY LAYER MARKER asdjfalkdf8a9df7yg'"
+    return ": 'Start new layer marker [{}]'".format(layer_marker_rand)
 
 
 # class Include(Action):
@@ -40,8 +43,8 @@ class LayeEach(Action):
             lst.append(['layer'])
         return self.eval(lst)
 
-class Inline(Action):
-    name = 'inline'
+class Eval(Action):
+    name = 'eval'
     def handle_arg(self, arg):
         return arg
 
@@ -183,11 +186,6 @@ class PipRequirements(FileCommand):
 class Execute(FileCommand):
     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
-class Eval(Action):
-    short_name = 'e'
-    def __call__(self, *stris):
-        return ' && '.join(stris)
-
 class Interactive(Action):
     def __call__(self, name):
         return "echo 'Exit shell when ready' && bash && : modifier name is {}".format(
@@ -213,14 +211,11 @@ class Pwd(Action):
 class ImportEnv(Action):
     name = 'import-prefixed-envs'
 
-    def __call__(self, *envs):
-        cmds = []
-        for env in envs:
-            val = os.environ.get(env)
-            if val is None:
-                raise ArgError('No such env in host: {}'.format(env))
-            cmds.append('HOST_{}={}'.format(env, shlex.quote(val)))
-        return '  && '.join(cmds)
+    def handle_arg(self, env):
+        val = os.environ.get(env)
+        if val is None:
+            raise ArgError('No such env in host: {}'.format(env))
+        return 'HOST_{}={}'.format(env, shlex.quote(val))
 
 class Emerge(PackageManager):
     install = 'emerge {}'
@@ -238,27 +233,6 @@ class BustCashe(Action):
 
     def __call__(self):
         return ': bust cache with {}'.format(uuid.uuid4()) 
-
-
-# # have this as some kind of macro
-# - 
-#   - layer-each
-#   - apt
-#   - curl
-#   - wget
-# class LayeEach(Action):
-#     name = 'layer-each'
-
-#     def __call__(self, command, *args):
-#         lst = []
-#         for arg in args:
-#             lst.append([command, arg])
-#             lst.append(['layer'])
-#         return self.eval(lst)
-
-
-
-
 
 
 # class RebuildEvery(Action):
@@ -283,5 +257,3 @@ class BustCashe(Action):
 #         Later add an jitter 
 
 #         """
-
-

@@ -1,6 +1,7 @@
 import argparse
 import sys
 
+from .actions import layer
 from .eval import eval
 
 
@@ -9,22 +10,21 @@ class PlashArgumentParser(argparse.ArgumentParser):
             '''
             Actually plashs own domain specific language
             '''
-            if not arg_line or arg_line.lstrip(' ').startswith('#'):
-                return []
-
-            elif arg_line.startswith('\t'):
-                return ' ' + arg_line[1:]
-            arg_line = arg_line.split('#')[0] # remove anything after an #
-            args = arg_line.split()
-            raw_action = args.pop(0)
-            if not raw_action.startswith(('-', '@')):
-                yield ':'+raw_action
-            else:
-                yield raw_action
-            for arg in args:
-                if arg.startswith('#'):
-                    break
-                yield ' ' + arg
+            if arg_line and not arg_line.lstrip(' ').startswith('#'):
+                if arg_line.startswith('\t'):
+                    yield ' ' + arg_line[1:]
+                else:
+                    arg_line = arg_line.split('#')[0] # remove anything after an #
+                    args = arg_line.split()
+                    raw_action = args.pop(0)
+                    if not raw_action.startswith(('-', '@')):
+                        yield ':'+raw_action
+                    else:
+                        yield raw_action
+                    for arg in args:
+                        if arg.startswith('#'):
+                            break
+                        yield ' ' + arg
 
 class CollectLspAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -52,9 +52,19 @@ def read_lsp_from_args(args):
 
 def main():
     lsp, unknown = (read_lsp_from_args(sys.argv[1:]))
-    print(unknown)
-    print(lsp)
-    print(eval(lsp))
+    # print(unknown)
+    # print(lsp)
+    script = eval(lsp)
+    print('=================')
+    print(script)
+    print('=================')
+    # assert False, layer()
+    layers = script.split('{}'.format(layer()))
+    # from pprint import pprint
+    # # pprint(layers)
+    # for l in layers:
+    #     print(l)
+    #     print('---')
 
 
 
