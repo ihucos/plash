@@ -3,7 +3,7 @@ import sys
 
 from .eval import eval, layer
 from .runos import BuildError, runos
-from .utils import friendly_exception, hashstr
+from .utils import friendly_exception, hashstr, rand
 
 HELP = 'my help'
 PROG = 'plash'
