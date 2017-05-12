@@ -1,6 +1,8 @@
 import argparse
 import sys
 
+from .eval import eval
+
 
 class PlashArgumentParser(argparse.ArgumentParser):
         def convert_arg_line_to_args(self, arg_line):
@@ -14,7 +16,11 @@ class PlashArgumentParser(argparse.ArgumentParser):
                 return ' ' + arg_line[1:]
             arg_line = arg_line.split('#')[0] # remove anything after an #
             args = arg_line.split()
-            yield ':'+args.pop(0)
+            raw_action = args.pop(0)
+            if not raw_action.startswith(('-', '@')):
+                yield ':'+raw_action
+            else:
+                yield raw_action
             for arg in args:
                 if arg.startswith('#'):
                     break
@@ -25,7 +31,9 @@ class CollectLspAction(argparse.Action):
         if not 'lsp' in namespace:
             setattr(namespace, 'lsp', [])
         previous = namespace.lsp                             
-        previous.append([self.dest.replace('_', '-')] + list(values))
+        # remove escape eventual the space that is used as escape char
+        values = list(i[1:] if i.startswith(' ') else i for i in values)
+        previous.append([self.dest.replace('_', '-')] + values)
         setattr(namespace, 'lsp', previous) 
 
 def read_lsp_from_args(args):
@@ -42,8 +50,11 @@ def read_lsp_from_args(args):
     lsp = getattr(args, 'lsp', [])
     return lsp, unknown
 
-lsp, unknown = (read_lsp_from_args(sys.argv[1:]))
-print(lsp)
+def main():
+    lsp, unknown = (read_lsp_from_args(sys.argv[1:]))
+    print(unknown)
+    print(lsp)
+    print(eval(lsp))
 
 
 

@@ -6,11 +6,11 @@ import uuid
 from contextlib import contextmanager
 
 
-# def rand():
-#     return str(uuid.uuid4()).split('-')[-1]
+def rand():
+    return str(uuid.uuid4()).split('-')[-1]
 
-# def hashstr(stri):
-#     return hashlib.sha1(stri).hexdigest()
+def hashstr(stri):
+    return hashlib.sha1(stri).hexdigest()
 
 
 @contextmanager
@@ -29,11 +29,11 @@ def friendly_exception(exceptions, debug=None):
         # raise exc # TODO: experiment with nested friendly_exception for example at load
         sys.exit(1)
 
-# def create_executable_file(fname, script):
-#     if os.path.exists(fname):
-#         raise SystemExit('File {} already exists - deal with this'.format(fname))
+def create_executable_file(fname, script):
+    if os.path.exists(fname):
+        raise SystemExit('File {} already exists - deal with this'.format(fname))
 
-#     with open(fname, 'w') as f:
-#         f.write(script)
-#     st = os.stat(fname)
-#     os.chmod(fname, st.st_mode | stat.S_IEXEC)
+    with open(fname, 'w') as f:
+        f.write(script)
+    st = os.stat(fname)
+    os.chmod(fname, st.st_mode | stat.S_IEXEC)
