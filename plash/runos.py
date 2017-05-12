@@ -76,11 +76,11 @@ class DockerBuildable(BaseDockerBuildable):
              "reference={ref}".format(ref=ref)])
         return bool(out)
     
-    def ensure_builded(self, quiet=False):
+    def ensure_builded(self, *args, **kw):
         if not self.image_exists(self.get_image_name()):
-            self.build(quiet)
+            self.build(*args, **kw)
 
-    def build(self, quiet=True):
+    def build(self, quiet=True, verbose=False):
         rand_name = rand()
         cmds = self.get_build_commands()
         new_image_name = self.get_image_name()
@@ -100,7 +100,7 @@ class DockerBuildable(BaseDockerBuildable):
             '--name',
             rand_name, self.get_base_image_name(),
             # 'bash', '-cx', cmds], # with bash debug script
-            'bash', '-ce', cmds],
+            'bash', '-ce'+('x' if verbose else ''), cmds],
         **(quiet_kw if quiet else {})).wait()
         if not exit == 0:
             raise BuildError('building returned exit status {}'.format(exit))
@@ -158,11 +158,14 @@ class LayeredDockerBuildable(BaseDockerBuildable):
         return self._build('get_image_name')
 
 
-def runos(docker_image, layers, command, **kw):
+def runos(docker_image, layers, command=None, **kw):
     b = LayeredDockerBuildable.create(docker_image, layers)
-    b.ensure_builded(quiet=kw.get('quiet', False))
-    return docker_run(b.get_image_name(), command,
-                      extra_envs=kw.get('extra_envs', {}))
+    b.ensure_builded(
+        quiet=kw.get('quiet', False),
+        verbose=kw.get('verbose', False))
+    if command:
+        return docker_run(b.get_image_name(), command,
+                          extra_envs=kw.get('extra_envs', {}))
 
 
 if __name__ == "__main__":

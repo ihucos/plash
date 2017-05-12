@@ -63,7 +63,9 @@ def get_argument_parser(args):
         epilog=HELP)
 
     parser.add_argument("--build-quiet", action='store_true', dest='quiet')
+    parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--no-lib", action='store_true')
+    parser.add_argument("--noop", action='store_true')
     parser.add_argument("--no-bootstrap", action='store_true')
     parser.add_argument(
         "image", type=str)
@@ -92,11 +94,8 @@ def main():
     exit = runos(
         args.image,
         layers,
-        args.exec,
+        args.exec if not args.noop else None,
         quiet=args.quiet,
+        verbose=args.verbose,
         extra_envs={'PLASH_ENV': plash_env}
     )
-
-
-
-# --collect apt
