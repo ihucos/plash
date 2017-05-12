@@ -161,7 +161,8 @@ class LayeredDockerBuildable(BaseDockerBuildable):
 def runos(docker_image, layers, command, **kw):
     b = LayeredDockerBuildable.create(docker_image, layers)
     b.ensure_builded(quiet=kw.get('quiet', False))
-    return docker_run(b.get_image_name(), command)
+    return docker_run(b.get_image_name(), command,
+                      extra_envs=kw.get('extra_envs', {}))
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ import sys
 
 from .eval import eval, layer
 from .runos import runos
-
+from .utils import hashstr
 
 HELP = 'my help'
 PROG = 'plash'
@@ -86,7 +86,16 @@ def main():
         init = []
     script = eval(init + lsp)
     layers = script.split('{}'.format(layer()))
-    exit = runos(args.image, layers, args.exec, quiet=args.quiet)
+    plash_env = '{}-{}'.format(
+        args.image,
+        hashstr('\n'.join(layers).encode())[:4])
+    exit = runos(
+        args.image,
+        layers,
+        args.exec,
+        quiet=args.quiet,
+        extra_envs={'PLASH_ENV': plash_env}
+    )
 
 
 
