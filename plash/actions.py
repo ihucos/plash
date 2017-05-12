@@ -9,7 +9,7 @@ from base64 import b64encode
 
 import yaml
 
-from .baseaction import Action, ArgError, action
+from .baseaction import Action, ArgError, action, eval
 from .utils import rand
 
 layer_marker_rand = rand()
@@ -234,6 +234,55 @@ class BustCashe(Action):
     def __call__(self):
         return ': bust cache with {}'.format(uuid.uuid4()) 
 
+
+@action('define-package-manager')
+def define_package_manager(pm):
+    @action('pkg')
+    def pkg(*packages):
+        return eval([[pm] + list(packages)])
+    return ':'
+
+
+@action('bootstrap')
+def bootstrap(os):
+    os_base = os.split(':')[0]
+
+    if os_base == 'ubuntu':
+        return eval([
+            ['define-package-manager', 'apt'],
+            ['eval', 'rm /etc/apt/apt.conf.d/docker-clean'],
+            ['pkg', 'python-pip', 'npm', 'software-properties-common'],
+            ['layer']
+        ])
+
+    elif os_base == 'debian':
+        return eval([
+            ['define-package-manager', 'apt'],
+            ['pkg', 'python-pip', 'npm', 'software-properties-common'],
+            ['layer']
+        ])
+
+    elif os_base == 'centos':
+        return eval([
+            ['define-package-manager', 'yum'],
+            ['pkg', 'epel-release', 'npm', 'python-pip'],
+            ['layer']
+        ])
+
+    elif os_base == 'alpine':
+        return eval([
+            ['define-package-manager', 'apk'],
+            ['layer']
+        ])
+
+    elif 'gentoo' in os_base:
+        return eval([
+            ['define-package-manager', 'emerge'],
+            ['pkg', 'dev-python/pip'],
+            ['layer']
+        ])
+    else:
+        return "echo no recipe to bootstrap: {}".format(os)
 
 # class RebuildEvery(Action):
 #     name = 'rebuild-every'

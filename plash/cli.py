@@ -1,10 +1,8 @@
 import argparse
 import sys
 
+from .eval import eval, layer
 from .runos import runos
-
-from .actions import layer
-from .eval import eval
 
 
 class PlashArgumentParser(argparse.ArgumentParser):
@@ -63,7 +61,7 @@ def main():
     # assert False, layer()
     layers = script.split('{}'.format(layer()))
 
-    exit = runos('ubuntu', layers, 'bash')
+    exit = runos('ubuntu', layers, ['bash'])
     # from pprint import pprint
     # # pprint(layers)
     # for l in layers:

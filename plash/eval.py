@@ -1,10 +1,9 @@
 import shlex
 from importlib import import_module
 
-from plash.utils import friendly_exception
+from .utils import friendly_exception, rand
 
-# LAYER = object()
-
+layer_marker_rand = rand()
 state = {'actions': {}}
 
 class ArgError(TypeError):
@@ -35,7 +34,7 @@ def eval(lisp):
         if not isinstance(item, list):
             raise EvalError('must evaluate list of list')
         if not all(isinstance(i, str) for i in item):
-            raise EvalError('must evaluate list of list of strings')
+            raise EvalError('must evaluate list of list of strings. not a list of strings: {}'.format(item))
         action_name = item[0]
         args = item[1:]
         actions = state['actions']
@@ -59,3 +58,8 @@ def import_planch_actions(*modules):
         with friendly_exception([ImportError], debug):
             import_module(module_name)
         return ':' # FIXME: return nothing?
+
+@register_action('layer')
+def layer():
+    return ": 'Start new layer marker [{}]'".format(layer_marker_rand)
+
