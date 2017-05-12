@@ -37,14 +37,14 @@ class LayeEach(Action):
             lst.append(['layer'])
         return self.eval(lst)
 
-class Eval(Action):
-    name = 'eval'
+class Inline(Action):
+    name = 'inline'
     def handle_arg(self, arg):
         return arg
 
-@action('x')
-def x(*args):
-    return ' '.join(shlex.quote(arg) for arg in args)
+@action('run')
+def run(*args):
+    return ' '.join(args)
 
 # class Home(Action):
 
@@ -248,7 +248,7 @@ def bootstrap(os):
     if os_base == 'ubuntu':
         return eval([
             ['define-package-manager', 'apt'],
-            ['eval', 'rm /etc/apt/apt.conf.d/docker-clean'],
+            ['inline', 'rm /etc/apt/apt.conf.d/docker-clean'],
             ['pkg', 'python-pip', 'npm', 'software-properties-common'],
             ['layer']
         ])
