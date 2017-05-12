@@ -158,11 +158,17 @@ class LayeredDockerBuildable(BaseDockerBuildable):
         return self._build('get_image_name')
 
 
-def runos(docker_image, layers, command=None, **kw):
+def runos(docker_image, layers, command=None,
+          *, rebuild=False, quiet=False, verbose=False, extra_envs):
     b = LayeredDockerBuildable.create(docker_image, layers)
-    b.ensure_builded(
-        quiet=kw.get('quiet', False),
-        verbose=kw.get('verbose', False))
+    if rebuild:
+        b.build(
+            quiet=quiet,
+            verbose=verbose)
+    else:
+        b.ensure_builded(
+            quiet=quiet,
+            verbose=verbose)
     if command:
         return docker_run(b.get_image_name(), command,
                           extra_envs=kw.get('extra_envs', {}))
