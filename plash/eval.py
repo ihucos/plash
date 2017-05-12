@@ -50,22 +50,6 @@ def eval(lisp):
                 action_name, type(res)))
         action_values.append(res)
     return '\n'.join(action_values)
-    
-    # # split action_values into layers usint LAYER as marker
-    # layers = [[]]
-    # while action_values:
-    #     elem = action_values.pop(0)
-    #     if not elem is LAYER:
-    #         layers[-1].append(elem)
-    #     else:
-    #         layers.append([])
-
-    # return layers
-    # return '\n'.join(bash_script)
-
-# @register_action('layer')
-# def layer():
-#     return LAYER
 
 @register_action('import')
 def import_planch_actions(*modules):
@@ -75,15 +59,3 @@ def import_planch_actions(*modules):
         with friendly_exception([ImportError], debug):
             import_module(module_name)
         return ':' # FIXME: return nothing?
-        # module = import_module(module_name)
-        # for attr in dir(module):
-        #     obj = getattr(module, attr)
-        #     planch_name = getattr(obj, 'planch_name', None)
-        #     if planch_name:
-        #         if not callable(obj):
-        #             raise TypeError('{} is registered as planch action but is not callable'.format(planch_name))
-        #         state['actions'][planch_name] = obj
-# state['actions']['import'] = import_planch_actions
-
-# ========== OTHER FILE MAYBE ==========
-
