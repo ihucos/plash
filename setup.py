@@ -7,10 +7,10 @@ setup(name='plash',
       author='Irae Hueck Costa',
       author_email='irae.hueck.costa@gmail.com',
       license='MIT',
-      packages=['plash', 'plash.actions', 'plash.distros'],
+      packages=['plash'],
       scripts=['bin/plash'],
       install_requires=[
-            'PyYAML==3.12'
+            # 'PyYAML==3.12'
       ],
       include_package_data=True,
       zip_safe=True)

@@ -12,17 +12,10 @@ import yaml
 from .baseaction import Action, ArgError, action, eval
 from .utils import rand
 
-layer_marker_rand = rand()
-
 @action('pdb')
 def pdb():
     import pdb
     pdb.set_trace()
-
-@action('layer')
-def layer():
-    return ": 'Start new layer marker [{}]'".format(layer_marker_rand)
-
 
 # class Include(Action):
 #     def handle_arg(self, file):

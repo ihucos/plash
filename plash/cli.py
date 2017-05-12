@@ -72,6 +72,7 @@ def get_argument_parser(args):
     return parser
 
 
+
 def main():
     lsp, unused_args = (read_lsp_from_args(sys.argv[1:]))
     ap = get_argument_parser(unused_args)
@@ -85,7 +86,6 @@ def main():
         init = []
     script = eval(init + lsp)
     layers = script.split('{}'.format(layer()))
-    assert False, layer(), layers
     exit = runos(args.image, layers, args.exec, quiet=args.quiet)
 
 
