@@ -171,7 +171,7 @@ def runos(docker_image, layers, command=None,
             verbose=verbose)
     if command:
         return docker_run(b.get_image_name(), command,
-                          extra_envs=kw.get('extra_envs', {}))
+                          extra_envs=extra_envs)
 
 
 if __name__ == "__main__":

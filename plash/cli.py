@@ -2,8 +2,8 @@ import argparse
 import sys
 
 from .eval import eval, layer
-from .runos import runos
-from .utils import hashstr
+from .runos import BuildError, runos
+from .utils import friendly_exception, hashstr
 
 HELP = 'my help'
 PROG = 'plash'
@@ -93,12 +93,14 @@ def main():
     plash_env = '{}-{}'.format(
         args.image,
         hashstr('\n'.join(layers).encode())[:4])
-    exit = runos(
-        args.image,
-        layers,
-        args.exec if not args.build_only else None,
-        quiet=args.quiet,
-        verbose=args.verbose,
-        rebuild=args.rebuild,
-        extra_envs={'PLASH_ENV': plash_env}
-    )
+    with friendly_exception([BuildError]):
+        exit = runos(
+            args.image,
+            layers,
+            args.exec if not args.build_only else None,
+            quiet=args.quiet,
+            verbose=args.verbose,
+            rebuild=args.rebuild,
+            extra_envs={'PLASH_ENV': plash_env}
+        )
+    sys.exit(exit)

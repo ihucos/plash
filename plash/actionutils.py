@@ -1,16 +1,24 @@
 import shlex
 
-from .eval import ActionNotFoundError, ArgError, eval, register_action
+from .eval import (ActionNotFoundError, ArgError, EvalError, eval,
+                   register_action)
 from .utils import friendly_exception
 
 
-def action(action_name):
+def action(action_name, debug=True):
     def decorator(func):
         @register_action(action_name)
         def wrapper(*args, **kw):
-            debug_echo = "echo \*\*\* plash is running --{} {}".format(
-                shlex.quote(action_name), ' '.join(shlex.quote(i) for i in args))
-            return "\n{}\n{}\n".format(debug_echo, func(*args, **kw))
+            with friendly_exception(
+                [ActionNotFoundError, ArgError, EvalError],
+                action_name):
+                res = func(*args, **kw)
+            if not debug:
+                return res
+            else:
+                debug_echo = "echo \*\*\* plash is running --{} {}".format(
+                    shlex.quote(action_name), ' '.join(shlex.quote(i) for i in args))
+                return "\n{}\n{}\n".format(debug_echo, res)
         return wrapper
     return decorator
 
@@ -24,15 +32,17 @@ class ActionMeta(type):
         cls = type.__new__(cls, clsname, superclasses, attributedict)
         obj = type.__call__(cls)
         # cls.plash_action = obj.name
-        action(obj.name)(obj.assisted_call)
+        action(obj.name, debug=obj.debug)(obj.assisted_call)
         return cls
 
 
 class Action(metaclass=ActionMeta):
 
-    base_friendly_exceptions = [IOError, ArgError, ActionNotFoundError]
+    base_friendly_exceptions = [
+        IOError, ArgError, ActionNotFoundError, EvalError]
     friendly_exceptions = []
     abstract = False
+    debug = True
 
     @property
     def name(self):

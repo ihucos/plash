@@ -9,7 +9,7 @@ from base64 import b64encode
 
 import yaml
 
-from .baseaction import Action, ArgError, action, eval
+from .actionutils import Action, ArgError, action, eval
 from .utils import rand
 
 @action('pdb')
@@ -28,6 +28,7 @@ def pdb():
 
 class LayeEach(Action):
     name = 'with-layers'
+    debug = False
 
     def __call__(self, command, *args):
         lst = []
@@ -40,6 +41,10 @@ class Eval(Action):
     name = 'eval'
     def handle_arg(self, arg):
         return arg
+
+@action('x')
+def x(*args):
+    return ' '.join(shlex.quote(arg) for arg in args)
 
 # class Home(Action):
 
@@ -180,13 +185,13 @@ class Execute(FileCommand):
     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
 class Interactive(Action):
-    def __call__(self, name):
+    def __call__(self, name=''):
         return "echo 'Exit shell when ready' && bash && : modifier name is {}".format(
             shlex.quote(name))
 
 
 class Mount(Action):
-    def __call__(self, mountpoint):
+    def handle_arg(self, mountpoint):
         mountpoint = os.path.realpath(mountpoint)
         if not os.path.isdir(mountpoint):
             raise ArgError('{} is not a directory'.format(mountpoint))
@@ -230,7 +235,7 @@ class BustCashe(Action):
 
 @action('define-package-manager')
 def define_package_manager(pm):
-    @action('pkg')
+    @action('pkg', debug=False)
     def pkg(*packages):
         return eval([[pm] + list(packages)])
     return ':'
