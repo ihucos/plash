@@ -140,7 +140,7 @@ class LayeredDockerBuildable(BaseDockerBuildable):
             if meth == 'build':
                 buildable.build(*args, **kw)
             elif meth == 'ensure_builded':
-                buildable.ensure_builded()
+                buildable.ensure_builded(*args, **kw)
             elif meth == 'get_image_name':
                 pass
             else:

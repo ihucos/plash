@@ -5,6 +5,10 @@ from .eval import eval, layer
 from .runos import runos
 
 
+HELP = 'my help'
+PROG = 'plash'
+
+
 class PlashArgumentParser(argparse.ArgumentParser):
         def convert_arg_line_to_args(self, arg_line):
             '''
@@ -17,10 +21,10 @@ class PlashArgumentParser(argparse.ArgumentParser):
                     arg_line = arg_line.split('#')[0] # remove anything after an #
                     args = arg_line.split()
                     raw_action = args.pop(0)
-                    if not raw_action.startswith(('-', '@')):
-                        yield ':'+raw_action
-                    else:
-                        yield raw_action
+                    # if not raw_action.startswith(('-', '@')):
+                    #     yield ':'+raw_action
+                    # else:
+                    yield raw_action
                     for arg in args:
                         if arg.startswith('#'):
                             break
@@ -50,23 +54,39 @@ def read_lsp_from_args(args):
     lsp = getattr(args, 'lsp', [])
     return lsp, unknown
 
+
+def get_argument_parser(args):
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description='Run programm from any Linux',
+        prog=PROG,
+        epilog=HELP)
+
+    parser.add_argument("--build-quiet", action='store_true', dest='quiet')
+    parser.add_argument("--no-lib", action='store_true')
+    parser.add_argument("--no-bootstrap", action='store_true')
+    parser.add_argument(
+        "image", type=str)
+    parser.add_argument(
+        "exec", type=str, nargs='*', default=['bash'])
+    return parser
+
+
 def main():
     lsp, unused_args = (read_lsp_from_args(sys.argv[1:]))
-    # print(unknown)
-    # print(lsp)
-    script = eval(lsp)
-    # print('=================')
-    # print(script)
-    # print('=================')
-    # assert False, layer()
+    ap = get_argument_parser(unused_args)
+    args = ap.parse_args(unused_args)
+    # print(args, unused_args)
+    if not args.no_lib:
+        init = [['import', 'plash.actions']]
+        if not args.no_bootstrap:
+            init += [['bootstrap', args.image]]
+    else:
+        init = []
+    script = eval(init + lsp)
     layers = script.split('{}'.format(layer()))
-
-    exit = runos('ubuntu', layers, ['bash'])
-    # from pprint import pprint
-    # # pprint(layers)
-    # for l in layers:
-    #     print(l)
-    #     print('---')
+    assert False, layer(), layers
+    exit = runos(args.image, layers, args.exec, quiet=args.quiet)
 
 
 
