@@ -1,17 +1,17 @@
-from .baseaction import Action
-from .eval import register_action
+from .baseaction import Action, action
 
 
 # ========== OTHER FILE ==========
 
-@register_action('pdb')
+@action('pdb')
 def pdb():
     import pdb
     pdb.set_trace()
 
-@register_action('layer')
+@action('layer')
 def layer():
     return "echo 'MY LAYER MARKER asdjfalkdf8a9df7yg'"
+
 
 # class Include(Action):
 #     def handle_arg(self, file):
