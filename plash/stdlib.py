@@ -51,7 +51,7 @@ class Layer(Action):
             dbg = "echo \*\*\* plash is running --layer"
             return eval([['silentrun', dbg], ['-layer']]) # fall back to build in layer action
         else:
-            lst = []
+            lst = [['layer']]
             for arg in args:
                 lst.append([command, arg])
                 lst.append(['layer'])
