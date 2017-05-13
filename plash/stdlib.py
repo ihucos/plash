@@ -25,8 +25,14 @@ def pdb():
 
 @action('noop')
 def noop(*args):
-    print('printing: {}'.format(*args))
     return ':'
+
+class Execute(Action):
+    def handle_arg(self, arg):
+        return '. ' + arg
+
+# class Execute(FileCommand):
+#     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
 # class Include(Action):
 #     def handle_arg(self, file):
@@ -53,10 +59,10 @@ def run(*args):
     return ' '.join(args)
 
 
-class Frun(Action):
-    name = 'pun'
+class Warp(Action):
+    name = 'warp'
 
-    def __call__(self, *args):
+    def __call__(self, command, *args):
         init = []
         cleanup = []
         replaced_args = []
@@ -79,8 +85,13 @@ class Frun(Action):
             else:
                 replaced_args.append(arg)
 
-        return '{}\n{}\n'.format(
-            ' && '.join(init), ' '.join(replaced_args), ' && '.join(cleanup))
+        return eval([
+            ['run', ' && '.join(init)],
+            [command] + replaced_args,
+            ['run', ' && '.join(cleanup)],
+        ])
+        # return '{}\n{}\n'.format(
+        #     ' && '.join(init), ' '.join(replaced_args), ' && '.join(cleanup))
 
 # class Home(Action):
 
@@ -222,8 +233,8 @@ class PipRequirements(FileCommand):
     name = 'pip-requirements'
     cmd = 'pip install -r {}'
 
-class Execute(FileCommand):
-    cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
+# class Execute(FileCommand):
+#     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
 class Interactive(Action):
     def __call__(self, name=''):

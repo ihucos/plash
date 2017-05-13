@@ -3,7 +3,7 @@ import sys
 
 from .eval import eval, layer, ActionNotFoundError, ArgError, EvalError
 from .runos import BuildError, runos
-from .utils import friendly_exception, hashstr, rand
+from .utils import friendly_exception, disable_friendly_exception, hashstr, rand
 
 HELP = 'my help'
 PROG = 'plash'
@@ -69,6 +69,7 @@ def get_argument_parser(args):
 
     parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--no-bootstrap", action='store_true')
+    parser.add_argument("--traceback", action='store_true')
     parser.add_argument(
         "image", type=str)
     parser.add_argument(
@@ -82,6 +83,8 @@ def main():
     ap = get_argument_parser(unused_args)
     args = ap.parse_args(unused_args)
     # print(args, unused_args)
+    if args.traceback:
+        disable_friendly_exception()
     if not args.no_stdlib:
         init = [['import', 'plash.stdlib']]
         if not args.no_bootstrap and not args.image == 'print':
