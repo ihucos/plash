@@ -49,7 +49,7 @@ def run(*args):
 
 
 class Frun(Action):
-    name = 'run{}'
+    name = 'pun'
 
     def __call__(self, *args):
         init = []
