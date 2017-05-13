@@ -84,8 +84,8 @@ class Warp(Action):
                 baseout = b64encode(out).decode()
                 outpath = os.path.join('/tmp', hashstr(out))
                 init.append('mkdir {}'.format(outpath))
-                init.append('echo {baseout} | base64 --decode | tar -C {out} -x --strip-components 1'.format(
-                    out=outpath, baseout=baseout))
+                init.append('echo {baseout} | base64 --decode | tar -C {out} -x{extra}'.format(
+                    out=outpath, baseout=baseout, extra=' --strip-components 1' if os.path.isdir(path) else ''))
                 replaced_args.append(os.path.join(outpath, os.path.basename(path)))
                 # replaced_args.append(outpath)
             else:
@@ -318,6 +318,20 @@ def with_file(command, *lines):
     encoded = b64encode(file_content.encode())
     inline_file = '<(echo {} | base64 --decode)'.format(encoded.decode())
     return eval([[command, inline_file]])
+
+
+@action('each-line')
+def each_line(*args):
+    if not len(args) <= 2:
+        raise ArgError('needs at leat two arguments')
+    args = list(args)
+    file = args.pop(-1)
+    with open(file) as f:
+        lines = f.readlines()
+    lsp = []
+    for line in lines:
+        lsp.append(args + [line])
+    return eval(lsp)
 
 
 

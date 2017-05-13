@@ -10,7 +10,7 @@ def action(action_name, debug=True):
         @register_action(action_name)
         def wrapper(*args, **kw):
             with friendly_exception(
-                [ActionNotFoundError, ArgError, EvalError],
+                [ActionNotFoundError, ArgError, EvalError, IOError],
                 action_name):
                 res = func(*args, **kw)
             if not debug:
