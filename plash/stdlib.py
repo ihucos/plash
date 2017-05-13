@@ -259,13 +259,21 @@ class Pwd(Action):
 
 
 class ImportEnv(Action):
-    name = 'import-prefixed-envs'
+    name = 'import-envs'
 
     def handle_arg(self, env):
-        val = os.environ.get(env)
-        if val is None:
-            raise ArgError('No such env in host: {}'.format(env))
-        return 'HOST_{}={}'.format(env, shlex.quote(val))
+        parts = env.split(':')
+        if len(parts) == 1:
+            host_env = env
+            guest_env = env
+        elif len(parts) == 2:
+            host_env, guest_env = parts
+        else:
+            raise ArgError('env can only contain one ":"')
+        host_val = os.environ.get(host_env)
+        if host_val is None:
+            raise ArgError('No such env in host: {}'.format(host_env))
+        return '{}={}'.format(guest_env, shlex.quote(host_val))
 
 class Emerge(PackageManager):
     install = 'emerge {}'
@@ -295,47 +303,6 @@ def set_pkg(pm):
     def pkg(*packages):
         return eval([[pm] + list(packages)])
     return ':'
-
-
-@action('bootstrap')
-def bootstrap(os):
-    os_base = os.split(':')[0]
-
-    if os_base == 'ubuntu':
-        return eval([
-            ['set-pkg', 'apt'],
-            ['run', 'rm /etc/apt/apt.conf.d/docker-clean'],
-            ['pkg', 'python-pip', 'npm', 'software-properties-common'],
-            ['layer']
-        ])
-
-    elif os_base == 'debian':
-        return eval([
-            ['set-pkg', 'apt'],
-            ['pkg', 'python-pip', 'npm', 'software-properties-common'],
-            ['layer']
-        ])
-
-    elif os_base == 'centos':
-        return eval([
-            ['set-pkg', 'yum'],
-            ['pkg', 'epel-release', 'npm', 'python-pip'],
-            ['layer']
-        ])
-
-    elif os_base == 'alpine':
-        return eval([
-            ['set-pkg', 'apk'],
-        ])
-
-    elif 'gentoo' in os_base:
-        return eval([
-            ['set-pkg', 'emerge'],
-            ['pkg', 'dev-python/pip'],
-            ['layer']
-        ])
-    else:
-        return "echo no recipe to bootstrap: {}".format(os)
 
 
 

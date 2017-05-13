@@ -68,7 +68,6 @@ def get_argument_parser(args):
     parser.add_argument("--build-again", "--rebuild", action='store_true')
 
     parser.add_argument("--no-stdlib", action='store_true')
-    parser.add_argument("--no-bootstrap", action='store_true')
     parser.add_argument("--traceback", action='store_true')
     parser.add_argument(
         "image", type=str)
@@ -87,8 +86,6 @@ def main():
         disable_friendly_exception()
     if not args.no_stdlib:
         init = [['import', 'plash.stdlib']]
-        if not args.no_bootstrap and not args.image == 'print':
-            init += [['bootstrap', args.image]]
     else:
         init = []
 
