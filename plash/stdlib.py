@@ -13,10 +13,20 @@ from .actionutils import Action, ArgError, action, eval
 from .utils import hashstr, rand
 
 
+# def pip_requiremenets(
+# #     'pip-requirements': [['pun', 'pip', 'install', '-r', {ARG1}]]
+# # }
+
+
 @action('pdb')
 def pdb():
     import pdb
     pdb.set_trace()
+
+@action('noop')
+def noop(*args):
+    print('printing: {}'.format(*args))
+    return ':'
 
 # class Include(Action):
 #     def handle_arg(self, file):
@@ -37,11 +47,6 @@ class LayeEach(Action):
             lst.append([command, arg])
             lst.append(['layer'])
         return self.eval(lst)
-
-class Inline(Action):
-    name = 'inline'
-    def handle_arg(self, arg):
-        return arg
 
 @action('run')
 def run(*args):
@@ -288,7 +293,7 @@ def bootstrap(os):
     if os_base == 'ubuntu':
         return eval([
             ['set-pkg', 'apt'],
-            ['inline', 'rm /etc/apt/apt.conf.d/docker-clean'],
+            ['run', 'rm /etc/apt/apt.conf.d/docker-clean'],
             ['pkg', 'python-pip', 'npm', 'software-properties-common'],
             ['layer']
         ])
@@ -321,6 +326,20 @@ def bootstrap(os):
     else:
         return "echo no recipe to bootstrap: {}".format(os)
 
+
+
+@action('with-file')
+def with_file(command, *lines):
+    file_content = '\n'.join(lines)
+    encoded = b64encode(file_content.encode())
+    inline_file = '<(echo {} | base64 --decode)'.format(encoded.decode())
+    return eval([[command, inline_file]])
+
+
+
+@action('each', debug=False)
+def each(command, *args):
+    return eval([[command, arg] for arg in args])
 
 # @action('rebuild-every')
 # def rebuild_every(value, unit):
