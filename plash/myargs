@@ -1,8 +1,0 @@
-
-
-
-:with-layers apt
-	cowsay
-	rolldice
-
-:eval echo hi 
