@@ -84,7 +84,7 @@ def main():
     # print(args, unused_args)
     if not args.no_stdlib:
         init = [['import', 'plash.stdlib']]
-        if not args.no_bootstrap:
+        if not args.no_bootstrap and not args.image == 'print':
             init += [['bootstrap', args.image]]
     else:
         init = []
@@ -95,6 +95,9 @@ def main():
     plash_env = '{}-{}'.format(
         args.image,
         hashstr('\n'.join(layers).encode())[:4])
+    if args.image == 'print':
+        print(script)
+        sys.exit(0)
     with friendly_exception([BuildError]):
         exit = runos(
             args.image,

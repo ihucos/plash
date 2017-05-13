@@ -10,7 +10,8 @@ from base64 import b64encode
 import yaml
 
 from .actionutils import Action, ArgError, action, eval
-from .utils import rand
+from .utils import hashstr, rand
+
 
 @action('pdb')
 def pdb():
@@ -45,6 +46,36 @@ class Inline(Action):
 @action('run')
 def run(*args):
     return ' '.join(args)
+
+
+class Frun(Action):
+    name = 'run{}'
+
+    def __call__(self, *args):
+        init = []
+        cleanup = []
+        replaced_args = []
+        for arg in args:
+            if arg.startswith('{') and arg.endswith('}'):
+                path = arg[1:-1]
+                if not os.path.exists(path):
+                    raise ArgError('Path {} does not exist'.format(path))
+                p = subprocess.Popen(['tar', '-c', path],
+                                     stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
+                assert p.wait() == 0
+                out = p.stdout.read()
+                baseout = b64encode(out).decode()
+                outpath = os.path.join('/tmp', hashstr(out))
+                init.append('mkdir {}'.format(outpath))
+                init.append('echo {baseout} | base64 --decode | tar -C {out} -x --strip-components 1'.format(
+                    out=outpath, baseout=baseout))
+                replaced_args.append(os.path.join(outpath, os.path.basename(path)))
+                # replaced_args.append(outpath)
+            else:
+                replaced_args.append(arg)
+
+        return '{}\n{}\n'.format(
+            ' && '.join(init), ' '.join(replaced_args), ' && '.join(cleanup))
 
 # class Home(Action):
 
