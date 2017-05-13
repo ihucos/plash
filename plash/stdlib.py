@@ -61,16 +61,21 @@ def run(*args):
 
 class PackageManager(Action):
     pre_install = None
-    # post_install = None
+    post_install = None
+    single_packge_per_install = False
 
     def __call__(self, *packages):
         cmds = []
         if self.pre_install:
             cmds.append(self.pre_install)
-        for p in packages:
-            cmds.append(self.install.format(p))
-        # if self.post_install:
-        #     cmds.append(self.post_install)
+        if not self.single_packge_per_install:
+            ps = ' '.join(shlex.quote(p) for p in packages)
+            cmds.append(self.install.format(ps))
+        else:
+            for p in packages:
+                cmds.append(self.install.format(p))
+        if self.post_install:
+            cmds.append(self.post_install)
         return ' && '.join(cmds)
 
 
@@ -233,8 +238,12 @@ class BustCashe(Action):
         return ': bust cache with {}'.format(uuid.uuid4()) 
 
 
-@action('define-package-manager')
-def define_package_manager(pm):
+@action('pkg', debug=False)
+def pkg(*packages):
+    raise ArgError('you need to ":set-pkg <package-manager>" to use pkg')
+
+@action('set-pkg')
+def set_pkg(pm):
     @action('pkg', debug=False)
     def pkg(*packages):
         return eval([[pm] + list(packages)])
@@ -247,7 +256,7 @@ def bootstrap(os):
 
     if os_base == 'ubuntu':
         return eval([
-            ['define-package-manager', 'apt'],
+            ['set-pkg', 'apt'],
             ['inline', 'rm /etc/apt/apt.conf.d/docker-clean'],
             ['pkg', 'python-pip', 'npm', 'software-properties-common'],
             ['layer']
@@ -255,33 +264,36 @@ def bootstrap(os):
 
     elif os_base == 'debian':
         return eval([
-            ['define-package-manager', 'apt'],
+            ['set-pkg', 'apt'],
             ['pkg', 'python-pip', 'npm', 'software-properties-common'],
             ['layer']
         ])
 
     elif os_base == 'centos':
         return eval([
-            ['define-package-manager', 'yum'],
+            ['set-pkg', 'yum'],
             ['pkg', 'epel-release', 'npm', 'python-pip'],
             ['layer']
         ])
 
     elif os_base == 'alpine':
         return eval([
-            ['define-package-manager', 'apk'],
-            ['layer']
+            ['set-pkg', 'apk'],
         ])
 
     elif 'gentoo' in os_base:
         return eval([
-            ['define-package-manager', 'emerge'],
+            ['set-pkg', 'emerge'],
             ['pkg', 'dev-python/pip'],
             ['layer']
         ])
     else:
         return "echo no recipe to bootstrap: {}".format(os)
 
+
+# @action('rebuild-every')
+# def rebuild_every(value, unit):
+# ret
 # class RebuildEvery(Action):
 #     name = 'rebuild-every'
 

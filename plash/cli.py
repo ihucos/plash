@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from .eval import eval, layer
+from .eval import eval, layer, ActionNotFoundError, ArgError, EvalError
 from .runos import BuildError, runos
 from .utils import friendly_exception, hashstr, rand
 
@@ -65,9 +65,9 @@ def get_argument_parser(args):
     parser.add_argument("--build-quiet", action='store_true', dest='quiet')
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
-    parser.add_argument("--rebuild", action='store_true')
+    parser.add_argument("--build-again", "--rebuild", action='store_true')
 
-    parser.add_argument("--no-lib", action='store_true')
+    parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--no-bootstrap", action='store_true')
     parser.add_argument(
         "image", type=str)
@@ -82,13 +82,15 @@ def main():
     ap = get_argument_parser(unused_args)
     args = ap.parse_args(unused_args)
     # print(args, unused_args)
-    if not args.no_lib:
-        init = [['import', 'plash.actions']]
+    if not args.no_stdlib:
+        init = [['import', 'plash.stdlib']]
         if not args.no_bootstrap:
             init += [['bootstrap', args.image]]
     else:
         init = []
-    script = eval(init + lsp)
+
+    with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
+        script = eval(init + lsp)
     layers = script.split('{}'.format(layer()))
     plash_env = '{}-{}'.format(
         args.image,
@@ -100,7 +102,7 @@ def main():
             args.exec if not args.build_only else None,
             quiet=args.quiet,
             verbose=args.verbose,
-            rebuild=args.rebuild,
+            rebuild=args.build_again,
             extra_envs={'PLASH_ENV': plash_env}
         )
     sys.exit(exit)
