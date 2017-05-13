@@ -65,7 +65,7 @@ def get_argument_parser(args):
     parser.add_argument("--build-quiet", action='store_true', dest='quiet')
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
-    parser.add_argument("--build-again", "--rebuild", action='store_true')
+    parser.add_argument("--build-again", "--rebuild", "--again", action='store_true')
 
     parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--traceback", action='store_true')

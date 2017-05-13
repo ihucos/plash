@@ -17,7 +17,6 @@ from .utils import hashstr, rand
 # #     'pip-requirements': [['pun', 'pip', 'install', '-r', {ARG1}]]
 # # }
 
-
 @action('pdb')
 def pdb():
     import pdb
@@ -43,21 +42,28 @@ class Execute(Action):
 #         return self.eval(loaded)
 
 
-class LayeEach(Action):
-    name = 'with-layers'
+class Layer(Action):
+    name = 'layer'
     debug = False
 
-    def __call__(self, command, *args):
-        lst = []
-        for arg in args:
-            lst.append([command, arg])
-            lst.append(['layer'])
-        return self.eval(lst)
+    def __call__(self, command=None, *args):
+        if not command:
+            dbg = "echo \*\*\* plash is running --layer"
+            return eval([['silentrun', dbg], ['-layer']]) # fall back to build in layer action
+        else:
+            lst = []
+            for arg in args:
+                lst.append([command, arg])
+                lst.append(['layer'])
+            return self.eval(lst)
 
 @action('run')
 def run(*args):
     return ' '.join(args)
 
+@action('silentrun', debug=False)
+def silentrun(*args):
+    return ' '.join(args)
 
 class Warp(Action):
     name = 'warp'
