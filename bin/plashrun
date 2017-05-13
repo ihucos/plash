@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-plash --no-bootstrap \@$1
+plash --no-bootstrap \@$1 -- ${@:2}
