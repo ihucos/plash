@@ -15,7 +15,7 @@ Run nvim without installing it to your operating system.
 ```
 $ plash ubuntu :add-apt-repository ppa:neovim-ppa/stable :apt neovim -- nvim myfile
 ```
-Your home directory is mounted as home on the container. Building is cached.
+Your home directory is mounted as home on the container. Building is cached. This feels like nvim is runned as any other application
 
 You can import arguments from files
 ```
