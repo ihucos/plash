@@ -76,7 +76,7 @@ You can have build time arguments, of course rebuilding happens if they change.
 ```
 :import-envs
   MYDIR
-  PATH:HOME_PATH
+  PATH:HOST_PATH
 :eval
 	mkdir $MYDIR
 	cd $MYDIR
