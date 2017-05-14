@@ -9,7 +9,7 @@ Plash is a swiss army knife for containers that easily turns into a machete. Cur
 *Api and configuration format unstable*
 
 
-### Tutorial
+## Tutorial
 
 Run nvim without installing it to your operating system.
 ```
@@ -17,7 +17,7 @@ $ plash ubuntu :add-apt-repository ppa:neovim-ppa/stable :apt neovim -- nvim myf
 ```
 Your home directory is mounted as home on the container. Building is cached. This feels like nvim is runned as any other application
 
-You can import arguments from files
+You can import command line arguments from files
 ```
 $ cat ./nvim
 #!/usr/bin/env plashexec
@@ -60,7 +60,7 @@ Is the same as
 ```
 Another macro is the action warp:
 ```
-:warp cp -r {./data_dir_at_host} /app/data
+:warp run cp -r {./data_dir_at_host} /app/data
 ```
 
 Build time mounts are supported
