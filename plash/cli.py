@@ -41,7 +41,7 @@ class CollectLspAction(argparse.Action):
         previous = namespace.lsp                             
         # remove escape eventual the space that is used as escape char
         values = list(i[1:] if i.startswith(' ') else i for i in values)
-        previous.append([self.dest] + values)
+        previous.append([self.dest.replace('_', '-')] + values)
         setattr(namespace, 'lsp', previous) 
 
 def read_lsp_from_args(args):

@@ -5,24 +5,41 @@ Plash is a swiss army knife for containers that easily turns into a machete. Cur
 
 ## Install
 `pip3 install git+https://github.com/ihucos/plash.git`
+
 *Api and configuration format unstable*
 
 
+### Blaba
 
-## Use Cases
-
-### Run something from ubuntu
-
-
+Run nvim without installing it to your operating system.
 ```
-$ plash nmap myhost
-
+$ plash ubuntu :add-apt-repository ppa:neovim-ppa/stable :apt neovim -- nvim myfile
 ```
+Your home directory is mounted as home on the container. Building is cached.
 
-### Get newer version of a package
-Use a newer package than what your package manager provides.
+You can import arguments from files
 ```
-$ plash --gentoo --emerge nmap -- nmap --version
+$ cat ./nvim
+ubuntu
+nvim
+:add-apt-repository ppa:neovim-ppa/stable
+:apt
+  neovim
+  # second parameter would go here
+$ plash @nvim
+```
+Or use the recommended method, add a shebang to that includable command line arguments file and mark it executable.
+```
+#!/usr/bin/env plashexec
+# rest of the file goes here, note that this should be run by plashexec, not plash 
+# ...
+```
+Plash files can be seens as one dimensional lisp
+
+
+
+
+
 
 Nmap version 7.40 ( https://nmap.org )
 Platform: x86_64-pc-linux-gnu

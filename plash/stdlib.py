@@ -139,9 +139,13 @@ class Apt(PackageManager):
     install = 'apt-get install -y {}'
 
 
-class AddAptRepository(PackageManager):
+class AddAptRepository(Action):
     name = 'add-apt-repository'
-    install = 'add-apt-repository -y {}'
+    def handle_arg(self, arg):
+        return eval([
+            ['apt', 'software-properties-common'],
+            ['run', 'add-apt-repository -y {}'.format(shlex.quote(arg))]
+        ])
 
 class AptByCommandName(Action):
     name = 'apt-from-command'
