@@ -25,15 +25,53 @@ ubuntu
 nvim
 :add-apt-repository ppa:neovim-ppa/stable
 :apt
-  neovim
-  # second parameter would go here
+	neovim
+	# second parameter would go here
 $ plash @nvim
 ```
 Note the shebang, after marking your ./nvim file executable you could directly run it and even put the file into your PATH. The idea of plash is to have only a very lightweight virtualization, programms run by it should have mostly access to all resources seen by "native" programs. (Currently plash is on top of docker, I want to change it to libcontainer/runc)
 
-Plash files can be seens as one dimensional lisp
+Here is a simple example:
+```
+:apt
+	package1
+	package2
 
+:layer # layering is explecit
 
+:run touch myfile
+```
+
+Plash scripts can be seens as one dimensional lisp, 'layer' is actually an macro
+```
+:layer apt
+	package1
+	package2
+	package3
+```
+Is the same as
+```
+:layer
+:apt package1
+:layer
+:apt package2
+:layer
+:apt package3
+:layer
+```
+Another macro is the action warp:
+```
+:warp cp -r {./data_dir_at_host} /app/data
+```
+
+Build time mounts are supported
+```
+:mount .
+:pwd .
+:rebuild-when-changed
+	myfile
+	mydir
+```
 
 
 
