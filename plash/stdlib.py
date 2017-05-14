@@ -231,14 +231,14 @@ class Npm(PackageManager):
     install = 'npm install -g {}'
 
 
-class FileCommand(Action):
+# class FileCommand(Action):
 
-    def __call__(self, fname):
-        with open(fname) as f:
-            encoded = b64encode(f.read().encode())
-        inline_file = '<(echo {} | base64 --decode)'.format(
-            encoded.decode())
-        return self.cmd.format(inline_file)
+#     def __call__(self, fname):
+#         with open(fname) as f:
+#             encoded = b64encode(f.read().encode())
+#         inline_file = '<(echo {} | base64 --decode)'.format(
+#             encoded.decode())
+#         return self.cmd.format(inline_file)
 
 class PipRequirements(FileCommand):
     name = 'pip-requirements'
@@ -297,11 +297,9 @@ class Home(Action):
         return Include.call(path) + [Layer.call()]
 
 
-class BustCashe(Action):
-    name = 'bustcache'
-
-    def __call__(self):
-        return ': bust cache with {}'.format(uuid.uuid4()) 
+@action('bustcache')
+def bustcache():
+    return  ': bust cache with {}'.format(uuid.uuid4()) 
 
 
 @action('pkg', debug=False)

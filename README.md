@@ -26,7 +26,7 @@ nvim
 :add-apt-repository ppa:neovim-ppa/stable
 :apt
 	neovim
-	# second parameter would go here
+# second parameter would go here
 $ plash @nvim
 ```
 Note the shebang, after marking your ./nvim file executable you could directly run it and even put the file into your PATH. The idea of plash is to have only a very lightweight virtualization, programms run by it should have mostly access to all resources seen by "native" programs. (Currently plash is on top of docker, I want to change it to libcontainer/runc)
@@ -73,7 +73,34 @@ Build time mounts are supported
 	mydir
 ```
 
+Altough it can be done, plash does not try to be an general purpose language and relies on inline scripts
 
+```
+:script
+	[ "$DEBUGTOOLS" = 1 ] && plash :pip ipdb
+	true
+```
+
+```
+:define touch
+         #!/usr/bin/env python
+         import sys, subprocess
+         subprocess.check_call(
+         ['plash', ':run', 'touch', sys.argv[1]])
+:touch myfile
+```
+
+But this is actually just for quick one-shot functions. You can implement new actions by importing python modules that have callables registered with the plash.eval.register decorator.
+```
+plash ubuntu --no-stdlib :import myplashlib :funcyfunc
+```
+
+### this is for o
+
+
+
+
+### Using plash to create docker images
 
 
 Nmap version 7.40 ( https://nmap.org )
