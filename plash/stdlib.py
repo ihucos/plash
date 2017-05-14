@@ -6,6 +6,7 @@ import subprocess
 import sys
 import uuid
 from base64 import b64encode
+from tempfile import NamedTemporaryFile
 
 import yaml
 
@@ -311,6 +312,9 @@ def set_pkg(pm):
     return ':'
 
 
+# @action('maybe')
+# def 
+
 
 @action('with-file')
 def with_file(command, *lines):
@@ -335,9 +339,43 @@ def each_line(*args):
 
 
 
-@action('each', debug=False)
-def each(command, *args):
+@action('all', debug=False)
+def all(command, *args):
     return eval([[command, arg] for arg in args])
+
+@action('define', debug=False)
+def define(action_name, *lines):
+
+    if not lines[0][:2] == '#!': # looks like a shebang
+        lines = ['#!/usr/bin/env bash'] + list(lines)
+
+    @action(action_name, debug=False)
+    def myaction(*args):
+        # assert False, lines
+        with NamedTemporaryFile() as outfile, NamedTemporaryFile('w') as scriptfile:
+            scriptfile.write('\n'.join(lines))
+            scriptfile.flush()
+
+            # make scriptfile executable
+            st = os.stat(scriptfile.name)
+            os.chmod(scriptfile.name, st.st_mode | stat.S_IEXEC)
+
+            p = subprocess.Popen(
+                [scriptfile.name] + list(args),
+                env=dict(os.environ, PLASH_COLLECT_MODE=outfile.name))
+            exit = p.wait()
+            if exit:
+                raise ArgError('script returned non zero code {}'.format(exit))
+
+            return outfile.read().decode()
+
+    return ':'
+
+
+@action('script', debug=False)
+def script(*lines):
+    eval([['define', '--runscript'] + list(lines)])
+    return eval([['--runscript']])
 
 # @action('rebuild-every')
 # def rebuild_every(value, unit):

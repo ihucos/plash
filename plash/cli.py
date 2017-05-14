@@ -1,8 +1,11 @@
 import argparse
+import os
 import sys
-from .eval import eval, layer, ActionNotFoundError, ArgError, EvalError
+
+from .eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from .runos import BuildError, runos
-from .utils import friendly_exception, disable_friendly_exception, hashstr, rand
+from .utils import (disable_friendly_exception, friendly_exception, hashstr,
+                    rand)
 
 HELP = 'my help'
 PROG = 'plash'
@@ -68,10 +71,13 @@ def get_argument_parser(args):
 
     parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--traceback", action='store_true')
-    parser.add_argument(
-        "image", type=str)
-    parser.add_argument(
-        "exec", type=str, nargs='*', default=['bash'])
+
+    if not 'PLASH_COLLECT_MODE' in os.environ:
+        parser.add_argument(
+            "image", type=str)
+        parser.add_argument(
+            "exec", type=str, nargs='*', default=['bash'])
+
     return parser
 
 
@@ -90,6 +96,13 @@ def main():
 
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
         script = eval(init + lsp)
+    collect_to = os.environ.get('PLASH_COLLECT_MODE')
+    if collect_to:
+        with friendly_exception(
+                [IOError], 'write-collect-file'), open(collect_to, 'w') as f:
+            f.write(script)
+        sys.exit(0)
+
     layers = script.split('{}'.format(layer()))
     plash_env = '{}-{}'.format(
         args.image,
