@@ -374,8 +374,8 @@ def define(action_name, *lines):
 
 @action('script', debug=False)
 def script(*lines):
-    eval([['define', '--runscript'] + list(lines)])
-    return eval([['--runscript']])
+    eval([['define', 'last-script'] + list(lines)])
+    return eval([['last-script']])
 
 # @action('rebuild-every')
 # def rebuild_every(value, unit):
