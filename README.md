@@ -72,6 +72,16 @@ Build time mounts are supported
 	mydir
 ```
 
+You can have build time arguments, of course rebuilding happens if they change.
+```
+:import-envs
+  MYDIR
+  PATH:HOME_PATH
+:eval
+	mkdir $MYDIR
+	cd $MYDIR
+```
+
 Altough it can be done, plash does not try to be an general purpose language and relies on inline scripts
 
 ```
@@ -94,35 +104,8 @@ But this is actually just for quick one-shot functions. You can implement new ac
 plash ubuntu --no-stdlib :import myplashlib :funcyfunc
 ```
 
-### this is for o
-
-
-
 
 ### Using plash to create docker images
-
-
-Nmap version 7.40 ( https://nmap.org )
-Platform: x86_64-pc-linux-gnu
-[...]
-```
-To install gentoo's nmap into your system
-```
-$ plash --install /usr/local/bin/nmap --gentoo --emerge nmap -- nmap
-Installed to /usr/local/bin/nmap
-```
-
-
-### Quickly have a throwaway linux
-Your files including the `.bashrc` will be available.
-You can play around with unknown linux distributions.
-```
-joe@macbook ~/mypwd $ uname
-Darwin
-joe@macbook ~/mypwd $ plash --centos
-root@moby ~/mypwd $ uname
-Linux
-```
 
 ### Virtualenv replacement
 One of Python's virtualenvs shortcoming is that packages often can not be compiled at another computer. With plash we can isolate all dependencies inside a container and still be very leightweight on the development side.
@@ -144,68 +127,3 @@ $ cat ./python
 plash --debian --apt binutils python-dev --pip-requirements ./requirements.txt -- python "$@"
 ```
 
-
-### Dockerfile alternative
-
-Plash can include command line arguments labeled as "actions" from YAML files.
-```
- $ plash --ubuntu --include plash.yaml
-```
-
-##### Explicit layering
-```
-# a plash.yaml
-
-- apt:
- - package1
- - package2
-
-- layer
-
-- eval: touch myfile
-```
-Again, that is essential the same as writing:
-`plash --ubuntu --apt package1 package2 --layer --eval touch myfile`
-
-##### Build time arguments
-```
-- import-envs: MYDIR
-- eval:
-  - mkdir $MYDIR
-  - cd $MYDIR
-```
-
-
-##### Build time mounts
-```
-- mount: .
-- pwd: .
-- rebuild-when-changed:
-  - myfile
-  - mydir
-```
-
-##### includes
-Includes can include includes
-```
-- include: myfile
-```
-
-
-##### Executable configuration files
-If you like the idea, you can have configuration files that when executed run the machine they configure.
-```
-#!/bin/bash
-# vim: set filetype=yaml:
-./plash --ubuntu --include <(cat <<'YamlConfigDelimiter'
-# ========== [YOUR CONFIG] ==============
-
-- rebuild-when-changed: somethingconfig
-- mount: .
-- pwd: .
-- eval: make install
-
-# ======================================
-YamlConfigDelimiter
-) -- ./myprogramm # <-- command to execute here
-```
