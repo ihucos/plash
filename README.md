@@ -9,7 +9,7 @@ Plash is a swiss army knife for containers that easily turns into a machete. Cur
 *Api and configuration format unstable*
 
 
-### Blaba
+### Tutorial
 
 Run nvim without installing it to your operating system.
 ```
