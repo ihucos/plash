@@ -8,7 +8,7 @@ setup(name='plash',
       author_email='irae.hueck.costa@gmail.com',
       license='MIT',
       packages=['plash'],
-      scripts=['bin/plash', 'bin/plashrun'],
+      scripts=['bin/plash', 'bin/plashexec'],
       install_requires=[
             # 'PyYAML==3.12'
       ],

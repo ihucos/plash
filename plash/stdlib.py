@@ -23,8 +23,8 @@ def pdb():
     import pdb
     pdb.set_trace()
 
-@action('noop')
-def noop(*args):
+@action('note')
+def note(*args):
     return ':'
 
 class Execute(Action):
@@ -49,7 +49,7 @@ class Layer(Action):
 
     def __call__(self, command=None, *args):
         if not command:
-            dbg = "echo \*\*\* plash is running --layer"
+            dbg = "echo \*\*\* plash is running :layer"
             return eval([['silentrun', dbg], ['-layer']]) # fall back to build in layer action
         else:
             lst = [['layer']]

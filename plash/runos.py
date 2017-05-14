@@ -114,12 +114,10 @@ class DockerBuildable(BaseDockerBuildable):
         # create image out of the container
         from time import sleep
         sleep(0.2) # race condition in docker?
-        exit = subprocess.Popen(['docker', 'commit', container_id, new_image_name], **quiet_kw).wait()
-        assert exit == 0
+        subprocess.check_call(['docker', 'commit', container_id, new_image_name], **quiet_kw)
 
         # remove the container to save space
-        exit = subprocess.Popen(['docker', 'rm', container_id], **quiet_kw).wait()
-        assert exit == 0
+        subprocess.check_call(['docker', 'rm', container_id], **quiet_kw)
 
 
 class LayeredDockerBuildable(BaseDockerBuildable):

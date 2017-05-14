@@ -16,7 +16,7 @@ def action(action_name, debug=True):
             if not debug:
                 return res
             else:
-                debug_echo = "echo \*\*\* plash is running --{} {}".format(
+                debug_echo = "echo \*\*\* plash is running :{} {}".format(
                     shlex.quote(action_name), ' '.join(shlex.quote(i) for i in args))
                 return "\n{}\n{}\n".format(debug_echo, res)
         return wrapper

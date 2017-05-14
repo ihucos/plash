@@ -1,9 +1,11 @@
 import argparse
 import os
+import subprocess
 import sys
+from subprocess import CalledProcessError
 
 from .eval import ActionNotFoundError, ArgError, EvalError, eval, layer
-from .runos import BuildError, runos
+from .runos import BuildError, LayeredDockerBuildable, docker_run, runos
 from .utils import (disable_friendly_exception, friendly_exception, hashstr,
                     rand)
 
@@ -68,9 +70,10 @@ def get_argument_parser(args):
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
     parser.add_argument("--build-again", "--rebuild", "--again", action='store_true')
-
     parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--traceback", action='store_true')
+
+    parser.add_argument("--save-image")
 
     if not 'PLASH_COLLECT_MODE' in os.environ:
         parser.add_argument(
@@ -110,14 +113,30 @@ def main():
     if args.image == 'print':
         print(script)
         sys.exit(0)
-    with friendly_exception([BuildError]):
-        exit = runos(
-            args.image,
-            layers,
-            args.exec if not args.build_only else None,
-            quiet=args.quiet,
-            verbose=args.verbose,
-            rebuild=args.build_again,
-            extra_envs={'PLASH_ENV': plash_env}
-        )
-    sys.exit(exit)
+
+
+    b = LayeredDockerBuildable.create(args.image, layers)
+
+    with friendly_exception([BuildError, CalledProcessError]):
+        if args.build_again:
+            b.build(
+                quiet=args.quiet,
+                verbose=args.verbose)
+        else:
+            b.ensure_builded(
+                quiet=args.quiet,
+                verbose=args.verbose)
+
+    if args.save_image:
+        with friendly_exception([CalledProcessError], 'save-image'):
+            container_id = subprocess.check_output(
+                ['docker', 'run', b.get_image_name(), 'hostname'])
+            container_id = container_id.decode().strip('\n')
+            subprocess.check_output(
+                ['docker', 'commit', container_id, args.save_image])
+
+    command = args.exec if not args.build_only else None
+    if command:
+        exit = docker_run(b.get_image_name(), command,
+                          extra_envs={'PLASH_ENV': plash_env})
+        sys.exit(exit)
