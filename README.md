@@ -26,12 +26,11 @@ nvim
 :add-apt-repository ppa:neovim-ppa/stable
 :apt
 	neovim
-# second parameter would go here
 $ plash @nvim
 ```
 Note the shebang, after marking your ./nvim file executable you could directly run it and even put the file into your PATH. The idea of plash is to have only a very lightweight virtualization, programms run by it should have mostly access to all resources seen by "native" programs. (Currently plash is on top of docker, I want to change it to libcontainer/runc)
 
-Here is a simple example:
+Here is another simple example of a plash file:
 ```
 :apt
 	package1
@@ -90,7 +89,7 @@ Altough it can be done, plash does not try to be an general purpose language and
 :touch myfile
 ```
 
-But this is actually just for quick one-shot functions. You can implement new actions by importing python modules that have callables registered with the plash.eval.register decorator.
+But this is actually just for quick one-shot functions. You can implement new actions by importing python modules that have callables registered with the plash.eval.register decorator. See stdlib.py for examples.
 ```
 plash ubuntu --no-stdlib :import myplashlib :funcyfunc
 ```
