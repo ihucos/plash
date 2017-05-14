@@ -29,7 +29,7 @@ nvim
   # second parameter would go here
 $ plash @nvim
 ```
-Note the shebang, after marking your ./nvim file executable you could directly run it and even put into your PATH. The idea of plash is to have only a very lightweight virtualization, programms run by it should have mostly access to all resources seen by 'native" programs.
+Note the shebang, after marking your ./nvim file executable you could directly run it and even put the file into your PATH. The idea of plash is to have only a very lightweight virtualization, programms run by it should have mostly access to all resources seen by "native" programs. (Currently plash is on top of docker, I want to change it to libcontainer/runc)
 
 Plash files can be seens as one dimensional lisp
 
