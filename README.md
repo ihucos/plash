@@ -20,6 +20,7 @@ Your home directory is mounted as home on the container. Building is cached. Thi
 You can import arguments from files
 ```
 $ cat ./nvim
+#!/usr/bin/env plashexec
 ubuntu
 nvim
 :add-apt-repository ppa:neovim-ppa/stable
@@ -28,12 +29,8 @@ nvim
   # second parameter would go here
 $ plash @nvim
 ```
-Or use the recommended method, add a shebang to that includable command line arguments file and mark it executable.
-```
-#!/usr/bin/env plashexec
-# rest of the file goes here, note that this should be run by plashexec, not plash 
-# ...
-```
+Note the shebang, after marking your ./nvim file executable you could directly run it and even put into your PATH. The idea of plash is to have only a very lightweight virtualization, programms run by it should have mostly access to all resources seen by 'native" programs.
+
 Plash files can be seens as one dimensional lisp
 
 
