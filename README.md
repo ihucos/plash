@@ -11,7 +11,7 @@ Plash is a flexible build tool for docker images. Current version is 0.2 alpha.
 
 ## Crash Course
 
-Wit plash you can run `nvim` without installing it to the operating system.
+With plash you can run `nvim` without installing it to the operating system.
 ```
 $ plash ubuntu :add-apt-repository ppa:neovim-ppa/stable :apt neovim -- nvim myfile
 ```
@@ -36,7 +36,7 @@ Here is another simple example of a plash file:
 	package1
 	package2
 
-:layer # layering is explecit
+:layer # layering is explicit
 
 :run touch myfile
 ```
