@@ -1,6 +1,6 @@
 # plash
 
-Plash is a swiss army knife for containers that easily turns into a machete. Current version is 0.1 alpha.
+Plash is a swiss army knife for containers that easily turns into a machete. Current version is 0.2 alpha.
 
 
 ## Install
@@ -76,6 +76,7 @@ You can have build time arguments, of course rebuilding happens if they change.
 :import-envs
   MYDIR
   PATH:HOST_PATH
+
 :all run  # all applies each argument to run
 	mkdir $MYDIR
 	cd $MYDIR
@@ -114,7 +115,6 @@ Plash scripts can be saved to a docker image
 ```
 $ plash @myplashscript --save-image myimage --build-only
 $ docker push dockeruser485/myimage
-$ docker save myimage > myimage.tar
 $ plash myimage bash
 ```
 
@@ -122,8 +122,28 @@ $ plash myimage bash
 One of Python's virtualenvs shortcoming is that packages often can not be compiled at another computer. With plash we can isolate all dependencies inside a container and still be very leightweight on the development side.
 
 ```
- $ plash --debian --apt binutils python-dev --pip-requirements ./requirements.txt --install ./python -- python
- Installed to ./python
+#!/usr/bin/env plashexec
+
+debian
+python
+
+:apt
+	python
+	python-pip
+	python-dev
+	binutils
+
+:layer
+
+:warp run pip install -r {myapp/requirements.txt}
+
+:layer
+
+:import-envs MYAPP_DEVREQUIREMENTS
+:warp script
+	[ -n "$MYAPP_DEVREQUIREMENTS" ] && pip install -r \
+	{myapp/devrequirements.txt}
+	true
 ```
 
 This will give you an executable file named `./python` that can be commited to version control and should behave just like the python installed in your operating system. Behind the scenes the requierements are installed in an fresh debian system. Rebuilding happens automatically.

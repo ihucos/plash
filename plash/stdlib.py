@@ -76,6 +76,8 @@ class Warp(Action):
         for arg in args:
             if arg.startswith('{') and arg.endswith('}'):
                 path = arg[1:-1]
+                if os.path.isabs(path):
+                    raise ArgError('path should be relative: {}'.format(path))
                 if not os.path.exists(path):
                     raise ArgError('Path {} does not exist'.format(path))
                 p = subprocess.Popen(['tar', '-c', path],
@@ -83,19 +85,19 @@ class Warp(Action):
                 assert p.wait() == 0
                 out = p.stdout.read()
                 baseout = b64encode(out).decode()
-                outpath = os.path.join('/tmp', hashstr(out))
+                outpath = os.path.join('/tmp', hashstr(out)[:8])
                 init.append('mkdir {}'.format(outpath))
                 init.append('echo {baseout} | base64 --decode | tar -C {out} -x{extra}'.format(
                     out=outpath, baseout=baseout, extra=' --strip-components 1' if os.path.isdir(path) else ''))
-                replaced_args.append(os.path.join(outpath, os.path.basename(path)))
+                replaced_args.append(os.path.join(outpath, path))
                 # replaced_args.append(outpath)
             else:
                 replaced_args.append(arg)
 
         return eval([
-            ['run', ' && '.join(init)],
+            ['silentrun', ' && '.join(init)],
             [command] + replaced_args,
-            ['run', ' && '.join(cleanup)],
+            ['silentrun', ' && '.join(cleanup)],
         ])
         # return '{}\n{}\n'.format(
         #     ' && '.join(init), ' '.join(replaced_args), ' && '.join(cleanup))
@@ -283,8 +285,9 @@ class ImportEnv(Action):
             raise ArgError('env can only contain one ":"')
         host_val = os.environ.get(host_env)
         if host_val is None:
-            raise ArgError('No such env in host: {}'.format(host_env))
-        return '{}={}'.format(guest_env, shlex.quote(host_val))
+            return ':'
+            # raise ArgError('No such env in host: {}'.format(host_env))
+        return 'export {}={}'.format(guest_env, shlex.quote(host_val))
 
 class Emerge(PackageManager):
     install = 'emerge {}'
