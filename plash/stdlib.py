@@ -272,7 +272,7 @@ class Pwd(Action):
 
 
 class ImportEnv(Action):
-    name = 'import-envs'
+    name = 'import-env'
 
     def handle_arg(self, env):
         parts = env.split(':')

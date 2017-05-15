@@ -73,7 +73,7 @@ Build time mounts are supported
 
 You can have build time arguments, of course rebuilding happens if they change.
 ```
-:import-envs
+:import-env
   MYDIR
   PATH:HOST_PATH
 
@@ -118,8 +118,9 @@ $ docker push dockeruser485/myimage
 $ plash myimage bash
 ```
 
-### Use case: virtualenv replacement
+## Use case example: virtualenv replacement
 One of Python's virtualenvs shortcoming is that packages often can not be compiled at another computer. With plash we can isolate all dependencies inside a container and still be very leightweight on the development side.
+
 
 ```
 #!/usr/bin/env plashexec
@@ -139,22 +140,17 @@ python
 
 :layer
 
-:import-envs MYAPP_DEVREQUIREMENTS
+:import-env MYAPP_DEVREQUIREMENTS
 :warp script
-	[ -n "$MYAPP_DEVREQUIREMENTS" ] && pip install -r \
+	[ "$MYAPP_DEVREQUIREMENTS" = "1" ] && pip install -r \
 	{myapp/devrequirements.txt}
 	true
 ```
-
-This will give you an executable file named `./python` that can be commited to version control and should behave just like the python installed in your operating system. Behind the scenes the requierements are installed in an fresh debian system. Rebuilding happens automatically.
-
-
+This could be inside an executable file named ./python in your project root or in a `bin` folder in your project root and commited to version control.
+That way you will have a python that executes your app inside a container. Note with this example how you can export MYAPP_DEVREQUIREMENTS=1 in your development shell to also get comforts like e.g. ipdb in your container.
 
 
-In case you wondered, the executable `./python` file is a wrapped plash call.
-```
-$ cat ./python
-#!/bin/sh
-plash --debian --apt binutils python-dev --pip-requirements ./requirements.txt -- python "$@"
-```
 
+## Roadmap
+This is an alpha release. The next step is to get a stable minimalistic stdlib that is easy to understand and fits the needs of building images.
+I'd actually like to see docker only as a backend that can be used and actually rely on runc/libcontainer. The configuration management part of plash should be very leightweight, transparent and decopuled. I do not want to create the next ansible or turing complete scripting language. The vision of containers in plash is that they actually only isolate the file system, like a chroot. Other resources should be accesible inside the container. It should play well with the UNIX world, if you need something like `docker-compose`, use `supervisord`. If you need more isolation existing tools should be used.
