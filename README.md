@@ -111,6 +111,14 @@ Only two actions are build in, `import` and `layer`. The rest comes from the std
 
 ### Using plash to create docker images
 
+Plash scripts can be saved to a docker image
+```
+$ plash @myplashscript --save-image myimage --build-only
+$ docker push dockeruser485/myimage
+$ docker save myimage > myimage.tar
+$ plash myimage bash
+```
+
 ### Virtualenv replacement
 One of Python's virtualenvs shortcoming is that packages often can not be compiled at another computer. With plash we can isolate all dependencies inside a container and still be very leightweight on the development side.
 
