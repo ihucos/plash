@@ -83,7 +83,7 @@ You can have buildtime arguments, like with all other actions rebuilding happens
 	cd $MYDIR
 ```
 
-Altough it can be done, plash does not try to be an general purpose language. You can define new actions that are external scripts.
+Altough it can be done, plash does not try to be a general purpose language. You can define new actions that are external scripts.
 
 ```
 :define touch
