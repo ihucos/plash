@@ -82,28 +82,31 @@ You can have build time arguments, of course rebuilding happens if they change.
 	cd $MYDIR
 ```
 
-Altough it can be done, plash does not try to be an general purpose language and relies on inline scripts
-
-```
-:script
-	[ "$DEBUGTOOLS" = 1 ] && plash :pip ipdb
-	true
-
-```
+Altough it can be done, plash does not try to be an general purpose language. You can define new actions that are external scripts.
 
 ```
 :define touch
-         #!/usr/bin/env python
-         import sys, subprocess
-         subprocess.check_call(
-         ['plash', ':run', 'touch', sys.argv[1]])
+	touch $1	
+
 :touch myfile
+
+```
+Or if you don't like bash:
+```
+:apt python
+:define mkdir
+	#!/usr/bin/env python
+	import sys, os
+	os.mkdir(sys.argv[1])
+:mkdir mydir
 ```
 
-But this is actually just for quick one-shot functions. You can implement new actions by importing python modules that have callables registered with the plash.eval.register decorator. See stdlib.py for examples.
+But this is actually just for quick one-shot functions. You can implement new actions by importing python modules that have callables registered with the `plash.eval.register` decorator. See stdlib.py for examples.
 ```
 plash ubuntu --no-stdlib :import myplashlib :funcyfunc
 ```
+
+Only two actions are build in, `import` and `layer`. The rest comes from the stdlib that can be easily extended or replaced.
 
 
 ### Using plash to create docker images
