@@ -41,7 +41,7 @@ Here is another simple example of a plash file:
 :run touch myfile
 ```
 
-Plash scripts can be seens as one dimensional lisp, 'layer' for instance is actually a macro.
+Plash scripts can be seen as one dimensional lisp, 'layer' for instance is actually a macro.
 ```
 :layer apt
 	package1
@@ -107,7 +107,7 @@ But this is actually just for quick one-shot functions. You can implement new ac
 plash ubuntu --no-stdlib :import myplashlib :funcyfunc
 ```
 
-Only two actions are build in, `import` and `layer`. The rest comes from the stdlib that can be easily extended or replaced.
+Only two actions are build in, `import` and `layer`. The rest comes from the stdlib which can be easily extended or replaced.
 
 
 ## Using plash to create docker images
