@@ -19,14 +19,13 @@ Your home directory is mounted as home on the container. Building is cached. Thi
 
 You can import command line arguments from files
 ```
-$ cat ./nvim
+$ plash @nvim
+$ cat nvim
 #!/usr/bin/env plashexec
 ubuntu
 nvim
 :add-apt-repository ppa:neovim-ppa/stable
-:apt
-	neovim
-$ plash @nvim
+:apt neovim
 ```
 Note the shebang, after marking your ./nvim file executable you could directly run it and even put the file into your PATH. The idea of plash is to have only a very lightweight virtualization, programms run by it should have mostly access to all resources seen by "native" programs. (Currently plash is on top of docker, I want to change it to libcontainer/runc)
 
@@ -77,7 +76,7 @@ You can have build time arguments, of course rebuilding happens if they change.
 :import-envs
   MYDIR
   PATH:HOST_PATH
-:eval
+:all run  # all applies each argument to run
 	mkdir $MYDIR
 	cd $MYDIR
 ```
@@ -119,7 +118,7 @@ $ docker save myimage > myimage.tar
 $ plash myimage bash
 ```
 
-### Virtualenv replacement
+### Use case: virtualenv replacement
 One of Python's virtualenvs shortcoming is that packages often can not be compiled at another computer. With plash we can isolate all dependencies inside a container and still be very leightweight on the development side.
 
 ```
