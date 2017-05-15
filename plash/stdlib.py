@@ -380,16 +380,16 @@ def define(action_name, *lines):
     if not lines[0][:2] == '#!': # looks like a shebang
         lines = ['#!/usr/bin/env bash'] + list(lines)
 
-    @action(action_name, debug=False)
+    @action(action_name, debug=True)
     def myaction(*args):
         encoded = b64encode('\n'.join(lines).encode())
         inline_file = '<(echo {} | base64 --decode)'.format(encoded.decode())
 
-        return ("define_tmpfile=$(mktemp /tmp/XXXXXX-asdf) && "
+        return ("define_tmpfile=$(mktemp /tmp/XXXXXX-{action}) && "
                 "cp {inline_file} $define_tmpfile && "
                 "chmod u+x $define_tmpfile && "
                 '.$define_tmpfile ' + ' '.join(shlex.quote(i) for i in args) 
-                ).format(inline_file=inline_file)
+                ).format(inline_file=inline_file, action=action_name)
 
     return ':'
 
