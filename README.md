@@ -9,7 +9,7 @@ Plash is a swiss army knife for containers that easily turns into a machete. Cur
 *Api and configuration format unstable*
 
 
-## Tutorial
+## Crash Course
 
 Run nvim without installing it to your operating system.
 ```
@@ -77,7 +77,7 @@ You can have build time arguments, of course rebuilding happens if they change.
   MYDIR
   PATH:HOST_PATH
 
-:all run  # all applies each argument to run
+:all run  # all applies each argument to its first arguments
 	mkdir $MYDIR
 	cd $MYDIR
 ```
