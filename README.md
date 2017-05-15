@@ -28,7 +28,7 @@ nvim
 :add-apt-repository ppa:neovim-ppa/stable
 :apt neovim
 ```
-Note the shebang, after marking this file named nvim executable it can be directly run and you could also put it into your PATH. The main idea of plash is to have programms that run what you need inside a container. Plashs vision of containers is that like in a chroot only the file system is virtualized and other resources accesible. A plash script should behave as an "native" programm. (Currently plash is on top of docker, I want to change it to libcontainer/runc with an overlay file system)
+Note the shebang, after marking this file named nvim executable it can be directly run and you could also put it into your PATH. The main idea of plash is to have programms that run what you need inside a container. Plashs vision of containers is that like in a chroot only the file system is virtualized and other resources accesible. A plash script should behave as a "native" programm. (Currently plash is on top of docker, I want to change it to libcontainer/runc with an overlay file system)
 
 Here is another simple example of a plash file:
 ```
