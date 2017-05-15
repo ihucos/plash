@@ -27,9 +27,9 @@ def pdb():
 def note(*args):
     return ':'
 
-class Execute(Action):
-    def __call__(self, command, *args):
-        return '. ' + command + ' '.join(shlex.quote(i) for i in args)
+# class Execute(Action):
+#     def __call__(self, command, *args):
+#         return '. ' + command + ' '.join(shlex.quote(i) for i in args)
 
 # class Execute(FileCommand):
 #     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
@@ -384,11 +384,16 @@ def define(action_name, *lines):
     def myaction(*args):
         encoded = b64encode('\n'.join(lines).encode())
         inline_file = '<(echo {} | base64 --decode)'.format(encoded.decode())
-        return '. ' + inline_file + ' ' + ' '.join(shlex.quote(i) for i in args)
+
+        return ("define_tmpfile=$(mktemp /tmp/XXXXXX-asdf) && "
+                "cp {inline_file} $define_tmpfile && "
+                "chmod u+x $define_tmpfile && "
+                '.$define_tmpfile ' + ' '.join(shlex.quote(i) for i in args) 
+                ).format(inline_file=inline_file)
 
     return ':'
 
-@action('script', debug=False)
+@action('script', debug=True)
 def script(*lines):
     eval([['define', 'last-script'] + list(lines)])
     return eval([['last-script']])
