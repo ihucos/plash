@@ -1,21 +1,22 @@
 # plash
 
-Plash is a swiss army knife for containers that easily turns into a machete. Current version is 0.2 alpha.
+Plash is a flexible build tool for docker images. Current version is 0.2 alpha.
 
 
 ## Install
-`pip3 install git+https://github.com/ihucos/plash.git`
 
 *Api and configuration format unstable*
 
+`pip3 install git+https://github.com/ihucos/plash.git`
 
 ## Crash Course
 
-Run nvim without installing it to your operating system.
+Wit plash you can run nvim without installing it to the operating system.
 ```
 $ plash ubuntu :add-apt-repository ppa:neovim-ppa/stable :apt neovim -- nvim myfile
 ```
-Your home directory is mounted as home on the container. Building is cached. This feels like nvim is runned as any other application
+Your home directory is mounted as home into the container.
+Building is cached, if you run this command twice, building will not happen again.
 
 You can import command line arguments from files
 ```
@@ -27,7 +28,7 @@ nvim
 :add-apt-repository ppa:neovim-ppa/stable
 :apt neovim
 ```
-Note the shebang, after marking your ./nvim file executable you could directly run it and even put the file into your PATH. The idea of plash is to have only a very lightweight virtualization, programms run by it should have mostly access to all resources seen by "native" programs. (Currently plash is on top of docker, I want to change it to libcontainer/runc)
+Note the shebang, after marking this file named nvim executable it can be directly run and you could also put it into your PATH. The main idea of plash is to have programms that run what you need inside a container. Plashs vision of containers is that like in a chroot only the file system is virtualized and other resources accesible. A plash script should behave as an "native" programm. (Currently plash is on top of docker, I want to change it to libcontainer/runc with an overlay file system)
 
 Here is another simple example of a plash file:
 ```
@@ -40,14 +41,14 @@ Here is another simple example of a plash file:
 :run touch myfile
 ```
 
-Plash scripts can be seens as one dimensional lisp, 'layer' is actually an macro
+Plash scripts can be seens as one dimensional lisp, 'layer' for instance is actually a macro.
 ```
 :layer apt
 	package1
 	package2
 	package3
 ```
-Is the same as
+Results to the same as
 ```
 :layer
 :apt package1
@@ -57,7 +58,7 @@ Is the same as
 :apt package3
 :layer
 ```
-Another macro is the action warp:
+Another macro is the action 'warp':
 ```
 :warp run cp -r {./data_dir_at_host} /app/data
 ```
@@ -71,7 +72,7 @@ Build time mounts are supported
 	mydir
 ```
 
-You can have build time arguments, of course rebuilding happens if they change.
+You can have build time arguments, like with all other actions rebuilding happens if necessary.
 ```
 :import-env
   MYDIR
@@ -101,7 +102,7 @@ Or if you don't like bash:
 :mkdir mydir
 ```
 
-But this is actually just for quick one-shot functions. You can implement new actions by importing python modules that have callables registered with the `plash.eval.register` decorator. See stdlib.py for examples.
+But this is actually just for quick one-shot functions. You can implement new actions by importing python modules that have callables registered with the `plash.eval.register` decorator. See `stdlib.py` for examples.
 ```
 plash ubuntu --no-stdlib :import myplashlib :funcyfunc
 ```
@@ -109,7 +110,7 @@ plash ubuntu --no-stdlib :import myplashlib :funcyfunc
 Only two actions are build in, `import` and `layer`. The rest comes from the stdlib that can be easily extended or replaced.
 
 
-### Using plash to create docker images
+## Using plash to create docker images
 
 Plash scripts can be saved to a docker image
 ```
@@ -146,11 +147,11 @@ python
 	{myapp/devrequirements.txt}
 	true
 ```
-This could be inside an executable file named ./python in your project root or in a `bin` folder in your project root and commited to version control.
-That way you will have a python that executes your app inside a container. Note with this example how you can export MYAPP_DEVREQUIREMENTS=1 in your development shell to also get comforts like e.g. ipdb in your container.
+This could be inside an executable file named ./python or inside a bin folder in your project root and checked into version control.
+That way you will have a python that executes your app inside a container with the required libraries. Note with this example how you can export MYAPP_DEVREQUIREMENTS=1 in  to also get comforts like e.g. ipdb in your container.
 
 
 
 ## Roadmap
 This is an alpha release. The next step is to get a stable minimalistic stdlib that is easy to understand and fits the needs of building images.
-I'd actually like to see docker only as a backend that can be used and actually rely on runc/libcontainer. The configuration management part of plash should be very leightweight, transparent and decopuled. I do not want to create the next ansible or turing complete scripting language. The vision of containers in plash is that they actually only isolate the file system, like a chroot. Other resources should be accesible inside the container. It should play well with the UNIX world, if you need something like `docker-compose`, use `supervisord`. If you need more isolation existing tools should be used.
+I'd actually like to see docker only as a backend that can be used and actually rely on runc/libcontainer. The configuration management part of plash should be very leightweight, transparent and decopuled. I do not want to create the next ansible or turing complete scripting language. The vision of containers in plash is that they actually only isolate the file system, like a chroot. Other resources should be accesible inside the container. It should play well with the UNIX world, if you need something like `docker-compose`, use `supervisord`. If you need more isolation existing tools can be used.
