@@ -63,7 +63,7 @@ Another macro is the action 'warp':
 :warp run cp -r {./data_dir_at_host} /app/data
 ```
 
-Build time mounts are supported
+Buildtime mounts are supported
 ```
 :mount .
 :pwd .
@@ -72,7 +72,7 @@ Build time mounts are supported
 	mydir
 ```
 
-You can have build time arguments, like with all other actions rebuilding happens if necessary.
+You can have buildtime arguments, like with all other actions rebuilding happens if necessary.
 ```
 :import-env
   MYDIR
