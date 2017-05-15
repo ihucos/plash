@@ -28,8 +28,8 @@ def note(*args):
     return ':'
 
 class Execute(Action):
-    def handle_arg(self, arg):
-        return '. ' + arg
+    def __call__(self, command, *args):
+        return '. ' + command + ' '.join(shlex.quote(i) for i in args)
 
 # class Execute(FileCommand):
 #     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
@@ -231,14 +231,14 @@ class Npm(PackageManager):
     install = 'npm install -g {}'
 
 
-# class FileCommand(Action):
+class FileCommand(Action):
 
-#     def __call__(self, fname):
-#         with open(fname) as f:
-#             encoded = b64encode(f.read().encode())
-#         inline_file = '<(echo {} | base64 --decode)'.format(
-#             encoded.decode())
-#         return self.cmd.format(inline_file)
+    def __call__(self, fname):
+        with open(fname) as f:
+            encoded = b64encode(f.read().encode())
+        inline_file = '<(echo {} | base64 --decode)'.format(
+            encoded.decode())
+        return self.cmd.format(inline_file)
 
 class PipRequirements(FileCommand):
     name = 'pip-requirements'
@@ -345,6 +345,35 @@ def each_line(*args):
 def all(command, *args):
     return eval([[command, arg] for arg in args])
 
+# @action('define', debug=False)
+# def define-with-local-execute(action_name, *lines):
+
+#     if not lines[0][:2] == '#!': # looks like a shebang
+#         lines = ['#!/usr/bin/env bash'] + list(lines)
+
+#     @action(action_name, debug=False)
+#     def myaction(*args):
+#         # assert False, lines
+#         with NamedTemporaryFile() as outfile, NamedTemporaryFile('w') as scriptfile:
+#             scriptfile.write('\n'.join(lines))
+#             scriptfile.flush()
+
+#             # make scriptfile executable
+#             st = os.stat(scriptfile.name)
+#             os.chmod(scriptfile.name, st.st_mode | stat.S_IEXEC)
+
+#             p = subprocess.Popen(
+#                 [scriptfile.name] + list(args),
+#                 env=dict(os.environ, PLASH_COLLECT_MODE=outfile.name))
+#             exit = p.wait()
+#             if exit:
+#                 raise ArgError('script returned non zero code {}'.format(exit))
+
+#             return outfile.read().decode()
+
+#     return ':'
+
+
 @action('define', debug=False)
 def define(action_name, *lines):
 
@@ -353,26 +382,11 @@ def define(action_name, *lines):
 
     @action(action_name, debug=False)
     def myaction(*args):
-        # assert False, lines
-        with NamedTemporaryFile() as outfile, NamedTemporaryFile('w') as scriptfile:
-            scriptfile.write('\n'.join(lines))
-            scriptfile.flush()
-
-            # make scriptfile executable
-            st = os.stat(scriptfile.name)
-            os.chmod(scriptfile.name, st.st_mode | stat.S_IEXEC)
-
-            p = subprocess.Popen(
-                [scriptfile.name] + list(args),
-                env=dict(os.environ, PLASH_COLLECT_MODE=outfile.name))
-            exit = p.wait()
-            if exit:
-                raise ArgError('script returned non zero code {}'.format(exit))
-
-            return outfile.read().decode()
+        encoded = b64encode('\n'.join(lines).encode())
+        inline_file = '<(echo {} | base64 --decode)'.format(encoded.decode())
+        return '. ' + inline_file + ' ' + ' '.join(shlex.quote(i) for i in args)
 
     return ':'
-
 
 @action('script', debug=False)
 def script(*lines):

@@ -88,6 +88,7 @@ Altough it can be done, plash does not try to be an general purpose language and
 :script
 	[ "$DEBUGTOOLS" = 1 ] && plash :pip ipdb
 	true
+
 ```
 
 ```
