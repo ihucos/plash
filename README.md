@@ -147,8 +147,8 @@ python
 	{myapp/devrequirements.txt}
 	true
 ```
-This could be inside an executable file named ./python or inside a bin folder in your project root and checked into version control.
-That way you will have a python that executes your app inside a container with the required libraries. Note with this example how you can export MYAPP_DEVREQUIREMENTS=1 in  to also get comforts like e.g. ipdb in your container.
+This could be inside an executable file named `python` or inside a bin folder in your project root and checked into version control.
+That way you will have a python that executes your app inside a container with the required libraries. Note with this example how you can `export MYAPP_DEVREQUIREMENTS=1` in order to also get comforts like e.g. ipdb in your container.
 
 
 
