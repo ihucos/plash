@@ -1,0 +1,8 @@
+#!/usr/bin/env plashexec
+
+ubuntu:16.04
+fzf
+
+:apt wget
+:run wget https://github.com/junegunn/fzf-bin/releases/download/0.16.7/fzf-0.16.7-linux_amd64.tgz
+:run tar -xvzf fzf-*-linux_amd64.tgz -C /usr/local/bin/
