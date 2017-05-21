@@ -46,7 +46,7 @@ class CollectLspAction(argparse.Action):
 
 def read_lsp_from_args(args):
     parser=PlashArgumentParser(prefix_chars='-:', fromfile_prefix_chars='@')
-    parsed, unknown = parser.parse_known_args()
+    parsed, unknown = parser.parse_known_args(args)
     registered = []
     for arg in unknown:
         if arg.startswith(":") and not arg in registered:
@@ -54,7 +54,7 @@ def read_lsp_from_args(args):
             parser.add_argument(arg, nargs='*', action=CollectLspAction)
             registered.append(arg)
 
-    args, unknown = parser.parse_known_args()
+    args, unknown = parser.parse_known_args(args)
     lsp = getattr(args, 'lsp', [])
     return lsp, unknown
 
@@ -86,7 +86,7 @@ def get_argument_parser(args):
 
 
 def main():
-    lsp, unused_args = (read_lsp_from_args(sys.argv[1:]))
+    lsp, unused_args = read_lsp_from_args(sys.argv[1:])
     ap = get_argument_parser(unused_args)
     args = ap.parse_args(unused_args)
     # print(args, unused_args)
