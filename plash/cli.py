@@ -12,6 +12,21 @@ from .utils import (disable_friendly_exception, friendly_exception, hashstr,
 HELP = 'my help'
 PROG = 'plash'
 
+SHORTCUTS = [
+    # shortcut, lsp, nargs
+    ('-a', ['apt'], '+'),
+    ('-p', ['pip'], '+'),
+    ('-b', ['apt', 'ubuntu-server'], 0),
+ ]
+
+
+def add_shortcuts_to_parser(parser):
+    group = parser.add_argument_group('shortcuts', 'shortcuts')
+    for shortcut, lsp, nargs in SHORTCUTS:
+        group.add_argument(
+            shortcut,
+            action=create_collect_lsp_action(lsp),
+            nargs=nargs)
 
 class PlashArgumentParser(argparse.ArgumentParser):
         def convert_arg_line_to_args(self, arg_line):
@@ -34,24 +49,30 @@ class PlashArgumentParser(argparse.ArgumentParser):
                             break
                         yield ' ' + arg
 
-class CollectLspAction(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        if not 'lsp' in namespace:
-            setattr(namespace, 'lsp', [])
-        previous = namespace.lsp                             
-        # remove escape eventual the space that is used as escape char
-        values = list(i[1:] if i.startswith(' ') else i for i in values)
-        previous.append([self.dest.replace('_', '-')] + values)
-        setattr(namespace, 'lsp', previous) 
+def create_collect_lsp_action(lsp_begin):
+    class CollectAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            if not 'lsp' in namespace:
+                setattr(namespace, 'lsp', [])
+            previous = namespace.lsp
+            previous.append(lsp_begin + list(values))
+            setattr(namespace, 'lsp', previous) 
+    return CollectAction
 
 def read_lsp_from_args(args):
-    parser=PlashArgumentParser(prefix_chars='-:', fromfile_prefix_chars='@')
+    parser = PlashArgumentParser(prefix_chars='-:', fromfile_prefix_chars='@')
+
+    add_shortcuts_to_parser(parser)
+
     parsed, unknown = parser.parse_known_args(args)
     registered = []
     for arg in unknown:
         if arg.startswith(":") and not arg in registered:
             #you can pass any arguments to add_argument
-            parser.add_argument(arg, nargs='*', action=CollectLspAction)
+            parser.add_argument(
+                arg,
+                nargs='*',
+                action=create_collect_lsp_action([arg[1:]]))
             registered.append(arg)
 
     args, unknown = parser.parse_known_args(args)
@@ -72,6 +93,7 @@ def get_argument_parser(args):
     parser.add_argument("--build-again", "--rebuild", "--again", action='store_true')
     parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--traceback", action='store_true')
+    parser.add_argument("--debug-lsp", action='store_true')
 
     parser.add_argument("--save-image")
 
@@ -81,6 +103,8 @@ def get_argument_parser(args):
         parser.add_argument(
             "exec", type=str, nargs='*', default=['bash'])
 
+    add_shortcuts_to_parser(parser)
+
     return parser
 
 
@@ -89,7 +113,6 @@ def main():
     lsp, unused_args = read_lsp_from_args(sys.argv[1:])
     ap = get_argument_parser(unused_args)
     args = ap.parse_args(unused_args)
-    # print(args, unused_args)
     if args.traceback:
         disable_friendly_exception()
     if not args.no_stdlib:
@@ -97,6 +120,9 @@ def main():
     else:
         init = []
 
+    if args.debug_lsp:
+        print(init + lsp)
+        sys.exit(0)
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
         script = eval(init + lsp)
     collect_to = os.environ.get('PLASH_COLLECT_MODE')
