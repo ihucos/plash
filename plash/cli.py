@@ -143,10 +143,14 @@ def main():
 
     if args.image.startswith('build://'):
         build = args.image[len('build://'):]
-        image = rand() # fixme cleanup this image later
-        p = subprocess.Popen(['docker', 'build', build, '-t', image])
+        tmp_image = rand() # fixme cleanup this image later
+        p = subprocess.Popen(['docker', 'build', build, '-t', tmp_image])
         exit = p.wait()
         assert exit == 0
+        image = subprocess.check_output(
+            ['docker', 'images', '--quiet', tmp_image])
+        image = image.decode().rstrip('\n')
+        subprocess.check_output(['docker', 'rmi', tmp_image])
     else:
         image = args.image
 
