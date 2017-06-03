@@ -34,13 +34,6 @@ def note(*args):
 # class Execute(FileCommand):
 #     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
-# class Include(Action):
-#     def handle_arg(self, file):
-#         fname = os.path.realpath(fname)
-#         with open(fname) as f:
-#             config = f.read()
-#         loaded = yaml.load(config)
-#         return self.eval(loaded)
 
 
 class Layer(Action):
@@ -348,6 +341,10 @@ def each_line(*args):
 def all(command, *args):
     return eval([[command, arg] for arg in args])
 
+@action('#', debug=False)
+def comment(*args):
+    return ':'
+
 # @action('define', debug=False)
 # def define-with-local-execute(action_name, *lines):
 
@@ -426,3 +423,42 @@ def script(*lines):
 #         Later add an jitter 
 
 #         """
+
+class Include(Action):
+
+    def handle_arg(self, file):
+        fname = os.path.realpath(file)
+        lsp = []
+        with open(fname) as f:
+            lsp = self.parse(l.rstrip('\n') for l in f.readlines())
+        return self.eval(lsp)
+
+    def parse(self, lines):
+
+        # if not lines[0].startswith(':'):
+        #     raise ArgError('first token must start with a colon')
+
+        # tokenize
+        tokens = []
+        for c, line in enumerate(lines):
+            if not line:
+                continue
+            if line.endswith((' ', '\t')):
+                raise ArgError('line {} has trailing whitespace(s)'.format(c+1))
+            if not line.startswith(':'):
+                tokens.append(line)
+            else:
+                line_tokens = line.split(' ')
+                tokens.extend(line_tokens)
+
+        # generate lsp out of the tokens
+        lsp = []
+        for token in tokens:
+            if token.startswith(':'):
+                lsp.append([token[1:]])
+            else:
+                lsp[-1].append(token)
+
+        # assert False, lsp
+        return lsp
+
