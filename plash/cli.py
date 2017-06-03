@@ -28,27 +28,6 @@ def add_shortcuts_to_parser(parser):
             action=create_collect_lsp_action(lsp),
             nargs=nargs)
 
-class PlashArgumentParser(argparse.ArgumentParser):
-        def convert_arg_line_to_args(self, arg_line):
-            '''
-            Actually plashs own domain specific language
-            '''
-            if arg_line and not arg_line.lstrip(' ').startswith('#'):
-                if arg_line.startswith('\t'):
-                    yield ' ' + arg_line[1:]
-                else:
-                    arg_line = arg_line.split('#')[0] # remove anything after an #
-                    args = arg_line.split()
-                    raw_action = args.pop(0)
-                    # if not raw_action.startswith(('-', '@')):
-                    #     yield ':'+raw_action
-                    # else:
-                    yield raw_action
-                    for arg in args:
-                        if arg.startswith('#'):
-                            break
-                        yield ' ' + arg
-
 def create_collect_lsp_action(lsp_begin):
     class CollectAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
@@ -59,28 +38,17 @@ def create_collect_lsp_action(lsp_begin):
             setattr(namespace, 'lsp', previous) 
     return CollectAction
 
-def read_lsp_from_args(args):
-    parser = PlashArgumentParser(prefix_chars='-:', fromfile_prefix_chars='@')
-
-    add_shortcuts_to_parser(parser)
-
-    parsed, unknown = parser.parse_known_args(args)
-    registered = []
-    for arg in unknown:
-        if arg.startswith(":") and not arg in registered:
-            #you can pass any arguments to add_argument
-            parser.add_argument(
-                arg,
-                nargs='*',
-                action=create_collect_lsp_action([arg[1:]]))
-            registered.append(arg)
-
-    args, unknown = parser.parse_known_args(args)
-    lsp = getattr(args, 'lsp', [])
-    return lsp, unknown
+# def unused_args_to_lsp(args):
+#     lsp = []
+#     for token in args:
+#         if token.startswith('-'):
+#             lsp.append([token.lstrip('-')])
+#         else:
+#             lsp[-1].append(token)
+#     return lsp
 
 
-def get_argument_parser(args):
+def get_argument_parser():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description='Run programm from any Linux',
@@ -97,11 +65,10 @@ def get_argument_parser(args):
 
     parser.add_argument("--save-image")
 
-    if not 'PLASH_COLLECT_MODE' in os.environ:
-        parser.add_argument(
-            "image", type=str)
-        parser.add_argument(
-            "exec", type=str, nargs='*', default=['bash'])
+    parser.add_argument(
+        "image", type=str)
+    parser.add_argument(
+        "exec", type=str, nargs='*', default=['bash'])
 
     add_shortcuts_to_parser(parser)
 
@@ -110,9 +77,20 @@ def get_argument_parser(args):
 
 
 def main():
-    lsp, unused_args = read_lsp_from_args(sys.argv[1:])
-    ap = get_argument_parser(unused_args)
-    args = ap.parse_args(unused_args)
+    ap = get_argument_parser()
+    _, unused_args = ap.parse_known_args(sys.argv[1:])
+    # lsp = unused_args_to_lsp(unused_args)
+    for arg in unused_args:
+        if arg == '--':
+            break
+        if arg.startswith('--'):
+            ap.add_argument(
+                arg,
+                action=create_collect_lsp_action([arg[2:]]),
+                nargs='*')
+    args = ap.parse_args()
+    lsp = getattr(args, 'lsp', [])
+
     if args.traceback:
         disable_friendly_exception()
     if not args.no_stdlib:
@@ -125,12 +103,6 @@ def main():
         sys.exit(0)
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
         script = eval(init + lsp)
-    collect_to = os.environ.get('PLASH_COLLECT_MODE')
-    if collect_to:
-        with friendly_exception(
-                [IOError], 'write-collect-file'), open(collect_to, 'w') as f:
-            f.write(script)
-        sys.exit(0)
 
     layers = script.split('{}'.format(layer()))
     plash_env = '{}-{}'.format(

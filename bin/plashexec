@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-plash \@$1 -- ${@:2}
+plash --include $1 -- ${@:2}
