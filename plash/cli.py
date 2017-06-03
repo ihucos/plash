@@ -141,7 +141,20 @@ def main():
         sys.exit(0)
 
 
-    b = LayeredDockerBuildable.create(args.image, layers)
+    if args.image.startswith('build://'):
+        build = args.image[len('build://'):]
+        tmp_image = rand() # fixme cleanup this image later
+        p = subprocess.Popen(['docker', 'build', build, '-t', tmp_image])
+        exit = p.wait()
+        assert exit == 0
+        image = subprocess.check_output(
+            ['docker', 'images', '--quiet', tmp_image])
+        image = image.decode().rstrip('\n')
+        subprocess.check_output(['docker', 'rmi', tmp_image])
+    else:
+        image = args.image
+
+    b = LayeredDockerBuildable.create(image, layers)
 
     with friendly_exception([BuildError, CalledProcessError]):
         if args.build_again:
