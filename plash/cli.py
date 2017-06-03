@@ -19,6 +19,9 @@ SHORTCUTS = [
     ('-a', ['apt'], '+'),
     ('-p', ['pip'], '+'),
     ('-b', ['apt', 'ubuntu-server'], 0),
+    ('-U', ['os', 'ubuntu'], 0),
+    ('-F', ['os', 'fedora'], 0),
+    ('-D', ['os', 'debian'], 0),
  ]
 
 
