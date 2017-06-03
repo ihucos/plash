@@ -4,6 +4,7 @@ import subprocess
 import sys
 from subprocess import CalledProcessError
 
+from . import state
 from .eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from .runos import BuildError, LayeredDockerBuildable, docker_run, runos
 from .utils import (disable_friendly_exception, friendly_exception, hashstr,
@@ -38,16 +39,6 @@ def create_collect_lsp_action(lsp_begin):
             setattr(namespace, 'lsp', previous) 
     return CollectAction
 
-# def unused_args_to_lsp(args):
-#     lsp = []
-#     for token in args:
-#         if token.startswith('-'):
-#             lsp.append([token.lstrip('-')])
-#         else:
-#             lsp[-1].append(token)
-#     return lsp
-
-
 def get_argument_parser():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
@@ -65,8 +56,6 @@ def get_argument_parser():
 
     parser.add_argument("--save-image")
 
-    parser.add_argument(
-        "image", type=str)
     parser.add_argument(
         "exec", type=str, nargs='*', default=['bash'])
 
@@ -102,6 +91,7 @@ def main():
         print(init + lsp)
         sys.exit(0)
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
+        state.reset()
         script = eval(init + lsp)
 
     layers = script.split('{}'.format(layer()))

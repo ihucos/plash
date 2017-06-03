@@ -434,9 +434,16 @@ class Include(Action):
         return self.eval(lsp)
 
     def parse(self, lines):
+        lines = list(lines)
 
-        # if not lines[0].startswith(':'):
-        #     raise ArgError('first token must start with a colon')
+        # ignore shebangs
+        if lines and lines[0].startswith('#!'):
+            lines.pop(0)
+
+        first_line = next(iter(l for l in lines if l))
+        if not first_line.startswith(':'):
+            raise ArgError(
+                'first line ("{}") must start with a colon'.format(first_line))
 
         # tokenize
         tokens = []
