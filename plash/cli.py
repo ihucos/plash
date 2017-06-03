@@ -1,5 +1,6 @@
 import argparse
 import os
+import shlex
 import subprocess
 import sys
 from subprocess import CalledProcessError
@@ -57,7 +58,7 @@ def get_argument_parser():
     parser.add_argument("--save-image")
 
     parser.add_argument(
-        "exec", type=str, nargs='*', default=['bash'])
+        "exec", type=str, nargs='*')
 
     add_shortcuts_to_parser(parser)
 
@@ -94,17 +95,18 @@ def main():
         state.reset()
         script = eval(init + lsp)
 
+    os_image = state.get_os()
     layers = script.split('{}'.format(layer()))
     plash_env = '{}-{}'.format(
-        args.image,
+        os_image,
         hashstr('\n'.join(layers).encode())[:4])
-    if args.image == 'print':
+    if os_image == 'print':
         print(script)
         sys.exit(0)
 
 
-    if args.image.startswith('build://'):
-        build = args.image[len('build://'):]
+    if os_image.startswith('build://'):
+        build = os_image[len('build://'):]
         tmp_image = rand() # fixme cleanup this image later
         p = subprocess.Popen(['docker', 'build', build, '-t', tmp_image])
         exit = p.wait()
@@ -114,7 +116,7 @@ def main():
         image = image.decode().rstrip('\n')
         subprocess.check_output(['docker', 'rmi', tmp_image])
     else:
-        image = args.image
+        image = os_image
 
     b = LayeredDockerBuildable.create(image, layers)
 
@@ -136,8 +138,13 @@ def main():
             subprocess.check_output(
                 ['docker', 'commit', container_id, args.save_image])
 
-    command = args.exec if not args.build_only else None
-    if command:
-        exit = docker_run(b.get_image_name(), command,
-                          extra_envs={'PLASH_ENV': plash_env})
-        sys.exit(exit)
+
+    if args.build_only:
+        sys.exit(0)
+
+    bcmd = state.get_base_command() or ''
+    command = (args.exec or ['bash']) if not bcmd else shlex.split(bcmd) + (args.exec or [])
+
+    exit = docker_run(b.get_image_name(), command,
+                      extra_envs={'PLASH_ENV': plash_env})
+    sys.exit(exit)

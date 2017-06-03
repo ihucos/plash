@@ -41,7 +41,7 @@ def eval(lisp):
         try:
             action = actions[action_name]
         except KeyError:
-            raise ActionNotFoundError('Action {} not found'.format(
+            raise ActionNotFoundError('Action "{}" not found'.format(
                 action_name))
         res = action(*args)
         if not isinstance(res, str):

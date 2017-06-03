@@ -6,17 +6,11 @@ import subprocess
 import sys
 import uuid
 from base64 import b64encode
-from tempfile import NamedTemporaryFile
 
-import yaml
-
+from . import state
 from .actionutils import Action, ArgError, action, eval
-from .utils import hashstr, rand
+from .utils import hashstr
 
-
-# def pip_requiremenets(
-# #     'pip-requirements': [['pun', 'pip', 'install', '-r', {ARG1}]]
-# # }
 
 @action('pdb')
 def pdb():
@@ -441,9 +435,9 @@ class Include(Action):
             lines.pop(0)
 
         first_line = next(iter(l for l in lines if l))
-        if not first_line.startswith(':'):
+        if not first_line.split()[0].endswith(':'):
             raise ArgError(
-                'first line ("{}") must start with a colon'.format(first_line))
+                'first line ("{}") must be a function and not an argument'.format(first_line))
 
         # tokenize
         tokens = []
@@ -452,7 +446,7 @@ class Include(Action):
                 continue
             if line.endswith((' ', '\t')):
                 raise ArgError('line {} has trailing whitespace(s)'.format(c+1))
-            if not line.startswith(':'):
+            if not line.split()[0].endswith(':'):
                 tokens.append(line)
             else:
                 line_tokens = line.split(' ')
@@ -461,11 +455,20 @@ class Include(Action):
         # generate lsp out of the tokens
         lsp = []
         for token in tokens:
-            if token.startswith(':'):
-                lsp.append([token[1:]])
+            if token.endswith(':'):
+                lsp.append([token[:-1]])
             else:
                 lsp[-1].append(token)
 
-        # assert False, lsp
         return lsp
 
+
+@action('os', debug=False)
+def os_(os):
+    state.set_os(os)
+    return ':'
+
+@action('cmd', debug=False)
+def cmd(os):
+    state.set_base_command(os)
+    return ':'
