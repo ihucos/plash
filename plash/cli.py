@@ -101,7 +101,7 @@ def main():
     os_image = state.get_os()
     if not os_image:
         with friendly_exception([ArgError]):
-            raise ArgError('No image specified')
+            raise ArgError('Specify an image')
     layers = script.split('{}'.format(layer()))
     plash_env = '{}-{}'.format(
         os_image,
