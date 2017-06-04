@@ -121,6 +121,8 @@ class DockerBuildable(BaseDockerBuildable):
             subprocess.check_call(dbgcmd, shell=True)
             print()
             raise BuildError('building returned exit status {}'.format(exit))
+        elif fname:
+            os.remove(fname)
 
         # get cotnainer id
         container_id = subprocess.check_output(
