@@ -82,7 +82,7 @@ def import_planch_actions(*modules):
         with friendly_exception([ImportError], debug):
             import_module(module_name)
 
-@action('original-layer')
+@action('original-layer', echo=False)
 @action('layer', echo=False)
 def layer():
     return ": 'Start new layer marker [{}]'".format(layer_marker_rand)

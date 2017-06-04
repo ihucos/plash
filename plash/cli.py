@@ -112,7 +112,8 @@ def main():
     if not os_image:
         with friendly_exception([ArgError]):
             raise ArgError('Specify an image')
-    layers = script.split('{}'.format(layer()))
+    layers = (script + '\n').split('{}'.format(layer() + '\n'))
+    layers = [l for l in layers if l]
     plash_env = '{}-{}'.format(
         os_image,
         hashstr('\n'.join(layers).encode())[:4])

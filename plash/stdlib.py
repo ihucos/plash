@@ -19,7 +19,7 @@ def pdb():
 
 
 
-@action()
+@action(echo=False)
 def layer(command=None, *args):
     if not command:
         return eval([['original-layer']]) # fall back to buildin layer action
