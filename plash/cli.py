@@ -3,7 +3,7 @@ import os
 import shlex
 import subprocess
 import sys
-from subprocess import CalledProcessError
+from subprocess import CalledProcessError, list2cmdline
 
 from . import state
 from .eval import ActionNotFoundError, ArgError, EvalError, eval, layer
@@ -13,6 +13,12 @@ from .utils import (disable_friendly_exception, friendly_exception, hashstr,
 
 HELP = 'my help'
 PROG = 'plash'
+
+
+NO_TERM_BUILD_ERROR = """plash error: Refusing to build when not connected to a tty(-like) device.
+Set the env PLASH_SILENT_BUILD to enable building without output is such cases.
+Or invoke this call with --build-only from a terminal to build and run again.
+The argv of this program: {}""".format(sys.argv)
 
 '''
 build stragegies:
@@ -177,6 +183,10 @@ def main():
 
     with friendly_exception([BuildError, CalledProcessError]):
         if args.build_again or not b.image_ready():
+            if not sys.stdout.isatty() and not args.quiet:
+                sys.stderr.write(NO_TERM_BUILD_ERROR)
+                print()
+                sys.exit(1)
             b.build(
                 quiet=args.quiet,
                 verbose=args.verbose)
