@@ -8,7 +8,7 @@ import uuid
 from base64 import b64encode
 
 from . import state
-from .actionutils import Action, ArgError, action, eval
+from .eval import action, eval
 from .utils import hashstr
 
 
@@ -31,11 +31,11 @@ def layer(command=None, *args):
             lst.append(['layer'])
         return eval(lst)
 
-@action('run')
+@action()
 def run(*args):
     return '\n'.join(args)
 
-@action('silentrun', debug=False)
+@action(echo=False)
 def silentrun(*args):
     return ' '.join(args)
 
@@ -118,7 +118,7 @@ class RebuildWhenChanged():
 
 action('rebuild-when-changed')(RebuildWhenChanged())
 
-@action('define-package-manager')
+@action()
 def define_package_manager(name, *lines):
 
     @action(name)
@@ -147,7 +147,7 @@ def mount(*mountpoints):
         yield cmd
 
 @action()
-def pwd()
+def pwd():
     return 'cd {}'.format(os.path.realpath(pwd))
 
 
@@ -175,18 +175,18 @@ def bustcache():
     return  ': bust cache with {}'.format(uuid.uuid4()) 
 
 
-@action('pkg', debug=False)
+@action(echo=False)
 def pkg(*packages):
     raise ArgError('you need to ":set-pkg <package-manager>" to use pkg')
 
-@action('set-pkg')
+@action()
 def set_pkg(pm):
-    @action('pkg', debug=False)
+    @action('pkg', echo=False)
     def pkg(*packages):
         return eval([[pm] + list(packages)])
 
 
-@action('with-file')
+@action()
 def with_file(command, *lines):
     file_content = '\n'.join(lines)
     encoded = b64encode(file_content.encode())
@@ -194,7 +194,7 @@ def with_file(command, *lines):
     return eval([[command, inline_file]])
 
 
-@action('each-line')
+@action()
 def each_line(*args):
     if not len(args) <= 2:
         raise ArgError('needs at leat two arguments')
@@ -209,21 +209,21 @@ def each_line(*args):
 
 
 
-@action('all', debug=False)
+@action()
 def all(command, *args):
     return eval([[command, arg] for arg in args])
 
-@action('#', debug=False)
+@action('#', echo=False)
 def comment(*args):
     pass
 
-@action('define', debug=False)
+@action(echo=False)
 def define(action_name, *lines):
 
     if not lines[0][:2] == '#!': # looks like a shebang
         lines = ['#!/usr/bin/env bash'] + list(lines)
 
-    @action(action_name, debug=True)
+    @action(action_name, echo=True)
     def myaction(*args):
         encoded = b64encode('\n'.join(lines).encode())
         inline_file = '<(echo {} | base64 --decode)'.format(encoded.decode())
@@ -235,7 +235,7 @@ def define(action_name, *lines):
                 ).format(inline_file=inline_file, action=action_name)
 
 
-@action('script', debug=True)
+@action(echo=True)
 def script(*lines):
     eval([['define', 'last-script'] + list(lines)])
     return eval([['last-script']])
@@ -303,7 +303,7 @@ def script2lsp(script):
     return lsp
 
 
-@action('include', debug=False)
+@action(echo=False)
 def include(*files):
     for file in files:
         fname = os.path.realpath(file)
@@ -312,11 +312,11 @@ def include(*files):
             lsp = script2lsp(l.rstrip('\n') for l in f.read())
         yield eval(lsp)
 
-@action('os', debug=False)
+@action('os', echo=False)
 def os_(os):
     state.set_os(os)
 
-@action('cmd', debug=False)
+@action(echo=False)
 def cmd(os):
     state.set_base_command(os)
 

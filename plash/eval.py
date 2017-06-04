@@ -3,8 +3,10 @@ from importlib import import_module
 
 from .utils import friendly_exception, rand
 
+ECHO_DEBUG = "echo \*\*\* plash is running --{action_name} {args}"
+
 layer_marker_rand = rand()
-state = {'actions': {}}
+state = {'actions': {}} # put that in state.py ?
 
 class ArgError(TypeError):
         pass
@@ -16,29 +18,31 @@ class EvalError(Exception):
     pass
 
 
-def register_action(action_name):
-    def decorator(f):
+def action(action_name=None, echo=True):
+    def decorator(func):
+
+        action = action_name or func.__name__.replace('_', '-')
+
         def function_wrapper(*args, **kw):
             with friendly_exception(
                 [ActionNotFoundError, ArgError, EvalError, IOError],
-                    action_name):
+                    action):
                 res = func(*args, **kw)
 
                 # allow actions to yield each line
-                if not isinstance(res, str) and not res is None:
+                if not isinstance(res, str) and res is not None:
                     res = '\n'.join(res)
 
             if not echo:
                 return res
             else:
-                echo_cmd = "echo \*\*\* plash is running :{} {}".format(
-                    shlex.quote(action_name), ' '.join(shlex.quote(i) for i in args))
-                return "{}\n{}".format(echo_cmd, res)
+                echo_cmd = ECHO_DEBUG.format(
+                    action_name=shlex.quote(action),
+                    args=' '.join(shlex.quote(shlex.quote(i)) for i in args))
+                return "{}\n{}".format(echo_cmd, res or '')
+
+        state['actions'][action] = function_wrapper
         return function_wrapper
-
-
-        state['actions'][action_name] = f
-        return f
     return decorator
 
 def eval(lisp):
@@ -69,8 +73,8 @@ def eval(lisp):
             action_values.append(res)
     return '\n'.join(action_values)
 
-@register_action('original-import')
-@register_action('import')
+@action('original-import')
+@action('import')
 def import_planch_actions(*modules):
     output = []
     for module_name in modules:
@@ -78,8 +82,8 @@ def import_planch_actions(*modules):
         with friendly_exception([ImportError], debug):
             import_module(module_name)
 
-@register_action('original-layer')
-@register_action('layer')
+@action('original-layer')
+@action('layer', echo=False)
 def layer():
     return ": 'Start new layer marker [{}]'".format(layer_marker_rand)
 
