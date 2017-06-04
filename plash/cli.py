@@ -23,6 +23,26 @@ build stragegies:
     print/normal/standart
     (dots)
     (oneline)
+
+build use cases:
+    1. on the terminal
+    if PLSASH_SILENT_BUILD is set:
+        action: build silently
+        if build failed:
+            Say where there is a file with the build log and show the last 5 lines
+    else:
+       action: build and log everything to stderr
+    2. in production or so or piped (no isatty)
+        if PLASH_SILENT_BUILD is not set
+           action: die with error message
+        else:
+            action: silently build
+            if build failed:
+                Say where there is a file with the build log and show the last 5 lines
+
+    in any of those cases:
+        if fd 3 is open, write to there instead of stderr
+
 '''
 
 SHORTCUTS = [
@@ -102,7 +122,7 @@ def main():
     ap = get_argument_parser()
     _, unused_args = ap.parse_known_args(sys.argv[1:])
     # lsp = unused_args_to_lsp(unused_args)
-    for arg in unused_args:
+    for arg in set(unused_args):
         if arg == '--':
             break
         if arg.startswith('--'):
@@ -156,12 +176,8 @@ def main():
     b = LayeredDockerBuildable.create(image, layers)
 
     with friendly_exception([BuildError, CalledProcessError]):
-        if args.build_again:
+        if args.build_again or not b.image_ready():
             b.build(
-                quiet=args.quiet,
-                verbose=args.verbose)
-        else:
-            b.ensure_builded(
                 quiet=args.quiet,
                 verbose=args.verbose)
 

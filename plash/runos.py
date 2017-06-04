@@ -1,8 +1,10 @@
 import os
 import shlex
 import subprocess
+import tempfile
 from os import environ
 from os.path import expanduser
+from shlex import quote
 
 from .utils import hashstr, rand
 
@@ -13,6 +15,12 @@ class BuildError(Exception):
 
 home_directory = expanduser("~")
 
+
+def docker_image_exists(ref):
+    out = subprocess.check_output(
+        ["docker", "images", "--quiet", "--filter",
+         "reference={ref}".format(ref=ref)])
+    return bool(out)
 
 def docker_run(image, cmd_with_args, extra_envs={}):
 
@@ -56,6 +64,10 @@ class BaseDockerBuildable:
                 return build_commands
         return TmpBuildable()
 
+    def image_ready(self):
+        return docker_image_exists(self.get_image_name())
+
+
     def get_base_image_name(self):
         raise NotImplementedError('you lazy person')
 
@@ -70,23 +82,20 @@ class DockerBuildable(BaseDockerBuildable):
             self.get_base_image_name(), self.get_build_commands()).encode())
         return 'packy-{}'.format(h)
 
-    def image_exists(self, ref):
-        # return False
-        out = subprocess.check_output(
-            ["docker", "images", "--quiet", "--filter",
-             "reference={ref}".format(ref=ref)])
-        return bool(out)
-    
-    def ensure_builded(self, *args, **kw):
-        if not self.image_exists(self.get_image_name()):
-            self.build(*args, **kw)
-
     def build(self, quiet=True, verbose=False):
         rand_name = rand()
         cmds = self.get_build_commands()
         new_image_name = self.get_image_name()
 
-        quiet_kw = {'stderr': subprocess.DEVNULL, 'stdout': subprocess.DEVNULL}
+        import fcntl
+        # assert 0, fcntl.fcntl(3, fcntl.F_GETFD)
+
+        if quiet:
+            handle, fname = tempfile.mkstemp(suffix='__plash_build.log')
+        else:
+            handle = 2 # stderr
+            fname = None
+
         exit = subprocess.Popen([
             'docker',
             'run',
@@ -102,8 +111,15 @@ class DockerBuildable(BaseDockerBuildable):
             rand_name, self.get_base_image_name(),
             # 'bash', '-cx', cmds], # with bash debug script
             'bash', '-ce'+('x' if verbose else ''), cmds],
-        **(quiet_kw if quiet else {})).wait()
-        if not exit == 0:
+            stderr=handle, stdout=handle,
+        ).wait()
+
+        if not exit == 0 and fname:
+            dbgcmd = 'tail -n 5 {}'.format(shlex.quote(fname))
+            print()
+            print('$ ' + dbgcmd)
+            subprocess.check_call(dbgcmd, shell=True)
+            print()
             raise BuildError('building returned exit status {}'.format(exit))
 
         # get cotnainer id
@@ -115,10 +131,10 @@ class DockerBuildable(BaseDockerBuildable):
         # create image out of the container
         from time import sleep
         sleep(0.2) # race condition in docker?
-        subprocess.check_call(['docker', 'commit', container_id, new_image_name], **quiet_kw)
+        subprocess.check_output(['docker', 'commit', container_id, new_image_name])
 
         # remove the container to save space
-        subprocess.check_call(['docker', 'rm', container_id], **quiet_kw)
+        subprocess.check_output(['docker', 'rm', container_id])
 
 
 class LayeredDockerBuildable(BaseDockerBuildable):
@@ -138,8 +154,6 @@ class LayeredDockerBuildable(BaseDockerBuildable):
             buildable = DockerBuildable.create(parent_img, layer_cmd)
             if meth == 'build':
                 buildable.build(*args, **kw)
-            elif meth == 'ensure_builded':
-                buildable.ensure_builded(*args, **kw)
             elif meth == 'get_image_name':
                 pass
             else:
@@ -150,22 +164,15 @@ class LayeredDockerBuildable(BaseDockerBuildable):
     def build(self, *args, **kw):
         self._build('build', *args, **kw)
 
-    def ensure_builded(self, *args, **kw):
-        self._build('ensure_builded', *args, **kw)
-
     def get_image_name(self):
         return self._build('get_image_name')
 
 
 def runos(docker_image, layers, command=None,
-          *, rebuild=False, quiet=False, verbose=False, extra_envs):
+          *, quiet=False, verbose=False, extra_envs):
     b = LayeredDockerBuildable.create(docker_image, layers)
-    if rebuild:
+    if not b.image_ready():
         b.build(
-            quiet=quiet,
-            verbose=verbose)
-    else:
-        b.ensure_builded(
             quiet=quiet,
             verbose=verbose)
     if command:
@@ -175,7 +182,7 @@ def runos(docker_image, layers, command=None,
 
 if __name__ == "__main__":
     b = LayeredDockerBuildable.create('ubuntu', ['touch /a', 'touch /b'])
-    b.ensure_builded(quiet=False)
+    b.build(quiet=False)
     print
     b = LayeredDockerBuildable.create('ubuntu', ['touch /a', 'touch /d'])
-    b.ensure_builded(quiet=False)
+    b.build(quiet=False)
