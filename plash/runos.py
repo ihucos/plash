@@ -116,10 +116,10 @@ class DockerBuildable(BaseDockerBuildable):
 
         if not exit == 0 and fname:
             dbgcmd = 'tail -n 5 {}'.format(shlex.quote(fname))
-            print()
-            print('$ ' + dbgcmd)
+            # print('$ ' + dbgcmd)
             subprocess.check_call(dbgcmd, shell=True)
             print()
+            print('Build log at: ' + fname)
         
         if not exit == 0:
             raise BuildError('building returned exit status {}'.format(exit))
