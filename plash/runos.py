@@ -120,8 +120,10 @@ class DockerBuildable(BaseDockerBuildable):
             print('$ ' + dbgcmd)
             subprocess.check_call(dbgcmd, shell=True)
             print()
+        
+        if not exit == 0:
             raise BuildError('building returned exit status {}'.format(exit))
-        elif fname:
+        if exit == 0 and  fname:
             os.remove(fname)
 
         # get cotnainer id
