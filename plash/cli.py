@@ -16,40 +16,9 @@ PROG = 'plash'
 
 
 NO_TERM_BUILD_ERROR = """plash error: Refusing to build when not connected to a tty(-like) device.
-Set the env PLASH_SILENT_BUILD to enable building without output is such cases.
+Set the env PLASH_BUILD_SILENT to enable building without output is such cases.
 Or invoke this call with --build-only from a terminal to build and run again.
 The argv of this program: {}""".format(sys.argv)
-
-'''
-build stragegies:
-    quiet
-    die
-    always
-    verbose
-    print/normal/standart
-    (dots)
-    (oneline)
-
-build use cases:
-    1. on the terminal
-    if PLSASH_SILENT_BUILD is set:
-        action: build silently
-        if build failed:
-            Say where there is a file with the build log and show the last 5 lines
-    else:
-       action: build and log everything to stderr
-    2. in production or so or piped (no isatty)
-        if PLASH_SILENT_BUILD is not set
-           action: die with error message
-        else:
-            action: silently build
-            if build failed:
-                Say where there is a file with the build log and show the last 5 lines
-
-    in any of those cases:
-        if fd 3 is open, write to there instead of stderr
-
-'''
 
 SHORTCUTS = [
     # shortcut, lsp, nargs
@@ -87,7 +56,7 @@ def get_argument_parser():
         prog=PROG,
         epilog=HELP)
 
-    parser.add_argument("--build-quiet", action='store_true', dest='quiet')
+    parser.add_argument("--build-silent", action='store_true')
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
     parser.add_argument("--build-again", "--rebuild", "--again", action='store_true')
@@ -137,6 +106,7 @@ def main():
                 action=create_collect_lsp_action([arg[2:]]),
                 nargs='*')
     args = ap.parse_args()
+    build_silent = args.build_silent or os.environ.get('PLASH_BUILD_SILENT')
     lsp = getattr(args, 'lsp', [])
 
     if args.traceback:
@@ -183,12 +153,12 @@ def main():
 
     with friendly_exception([BuildError, CalledProcessError]):
         if args.build_again or not b.image_ready():
-            if not sys.stdout.isatty() and not args.quiet:
+            if not sys.stdout.isatty() and not build_silent:
                 sys.stderr.write(NO_TERM_BUILD_ERROR)
                 print()
                 sys.exit(1)
             b.build(
-                quiet=args.quiet,
+                quiet=build_silent,
                 verbose=args.verbose)
 
     if args.save_image:
