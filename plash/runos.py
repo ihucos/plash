@@ -158,6 +158,10 @@ class LayeredDockerBuildable(BaseDockerBuildable):
         for layer_cmd in self.get_build_commands():
             buildable = DockerBuildable.create(parent_img, layer_cmd)
             if meth == 'build':
+
+                # dirty abstraction, "but its just a print"
+                print('*** plash is running --layer')
+
                 buildable.build(*args, **kw)
             elif meth == 'get_image_name':
                 pass
