@@ -1,3 +1,4 @@
+import fcntl
 import os
 import shlex
 import subprocess
@@ -87,8 +88,6 @@ class DockerBuildable(BaseDockerBuildable):
         cmds = self.get_build_commands()
         new_image_name = self.get_image_name()
 
-        import fcntl
-        # assert 0, 
         fd_3_is_open = not fcntl.fcntl(3, fcntl.F_GETFD)
         if fd_3_is_open:
             handle = 3
