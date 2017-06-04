@@ -14,6 +14,17 @@ from .utils import (disable_friendly_exception, friendly_exception, hashstr,
 HELP = 'my help'
 PROG = 'plash'
 
+'''
+build stragegies:
+    quiet
+    die
+    always
+    verbose
+    print/normal/standart
+    (dots)
+    (oneline)
+'''
+
 SHORTCUTS = [
     # shortcut, lsp, nargs
     ('-a', ['apt'], '+'),
@@ -54,6 +65,24 @@ def get_argument_parser():
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
     parser.add_argument("--build-again", "--rebuild", "--again", action='store_true')
+
+
+    # group = parser.add_mutually_exclusive_group(required=False)
+
+    # group.add_argument("--build-quiet",
+    #                    action='store_const', dest='build', const='quiet')
+
+    # group.add_argument("--build-verbose", "--build-loud",
+    #                    action='store_const', dest='build', const='verbose')
+
+    # group.add_argument("--no-build",
+    #                    action='store_const', dest='build', const='die')
+
+    # group.add_argument("--build-again", "--rebuild",
+    #                     action='store_const', dest='build', const='always')
+
+    # group.add_argument('--build-strategy', dest='build')
+
     parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--traceback", action='store_true')
     parser.add_argument("--debug-lsp", action='store_true')
@@ -144,13 +173,11 @@ def main():
             subprocess.check_output(
                 ['docker', 'commit', container_id, args.save_image])
 
-
     if args.build_only:
         sys.exit(0)
 
     bcmd = state.get_base_command() or ''
     command = (args.exec or ['bash']) if not bcmd else shlex.split(bcmd) + (args.exec or [])
 
-    exit = docker_run(b.get_image_name(), command,
+    docker_run(b.get_image_name(), command,
                       extra_envs={'PLASH_ENV': plash_env})
-    sys.exit(exit)

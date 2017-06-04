@@ -40,7 +40,8 @@ def docker_run(image, cmd_with_args, extra_envs={}):
             args.insert(2, '-e')
             args.insert(3, '{}={}'.format(env, shlex.quote(env_val)))  # SECURITY: is shlex.quote safe?
 
-    return subprocess.Popen(args).wait()
+    # return subprocess.Popen(args).wait()
+    os.execvpe('docker', args, os.environ)
 
 
 
