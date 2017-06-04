@@ -68,7 +68,6 @@ class BaseDockerBuildable:
     def image_ready(self):
         return docker_image_exists(self.get_image_name())
 
-
     def get_base_image_name(self):
         raise NotImplementedError('you lazy person')
 

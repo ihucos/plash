@@ -12,82 +12,65 @@ from .actionutils import Action, ArgError, action, eval
 from .utils import hashstr
 
 
-@action('pdb')
+@action()
 def pdb():
     import pdb
     pdb.set_trace()
 
-@action('note')
-def note(*args):
-    return ':'
-
-# class Execute(Action):
-#     def __call__(self, command, *args):
-#         return '. ' + command + ' '.join(shlex.quote(i) for i in args)
-
-# class Execute(FileCommand):
-#     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
 
 
-
-class Layer(Action):
-    name = 'layer'
-    debug = False
-
-    def __call__(self, command=None, *args):
-        if not command:
-            dbg = "echo \*\*\* plash is running :layer"
-            return eval([['silentrun', dbg], ['-layer']]) # fall back to build in layer action
-        else:
-            lst = [['layer']]
-            for arg in args:
-                lst.append([command, arg])
-                lst.append(['layer'])
-            return self.eval(lst)
+@action()
+def layer(command=None, *args):
+    if not command:
+        dbg = "echo \*\*\* plash is running :layer"
+        return eval([['silentrun', dbg], ['-layer']]) # fall back to buildin layer action
+    else:
+        lst = [['layer']]
+        for arg in args:
+            lst.append([command, arg])
+            lst.append(['layer'])
+        return eval(lst)
 
 @action('run')
 def run(*args):
-    return ' '.join(args)
+    return '\n'.join(args)
 
 @action('silentrun', debug=False)
 def silentrun(*args):
     return ' '.join(args)
 
-class Warp(Action):
-    name = 'warp'
+def warp(command, *args):
+    init = []
+    cleanup = []
+    replaced_args = []
+    for arg in args:
+        if arg.startswith('{') and arg.endswith('}'):
+            path = arg[1:-1]
+            if os.path.isabs(path):
+                raise ArgError('path should be relative: {}'.format(path))
+            if not os.path.exists(path):
+                raise ArgError('Path {} does not exist'.format(path))
+            p = subprocess.Popen(['tar', '-c', path],
+                                 stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
+            assert p.wait() == 0
+            out = p.stdout.read()
+            baseout = b64encode(out).decode()
+            outpath = os.path.join('/tmp', hashstr(out)[:8])
+            init.append('mkdir {}'.format(outpath))
+            init.append('echo {baseout} | base64 --decode | tar -C {out} -x{extra}'.format(
+                out=outpath, baseout=baseout, extra=' --strip-components 1' if os.path.isdir(path) else ''))
+            replaced_args.append(os.path.join(outpath, path))
+            # replaced_args.append(outpath)
+        else:
+            replaced_args.append(arg)
 
-    def __call__(self, command, *args):
-        init = []
-        cleanup = []
-        replaced_args = []
-        for arg in args:
-            if arg.startswith('{') and arg.endswith('}'):
-                path = arg[1:-1]
-                if os.path.isabs(path):
-                    raise ArgError('path should be relative: {}'.format(path))
-                if not os.path.exists(path):
-                    raise ArgError('Path {} does not exist'.format(path))
-                p = subprocess.Popen(['tar', '-c', path],
-                                     stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
-                assert p.wait() == 0
-                out = p.stdout.read()
-                baseout = b64encode(out).decode()
-                outpath = os.path.join('/tmp', hashstr(out)[:8])
-                init.append('mkdir {}'.format(outpath))
-                init.append('echo {baseout} | base64 --decode | tar -C {out} -x{extra}'.format(
-                    out=outpath, baseout=baseout, extra=' --strip-components 1' if os.path.isdir(path) else ''))
-                replaced_args.append(os.path.join(outpath, path))
-                # replaced_args.append(outpath)
-            else:
-                replaced_args.append(arg)
-
-        return eval([
-            ['silentrun', ' && '.join(init)],
-            [command] + replaced_args,
-            ['silentrun', ' && '.join(cleanup)],
-        ])
-        # return '{}\n{}\n'.format(
-        #     ' && '.join(init), ' '.join(replaced_args), ' && '.join(cleanup))
+    return eval([
+        ['silentrun', ' && '.join(init)],
+        [command] + replaced_args,
+        ['silentrun', ' && '.join(cleanup)],
+    ])
+    # return '{}\n{}\n'.format(
+    #     ' && '.join(init), ' '.join(replaced_args), ' && '.join(cleanup))
 
 # class Home(Action):
 
@@ -98,72 +81,7 @@ class Warp(Action):
 # print(eval([['layer-each', 'inline', 'hi', 'ho']]))
 
 
-
-
-
-
-class PackageManager(Action):
-    pre_install = None
-    post_install = None
-    single_packge_per_install = False
-
-    def __call__(self, *packages):
-        cmds = []
-        if self.pre_install:
-            cmds.append(self.pre_install)
-        if not self.single_packge_per_install:
-            ps = ' '.join(shlex.quote(p) for p in packages)
-            cmds.append(self.install.format(ps))
-        else:
-            for p in packages:
-                cmds.append(self.install.format(p))
-        if self.post_install:
-            cmds.append(self.post_install)
-        return ' && '.join(cmds)
-
-
-class Apt(PackageManager):
-    short_name = 'a'
-    pre_install = 'apt-get update'
-    install = 'apt-get install -y {}'
-
-
-class AddAptRepository(Action):
-    name = 'add-apt-repository'
-    def handle_arg(self, arg):
-        return eval([
-            ['apt', 'software-properties-common'],
-            ['run', 'add-apt-repository -y {}'.format(shlex.quote(arg))]
-        ])
-
-class AptByCommandName(Action):
-    name = 'apt-from-command'
-    def __call__(self, command):
-        p = subprocess.Popen([
-            sys.argv[0],
-            '--ubuntu',
-            '--apt', 'command-not-found',
-            '--quiet',
-            '--',
-            '/usr/lib/command-not-found',
-            '--ignore-installed',
-            '--no-failure-msg',
-            command],
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-        )
-        p.wait()
-        out = p.stdout.read()
-        if not out or b'No command' in out:
-            raise SystemExit('Command {} not found'.format(command))
-        line2 = out.splitlines()[1]
-        package = line2.split()[-1]
-
-        return str(Apt.call(package.decode()))
-
-
-class RebuildWhenChanged(Action):
-    name = 'rebuild-when-changed'
+class RebuildWhenChanged():
 
     def __call__(self, *paths):
         all_files = []
@@ -172,7 +90,7 @@ class RebuildWhenChanged(Action):
                 all_files.extend(self._extract_files(path))
             else:
                 all_files.append(path)
-        
+
         hasher = hashlib.sha1()
         for fname in sorted(all_files):
             perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
@@ -193,57 +111,32 @@ class RebuildWhenChanged(Action):
                 yield fname
 
 
-    
     def _hash_str(self, stri):
         hasher = hashlib.sha1()
         hasher.update(stri)
         return hasher.digest()
 
+action('rebuild-when-changed')(RebuildWhenChanged())
+
+@action('define-package-manager')
+def define_package_manager(name, *lines):
+
+    @action(name)
+    def package_manager(*packages):
+        sh_packages = ' '.join(shlex.quote(pkg) for pkg in packages)
+        expanded_lines = [line.format(sh_packages) for line in lines]
+        return eval([['run'] + expanded_lines])
 
 
-class Apk(PackageManager):
-    pre_install = 'apk update'
-    install = 'apk add {}'
+@action()
+def interactive(name=''):
+    return "echo 'Exit shell when ready' && bash && : modifier name is {}".format(
+        shlex.quote(name))
 
 
-class Yum(PackageManager):
-    short_name = 'y'
-    install = 'yum install -y {}'
-
-
-class Pip(PackageManager):
-    short_name = 'p'
-    install = 'pip install {}'
-
-
-class Npm(PackageManager):
-    install = 'npm install -g {}'
-
-
-class FileCommand(Action):
-
-    def __call__(self, fname):
-        with open(fname) as f:
-            encoded = b64encode(f.read().encode())
-        inline_file = '<(echo {} | base64 --decode)'.format(
-            encoded.decode())
-        return self.cmd.format(inline_file)
-
-class PipRequirements(FileCommand):
-    name = 'pip-requirements'
-    cmd = 'pip install -r {}'
-
-# class Execute(FileCommand):
-#     cmd = 'cp {} /tmp/file && chmod +x /tmp/file && ./tmp/file && rm /tmp/file'
-
-class Interactive(Action):
-    def __call__(self, name=''):
-        return "echo 'Exit shell when ready' && bash && : modifier name is {}".format(
-            shlex.quote(name))
-
-
-class Mount(Action):
-    def handle_arg(self, mountpoint):
+@action()
+def mount(*mountpoints):
+    for mountpoint in mountpoints:
         mountpoint = os.path.realpath(mountpoint)
         if not os.path.isdir(mountpoint):
             raise ArgError('{} is not a directory'.format(mountpoint))
@@ -251,17 +144,17 @@ class Mount(Action):
         cmd = "mkdir -p {dst} && mount --bind {src} {dst}".format(
             src=shlex.quote(from_),
             dst=shlex.quote(mountpoint))
-        return cmd
+        yield cmd
 
-class Pwd(Action):
-    def __call__(self, pwd):
-        return 'cd {}'.format(os.path.realpath(pwd))
+@action()
+def pwd()
+    return 'cd {}'.format(os.path.realpath(pwd))
 
 
-class ImportEnv(Action):
-    name = 'import-env'
 
-    def handle_arg(self, env):
+@action()
+def import_env(*envs):
+    for env in envs:
         parts = env.split(':')
         if len(parts) == 1:
             host_env = env
@@ -272,22 +165,12 @@ class ImportEnv(Action):
             raise ArgError('env can only contain one ":"')
         host_val = os.environ.get(host_env)
         if host_val is None:
-            return ':'
+            return
             # raise ArgError('No such env in host: {}'.format(host_env))
-        return 'export {}={}'.format(guest_env, shlex.quote(host_val))
-
-class Emerge(PackageManager):
-    install = 'emerge {}'
-
-class Home(Action):
-    name = 'rc'
-    short_name = 'r'
-    def __call__(self, *args):
-        path = os.path.join(os.path.expanduser("~"), '.plash.yaml')
-        return Include.call(path) + [Layer.call()]
+        yield 'export {}={}'.format(guest_env, shlex.quote(host_val))
 
 
-@action('bustcache')
+@action()
 def bustcache():
     return  ': bust cache with {}'.format(uuid.uuid4()) 
 
@@ -301,11 +184,6 @@ def set_pkg(pm):
     @action('pkg', debug=False)
     def pkg(*packages):
         return eval([[pm] + list(packages)])
-    return ':'
-
-
-# @action('maybe')
-# def 
 
 
 @action('with-file')
@@ -337,36 +215,7 @@ def all(command, *args):
 
 @action('#', debug=False)
 def comment(*args):
-    return ':'
-
-# @action('define', debug=False)
-# def define-with-local-execute(action_name, *lines):
-
-#     if not lines[0][:2] == '#!': # looks like a shebang
-#         lines = ['#!/usr/bin/env bash'] + list(lines)
-
-#     @action(action_name, debug=False)
-#     def myaction(*args):
-#         # assert False, lines
-#         with NamedTemporaryFile() as outfile, NamedTemporaryFile('w') as scriptfile:
-#             scriptfile.write('\n'.join(lines))
-#             scriptfile.flush()
-
-#             # make scriptfile executable
-#             st = os.stat(scriptfile.name)
-#             os.chmod(scriptfile.name, st.st_mode | stat.S_IEXEC)
-
-#             p = subprocess.Popen(
-#                 [scriptfile.name] + list(args),
-#                 env=dict(os.environ, PLASH_COLLECT_MODE=outfile.name))
-#             exit = p.wait()
-#             if exit:
-#                 raise ArgError('script returned non zero code {}'.format(exit))
-
-#             return outfile.read().decode()
-
-#     return ':'
-
+    pass
 
 @action('define', debug=False)
 def define(action_name, *lines):
@@ -385,7 +234,6 @@ def define(action_name, *lines):
                 '.$define_tmpfile ' + ' '.join(shlex.quote(i) for i in args) 
                 ).format(inline_file=inline_file, action=action_name)
 
-    return ':'
 
 @action('script', debug=True)
 def script(*lines):
@@ -418,57 +266,85 @@ def script(*lines):
 
 #         """
 
-class Include(Action):
 
-    def handle_arg(self, file):
+def script2lsp(script):
+    lines = script.splitlines()
+
+    # ignore shebangs
+    if lines and lines[0].startswith('#!'):
+        lines.pop(0)
+
+    first_line = next(iter(l for l in lines if l))
+    if not first_line.split()[0].endswith(':'):
+        raise ArgError(
+            'first line ("{}") must be a function and not an argument'.format(first_line))
+
+    # tokenize
+    tokens = []
+    for c, line in enumerate(lines):
+        if not line:
+            continue
+        if line.endswith((' ', '\t')):
+            raise ArgError('line {} has trailing whitespace(s)'.format(c+1))
+        if not line.split()[0].endswith(':'):
+            tokens.append(line)
+        else:
+            line_tokens = line.split(' ')
+            tokens.extend(line_tokens)
+
+    # generate lsp out of the tokens
+    lsp = []
+    for token in tokens:
+        if token.endswith(':'):
+            lsp.append([token[:-1]])
+        else:
+            lsp[-1].append(token)
+
+    return lsp
+
+
+@action('include', debug=False)
+def include(*files):
+    for file in files:
         fname = os.path.realpath(file)
         lsp = []
         with open(fname) as f:
-            lsp = self.parse(l.rstrip('\n') for l in f.readlines())
-        return self.eval(lsp)
-
-    def parse(self, lines):
-        lines = list(lines)
-
-        # ignore shebangs
-        if lines and lines[0].startswith('#!'):
-            lines.pop(0)
-
-        first_line = next(iter(l for l in lines if l))
-        if not first_line.split()[0].endswith(':'):
-            raise ArgError(
-                'first line ("{}") must be a function and not an argument'.format(first_line))
-
-        # tokenize
-        tokens = []
-        for c, line in enumerate(lines):
-            if not line:
-                continue
-            if line.endswith((' ', '\t')):
-                raise ArgError('line {} has trailing whitespace(s)'.format(c+1))
-            if not line.split()[0].endswith(':'):
-                tokens.append(line)
-            else:
-                line_tokens = line.split(' ')
-                tokens.extend(line_tokens)
-
-        # generate lsp out of the tokens
-        lsp = []
-        for token in tokens:
-            if token.endswith(':'):
-                lsp.append([token[:-1]])
-            else:
-                lsp[-1].append(token)
-
-        return lsp
-
+            lsp = script2lsp(l.rstrip('\n') for l in f.read())
+        yield eval(lsp)
 
 @action('os', debug=False)
 def os_(os):
     state.set_os(os)
-    return ':'
 
 @action('cmd', debug=False)
 def cmd(os):
     state.set_base_command(os)
-    return ':'
+
+
+eval(script2lsp('''
+
+define-package-manager: apt
+apt-get update
+apt-get install -y {}
+
+define-package-manager: add-apt-repository
+apt software-properties-common
+run add-apt-repository -y {}
+
+define-package-manager: apk
+apk update
+apk add  {}
+
+define-package-manager: yum
+yum install -y {}
+
+define-package-manager: pip
+pip install {}
+
+define-package-manager: npm
+npm install -g {}
+
+define-package-manager: emerge
+emerge {}
+
+'''))

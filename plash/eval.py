@@ -18,7 +18,25 @@ class EvalError(Exception):
 
 def register_action(action_name):
     def decorator(f):
-        # f.plash_action = action_name
+        def function_wrapper(*args, **kw):
+            with friendly_exception(
+                [ActionNotFoundError, ArgError, EvalError, IOError],
+                    action_name):
+                res = func(*args, **kw)
+
+                # allow actions to yield each line
+                if not isinstance(res, str) and not res is None:
+                    res = '\n'.join(res)
+
+            if not echo:
+                return res
+            else:
+                echo_cmd = "echo \*\*\* plash is running :{} {}".format(
+                    shlex.quote(action_name), ' '.join(shlex.quote(i) for i in args))
+                return "{}\n{}".format(echo_cmd, res)
+        return function_wrapper
+
+
         state['actions'][action_name] = f
         return f
     return decorator
@@ -44,14 +62,14 @@ def eval(lisp):
             raise ActionNotFoundError('Action "{}" not found'.format(
                 action_name))
         res = action(*args)
-        if not isinstance(res, str):
-            raise EvalError('eval action must return string ({} returned {})'.format(
+        if not isinstance(res, str) and res is not None:
+            raise EvalError('eval action must return string or None ({} returned {})'.format(
                 action_name, type(res)))
-        action_values.append(res)
+        if res is not None:
+            action_values.append(res)
     return '\n'.join(action_values)
 
-# 'the - is a backup if it gets overwritten'
-@register_action('-import')
+@register_action('original-import')
 @register_action('import')
 def import_planch_actions(*modules):
     output = []
@@ -59,9 +77,8 @@ def import_planch_actions(*modules):
         debug = 'importing {}'.format(module_name)
         with friendly_exception([ImportError], debug):
             import_module(module_name)
-        return ':' # FIXME: return nothing?
 
-@register_action('-layer')
+@register_action('original-layer')
 @register_action('layer')
 def layer():
     return ": 'Start new layer marker [{}]'".format(layer_marker_rand)
