@@ -22,8 +22,7 @@ def pdb():
 @action()
 def layer(command=None, *args):
     if not command:
-        dbg = "echo \*\*\* plash is running :layer"
-        return eval([['silentrun', dbg], ['-layer']]) # fall back to buildin layer action
+        return eval([['original-layer']]) # fall back to buildin layer action
     else:
         lst = [['layer']]
         for arg in args:
@@ -309,7 +308,7 @@ def include(*files):
         fname = os.path.realpath(file)
         lsp = []
         with open(fname) as f:
-            lsp = script2lsp(l.rstrip('\n') for l in f.read())
+            lsp = script2lsp(f.read())
         yield eval(lsp)
 
 @action('os', echo=False)

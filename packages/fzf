@@ -4,5 +4,6 @@ os: ubuntu:16.04
 cmd: fzf
 
 apt: wget
-run: wget https://github.com/junegunn/fzf-bin/releases/download/0.16.7/fzf-0.16.7-linux_amd64.tgz
-run: tar -xvzf fzf-*-linux_amd64.tgz -C /usr/local/bin/
+run:
+wget https://github.com/junegunn/fzf-bin/releases/download/0.16.7/fzf-0.16.7-linux_amd64.tgz
+tar -xvzf fzf-*-linux_amd64.tgz -C /usr/local/bin/
