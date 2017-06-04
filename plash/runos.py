@@ -88,9 +88,12 @@ class DockerBuildable(BaseDockerBuildable):
         new_image_name = self.get_image_name()
 
         import fcntl
-        # assert 0, fcntl.fcntl(3, fcntl.F_GETFD)
-
-        if quiet:
+        # assert 0, 
+        fd_3_is_open = not fcntl.fcntl(3, fcntl.F_GETFD)
+        if fd_3_is_open:
+            handle = 3
+            fname = None
+        elif quiet:
             handle, fname = tempfile.mkstemp(suffix='__plash_build.log')
         else:
             handle = 2 # stderr
