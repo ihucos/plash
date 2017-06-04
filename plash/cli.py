@@ -17,14 +17,16 @@ PROG = 'plash'
 
 NO_TERM_BUILD_ERROR = """plash error: Refusing to build when not connected to a tty(-like) device.
 Set the env PLASH_BUILD_SILENT to enable building without output is such cases.
-Or invoke this call with --build-only from a terminal to build and run again.
-The argv of this program: {}""".format(sys.argv)
+Or invoke this call with --build-only from a terminal to build and then run again.
+The argv of this program is: {}""".format(sys.argv)
 
 SHORTCUTS = [
     # shortcut, lsp, nargs
     ('-a', ['apt'], '+'),
+    ('-y', ['yum'], '+'),
     ('-p', ['pip'], '+'),
     ('-b', ['apt', 'ubuntu-server'], 0),
+    ('-o', ['os'], 1),
     ('-U', ['os', 'ubuntu'], 0),
     ('-F', ['os', 'fedora'], 0),
     ('-D', ['os', 'debian'], 0),
@@ -60,23 +62,6 @@ def get_argument_parser():
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
     parser.add_argument("--build-again", "--rebuild", "--again", action='store_true')
-
-
-    # group = parser.add_mutually_exclusive_group(required=False)
-
-    # group.add_argument("--build-quiet",
-    #                    action='store_const', dest='build', const='quiet')
-
-    # group.add_argument("--build-verbose", "--build-loud",
-    #                    action='store_const', dest='build', const='verbose')
-
-    # group.add_argument("--no-build",
-    #                    action='store_const', dest='build', const='die')
-
-    # group.add_argument("--build-again", "--rebuild",
-    #                     action='store_const', dest='build', const='always')
-
-    # group.add_argument('--build-strategy', dest='build')
 
     parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--traceback", action='store_true')
@@ -156,7 +141,7 @@ def main():
             if not sys.stdout.isatty() and not build_silent:
                 sys.stderr.write(NO_TERM_BUILD_ERROR)
                 print()
-                sys.exit(1)
+                sys.exit(127)
             b.build(
                 quiet=build_silent,
                 verbose=args.verbose)
