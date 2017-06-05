@@ -8,7 +8,7 @@ import uuid
 from base64 import b64encode
 
 from . import state
-from .eval import action, eval
+from .eval import action, eval, ArgError
 from .utils import hashstr
 
 
@@ -16,8 +16,6 @@ from .utils import hashstr
 def pdb():
     import pdb
     pdb.set_trace()
-
-
 
 @action(echo=False)
 def layer(command=None, *args):
@@ -38,6 +36,11 @@ def run(*args):
 def silentrun(*args):
     return ' '.join(args)
 
+@action(echo=False)
+def chdir(path):
+    os.chdir(path)
+
+@action()
 def warp(command, *args):
     init = []
     cleanup = []
@@ -98,9 +101,9 @@ class RebuildWhenChanged():
                 fread = f.read()
             hasher.update(fname.encode())
             hasher.update(perm)
-            hasher.update(self._hash_str(fread))
+            hasher.update(hashstr(fread))
 
-        hash = hasher.hexdigest() 
+        hash = hasher.hexdigest()
         return "echo 'rebuild-when-changed: hash {}'".format(hash)
 
     def _extract_files(self, dir):
@@ -108,12 +111,6 @@ class RebuildWhenChanged():
             for filename in filenames:
                 fname = os.sep.join([dirpath, filename])
                 yield fname
-
-
-    def _hash_str(self, stri):
-        hasher = hashlib.sha1()
-        hasher.update(stri)
-        return hasher.digest()
 
 action('rebuild-when-changed')(RebuildWhenChanged())
 
@@ -146,12 +143,6 @@ def mount(*mountpoints):
         yield cmd
 
 @action()
-def pwd():
-    return 'cd {}'.format(os.path.realpath(pwd))
-
-
-
-@action()
 def import_env(*envs):
     for env in envs:
         parts = env.split(':')
@@ -178,7 +169,7 @@ def bustcache():
 def pkg(*packages):
     raise ArgError('you need to ":set-pkg <package-manager>" to use pkg')
 
-@action()
+@action(echo=False)
 def set_pkg(pm):
     @action('pkg', echo=False)
     def pkg(*packages):
@@ -193,7 +184,7 @@ def with_file(command, *lines):
     return eval([[command, inline_file]])
 
 
-@action()
+@action(echo=False)
 def each_line(*args):
     if not len(args) <= 2:
         raise ArgError('needs at leat two arguments')
@@ -208,7 +199,7 @@ def each_line(*args):
 
 
 
-@action()
+@action(echo=False)
 def all(command, *args):
     return eval([[command, arg] for arg in args])
 
@@ -234,7 +225,7 @@ def define(action_name, *lines):
                 ).format(inline_file=inline_file, action=action_name)
 
 
-@action(echo=True)
+@action(echo=False)
 def script(*lines):
     eval([['define', 'last-script'] + list(lines)])
     return eval([['last-script']])
