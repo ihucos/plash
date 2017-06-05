@@ -33,42 +33,30 @@ def layer(command=None, *args):
 def run(*args):
     return '\n'.join(args)
 
-
-def expand(exp):
-    if exp.startswith('$'):
-        host_env = os.environ.get(exp[1:], '')
-        return shlex.quote(host_env)
-    if exp.startswith('./'):
-        abs_path = os.path.abspath(exp)
-        if not os.path.exists(abs_path):
-            raise ArgError('Path {} does not exist'.format(exp))
-    
-        hash = hash_paths([abs_path])
-        mount_to = os.path.join('/mnt', hash)
-        state.add_mount(abs_path, mount_to, readonly=True)
-        return shlex.quote(mount_to)
-
-        # copy_from = os.path.join('/.host_fs_do_not_use', abs_path.lstrip('/'))
-        # _, copy_to = tempfile.mkstemp() #XXXXXXXXXXX THAT NAME CAN NOT BE VARIABLE
-        # hash = hash_paths([abs_path])
-        # copy_file = 'cp -r {} {} # rebuild-hash: {}'.format(
-        #     copy_from, copy_to, hash)
-        # return copy_file, copy_to
-    else:
-        # don't expand
-        return '{{' + exp + '}}'
-
-
 templ_re = re.compile('{{\s*([^\s]*)\s*}}')
 @action()
 def myrun(*lines):
     for line in lines:
         exps = templ_re.findall(line)
         for e in exps:
-            print(line)
-            line = templ_re.sub(line, expand(e), count=1)
-            print(line)
-        assert 0, line
+
+            # expand exp
+            if e.startswith('$'):
+                host_env = os.environ.get(e[1:], '')
+                expanded = shlex.quote(host_env)
+            elif e.startswith('./'):
+                abs_path = os.path.abspath(e)
+                if not os.path.exists(abs_path):
+                    raise ArgError('Path {} does not exist'.format(e))
+
+                hash = hash_paths([abs_path])
+                mount_to = os.path.join('/mnt', hash)
+                state.add_mount(abs_path, mount_to, readonly=True)
+                expanded =  shlex.quote(mount_to)
+            else:
+                raise ArgError('Template var must start with a "./" or "$" (got "{}")'.format('exp'))
+
+            line = templ_re.sub(expanded, line, count=1)
         yield line
 
 @action(echo=False)
