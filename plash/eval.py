@@ -73,8 +73,8 @@ def eval(lisp):
             action_values.append(res)
     return '\n'.join(action_values)
 
-@action('original-import')
-@action('import')
+@action('original-import', echo=False)
+@action('import', echo=False)
 def import_planch_actions(*modules):
     output = []
     for module_name in modules:

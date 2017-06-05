@@ -3,7 +3,6 @@ import os
 import shlex
 import stat
 import subprocess
-import sys
 import uuid
 from base64 import b64encode
 
@@ -296,10 +295,12 @@ def script2lsp(script):
 @action(echo=False)
 def include(*files):
     for file in files:
-        fname = os.path.realpath(file)
+        fname = os.path.realpath(os.path.expanduser(file))
         lsp = []
         with open(fname) as f:
             lsp = script2lsp(f.read())
+        dir = os.path.dirname(fname)
+        os.chdir(dir)
         yield eval(lsp)
 
 @action('os', echo=False)

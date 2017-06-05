@@ -22,11 +22,13 @@ The argv of this program is: {}""".format(sys.argv)
 
 SHORTCUTS = [
     # shortcut, lsp, nargs
+    ('-x', ['run'], '+'),
     ('-a', ['apt'], '+'),
     ('-y', ['yum'], '+'),
     ('-p', ['pip'], '+'),
     ('-b', ['apt', 'ubuntu-server'], 0),
     ('-o', ['os'], 1),
+    ('-r', ['include', '~/.plashrc'], 0),
     ('-U', ['os', 'ubuntu'], 0),
     ('-F', ['os', 'fedora'], 0),
     ('-D', ['os', 'debian'], 0),
