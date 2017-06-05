@@ -319,7 +319,7 @@ apt-get update
 apt-get install -y {}
 
 define-package-manager: add-apt-repository
-apt software-properties-common
+apt-get install software-properties-common
 run add-apt-repository -y {}
 
 define-package-manager: apk

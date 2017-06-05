@@ -20,6 +20,7 @@ Set the env PLASH_BUILD_SILENT to enable building without output is such cases.
 Or invoke this call with --build-only from a terminal to build and then run again.
 The argv of this program is: {}""".format(sys.argv)
 
+# shortcuts are specific to the stdlib
 SHORTCUTS = [
     # shortcut, lsp, nargs
     ('-x', ['run'], '+'),
