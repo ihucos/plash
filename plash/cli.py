@@ -164,5 +164,16 @@ def main():
     bcmd = state.get_base_command() or ''
     command = (args.exec or ['bash']) if not bcmd else shlex.split(bcmd) + (args.exec or [])
 
-    docker_run(b.get_image_name(), command,
-                      extra_envs={'PLASH_ENV': plash_env})
+
+    extra_mounts = []
+    for from_, to, readonly in state.pop_mountpoints():
+        extra_mounts.append('{}:{}{}'.format(
+            from_,
+            to,
+            ':ro' if readonly else ''))
+
+    docker_run(
+        b.get_image_name(),
+        command,
+        extra_envs={'PLASH_ENV': plash_env},
+        extra_mounts=extra_mounts)

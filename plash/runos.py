@@ -23,7 +23,7 @@ def docker_image_exists(ref):
          "reference={ref}".format(ref=ref)])
     return bool(out)
 
-def docker_run(image, cmd_with_args, extra_envs={}):
+def docker_run(image, cmd_with_args, extra_envs={}, extra_mounts=[]):
 
     args = [
         'docker',
@@ -42,6 +42,10 @@ def docker_run(image, cmd_with_args, extra_envs={}):
         '--rm',
         image,
     ] + list(cmd_with_args)
+
+    for mp in extra_mounts:
+        args.insert(2, '-v')
+        args.insert(2, mp)
 
     for env, env_val in dict(environ, **extra_envs).items():
         if env not in ['PATH', 'LC_ALL', 'LANG']: # blacklist more envs

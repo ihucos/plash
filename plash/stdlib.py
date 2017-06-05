@@ -1,13 +1,15 @@
 import hashlib
 import os
+import re
 import shlex
 import stat
 import subprocess
+import tempfile
 import uuid
 from base64 import b64encode
 
 from . import state
-from .eval import action, eval, ArgError
+from .eval import ArgError, action, eval
 from .utils import hashstr
 
 
@@ -30,6 +32,44 @@ def layer(command=None, *args):
 @action()
 def run(*args):
     return '\n'.join(args)
+
+
+def expand(exp):
+    if exp.startswith('$'):
+        host_env = os.environ.get(exp[1:], '')
+        return shlex.quote(host_env)
+    if exp.startswith('./'):
+        abs_path = os.path.abspath(exp)
+        if not os.path.exists(abs_path):
+            raise ArgError('Path {} does not exist'.format(exp))
+    
+        hash = hash_paths([abs_path])
+        mount_to = os.path.join('/mnt', hash)
+        state.add_mount(abs_path, mount_to, readonly=True)
+        return shlex.quote(mount_to)
+
+        # copy_from = os.path.join('/.host_fs_do_not_use', abs_path.lstrip('/'))
+        # _, copy_to = tempfile.mkstemp() #XXXXXXXXXXX THAT NAME CAN NOT BE VARIABLE
+        # hash = hash_paths([abs_path])
+        # copy_file = 'cp -r {} {} # rebuild-hash: {}'.format(
+        #     copy_from, copy_to, hash)
+        # return copy_file, copy_to
+    else:
+        # don't expand
+        return '{{' + exp + '}}'
+
+
+templ_re = re.compile('{{\s*([^\s]*)\s*}}')
+@action()
+def myrun(*lines):
+    for line in lines:
+        exps = templ_re.findall(line)
+        for e in exps:
+            print(line)
+            line = templ_re.sub(line, expand(e), count=1)
+            print(line)
+        assert 0, line
+        yield line
 
 @action(echo=False)
 def silentrun(*args):
@@ -82,36 +122,41 @@ def warp(command, *args):
 # print(eval([['layer-each', 'inline', 'hi', 'ho']]))
 
 
-class RebuildWhenChanged():
 
-    def __call__(self, *paths):
-        all_files = []
-        for path in paths:
-            if os.path.isdir(path):
-                all_files.extend(self._extract_files(path))
-            else:
-                all_files.append(path)
 
-        hasher = hashlib.sha1()
-        for fname in sorted(all_files):
-            perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
-                      ).encode()
-            with open(fname, 'rb') as f:
-                fread = f.read()
-            hasher.update(fname.encode())
-            hasher.update(perm)
-            hasher.update(hashstr(fread))
+def hash_paths(paths):
+    collect_files = []
+    for path in paths:
+        if os.path.isdir(path):
+            collect_files.extend(all_files(path))
+        else:
+            collect_files.append(path)
 
-        hash = hasher.hexdigest()
-        return "echo 'rebuild-when-changed: hash {}'".format(hash)
+    hasher = hashlib.sha1()
+    for fname in sorted(collect_files):
+        perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
+                  ).encode()
+        with open(fname, 'rb') as f:
+            fread = f.read()
+        hasher.update(fname.encode())
+        hasher.update(perm)
 
-    def _extract_files(self, dir):
-        for (dirpath, dirnames, filenames) in os.walk(dir):
-            for filename in filenames:
-                fname = os.sep.join([dirpath, filename])
-                yield fname
+        hasher.update(hashstr(fread).encode())
 
-action('rebuild-when-changed')(RebuildWhenChanged())
+    hash = hasher.hexdigest()
+    return hash
+
+def all_files(dir):
+    for (dirpath, dirnames, filenames) in os.walk(dir):
+        for filename in filenames:
+            fname = os.sep.join([dirpath, filename])
+            yield fname
+
+@action()
+def rebuild_when_changed(self, *paths):
+    hash = hash_paths(paths)
+    return "echo 'rebuild-when-changed: hash {}'".format(hash)
+
 
 @action()
 def define_package_manager(name, *lines):
