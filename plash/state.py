@@ -16,9 +16,9 @@ def set_base_command(cmd):
 def get_base_command():
     return _state.get('base-command')
 
-def add_mount(from_, to, *, readonly):
+def add_mount(from_, to):
     _state.setdefault('mountpoints', [])
-    _state['mountpoints'].append((from_, to, readonly))
+    _state['mountpoints'].append((from_, to))
 
 def pop_mountpoints():
     return _state.pop('mountpoints', [])

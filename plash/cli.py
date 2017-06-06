@@ -7,7 +7,7 @@ from subprocess import CalledProcessError, list2cmdline
 
 from . import state
 from .eval import ActionNotFoundError, ArgError, EvalError, eval, layer
-from .runos import BuildError, LayeredDockerBuildable, docker_run, runos
+from .runos import BuildError, LayeredDockerBuildable, docker_run
 from .utils import (disable_friendly_exception, friendly_exception, hashstr,
                     rand)
 
@@ -148,7 +148,8 @@ def main():
                 sys.exit(127)
             b.build(
                 quiet=build_silent,
-                verbose=args.verbose)
+                verbose=args.verbose,
+                extra_mounts=state.pop_mountpoints())
 
     if args.save_image:
         with friendly_exception([CalledProcessError], 'save-image'):
@@ -166,14 +167,9 @@ def main():
 
 
     extra_mounts = []
-    for from_, to, readonly in state.pop_mountpoints():
-        extra_mounts.append('{}:{}{}'.format(
-            from_,
-            to,
-            ':ro' if readonly else ''))
 
     docker_run(
         b.get_image_name(),
         command,
         extra_envs={'PLASH_ENV': plash_env},
-        extra_mounts=extra_mounts)
+        )

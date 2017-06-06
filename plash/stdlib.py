@@ -51,7 +51,7 @@ def myrun(*lines):
 
                 hash = hash_paths([abs_path])
                 mount_to = os.path.join('/mnt', hash)
-                state.add_mount(abs_path, mount_to, readonly=True)
+                state.add_mount(abs_path, mount_to)
                 expanded =  shlex.quote(mount_to)
             else:
                 raise ArgError('Template var must start with a "./" or "$" (got "{}")'.format('exp'))

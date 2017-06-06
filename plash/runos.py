@@ -23,7 +23,7 @@ def docker_image_exists(ref):
          "reference={ref}".format(ref=ref)])
     return bool(out)
 
-def docker_run(image, cmd_with_args, extra_envs={}, extra_mounts=[]):
+def docker_run(image, cmd_with_args, extra_envs={}):
 
     args = [
         'docker',
@@ -42,10 +42,6 @@ def docker_run(image, cmd_with_args, extra_envs={}, extra_mounts=[]):
         '--rm',
         image,
     ] + list(cmd_with_args)
-
-    for mp in extra_mounts:
-        args.insert(2, '-v')
-        args.insert(2, mp)
 
     for env, env_val in dict(environ, **extra_envs).items():
         if env not in ['PATH', 'LC_ALL', 'LANG']: # blacklist more envs
@@ -86,7 +82,7 @@ class DockerBuildable(BaseDockerBuildable):
             self.get_base_image_name(), self.get_build_commands()).encode())
         return 'packy-{}'.format(h)
 
-    def build(self, quiet=True, verbose=False):
+    def build(self, quiet=True, verbose=False, extra_mounts=[]):
         rand_name = rand()
         cmds = self.get_build_commands()
         new_image_name = self.get_image_name()
@@ -101,7 +97,7 @@ class DockerBuildable(BaseDockerBuildable):
             handle = 2 # stderr
             fname = None
 
-        exit = subprocess.Popen([
+        args = [
             'docker',
             'run',
             '-ti',
@@ -115,9 +111,16 @@ class DockerBuildable(BaseDockerBuildable):
             '--name',
             rand_name, self.get_base_image_name(),
             # 'bash', '-cx', cmds], # with bash debug script
-            'bash', '-ce'+('x' if verbose else ''), cmds],
-            stderr=handle, stdout=handle,
+            'bash', '-ce'+('x' if verbose else ''), cmds]
+
+        for (from_, to) in extra_mounts:
+            args.insert(2, '-v')
+            args.insert(3, '{}:{}:ro'.format(from_, to))
+
+        exit = subprocess.Popen(args, # with bash debug script
+                                stderr=handle, stdout=handle,
         ).wait()
+
 
         if not exit == 0 and fname:
             dbgcmd = 'tail -n 5 {}'.format(shlex.quote(fname))
@@ -179,19 +182,6 @@ class LayeredDockerBuildable(BaseDockerBuildable):
 
     def get_image_name(self):
         return self._build('get_image_name')
-
-
-def runos(docker_image, layers, command=None,
-          *, quiet=False, verbose=False, extra_envs):
-    b = LayeredDockerBuildable.create(docker_image, layers)
-    if not b.image_ready():
-        b.build(
-            quiet=quiet,
-            verbose=verbose)
-    if command:
-        return docker_run(b.get_image_name(), command,
-                          extra_envs=extra_envs)
-
 
 if __name__ == "__main__":
     b = LayeredDockerBuildable.create('ubuntu', ['touch /a', 'touch /b'])
