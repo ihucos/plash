@@ -30,12 +30,12 @@ def layer(command=None, *args):
         return eval(lst)
 
 @action()
-def run(*args):
+def inline(*args):
     return '\n'.join(args)
 
 templ_re = re.compile('{{\s*([^\s]*)\s*}}')
 @action()
-def myrun(*lines):
+def run(*lines):
     for line in lines:
         exps = templ_re.findall(line)
         for e in exps:

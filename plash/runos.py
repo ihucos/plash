@@ -47,7 +47,7 @@ def docker_run(image, cmd_with_args, extra_envs={}):
         if env not in ['PATH', 'LC_ALL', 'LANG']: # blacklist more envs
         # if env not in ['PATH']: # blacklist more envs
             args.insert(2, '-e')
-            args.insert(3, '{}={}'.format(env, shlex.quote(env_val)))  # SECURITY: is shlex.quote safe?
+            args.insert(3, '{}={}'.format(env, shlex.quote(env_val)))
 
     # return subprocess.Popen(args).wait()
     os.execvpe('docker', args, os.environ)
@@ -131,7 +131,7 @@ class DockerBuildable(BaseDockerBuildable):
         
         if not exit == 0:
             raise BuildError('building returned exit status {}'.format(exit))
-        if exit == 0 and  fname:
+        if exit == 0 and fname:
             os.remove(fname)
 
         # get cotnainer id
