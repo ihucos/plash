@@ -114,33 +114,8 @@ def interactive(name=''):
 
 
 @action()
-def mount(*mountpoints):
-    for mountpoint in mountpoints:
-        mountpoint = os.path.realpath(mountpoint)
-        if not os.path.isdir(mountpoint):
-            raise ArgError('{} is not a directory'.format(mountpoint))
-        from_ = os.path.join('/.host_fs_do_not_use', mountpoint.lstrip('/'))
-        cmd = "mkdir -p {dst} && mount --bind {src} {dst}".format(
-            src=shlex.quote(from_),
-            dst=shlex.quote(mountpoint))
-        yield cmd
-
-@action()
-def import_env(*envs):
-    for env in envs:
-        parts = env.split(':')
-        if len(parts) == 1:
-            host_env = env
-            guest_env = env
-        elif len(parts) == 2:
-            host_env, guest_env = parts
-        else:
-            raise ArgError('env can only contain one ":"')
-        host_val = os.environ.get(host_env)
-        if host_val is None:
-            return
-            # raise ArgError('No such env in host: {}'.format(host_env))
-        yield 'export {}={}'.format(guest_env, shlex.quote(host_val))
+def mount(from_, to):
+    state.add_mount(from_, to)
 
 
 @action()

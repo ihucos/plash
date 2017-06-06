@@ -102,7 +102,6 @@ class DockerBuildable(BaseDockerBuildable):
             'run',
             '-ti',
             # '-v', '/Users/iraehueckcosta/.aptcache:/var/cache/apt/archives', # cache apt packages -- implement that later!
-            '-v', '/:/.host_fs_do_not_use', # cache apt packages -- implement that later!
             '--net=host', # does not bind the port on mac
             '--privileged',
             '--cap-add=ALL',
