@@ -60,57 +60,8 @@ def run(*lines):
         yield line
 
 @action(echo=False)
-def silentrun(*args):
-    return ' '.join(args)
-
-@action(echo=False)
 def chdir(path):
     os.chdir(path)
-
-@action()
-def warp(command, *args):
-    init = []
-    cleanup = []
-    replaced_args = []
-    for arg in args:
-        if arg.startswith('{') and arg.endswith('}'):
-            path = arg[1:-1]
-            if os.path.isabs(path):
-                raise ArgError('path should be relative: {}'.format(path))
-            if not os.path.exists(path):
-                raise ArgError('Path {} does not exist'.format(path))
-            p = subprocess.Popen(['tar', '-c', path],
-                                 stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
-            assert p.wait() == 0
-            out = p.stdout.read()
-            baseout = b64encode(out).decode()
-            outpath = os.path.join('/tmp', hashstr(out)[:8])
-            init.append('mkdir {}'.format(outpath))
-            init.append('echo {baseout} | base64 --decode | tar -C {out} -x{extra}'.format(
-                out=outpath, baseout=baseout, extra=' --strip-components 1' if os.path.isdir(path) else ''))
-            replaced_args.append(os.path.join(outpath, path))
-            # replaced_args.append(outpath)
-        else:
-            replaced_args.append(arg)
-
-    return eval([
-        ['silentrun', ' && '.join(init)],
-        [command] + replaced_args,
-        ['silentrun', ' && '.join(cleanup)],
-    ])
-    # return '{}\n{}\n'.format(
-    #     ' && '.join(init), ' '.join(replaced_args), ' && '.join(cleanup))
-
-# class Home(Action):
-
-#     def __call__(self):
-#         return self.eval([['include', path.join(home_path, '.plash.yaml')]])
-
-
-# print(eval([['layer-each', 'inline', 'hi', 'ho']]))
-
-
-
 
 def hash_paths(paths):
     collect_files = []
