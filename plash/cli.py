@@ -70,6 +70,8 @@ def get_argument_parser():
     parser.add_argument("--traceback", action='store_true')
     parser.add_argument("--debug-lsp", action='store_true')
 
+    parser.add_argument("--ignore-no-tty", action='store_false')
+
     parser.add_argument("--save-image")
 
     parser.add_argument(
@@ -142,7 +144,7 @@ def main():
 
     with friendly_exception([BuildError, CalledProcessError]):
         if args.build_again or not b.image_ready():
-            if not sys.stdout.isatty() and not build_silent:
+            if not sys.stdout.isatty() and not build_silent and not args.ignore_no_tty:
                 sys.stderr.write(NO_TERM_BUILD_ERROR)
                 print()
                 sys.exit(127)
