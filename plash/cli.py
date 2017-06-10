@@ -7,7 +7,7 @@ from subprocess import CalledProcessError, list2cmdline
 
 from . import state
 from .eval import ActionNotFoundError, ArgError, EvalError, eval, layer
-from .runos import BuildError, LayeredDockerBuildable, docker_run
+from .runos import BuildError, LayeredDockerBuildable, docker_run, docker_get_image_shell
 from .utils import (disable_friendly_exception, friendly_exception, hashstr,
                     rand)
 
@@ -148,7 +148,10 @@ def main():
                 sys.stderr.write(NO_TERM_BUILD_ERROR)
                 print()
                 sys.exit(127)
+
+            image_shell = docker_get_image_shell(image)
             b.build(
+                shell=image_shell,
                 quiet=build_silent,
                 verbose=args.verbose,
                 extra_mounts=state.pop_mountpoints())
@@ -165,8 +168,7 @@ def main():
         sys.exit(0)
 
     bcmd = state.get_base_command() or ''
-    command = (args.exec or ['bash']) if not bcmd else shlex.split(bcmd) + (args.exec or [])
-
+    command = (args.exec or [image_shell]) if not bcmd else shlex.split(bcmd) + (args.exec or [])
 
     extra_mounts = []
 

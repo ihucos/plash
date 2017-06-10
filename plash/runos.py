@@ -23,6 +23,16 @@ def docker_image_exists(ref):
          "reference={ref}".format(ref=ref)])
     return bool(out)
 
+def docker_get_image_shell(image):
+        etc_passwd = subprocess.check_output(['docker', 'run', image, 'cat', '/etc/passwd']).decode()
+        shell = None
+        for l in etc_passwd.splitlines():
+            parts = l.split(':')
+            if parts[0] == 'root':
+                shell = parts[6]
+        assert shell, 'could not determine which shell that os uses'
+        return shell
+
 def docker_run(image, cmd_with_args, extra_envs={}):
 
     args = [
@@ -82,7 +92,7 @@ class DockerBuildable(BaseDockerBuildable):
             self.get_base_image_name(), self.get_build_commands()).encode())
         return 'packy-{}'.format(h)
 
-    def build(self, quiet=True, verbose=False, extra_mounts=[]):
+    def build(self, quiet=True, verbose=False, extra_mounts=[], shell='bash'):
         rand_name = rand()
         cmds = self.get_build_commands()
         new_image_name = self.get_image_name()
@@ -110,7 +120,7 @@ class DockerBuildable(BaseDockerBuildable):
             '--name',
             rand_name, self.get_base_image_name(),
             # 'bash', '-cx', cmds], # with bash debug script
-            'bash', '-ce'+('x' if verbose else ''), cmds]
+            shell, '-ce'+('x' if verbose else ''), cmds]
 
         for (from_, to) in extra_mounts:
             args.insert(2, '-v')
