@@ -149,9 +149,8 @@ def main():
                 print()
                 sys.exit(127)
 
-            image_shell = docker_get_image_shell(image)
             b.build(
-                shell=image_shell,
+                shell=docker_get_image_shell(image),
                 quiet=build_silent,
                 verbose=args.verbose,
                 extra_mounts=state.pop_mountpoints())
@@ -168,7 +167,7 @@ def main():
         sys.exit(0)
 
     bcmd = state.get_base_command() or ''
-    command = (args.exec or [image_shell]) if not bcmd else shlex.split(bcmd) + (args.exec or [])
+    command = (args.exec or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (args.exec or [])
 
     extra_mounts = []
 
