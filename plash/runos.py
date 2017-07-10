@@ -90,7 +90,7 @@ class DockerBuildable(BaseDockerBuildable):
     def get_image_name(self):
         h = hashstr('{}-{}'.format(
             self.get_base_image_name(), self.get_build_commands()).encode())
-        return 'packy-{}'.format(h)
+        return 'plash-{}'.format(h)
 
     def build(self, quiet=True, verbose=False, extra_mounts=[], shell='bash'):
         rand_name = rand()
