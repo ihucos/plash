@@ -3,7 +3,7 @@ from importlib import import_module
 
 from .utils import friendly_exception, rand
 
-ECHO_DEBUG = "echo \*\*\* plash is running --{action_name} {args}"
+ECHO_DEBUG = "echo \*\*\* plash: running --{action_name} {args}"
 
 layer_marker_rand = rand()
 state = {'actions': {}} # put that in state.py ?

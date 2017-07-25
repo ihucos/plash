@@ -149,12 +149,15 @@ def main():
                 print()
                 sys.exit(127)
 
+            print('*** plash: building...')
             b.build(
                 shell=docker_get_image_shell(image),
                 quiet=build_silent,
                 verbose=args.verbose,
                 extra_mounts=state.pop_mountpoints(),
                 skip_if_exists=not args.build_again)
+            print('*** plash: done')
+            print()
 
     if args.save_image:
         with friendly_exception([CalledProcessError], 'save-image'):

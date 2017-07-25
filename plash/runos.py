@@ -99,7 +99,9 @@ class DockerBuildable(BaseDockerBuildable):
         new_image_name = self.get_image_name()
 
         if skip_if_exists and self.image_ready():
+            print('*** plash: cached layer')
             return
+        print('*** plash: building layer')
 
         fd_3_is_open = not fcntl.fcntl(3, fcntl.F_GETFD)
         if fd_3_is_open:
@@ -178,10 +180,6 @@ class LayeredDockerBuildable(BaseDockerBuildable):
         for layer_cmd in self.get_build_commands():
             buildable = DockerBuildable.create(parent_img, layer_cmd)
             if meth == 'build':
-
-                # dirty abstraction, "but its just a print"
-                print('*** plash is running --layer')
-
                 buildable.build(*args, **kw)
             elif meth == 'get_image_name':
                 pass
