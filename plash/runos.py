@@ -92,10 +92,14 @@ class DockerBuildable(BaseDockerBuildable):
             self.get_base_image_name(), self.get_build_commands()).encode())
         return 'plash-{}'.format(h)
 
-    def build(self, quiet=True, verbose=False, extra_mounts=[], shell='bash'):
+
+    def build(self, quiet=True, verbose=False, extra_mounts=[], shell='bash', skip_if_exists=False):
         rand_name = rand()
         cmds = self.get_build_commands()
         new_image_name = self.get_image_name()
+
+        if skip_if_exists and self.image_ready():
+            return
 
         fd_3_is_open = not fcntl.fcntl(3, fcntl.F_GETFD)
         if fd_3_is_open:

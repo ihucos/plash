@@ -153,7 +153,8 @@ def main():
                 shell=docker_get_image_shell(image),
                 quiet=build_silent,
                 verbose=args.verbose,
-                extra_mounts=state.pop_mountpoints())
+                extra_mounts=state.pop_mountpoints(),
+                skip_if_exists=True)
 
     if args.save_image:
         with friendly_exception([CalledProcessError], 'save-image'):
