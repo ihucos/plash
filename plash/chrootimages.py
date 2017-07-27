@@ -1,63 +1,67 @@
 import os
+import shutil
+import subprocess
 from tempfile import mkdtemp
 
-from .utils import hashstr
+from utils import hashstr
 
-class FSLock:
-    # make it a context manager!!
-    def acquire(self):
+TMP_DIR = '/tmp/data/tmp'
+MNT_DIR = '/tmp/data/mnt'
+
+
+def staple_layer(layers, layer_cmd):
+    last_layer = layers[-1]
+    layer_name = hashstr(' '.join(layers + [layer_cmd]).encode())
+    os.mkdir(os.path.join(last_layer, layer_name)) # what if already exists?
+    new_layer = os.path.abspath(os.path.join(last_layer, '..', layer_name, 'layer'))
+    try:
+        os.mkdir(os.path.abspath(os.path.join(new_layer, '..')))
+    except FileExistsError:
+        pass
+    try:
+        os.mkdir(new_layer)
+    except FileExistsError:
+        pass
+    build_at = mkdtemp(dir=TMP_DIR)
+    mountpoint = mount(layers=layers, write_dir=build_at)
+
+    p = subprocess.Popen(['chroot', mountpoint, 'bash', '-ce', layer_cmd])
+    pid = p.wait()
+    umount(mountpoint)
+    assert pid == 0, 'Building returned non zero exit status'
+    if pid != 0:
+        print('non zero exit status code when building')
+        shutil.rmtree(build_at)
+        assert False
+    else:
         try:
-            os.mkdir(new_layer_lock)
-        except IOError, exc:
-            assert False, exc
-            # check if its because already exists and then wait?
-            if ITSBECAUSE_ITS_ALRWAdy_EXISTS:
-                print('*** plash: waiting for the build of another process', newline=False)
-                while True:
-                    last_heartbeat =  os.stat(new_layer_heartbeat).st_mtime # gracefully fail if heartbeat file is not there yet
-                    if time.time() - last_heartbeat > 3: # think about leapseconds?
-                        print()
-                        print('*** plash: current build process has no heartbeat, taking over and building', newline=False)
-                        break
-                    print('.', newline=False)
-                    sleep(1)
-            print() # print a newline
-
-    def heartbeat(self)
-        f = open(heartbeat, 'w'))
-        f.close()
-
-    def release(self):
-        shutils(self._lockdir)
-
-
-def staple_layer(layer_cmd):
-    last_layer= self._layers[-1]
-    layer_name = hashstr(' '.join(self._layers + [layer_cmd]))
-    new_layer = os.path.join(last_layer, layer_name, 'payload')
-    new_layer_lock = new_layer_path + '.lock'
-
-    with layer_lock as FSLock(new_layer_lock)
-
-        p = subprocess.Popen(['chroot', new_layer_path, 'sh', '-ce', build_dir])
-        while True:
-            pid = p.poll()
-            if pid is None:
-                layer_lock.heartbeat()
-                sleep(1)
-            else: # process exited
-                break
-
-        assert pid != 0, 'Building returned non zero exit status'
-        if pid != 0:
-            shutil.rmtree(new_layer)
-
-    
-
+            os.rename(build_at, new_layer)
+        except OSError as exc:
+            raise
+            # check if it already exists, if yes cleanup (rmtree) and continue
+    return layers + [new_layer]
 
 
 def umount(mountpoint):
-    'umount /my/mountpoint'
+    p = subprocess.Popen(['umount', mountpoint])
+    exit = p.wait()
+    assert exit == 0
+
+def mount(layers, write_dir):
+    mountpoint = mkdtemp(dir=MNT_DIR)
+    p = subprocess.Popen([
+        'mount',
+        '-t',
+        'aufs',
+        '-o',
+        'dirs={write_dir}=rw:{mountpoint}'.format(
+            write_dir=write_dir,
+            mountpoint=':'.join(i + '=ro' for i in layers)),
+        'none',
+        mountpoint])
+    exit = p.wait()
+    assert exit == 0, 'mounting got non zero exit status'
+    return mountpoint
 
 def fetch_base_image(image_name):
     pass
@@ -71,8 +75,15 @@ def build(image, layers, *, quiet_flag, verbose_flag, rebuild_flag, extra_mounts
     return base
 
 
-def run(image, cmd):
-    'mount image with tmp write branch'
-    'chroot mounted_root cmd'
+def run(layers, cmd):
+    mountpoint = mount(layers, mkdtemp())
+    os.chroot(mountpoint)
+    os.execvpe(cmd[0], cmd, {'MYENV', 'myenvval'})
+
+
+if __name__ == '__main__':
+    print(staple_layer(['/tmp/data/layers/ubuntu/rootfs'], 'touch a'))
+    # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu/rootfs'], 'touch a'), 'touch b'))
+        
 
 # [asdlfjladsf, asdfjlkasdf, adsfjkd, adsfj4]
