@@ -12,18 +12,29 @@ MNT_DIR = '/tmp/data/mnt'
 def staple_layer(layers, layer_cmd):
     last_layer = layers[-1]
     layer_name = hashstr(' '.join(layers + [layer_cmd]).encode())
-    os.mkdir(os.path.join(last_layer, layer_name)) # what if already exists?
-    new_layer = os.path.abspath(os.path.join(last_layer, '..', layer_name, 'layer'))
+
+    # os.mkdir(os.path.join(last_layer, layer_name)) # what if already exists?
     try:
-        os.mkdir(os.path.abspath(os.path.join(new_layer, '..')))
+        os.mkdir(os.path.join(last_layer, 'children', layer_name))
     except FileExistsError:
         pass
+    try:
+        os.mkdir(os.path.join(last_layer, 'children', layer_name, 'payload'))
+    except FileExistsError:
+        pass
+    try:
+        os.mkdir(os.path.join(last_layer, 'children', layer_name, 'children'))
+    except FileExistsError:
+        pass
+
+    new_layer = os.path.join(last_layer, 'children', layer_name, 'payload')
+
     try:
         os.mkdir(new_layer)
     except FileExistsError:
         pass
     build_at = mkdtemp(dir=TMP_DIR)
-    mountpoint = mount(layers=layers, write_dir=build_at)
+    mountpoint = mount(layers=(os.path.join(i, 'payload') for i in layers), write_dir=build_at)
 
     p = subprocess.Popen(['chroot', mountpoint, 'bash', '-ce', layer_cmd])
     pid = p.wait()
@@ -39,7 +50,7 @@ def staple_layer(layers, layer_cmd):
         except OSError as exc:
             raise
             # check if it already exists, if yes cleanup (rmtree) and continue
-    return layers + [new_layer]
+    return layers + [os.path.abspath(os.path.join(new_layer, '..'))]
 
 
 def umount(mountpoint):
@@ -49,6 +60,7 @@ def umount(mountpoint):
 
 def mount(layers, write_dir):
     mountpoint = mkdtemp(dir=MNT_DIR)
+
     p = subprocess.Popen([
         'mount',
         '-t',
@@ -68,22 +80,24 @@ def fetch_base_image(image_name):
 
 
 # exported
-def build(image, layers, *, quiet_flag, verbose_flag, rebuild_flag, extra_mounts):
-    base = image
+def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False, extra_mounts=[]):
+    base = [image]
     for layer in layers:
         base = staple_layer(base, layer)
     return base
 
 
 def run(layers, cmd):
-    mountpoint = mount(layers, mkdtemp())
+    mountpoint = mount([os.path.join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
     os.chroot(mountpoint)
-    os.execvpe(cmd[0], cmd, {'MYENV', 'myenvval'})
+    os.chdir('/')
+    os.execvpe(cmd[0], cmd, {'MYENV': 'myenvval'})
 
 
 if __name__ == '__main__':
-    print(staple_layer(['/tmp/data/layers/ubuntu/rootfs'], 'touch a'))
-    # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu/rootfs'], 'touch a'), 'touch b'))
-        
+    # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
+    # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'), 'touch b'))
+    # print(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm a']))
+    run(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm /a']), ['/bin/bash'])
 
 # [asdlfjladsf, asdfjlkasdf, adsfjkd, adsfj4]
