@@ -1,6 +1,8 @@
 import hashlib
 import os
+import shlex
 import stat
+import subprocess
 import sys
 import uuid
 from contextlib import contextmanager
@@ -35,6 +37,17 @@ def friendly_exception(exceptions, debug=None):
             # raise exc # TODO: experiment with nested friendly_exception for example at load
             sys.exit(1)
 
+class NonZeroExitStatus(Exception):
+    pass
+
+def run(command):
+    p = subprocess.Popen(command)
+    exit = p.wait()
+    if exit != 0:
+        raise NonZeroExitStatus('Exit status {exit} for: {cmd}'.format(
+            cmd=' '.join(shlex.quote(i) for i in command),
+            exit=exit))
+
 # def create_executable_file(fname, script):
 #     if os.path.exists(fname):
 #         raise SystemExit('File {} already exists - deal with this'.format(fname))
@@ -42,4 +55,4 @@ def friendly_exception(exceptions, debug=None):
 #     with open(fname, 'w') as f:
 #         f.write(script)
 #     st = os.stat(fname)
-#     os.chmod(fname, st.st_mode | stat.S_IEXEC)
+#     ou.chmod(fname, st.st_mode | stat.S_IEXEC)

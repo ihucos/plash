@@ -2,26 +2,29 @@ import errno
 import os
 import shutil
 import subprocess
+from os.path import join
 from tempfile import mkdtemp
 
-from utils import hashstr
+from utils import hashstr, run
 
-TMP_DIR = '/tmp/data/tmp'
-MNT_DIR = '/tmp/data/mnt'
+BASE_DIR = '/tmp/data'
+TMP_DIR = join(BASE_DIR, 'tmp')
+MNT_DIR = join(BASE_DIR, 'mnt')
+BUILDS_DIR = join(BASE_DIR, 'layers')
 
 
 def staple_layer(layers, layer_cmd, rebuild=False):
     last_layer = layers[-1]
     layer_name = hashstr(' '.join(layers + [layer_cmd]).encode())
-    final_child_dst = os.path.join(last_layer, 'children', layer_name)
+    final_child_dst = join(last_layer, 'children', layer_name)
 
     if not os.path.exists(final_child_dst) or rebuild:
         new_child = mkdtemp(dir=TMP_DIR)
-        new_layer = os.path.join(new_child, 'payload')
+        new_layer = join(new_child, 'payload')
         os.mkdir(new_layer)
-        os.mkdir(os.path.join(new_child, 'children'))
+        os.mkdir(join(new_child, 'children'))
 
-        mountpoint = mount(layers=(os.path.join(i, 'payload') for i in layers), write_dir=new_layer)
+        mountpoint = mount(layers=(join(i, 'payload') for i in layers), write_dir=new_layer)
 
         p = subprocess.Popen(['chroot', mountpoint, 'bash', '-ce', layer_cmd], stdout=2, stderr=2)
         pid = p.wait()
@@ -38,7 +41,7 @@ def staple_layer(layers, layer_cmd, rebuild=False):
                 # this could be done with one call with renameat2
                 if rebuild:
                     try:
-                        os.rename(final_child_dst, os.path.join(mkdtemp(dir=TMP_DIR)))
+                        os.rename(final_child_dst, mkdtemp(dir=TMP_DIR))
                     except FileNotFoundError as exc:
                         pass
                     except OSError as exc:
@@ -60,10 +63,8 @@ def staple_layer(layers, layer_cmd, rebuild=False):
 
 
 def umount(mountpoint):
-    p = subprocess.Popen(['umount', mountpoint])
-    exit = p.wait()
-    assert exit == 0
-
+    run(['umount', mountpoint])
+    
 def mount(layers, write_dir):
     mountpoint = mkdtemp(dir=MNT_DIR)
     cmd = [
@@ -77,9 +78,7 @@ def mount(layers, write_dir):
         'none',
         mountpoint]
     # print(cmd)
-    p = subprocess.Popen(cmd)
-    exit = p.wait()
-    assert exit == 0, 'mounting got non zero exit status'
+    run(cmd)
     return mountpoint
 
 def fetch_base_image(image_name):
@@ -94,9 +93,10 @@ def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=F
     return base
 
 
-def run(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False, extra_mounts=[]):
-    layers = build(base, layer_commands, rebuild_flag=True)
-    mountpoint = mount([os.path.join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
+def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False, extra_mounts=[]):
+    base_dir = join(BUILDS_DIR, base)
+    layers = build(base_dir, layer_commands, rebuild_flag=True)
+    mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
     os.chroot(mountpoint)
     os.chdir('/')
     os.execvpe(cmd[0], cmd, {'MYENV': 'myenvval'})
@@ -106,6 +106,6 @@ if __name__ == '__main__':
     # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
     # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'), 'touch b'))
     # print(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm a']))
-    run('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm /a'], ['/bin/bash'], rebuild_flag=True,)
+    call('ubuntu', ['touch a', 'touch b', 'rm /a'], ['/bin/bash'], rebuild_flag=True,)
 
 # [asdlfjladsf, asdfjlkasdf, adsfjkd, adsfj4]
