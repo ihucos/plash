@@ -1,7 +1,9 @@
 import errno
 import os
 import shutil
+import sqlite3
 import subprocess
+import time
 from os.path import join
 from tempfile import mkdtemp
 
@@ -11,7 +13,13 @@ BASE_DIR = '/tmp/data'
 TMP_DIR = join(BASE_DIR, 'tmp')
 MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'layers')
+ROTATE_LOG_SIZE = 4000
 
+def log_usage(layer_name):
+
+    # we should also trim the logfile sometimes
+    with open('/tmp/usage.log', 'a') as f:
+        f.write('{} {}\n'.format(int(round(time.time())), layer_name))
 
 def staple_layer(layers, layer_cmd, rebuild=False):
     last_layer = layers[-1]
@@ -97,6 +105,7 @@ def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, reb
     base_dir = join(BUILDS_DIR, base)
     layers = build(base_dir, layer_commands, rebuild_flag=True)
     mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
+    log_usage(layers[-1].split('/')[-1])
     os.chroot(mountpoint)
     os.chdir('/')
     os.execvpe(cmd[0], cmd, {'MYENV': 'myenvval'})
@@ -107,5 +116,3 @@ if __name__ == '__main__':
     # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'), 'touch b'))
     # print(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm a']))
     call('ubuntu', ['touch a', 'touch b', 'rm /a'], ['/bin/bash'], rebuild_flag=True,)
-
-# [asdlfjladsf, asdfjlkasdf, adsfjkd, adsfj4]
