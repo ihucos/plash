@@ -2,7 +2,7 @@
 os: ubuntu
 cmd: oci-image-tool
 
-rpm: curl
+apt: curl
 run:
 curl -sL https://github.com/opencontainers/image-tools/releases/download/v0.2.0/oci-image-tool > /usr/local/bin/oci-image-tool
 chmod +x /usr/local/bin/oci-image-tool
