@@ -97,15 +97,20 @@ def fetch_base_image(image_name):
 def pull_base(image):
     image_dir = join(BUILDS_DIR, image)
     if not os.path.exists(image_dir):
-        print('*** plash downloading {}'.format(image))
+        print('*** plash: downloading {}'.format(image))
         tmpdir = mkdtemp()
         download_file = join(tmpdir, 'rootfs.tar.xz')
         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
         os.mkdir(join(tmp_image_dir, 'children'))
         os.mkdir(join(tmp_image_dir, 'payload'))
 
-        run(['wget', 'https://us.images.linuxcontainers.org/images/ubuntu/artful/amd64/default/20170729_03:49/rootfs.tar.xz', '-O', download_file])
-        run(['tar', 'xf', download_file, '--exclude=./dev', '-C', join(tmp_image_dir, 'payload')])
+        # also doable with skopeo and oci-image-tool
+        # run(['wget', 'https://us.images.linuxcontainers.org/images/ubuntu/artful/amd64/default/20170729_03:49/rootfs.tar.xz', '-O', download_file])
+        # run(['tar', 'xf', download_file, '--exclude=./dev', '-C', join(tmp_image_dir, 'payload')])
+
+        # subprocess.check_output(['docker', 'create', image])
+        run(['bash', '-c', 'docker export $(docker create '+image+') | tar -C '+join(tmp_image_dir, 'payload')+' -xf -']) # command injection!!
+
         try:
             os.rename(tmp_image_dir, image_dir)
         except OSError as exc:
