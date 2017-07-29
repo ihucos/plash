@@ -93,7 +93,11 @@ def fetch_base_image(image_name):
     pass
 
 
-# exported
+def pull_base(image):
+    run(['sh', '-c', 'wget https://us.images.linuxcontainers.org/images/ubuntu/artful/amd64/default/20170729_03:49/rootfs.tar.xz | tar xf -C /tmp/bla'])
+
+pull_base(44)
+asdf
 def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False):
     base = [image]
     for layer in layers:
@@ -103,6 +107,7 @@ def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=F
 
 def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False, extra_mounts=[]):
     base_dir = join(BUILDS_DIR, base)
+    pull_base(base)
     layers = build(base_dir, layer_commands, rebuild_flag=True)
     mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
     log_usage(layers[-1].split('/')[-1])
