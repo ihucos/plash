@@ -76,15 +76,18 @@ def umount(mountpoint):
     
 def mount(layers, write_dir):
     mountpoint = mkdtemp(dir=MNT_DIR)
+    workdir = mkdtemp(dir=MNT_DIR)
+    layers=list(layers)
     cmd = [
         'mount',
         '-t',
-        'aufs',
+        'overlay',
+        'overlay',
         '-o',
-        'dirs={write_dir}=rw:{mountpoint}'.format(
+        'upperdir={write_dir},lowerdir={dirs},workdir={workdir}'.format(
             write_dir=write_dir,
-            mountpoint=':'.join(i + '=ro' for i in layers)),
-        'none',
+            workdir=workdir,
+            dirs=':'.join(i for i in layers)),
         mountpoint]
     # print(cmd)
     run(cmd)
@@ -139,4 +142,4 @@ if __name__ == '__main__':
     # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
     # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'), 'touch b'))
     # print(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm a']))
-    call('ubuntu', ['touch a', 'touch b', 'rm /a'], ['/bin/bash'], rebuild_flag=False,)
+    call('ubuntu', ['touch a', 'touch b', 'rm /a'], ['/bin/bash'], rebuild_flag=True,)
