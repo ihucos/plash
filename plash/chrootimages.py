@@ -98,9 +98,17 @@ def fetch_base_image(image_name):
 
 
 def pull_base(image):
-    image_dir = join(BUILDS_DIR, image)
+
+    # normalize image name
+
+    if not '/' in image:
+        image = 'library/' + image
+    if not ':' in image:
+        image += ':latest'
+
+    image_dir = join(BUILDS_DIR, join(hashstr('dockerregistry {}'.format(image).encode())))
     if not os.path.exists(image_dir):
-        print('*** plash: downloading {}'.format(image))
+        print('*** plash: preparing {}'.format(image))
         tmpdir = mkdtemp()
         download_file = join(tmpdir, 'rootfs.tar.xz')
         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
@@ -112,13 +120,14 @@ def pull_base(image):
         # run(['tar', 'xf', download_file, '--exclude=./dev', '-C', join(tmp_image_dir, 'payload')])
 
         # subprocess.check_output(['docker', 'create', image])
-        run(['bash', '-c', 'docker export $(docker create '+image+') | tar -C '+join(tmp_image_dir, 'payload')+' -xf -']) # command injection!!
+        run(['bash', '-c', 'docker export $(docker create '+image+') | tar -C '+join(tmp_image_dir, 'payload')+' --exclude=./dev -xf -']) # command injection!!
 
         try:
             os.rename(tmp_image_dir, image_dir)
         except OSError as exc:
             if exc.errno == errno.ENOTEMPTY:
                 print('*** plash: another process already pulled that image')
+    return image_dir
 
 def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False):
     base = [image]
@@ -128,8 +137,7 @@ def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=F
 
 
 def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False, extra_mounts=[]):
-    base_dir = join(BUILDS_DIR, base)
-    pull_base(base)
+    base_dir = pull_base(base)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
     mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
     log_usage(layers[-1].split('/')[-1])
@@ -142,4 +150,4 @@ if __name__ == '__main__':
     # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
     # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'), 'touch b'))
     # print(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm a']))
-    call('ubuntu', ['touch a', 'touch b', 'rm /a'], ['/bin/bash'], rebuild_flag=True,)
+    call('ubuntu:16.04', ['touch a', 'touch b', 'rm /a'], ['/bin/bash'], rebuild_flag=True,)
