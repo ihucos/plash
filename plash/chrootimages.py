@@ -201,8 +201,12 @@ def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, reb
     os.chdir('/')
     os.execvpe(cmd[0], cmd, {'MYENV': 'myenvval'})
 
-freespace()
-import sys; sys.exit(0)
+# this as a separate script!
+
+# cleanup_mounts()
+# import sys; sys.exit(0)
+
+
 
 if __name__ == '__main__':
     # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
