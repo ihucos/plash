@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+import os
+from os.path import join
+from shutil import rmtree
+from tempfile import mkdtemp
+
+BASE_DIR = os.environ['PLASH_DATA']
+BUILDS_DIR = join(BASE_DIR, 'builds')
+TMP_DIR = join(BASE_DIR, 'tmp')
+
+usages = []
+for  dirpath, dirs, files in os.walk(BUILDS_DIR):
+    for filename in files:
+        last_used_path = join(dirpath, filename)
+        if filename == 'lastused':
+            last_modified = os.path.getmtime(last_used_path)
+            usages.append((dirpath, last_modified))
+
+    # don't check that one
+    if 'payload' in dirs:
+        dirs.remove('payload')
+
+layers_num = len(usages)
+delete_layers_num = int(round(0.2 * layers_num)) # delete 20% of all layers
+sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
+some_last_used = sorted_usages[:delete_layers_num]
+
+for delete_build, _ in some_last_used:
+    tmpdir = mkdtemp(dir=TMP_DIR, suffix='.{}'.format(os.getpid()))
+    print('Deleting: {}'.format(delete_build))
+    try:
+        os.rename(delete_build, join(tmpdir, '_')) # use something atomic
+    except FileNotFoundError:
+        pass # parent already deleted by this process or another parallel freespace call
+    rmtree(tmpdir)

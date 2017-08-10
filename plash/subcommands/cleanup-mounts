@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+
+from os import path, environ
+from sys import stderr
+
+BASE_DIR = environ['PLASH_DATA']
+MNT_DIR = path.join(BASE_DIR, 'mnt')
+
+with open('/proc/mounts') as f:
+    mounts = f.readlines()
+
+umount_this = []
+mnt_dir_depth = MNT_DIR.count('/')
+for line in mounts:
+    device, mountpoint, fs_type, ro_or_rw, dumm1, dumm2 = line.split()
+    if mountpoint.startswith(MNT_DIR):
+        mountpoint_depth = mountpoint.count('/')
+        if mountpoint_depth - mnt_dir_depth == 1: # if it is the root mount of that container
+            try:
+                pid = mountpoint.split('.')[-1]
+                pid = int(pid)
+            except ValueError:
+                continue
+            if not os.path.exists(join('/proc', str(pid))):
+                umount_this.append((mountpoint, pid))
+
+# umount in this pid creation order BUG BUG BUG pids are not always ascending
+for mp, _ in sorted(umount_this, key=lambda i: -i[1]): # use itemgetter from itertools
+    print('umounting {}'.format(mp))
+    exit = subprocess.Popen(['umount', '--recursive', mp]).wait()
+    if not exit:
+        print('umount returned bad exit status {}'.format(exit), file=stderr)

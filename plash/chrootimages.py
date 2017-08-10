@@ -28,9 +28,10 @@ import sqlite3
 import subprocess
 import time
 from os.path import join
+from shutil import rmtree
 from tempfile import mkdtemp
 
-from utils import hashstr, run, NonZeroExitStatus
+from utils import NonZeroExitStatus, hashstr, run
 
 BASE_DIR = os.environ.get('PLASH_DATA', '/tmp/plashdata')
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -38,11 +39,15 @@ MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'builds')
 ROTATE_LOG_SIZE = 4000
 
-def log_usage(layer_name):
+
+def pidsuffix():
+    return '.{}'.format(os.getpid())
+
+def touch(fname):
 
     # we should also trim the logfile sometimes
-    with open('/tmp/usage.log', 'a') as f:
-        f.write('{} {}\n'.format(int(round(time.time())), layer_name))
+    f  = open(fname, 'a')
+    f.close()
 
 
 def prepare_data_dir(data_dir):
@@ -79,6 +84,7 @@ def staple_layer(layers, layer_cmd, rebuild=False):
         new_layer = join(new_child, 'payload')
         os.mkdir(new_layer)
         os.mkdir(join(new_child, 'children'))
+        touch(join(new_child, 'lastused'))
 
         mountpoint = mount(layers=(join(i, 'payload') for i in layers), write_dir=new_layer)
 
@@ -123,7 +129,7 @@ def umount(mountpoint):
     run(['umount', '--recursive', mountpoint])
     
 def mount(layers, write_dir):
-    mountpoint = mkdtemp(dir=MNT_DIR, suffix='.{}'.format(os.getpid())) # save pid so we can unmout it when that pid dies
+    mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix()) # save pid so we can unmout it when that pid dies
     workdir = mkdtemp(dir=MNT_DIR)
     layers=list(layers)
     cmd = [
@@ -141,10 +147,6 @@ def mount(layers, write_dir):
     run(cmd)
     return mountpoint
 
-def fetch_base_image(image_name):
-    pass
-
-
 def pull_base(image):
 
     # normalize image name
@@ -157,8 +159,7 @@ def pull_base(image):
     image_dir = join(BUILDS_DIR, join(hashstr('dockerregistry {}'.format(image).encode())))
     if not os.path.exists(image_dir):
         print('*** plash: preparing {}'.format(image))
-        tmpdir = mkdtemp()
-        download_file = join(tmpdir, 'rootfs.tar.xz')
+        download_file = join(mkdtemp(), 'rootfs.tar.xz')
         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
         os.mkdir(join(tmp_image_dir, 'children'))
         os.mkdir(join(tmp_image_dir, 'payload'))
@@ -185,12 +186,13 @@ def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=F
     return base
 
 
-def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False, extra_mounts=[]):
+def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False, extra_mounts=[], build_only=False):
     prepare_data_dir(BASE_DIR)
     base_dir = pull_base(base)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
     mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
-    log_usage(layers[-1].split('/')[-1])
+    last_layer = layers[-1]
+    touch(join(last_layer, 'lastused')) # update the timestamp on this
 
     prepare_rootfs(mountpoint)
     print(mountpoint)
@@ -199,38 +201,14 @@ def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, reb
     os.chdir('/')
     os.execvpe(cmd[0], cmd, {'MYENV': 'myenvval'})
 
-# this as a separate script!
-def cleanup_mounts():
-    with open('/proc/mounts') as f:
-        mounts = f.readlines()
-
-    umount_this = []
-    mnt_dir_depth = MNT_DIR.count('/')
-    for line in mounts:
-        device, mountpoint, fs_type, ro_or_rw, dumm1, dumm2 = line.split()
-        if mountpoint.startswith(MNT_DIR):
-            mountpoint_depth = mountpoint.count('/')
-            if mountpoint_depth - mnt_dir_depth == 1: # if it is the root mount of that container
-                try:
-                    pid = mountpoint.split('.')[-1]
-                    pid = int(pid)
-                except ValueError:
-                    continue
-                if not os.path.exists(join('/proc', str(pid))):
-                    umount_this.append((mountpoint, pid))
-
-    
-    # umount in this pid creation order BUG BUG BUG pids are not always ascending
-    for mp, _ in sorted(umount_this, key=lambda i: -i[1]): # use itemgetter from itertools
-        print('umounting {}'.format(mp))
-        umount(mp)
-
-# cleanup_mounts()
-# import sys; sys.exit(0)
-
+freespace()
+import sys; sys.exit(0)
 
 if __name__ == '__main__':
     # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
     # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'), 'touch b'))
     # print(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm a']))
-    call('ubuntu:16.04', ['touch a', 'touch b', 'rm /a'], ['/bin/bash'], rebuild_flag=True, verbose_flag=True)
+    call('ubuntu:16.04', ['touch a', 'touch b', 'rm /a', 'apt-get update && apt-get install cowsay'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)
+    # call('ubuntu:16.04', ['touch ac', 'touch b', 'touch c'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)
+    # import cProfile
+    # cProfile.run("call('ubuntu:16.04', ['touch a', 'touch b', 'rm /a', 'apt-get update && apt-get install cowsay'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)")

@@ -117,11 +117,8 @@ def main():
     if not os_image:
         with friendly_exception([ArgError]):
             raise ArgError('Specify an image')
-    layers = (script + '\n').split('{}'.format(layer() + '\n'))
+    layers = (script + '\n').split(layer() + '\n')
     layers = [l for l in layers if l]
-    plash_env = '{}-{}'.format(
-        os_image,
-        hashstr('\n'.join(layers).encode())[:4])
     if os_image == 'print':
         print(script)
         sys.exit(0)
@@ -149,6 +146,28 @@ def main():
                 print()
                 sys.exit(127)
 
+
+
+
+        bcmd = state.get_base_command() or ''
+        command = (args.exec or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (args.exec or [])
+
+        plash_env = '{}-{}'.format( # some 
+            os_image,
+            hashstr('\n'.join(layers).encode())[:4])
+
+        call(image, layers, cmd=False, *, quiet_flag, blah blah blah)
+
+        # something that could be used in the shell prompt
+        docker_run(
+            b.get_image_name(),
+            command,
+            extra_envs={'PLASH_ENV': plash_env},
+            )
+
+
+
+
             print('*** plash: building...')
             b.build(
                 shell=docker_get_image_shell(image),
@@ -167,14 +186,14 @@ def main():
             subprocess.check_output(
                 ['docker', 'commit', container_id, args.save_image])
 
-    if args.build_only:
-        sys.exit(0)
-
     bcmd = state.get_base_command() or ''
     command = (args.exec or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (args.exec or [])
 
-    extra_mounts = []
+    plash_env = '{}-{}'.format( # some 
+        os_image,
+        hashstr('\n'.join(layers).encode())[:4])
 
+    # something that could be used in the shell prompt
     docker_run(
         b.get_image_name(),
         command,
