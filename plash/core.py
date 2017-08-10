@@ -31,7 +31,7 @@ from os.path import join
 from shutil import rmtree
 from tempfile import mkdtemp
 
-from utils import NonZeroExitStatus, hashstr, run
+from .utils import NonZeroExitStatus, hashstr, run
 
 BASE_DIR = os.environ.get('PLASH_DATA', '/tmp/plashdata')
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -39,6 +39,8 @@ MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'builds')
 ROTATE_LOG_SIZE = 4000
 
+class BuildError(Exception):
+    pass
 
 def pidsuffix():
     return '.{}'.format(os.getpid())
@@ -186,7 +188,18 @@ def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=F
     return base
 
 
-def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False, extra_mounts=[], build_only=False):
+def execute(base,
+            layer_commands,
+            command,
+            *,
+            quiet_flag=False,
+            verbose_flag=False,
+            rebuild_flag=False,
+            extra_mounts=[],
+            build_only=False,
+            skip_if_exists=True,
+            extra_envs={}):
+
     prepare_data_dir(BASE_DIR)
     base_dir = pull_base(base)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
@@ -199,7 +212,7 @@ def call(base, layer_commands, cmd, *, quiet_flag=False, verbose_flag=False, reb
     os.chroot(mountpoint)
 
     os.chdir('/')
-    os.execvpe(cmd[0], cmd, {'MYENV': 'myenvval'})
+    os.execvpe(command[0], command, extra_envs)
 
 # this as a separate script!
 
@@ -212,7 +225,7 @@ if __name__ == '__main__':
     # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
     # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'), 'touch b'))
     # print(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm a']))
-    call('ubuntu:16.04', ['touch a', 'touch b', 'rm /a', 'apt-get update && apt-get install cowsay'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)
+    execute('ubuntu:16.04', ['touch a', 'touch b', 'rm /a', 'apt-get update && apt-get install cowsay'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)
     # call('ubuntu:16.04', ['touch ac', 'touch b', 'touch c'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)
     # import cProfile
     # cProfile.run("call('ubuntu:16.04', ['touch a', 'touch b', 'rm /a', 'apt-get update && apt-get install cowsay'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)")

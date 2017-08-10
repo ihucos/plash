@@ -10,7 +10,7 @@ from shlex import quote
 from .utils import hashstr, rand
 
 
-class BuildError(Exception):
+class DockerBuildError(Exception):
     pass
 
 
@@ -145,7 +145,7 @@ class DockerBuildable(BaseDockerBuildable):
             print('Build log at: ' + fname)
         
         if not exit == 0:
-            raise BuildError('building returned exit status {}'.format(exit))
+            raise DockerBuildError('building returned exit status {}'.format(exit))
         if exit == 0 and fname:
             os.remove(fname)
 
@@ -193,6 +193,34 @@ class LayeredDockerBuildable(BaseDockerBuildable):
 
     def get_image_name(self):
         return self._build('get_image_name')
+
+def execute(base,
+            layer_commands,
+            command,
+            *,
+            quiet_flag=False,
+            verbose_flag=False,
+            rebuild_flag=False,
+            extra_mounts=[],
+            build_only=False,
+            skip_if_exists=True,
+            docker_save_image=None,
+            extra_envs={}):
+
+    b = LayeredDockerBuildable.create('ubuntu', ['touch /a', 'touch /b'])
+    b.build(quiet=False)
+    docker_run(
+        b.get_image_name(),
+        command,
+        extra_envs=extra_envs)
+
+    if docker_save_image:
+        with friendly_exception([CalledProcessError], 'save-image'):
+            container_id = subprocess.check_output(
+                ['docker', 'run', b.get_image_name(), 'hostname'])
+            container_id = container_id.decode().strip('\n')
+            subprocess.check_output(
+                ['docker', 'commit', container_id, args.save_image])
 
 if __name__ == "__main__":
     b = LayeredDockerBuildable.create('ubuntu', ['touch /a', 'touch /b'])
