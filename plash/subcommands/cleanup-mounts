@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from os import path, environ
+import subprocess
+from os import environ, path, rmdir
 from sys import stderr
 
 BASE_DIR = environ['PLASH_DATA']
@@ -21,12 +22,13 @@ for line in mounts:
                 pid = int(pid)
             except ValueError:
                 continue
-            if not os.path.exists(join('/proc', str(pid))):
+            if not path.exists(path.join('/proc', str(pid))):
                 umount_this.append((mountpoint, pid))
 
 # umount in this pid creation order BUG BUG BUG pids are not always ascending
 for mp, _ in sorted(umount_this, key=lambda i: -i[1]): # use itemgetter from itertools
-    print('umounting {}'.format(mp))
+    print('Unmounting {}'.format(mp))
     exit = subprocess.Popen(['umount', '--recursive', mp]).wait()
-    if not exit:
+    rmdir(mp)
+    if exit:
         print('umount returned bad exit status {}'.format(exit), file=stderr)

@@ -1,14 +1,15 @@
 import argparse
 import os
+import platform
 import shlex
 import subprocess
 import sys
 from subprocess import CalledProcessError, list2cmdline
 
-from . import state, core, dockercore
-from .eval import ActionNotFoundError, ArgError, EvalError, eval, layer
+from . import core, dockercore, state
 from .core import BuildError
 from .dockercore import DockerBuildError, docker_get_image_shell
+from .eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from .utils import (disable_friendly_exception, friendly_exception, hashstr,
                     rand)
 
@@ -36,7 +37,6 @@ SHORTCUTS = [
     ('-D', ['os', 'debian'], 0),
  ]
 
-
 def add_shortcuts_to_parser(parser):
     group = parser.add_argument_group('shortcuts', 'shortcuts')
     for shortcut, lsp, nargs in SHORTCUTS:
@@ -62,6 +62,8 @@ def get_argument_parser():
         prog=PROG,
         epilog=HELP)
 
+    parser.add_argument("subcommand", nargs='?')
+
     parser.add_argument("--build-silent", action='store_true')
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
@@ -77,9 +79,6 @@ def get_argument_parser():
 
     parser.add_argument("--docker-save-image")
 
-    parser.add_argument(
-        "exec", type=str, nargs='*')
-
     add_shortcuts_to_parser(parser)
 
     return parser
@@ -87,8 +86,18 @@ def get_argument_parser():
 
 
 def main():
+    argv = sys.argv[1:]
+
+    try:
+        delimiter = argv.index('--')
+        command = argv[delimiter+1:]
+        argv = argv[:delimiter]
+        # assert False, (args, command)
+    except ValueError:
+        command = None
+
     ap = get_argument_parser()
-    _, unused_args = ap.parse_known_args(sys.argv[1:])
+    _, unused_args = ap.parse_known_args(argv)
     # lsp = unused_args_to_lsp(unused_args)
     for arg in set(unused_args):
         if arg == '--':
@@ -98,7 +107,21 @@ def main():
                 arg,
                 action=create_collect_lsp_action([arg[2:]]),
                 nargs='*')
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
+
+    if args.subcommand:
+        if argv[0].startswith('-'):
+            ap.error('Subcommand must always be the first argument')
+        else:
+            
+            this_file_folder = os.path.abspath(os.path.dirname(__file__))
+            subcommand_executable = os.path.join(this_file_folder, 'subcommands', args.subcommand)
+            os.execvpe(
+                subcommand_executable,
+                [subcommand_executable] + argv[1:],
+                dict(os.environ, PLASH_DATA=core.BASE_DIR))
+
+
     build_silent = args.build_silent or os.environ.get('PLASH_BUILD_SILENT')
     lsp = getattr(args, 'lsp', [])
 
@@ -118,8 +141,7 @@ def main():
 
     os_image = state.get_os()
     if not os_image:
-        with friendly_exception([ArgError]):
-            raise ArgError('Specify an image')
+        ap.error('Specify an image')
     layers = (script + '\n').split(layer() + '\n')
     layers = [l for l in layers if l]
     if os_image == 'print':
@@ -148,26 +170,27 @@ def main():
     #             print()
     #             sys.exit(127)
 
-
-        bcmd = state.get_base_command() or ''
-        command = (args.exec or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (args.exec or [])
-
         plash_env = '{}-{}'.format( # some 
             os_image,
             hashstr('\n'.join(layers).encode())[:4])
 
-        if not args.docker:
-            execute = core.execute
-            execute_extra_kws = {}
-        else:
+        if args.docker or platform.system() in ('Darwin', 'Windows'):
             execute = dockercore.execute
             execute_extra_kws = {'docker_save_image': args.docker_save_image}
+        else:
+            execute = core.execute
+            execute_extra_kws = {}
+
+        # bcmd = state.get_base_command() or ''
+        # command = (command or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (command or [])
 
         execute(image,
                 layers,
                 command,
                 quiet_flag=args.build_silent,
+                rebuild_flag=args.build_again,
                 verbose_flag=args.verbose,
+                build_only=not command,
                 skip_if_exists=not args.build_again,
                 extra_mounts=state.pop_mountpoints(),
                 **execute_extra_kws)
@@ -188,25 +211,3 @@ def main():
         #         skip_if_exists=not args.build_again)
         #     print('*** plash: done')
         #     print()
-
-#     if args.save_image:
-#         with friendly_exception([CalledProcessError], 'save-image'):
-#             container_id = subprocess.check_output(
-#                 ['docker', 'run', b.get_image_name(), 'hostname'])
-#             container_id = container_id.decode().strip('\n')
-#             subprocess.check_output(
-#                 ['docker', 'commit', container_id, args.save_image])
-
-#     bcmd = state.get_base_command() or ''
-#     command = (args.exec or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (args.exec or [])
-
-#     plash_env = '{}-{}'.format( # some 
-#         os_image,
-#         hashstr('\n'.join(layers).encode())[:4])
-
-#     # something that could be used in the shell prompt
-#     docker_run(
-#         b.get_image_name(),
-#         command,
-#         extra_envs={'PLASH_ENV': plash_env},
-#         )

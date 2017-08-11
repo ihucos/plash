@@ -145,7 +145,6 @@ def mount(layers, write_dir):
             workdir=workdir,
             dirs=':'.join(i for i in layers)),
         mountpoint]
-    # print(cmd)
     run(cmd)
     return mountpoint
 
@@ -203,16 +202,20 @@ def execute(base,
     prepare_data_dir(BASE_DIR)
     base_dir = pull_base(base)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
-    mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
-    last_layer = layers[-1]
-    touch(join(last_layer, 'lastused')) # update the timestamp on this
 
-    prepare_rootfs(mountpoint)
-    print(mountpoint)
-    os.chroot(mountpoint)
+    if build_only:
+        print('Build is here: {}'.format(layers[-1]))
+    else:
+        mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
+        last_layer = layers[-1]
+        touch(join(last_layer, 'lastused')) # update the timestamp on this
 
-    os.chdir('/')
-    os.execvpe(command[0], command, extra_envs)
+        prepare_rootfs(mountpoint)
+        os.chroot(mountpoint)
+
+        os.chdir('/')
+        os.execvpe(command[0], command, extra_envs)
+
 
 # this as a separate script!
 

@@ -208,7 +208,10 @@ def execute(base,
             extra_envs={}):
 
     b = LayeredDockerBuildable.create('ubuntu', ['touch /a', 'touch /b'])
-    b.build(quiet=False)
+
+    if rebuild_flag or not b.image_ready():
+        b.build(quiet=quiet_flag)
+
     docker_run(
         b.get_image_name(),
         command,
