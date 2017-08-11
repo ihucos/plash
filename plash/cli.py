@@ -62,8 +62,7 @@ def get_argument_parser():
         prog=PROG,
         epilog=HELP)
 
-    parser.add_argument("subcommand", nargs='?')
-
+    # parser.add_argument("subcommand", nargs='?')
     parser.add_argument("--build-silent", action='store_true')
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
@@ -88,6 +87,22 @@ def get_argument_parser():
 def main():
     argv = sys.argv[1:]
 
+    if not argv[0].startswith('-'): # suppose its a subcommand
+        subcommand = argv[0]
+        subcommands_dir = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            'subcommands')
+        all_subcommands = os.listdir(subcommands_dir)
+        if not subcommand in all_subcommands:
+            with friendly_exception([ArgError]):
+                raise ArgError('no subcommand {}, available: {}'.format(repr(subcommand), ' '.join(all_subcommands)))
+
+        subcommand_executable = os.path.join(subcommands_dir, subcommand)
+        os.execvpe(
+            subcommand_executable,
+            [subcommand_executable] + argv[1:],
+            dict(os.environ, PLASH_DATA=core.BASE_DIR))
+
     try:
         delimiter = argv.index('--')
         command = argv[delimiter+1:]
@@ -107,20 +122,8 @@ def main():
                 arg,
                 action=create_collect_lsp_action([arg[2:]]),
                 nargs='*')
+
     args = ap.parse_args(argv)
-
-    if args.subcommand:
-        if argv[0].startswith('-'):
-            ap.error('Subcommand must always be the first argument')
-        else:
-            
-            this_file_folder = os.path.abspath(os.path.dirname(__file__))
-            subcommand_executable = os.path.join(this_file_folder, 'subcommands', args.subcommand)
-            os.execvpe(
-                subcommand_executable,
-                [subcommand_executable] + argv[1:],
-                dict(os.environ, PLASH_DATA=core.BASE_DIR))
-
 
     build_silent = args.build_silent or os.environ.get('PLASH_BUILD_SILENT')
     lsp = getattr(args, 'lsp', [])
