@@ -87,7 +87,7 @@ def get_argument_parser():
 def main():
     argv = sys.argv[1:]
 
-    if not argv[0].startswith('-'): # suppose its a subcommand
+    if argv and not argv[0].startswith('-'): # suppose its a subcommand
         subcommand = argv[0]
         subcommands_dir = os.path.join(
             os.path.abspath(os.path.dirname(__file__)),
