@@ -187,24 +187,25 @@ def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=F
     return base
 
 
-def execute(base,
-            layer_commands,
-            command,
-            *,
-            quiet_flag=False,
-            verbose_flag=False,
-            rebuild_flag=False,
-            extra_mounts=[],
-            build_only=False,
-            skip_if_exists=True,
-            extra_envs={}):
+def execute(
+        base,
+        layer_commands,
+        command,
+        *,
+        quiet_flag=False,
+        verbose_flag=False,
+        rebuild_flag=False,
+        extra_mounts=[],
+        build_only=False,
+        skip_if_exists=True,
+        extra_envs={}):
 
     prepare_data_dir(BASE_DIR)
     base_dir = pull_base(base)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
 
     if build_only:
-        print('Build is here: {}'.format(layers[-1]))
+        print('Build is ready')
     else:
         mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
         last_layer = layers[-1]
