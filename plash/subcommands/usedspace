@@ -1,0 +1,3 @@
+#!/bin/sh
+du -sh $PLASH_DATA/builds 2> /dev/null
+du -sh $PLASH_DATA/tmp 2> /dev/null

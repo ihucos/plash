@@ -31,7 +31,7 @@ from os.path import join
 from shutil import rmtree
 from tempfile import mkdtemp
 
-from .utils import NonZeroExitStatus, hashstr, run
+from .utils import NonZeroExitStatus, friendly_exception, hashstr, run
 
 BASE_DIR = os.environ.get('PLASH_DATA', '/tmp/plashdata')
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -214,7 +214,8 @@ def execute(base,
         os.chroot(mountpoint)
 
         os.chdir('/')
-        os.execvpe(command[0], command, extra_envs)
+        with friendly_exception([FileNotFoundError]):
+            os.execvpe(command[0], command, extra_envs)
 
 
 # this as a separate script!

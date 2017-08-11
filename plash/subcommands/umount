@@ -27,7 +27,7 @@ for line in mounts:
 
 # umount in this pid creation order BUG BUG BUG pids are not always ascending
 for mp, _ in sorted(umount_this, key=lambda i: -i[1]): # use itemgetter from itertools
-    print('Unmounting {}'.format(mp))
+    print('umount --recursive {}'.format(mp))
     exit = subprocess.Popen(['umount', '--recursive', mp]).wait()
     rmdir(mp)
     if exit:
