@@ -27,9 +27,10 @@ import shutil
 import sqlite3
 import subprocess
 import time
-from os.path import join
+from os.path import join, abspath
 from shutil import rmtree
 from tempfile import mkdtemp
+from urllib.request import urlretrieve
 
 from .utils import NonZeroExitStatus, friendly_exception, hashstr, run
 
@@ -38,6 +39,40 @@ TMP_DIR = join(BASE_DIR, 'tmp')
 MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'builds')
 ROTATE_LOG_SIZE = 4000
+
+INDEXED_IMAGES= {
+    'alpine3.3': 'https://images.linuxcontainers.org/images/alpine/3.3/amd64/default/20170811_17:50/rootfs.squashfs',
+    'alpine3.4': 'https://images.linuxcontainers.org/images/alpine/3.4/amd64/default/20170811_17:50/rootfs.squashfs',
+    'alpine3.5': 'https://images.linuxcontainers.org/images/alpine/3.5/amd64/default/20170811_17:50/rootfs.squashfs',
+    'alpine3.6': 'https://images.linuxcontainers.org/images/alpine/3.6/amd64/default/20170811_17:50/rootfs.squashfs',
+    'archlinux': 'https://images.linuxcontainers.org/images/archlinux/current/amd64/default/20170811_01:27/rootfs.squashfs',
+    'artful': 'https://images.linuxcontainers.org/images/ubuntu/artful/amd64/default/20170811_09:29/rootfs.squashfs',
+    'buster': 'https://images.linuxcontainers.org/images/debian/buster/amd64/default/20170811_19:07/rootfs.squashfs',
+    'centos6': 'https://images.linuxcontainers.org/images/centos/6/amd64/default/20170811_02:16/rootfs.squashfs',
+    'centos7': 'https://images.linuxcontainers.org/images/centos/7/amd64/default/20170811_02:16/rootfs.squashfs',
+    'edge': 'https://images.linuxcontainers.org/images/alpine/edge/amd64/default/20170811_17:50/rootfs.squashfs',
+    'fedora24': 'https://images.linuxcontainers.org/images/fedora/24/amd64/default/20170811_01:27/rootfs.squashfs',
+    'fedora25': 'https://images.linuxcontainers.org/images/fedora/25/amd64/default/20170811_01:50/rootfs.squashfs',
+    'fedora26': 'https://images.linuxcontainers.org/images/fedora/26/amd64/default/20170811_02:25/rootfs.squashfs',
+    'gentoo': 'https://images.linuxcontainers.org/images/gentoo/current/amd64/default/20170811_14:56/rootfs.squashfs',
+    'jessie': 'https://images.linuxcontainers.org/images/debian/jessie/amd64/default/20170810_23:47/rootfs.squashfs',
+    'opensuse42.2': 'https://images.linuxcontainers.org/images/opensuse/42.2/amd64/default/20170811_00:53/rootfs.squashfs',
+    'opensuse42.3': 'https://images.linuxcontainers.org/images/opensuse/42.3/amd64/default/20170811_00:53/rootfs.squashfs',
+    'oracle6': 'https://images.linuxcontainers.org/images/oracle/6/amd64/default/20170811_11:40/rootfs.squashfs',
+    'oracle7': 'https://images.linuxcontainers.org/images/oracle/7/amd64/default/20170811_11:40/rootfs.squashfs',
+    'plamo5.x': 'https://images.linuxcontainers.org/images/plamo/5.x/amd64/default/20170810_21:36/rootfs.squashfs',
+    'plamo6.x': 'https://images.linuxcontainers.org/images/plamo/6.x/amd64/default/20170810_21:36/rootfs.squashfs',
+    'precise': 'https://images.linuxcontainers.org/images/ubuntu/precise/amd64/default/20170811_03:49/rootfs.squashfs',
+    'sabayon': 'https://images.linuxcontainers.org/images/sabayon/current/amd64/default/20170811_07:38/rootfs.squashfs',
+    'sid': 'https://images.linuxcontainers.org/images/debian/sid/amd64/default/20170811_19:07/rootfs.squashfs',
+    'stretch': 'https://images.linuxcontainers.org/images/debian/stretch/amd64/default/20170811_19:07/rootfs.squashfs',
+    'trusty': 'https://images.linuxcontainers.org/images/ubuntu/trusty/amd64/default/20170811_03:49/rootfs.squashfs',
+    'ubuntu-core16': 'https://images.linuxcontainers.org/images/ubuntu-core/16/amd64/default/20170808_19:56/rootfs.squashfs',
+    'wheezy': 'https://images.linuxcontainers.org/images/debian/wheezy/amd64/default/20170810_23:47/rootfs.squashfs',
+    'xenial': 'https://images.linuxcontainers.org/images/ubuntu/xenial/amd64/default/20170811_03:49/rootfs.squashfs',
+    'zesty': 'https://images.linuxcontainers.org/images/ubuntu/zesty/amd64/default/20170811_03:49/rootfs.squashfs'
+}
+
 
 class BuildError(Exception):
     pass
@@ -74,11 +109,40 @@ def prepare_rootfs(rootfs):
     run(['cp', '/etc/resolv.conf', join(rootfs, 'etc/resolv.conf')])
 
 
+def reporthook(counter, buffer_size, size):
+      expected_ticks = int(size / buffer_size)
+      dot_every_ticks = int(expected_ticks / 40)
+      if counter % dot_every_ticks == 0:
+            dot_count = counter / dot_every_ticks
+
+            if dot_count % 4 == 0:
+                  countdown = 10 - int(round((counter * buffer_size / size) * 10))
+                  if countdown != 10:
+                        print(' ', end='', flush=True)
+                  if countdown == 0:
+                        print('ready', flush=True)
+                  else:
+                        print(countdown, end='', flush=True)
+            else:
+                  print('.', end='', flush=True)
+
+def layers_mount_payloads(layers):
+    for layer in layers:
+        squashfs = abspath(join(layer, 'payload.squashfs'))
+        mount_at = abspath(join(layer, 'payload'))
+        if not os.path.exists(squashfs):
+            return
+        # if os.listdir(join(layer))
+        p = subprocess.Popen(['mount', squashfs, mount_at])
+        exit = p.wait()
+        print('=======', exit)
 
 def staple_layer(layers, layer_cmd, rebuild=False):
     last_layer = layers[-1]
     layer_name = hashstr(' '.join(layers + [layer_cmd]).encode())
     final_child_dst = join(last_layer, 'children', layer_name)
+
+    # layers_mount_payloads(layers)
 
     if not os.path.exists(final_child_dst) or rebuild:
         print('*** plash: building layer')
@@ -88,7 +152,8 @@ def staple_layer(layers, layer_cmd, rebuild=False):
         os.mkdir(join(new_child, 'children'))
         touch(join(new_child, 'lastused'))
 
-        mountpoint = mount(layers=(join(i, 'payload') for i in layers), write_dir=new_layer)
+        layers = [join(i, 'payload') for i in layers]
+        mountpoint = mount(layers=layers, write_dir=new_layer)
 
         prepare_rootfs(mountpoint)
         p = subprocess.Popen(['chroot', mountpoint, 'bash', '-ce', layer_cmd], stdout=2, stderr=2)
@@ -149,36 +214,58 @@ def mount(layers, write_dir):
     return mountpoint
 
 def pull_base(image):
+    image_url = INDEXED_IMAGES[image]
 
-    # normalize image name
+    image_dir = join(BUILDS_DIR, join(hashstr(image_url.encode())))
 
-    if not '/' in image:
-        image = 'library/' + image
-    if not ':' in image:
-        image += ':latest'
-
-    image_dir = join(BUILDS_DIR, join(hashstr('dockerregistry {}'.format(image).encode())))
     if not os.path.exists(image_dir):
-        print('*** plash: preparing {}'.format(image))
-        download_file = join(mkdtemp(), 'rootfs.tar.xz')
         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
         os.mkdir(join(tmp_image_dir, 'children'))
         os.mkdir(join(tmp_image_dir, 'payload'))
-
-        # also doable with skopeo and oci-image-tool
-        # run(['wget', 'https://us.images.linuxcontainers.org/images/ubuntu/artful/amd64/default/20170729_03:49/rootfs.tar.xz', '-O', download_file])
-        # run(['tar', 'xf', download_file, '--exclude=./dev', '-C', join(tmp_image_dir, 'payload')])
-
-        # subprocess.check_output(['docker', 'create', image])
-        run(['bash', '-c', 'docker export $(docker create '+image+') | tar -C '+join(tmp_image_dir, 'payload')+' --exclude=/dev --exclude=/proc --exclude=/sys -xf -']) # command injection!! # excluding is not working!
+        download_file = join(tmp_image_dir, 'payload.squashfs')
+        print('Downloading image: ', end='', flush=True)
+        urlretrieve(image_url, download_file, reporthook=reporthook)
 
         try:
             os.rename(tmp_image_dir, image_dir)
         except OSError as exc:
             if exc.errno == errno.ENOTEMPTY:
                 print('*** plash: another process already pulled that image')
-
+    
     return image_dir
+
+
+# def pull_base(image):
+
+#     # normalize image name
+
+#     if not '/' in image:
+#         image = 'library/' + image
+#     if not ':' in image:
+#         image += ':latest'
+
+#     image_dir = join(BUILDS_DIR, join(hashstr('dockerregistry {}'.format(image).encode())))
+#     if not os.path.exists(image_dir):
+#         print('*** plash: preparing {}'.format(image))
+#         download_file = join(mkdtemp(), 'rootfs.tar.xz')
+#         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
+#         os.mkdir(join(tmp_image_dir, 'children'))
+#         os.mkdir(join(tmp_image_dir, 'payload'))
+
+#         # also doable with skopeo and oci-image-tool
+#         # run(['wget', 'https://us.images.linuxcontainers.org/images/ubuntu/artful/amd64/default/20170729_03:49/rootfs.tar.xz', '-O', download_file])
+#         # run(['tar', 'xf', download_file, '--exclude=./dev', '-C', join(tmp_image_dir, 'payload')])
+
+#         # subprocess.check_output(['docker', 'create', image])
+#         run(['bash', '-c', 'docker export $(docker create '+image+') | tar -C '+join(tmp_image_dir, 'payload')+' --exclude=/dev --exclude=/proc --exclude=/sys -xf -']) # command injection!! # excluding is not working!
+
+#         try:
+#             os.rename(tmp_image_dir, image_dir)
+#         except OSError as exc:
+#             if exc.errno == errno.ENOTEMPTY:
+#                 print('*** plash: another process already pulled that image')
+
+#     return image_dir
 
 def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False):
     base = [image]

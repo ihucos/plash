@@ -6,7 +6,7 @@ from tempfile import mkdtemp
 p = subprocess.Popen(["wget", "--spider", "--reject-regex", r"\?", "--force-html", "-r", "https://uk.images.linuxcontainers.org/images/"], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 names = {}
 
-ROOTFS_TEMPL = "https://uk.images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz"
+ROOTFS_TEMPL = "https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz"
 
 for line in p.stderr:
       line = line.decode()
