@@ -145,8 +145,11 @@ def main():
     os_image = state.get_os()
     if not os_image:
         ap.error('Specify an image')
-    layers = (script + '\n').split(layer() + '\n')
-    layers = [l for l in layers if l]
+    if script:
+        layers = (script + '\n').split(layer() + '\n')
+        layers = [l for l in layers if l]
+    else:
+        layers = []
     if os_image == 'print':
         print(script)
         sys.exit(0)

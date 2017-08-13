@@ -128,8 +128,8 @@ def reporthook(counter, buffer_size, size):
 
 def layers_mount_payloads(layers):
     for layer in layers:
-        squashfs = abspath(join(layer, 'payload.squashfs'))
-        mount_at = abspath(join(layer, 'payload'))
+        squashfs = abspath(join(layer, '..', 'payload.squashfs'))
+        mount_at = abspath(join(layer, '..', 'payload'))
         if not os.path.exists(squashfs):
             return
         # if os.listdir(join(layer))
@@ -152,11 +152,10 @@ def staple_layer(layers, layer_cmd, rebuild=False):
         os.mkdir(join(new_child, 'children'))
         touch(join(new_child, 'lastused'))
 
-        layers = [join(i, 'payload') for i in layers]
-        mountpoint = mount(layers=layers, write_dir=new_layer)
+        mountpoint = mount_layers(layers=[join(i, 'payload') for i in layers], write_dir=new_layer)
 
         prepare_rootfs(mountpoint)
-        p = subprocess.Popen(['chroot', mountpoint, 'bash', '-ce', layer_cmd], stdout=2, stderr=2)
+        p = subprocess.Popen(['chroot', mountpoint, 'sh', '-ce', layer_cmd], stdout=2, stderr=2)
         pid = p.wait()
         umount(mountpoint)
         assert pid == 0, 'Building returned non zero exit status'
@@ -195,7 +194,8 @@ def staple_layer(layers, layer_cmd, rebuild=False):
 def umount(mountpoint):
     run(['umount', '--recursive', mountpoint])
     
-def mount(layers, write_dir):
+def mount_layers(layers, write_dir):
+    layers_mount_payloads(layers)
     mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix()) # save pid so we can unmout it when that pid dies
     workdir = mkdtemp(dir=MNT_DIR)
     layers=list(layers)
@@ -214,7 +214,10 @@ def mount(layers, write_dir):
     return mountpoint
 
 def pull_base(image):
-    image_url = INDEXED_IMAGES[image]
+    try:
+        image_url = INDEXED_IMAGES[image]
+    except KeyError:
+        raise ValueError('No such image, available: {}'.format(' '.join(sorted(INDEXED_IMAGES))))
 
     image_dir = join(BUILDS_DIR, join(hashstr(image_url.encode())))
 
@@ -287,6 +290,7 @@ def execute(
         skip_if_exists=True,
         extra_envs={}):
 
+    # assert 0, layer_commands
     prepare_data_dir(BASE_DIR)
     base_dir = pull_base(base)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
@@ -294,7 +298,7 @@ def execute(
     if build_only:
         print('Build is ready')
     else:
-        mountpoint = mount([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
+        mountpoint = mount_layers([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
         last_layer = layers[-1]
         touch(join(last_layer, 'lastused')) # update the timestamp on this
 
