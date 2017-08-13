@@ -212,10 +212,13 @@ def execute(base,
     if rebuild_flag or not b.image_ready():
         b.build(quiet=quiet_flag)
 
-    docker_run(
-        b.get_image_name(),
-        command,
-        extra_envs=extra_envs)
+    if command:
+        docker_run(
+            b.get_image_name(),
+            command,
+            extra_envs=extra_envs)
+    else:
+        print('*** plash: build is ready')
 
     if docker_save_image:
         with friendly_exception([CalledProcessError], 'save-image'):

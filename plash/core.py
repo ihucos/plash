@@ -133,9 +133,15 @@ def layers_mount_payloads(layers):
         if not os.path.exists(squashfs):
             return
         # if os.listdir(join(layer))
-        p = subprocess.Popen(['mount', squashfs, mount_at])
+        cmd = ['mount', squashfs, mount_at]
+        p = subprocess.Popen(cmd,
+                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         exit = p.wait()
-        print('=======', exit)
+        if not (exit == 0 or exit == 1):
+            print('executing "{}" returned an unexpected exit code ({})'.format(exit, cmd))
+            print('stdout output:\n{}'.format(p.stdout.read().decode()))
+            print('stderr output:\n{}'.format(p.stderr.read().decode()))
+            panic()
 
 def staple_layer(layers, layer_cmd, rebuild=False):
     last_layer = layers[-1]
@@ -296,7 +302,7 @@ def execute(
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
 
     if build_only:
-        print('Build is ready')
+        print('*** plash: Build is ready')
     else:
         mountpoint = mount_layers([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
         last_layer = layers[-1]
