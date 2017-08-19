@@ -35,6 +35,7 @@ SHORTCUTS = [
     ('-U', ['os', 'ubuntu'], 0),
     ('-F', ['os', 'fedora'], 0),
     ('-D', ['os', 'debian'], 0),
+    ('-l', ['layer'], 0),
  ]
 
 def add_shortcuts_to_parser(parser):
