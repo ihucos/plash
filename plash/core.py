@@ -23,14 +23,15 @@ root #cp /etc/resolv.conf /foo/etc/resolv.conf
 
 import errno
 import os
+import re
 import shutil
 import sqlite3
 import subprocess
 import time
-from os.path import join, abspath
+from os.path import abspath, join
 from shutil import rmtree
 from tempfile import mkdtemp
-from urllib.request import urlretrieve
+from urllib.request import urlopen, urlretrieve
 
 from .utils import NonZeroExitStatus, friendly_exception, hashstr, run
 
@@ -39,39 +40,7 @@ TMP_DIR = join(BASE_DIR, 'tmp')
 MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'builds')
 ROTATE_LOG_SIZE = 4000
-
-INDEXED_IMAGES= {
-    'alpine3.3': 'https://images.linuxcontainers.org/images/alpine/3.3/amd64/default/20170811_17:50/rootfs.squashfs',
-    'alpine3.4': 'https://images.linuxcontainers.org/images/alpine/3.4/amd64/default/20170811_17:50/rootfs.squashfs',
-    'alpine3.5': 'https://images.linuxcontainers.org/images/alpine/3.5/amd64/default/20170811_17:50/rootfs.squashfs',
-    'alpine3.6': 'https://images.linuxcontainers.org/images/alpine/3.6/amd64/default/20170811_17:50/rootfs.squashfs',
-    'archlinux': 'https://images.linuxcontainers.org/images/archlinux/current/amd64/default/20170811_01:27/rootfs.squashfs',
-    'artful': 'https://images.linuxcontainers.org/images/ubuntu/artful/amd64/default/20170811_09:29/rootfs.squashfs',
-    'buster': 'https://images.linuxcontainers.org/images/debian/buster/amd64/default/20170811_19:07/rootfs.squashfs',
-    'centos6': 'https://images.linuxcontainers.org/images/centos/6/amd64/default/20170811_02:16/rootfs.squashfs',
-    'centos7': 'https://images.linuxcontainers.org/images/centos/7/amd64/default/20170811_02:16/rootfs.squashfs',
-    'edge': 'https://images.linuxcontainers.org/images/alpine/edge/amd64/default/20170811_17:50/rootfs.squashfs',
-    'fedora24': 'https://images.linuxcontainers.org/images/fedora/24/amd64/default/20170811_01:27/rootfs.squashfs',
-    'fedora25': 'https://images.linuxcontainers.org/images/fedora/25/amd64/default/20170811_01:50/rootfs.squashfs',
-    'fedora26': 'https://images.linuxcontainers.org/images/fedora/26/amd64/default/20170811_02:25/rootfs.squashfs',
-    'gentoo': 'https://images.linuxcontainers.org/images/gentoo/current/amd64/default/20170811_14:56/rootfs.squashfs',
-    'jessie': 'https://images.linuxcontainers.org/images/debian/jessie/amd64/default/20170810_23:47/rootfs.squashfs',
-    'opensuse42.2': 'https://images.linuxcontainers.org/images/opensuse/42.2/amd64/default/20170811_00:53/rootfs.squashfs',
-    'opensuse42.3': 'https://images.linuxcontainers.org/images/opensuse/42.3/amd64/default/20170811_00:53/rootfs.squashfs',
-    'oracle6': 'https://images.linuxcontainers.org/images/oracle/6/amd64/default/20170811_11:40/rootfs.squashfs',
-    'oracle7': 'https://images.linuxcontainers.org/images/oracle/7/amd64/default/20170811_11:40/rootfs.squashfs',
-    'plamo5.x': 'https://images.linuxcontainers.org/images/plamo/5.x/amd64/default/20170810_21:36/rootfs.squashfs',
-    'plamo6.x': 'https://images.linuxcontainers.org/images/plamo/6.x/amd64/default/20170810_21:36/rootfs.squashfs',
-    'precise': 'https://images.linuxcontainers.org/images/ubuntu/precise/amd64/default/20170811_03:49/rootfs.squashfs',
-    'sabayon': 'https://images.linuxcontainers.org/images/sabayon/current/amd64/default/20170811_07:38/rootfs.squashfs',
-    'sid': 'https://images.linuxcontainers.org/images/debian/sid/amd64/default/20170811_19:07/rootfs.squashfs',
-    'stretch': 'https://images.linuxcontainers.org/images/debian/stretch/amd64/default/20170811_19:07/rootfs.squashfs',
-    'trusty': 'https://images.linuxcontainers.org/images/ubuntu/trusty/amd64/default/20170811_03:49/rootfs.squashfs',
-    'ubuntu-core16': 'https://images.linuxcontainers.org/images/ubuntu-core/16/amd64/default/20170808_19:56/rootfs.squashfs',
-    'wheezy': 'https://images.linuxcontainers.org/images/debian/wheezy/amd64/default/20170810_23:47/rootfs.squashfs',
-    'xenial': 'https://images.linuxcontainers.org/images/ubuntu/xenial/amd64/default/20170811_03:49/rootfs.squashfs',
-    'zesty': 'https://images.linuxcontainers.org/images/ubuntu/zesty/amd64/default/20170811_03:49/rootfs.squashfs'
-}
+LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.squashfs'
 
 
 class BuildError(Exception):
@@ -106,7 +75,14 @@ def prepare_rootfs(rootfs):
     run(['mount', '--bind', '/dev/pts', join(rootfs, 'dev', 'pts')])
     run(['mount', '--bind', '/dev/shm', join(rootfs, 'dev', 'shm')])
     # run(['mount', '--bind', '/tmp', join(rootfs, 'tmp')])
-    run(['cp', '/etc/resolv.conf', join(rootfs, 'etc/resolv.conf')])
+    # run(['cp', '/etc/resolv.conf', join(rootfs, 'etc/resolv.conf')])
+
+    # its ok to delete it because int our case theres a layered fs
+    try:
+        os.remove(join(rootfs, 'etc/resolv.conf'))
+    except FileNotFoundError:
+        pass
+    shutil.copy('/etc/resolv.conf', join(rootfs, 'etc/resolv.conf'))
 
 
 def reporthook(counter, buffer_size, size):
@@ -219,11 +195,12 @@ def mount_layers(layers, write_dir):
     run(cmd)
     return mountpoint
 
-def pull_base(image):
+def prepare_base_from_linuxcontainers(image):
+    images = index_lxc_images()
     try:
-        image_url = INDEXED_IMAGES[image]
+        image_url = images[image]
     except KeyError:
-        raise ValueError('No such image, available: {}'.format(' '.join(sorted(INDEXED_IMAGES))))
+        raise ValueError('No such image, available: {}'.format(' '.join(sorted(images))))
 
     image_dir = join(BUILDS_DIR, join(hashstr(image_url.encode())))
 
@@ -240,8 +217,34 @@ def pull_base(image):
         except OSError as exc:
             if exc.errno == errno.ENOTEMPTY:
                 print('*** plash: another process already pulled that image')
+            else:
+                raise
     
     return image_dir
+
+
+def prepare_base_from_directory(directory):
+    image_dir = join(BUILDS_DIR, join(hashstr(directory.encode())))
+    if not os.path.exists(image_dir):
+
+        tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
+        os.mkdir(join(tmp_image_dir, 'children'))
+        os.symlink(directory, join(tmp_image_dir, 'payload'))
+
+        try:
+            os.rename(tmp_image_dir, image_dir)
+        except OSError as exc:
+            if exc.errno == errno.ENOTEMPTY:
+                pass
+
+    return image_dir
+
+
+def prepare_base(base_name):
+    if base_name.startswith('/') or base_name.startswith('./'):
+        dir = abspath(base_name)
+        return prepare_base_from_directory(dir)
+    return prepare_base_from_linuxcontainers(base_name)
 
 
 # def pull_base(image):
@@ -284,7 +287,7 @@ def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=F
 
 
 def execute(
-        base,
+        base_name,
         layer_commands,
         command,
         *,
@@ -298,7 +301,7 @@ def execute(
 
     # assert 0, layer_commands
     prepare_data_dir(BASE_DIR)
-    base_dir = pull_base(base)
+    base_dir = prepare_base(base_name)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
 
     if build_only:
@@ -322,6 +325,31 @@ def execute(
 # import sys; sys.exit(0)
 
 
+
+def index_lxc_images():
+    content = urlopen('https://images.linuxcontainers.org/').read().decode()
+    matches = re.findall('<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>', content)
+
+    names = {}
+    for distro, version, arch, variant, date, _, _, _ in matches:
+        if not variant == 'default':
+            continue
+
+        if arch != 'amd64':  # only support this right now
+            continue
+
+        url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
+
+        if version == 'current':
+            names[distro] = url
+
+        elif version[0].isalpha():
+            # path parts with older upload_version also come later
+            # (ignore possibel alphanumeric sort for dates on this right now)
+            names[version] = url
+        else:
+            names['{}{}'.format(distro, version)] = url
+    return names
 
 if __name__ == '__main__':
     # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
