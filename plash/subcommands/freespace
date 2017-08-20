@@ -3,8 +3,10 @@
 from __future__ import print_function
 
 import os
+import subprocess
 from os.path import join
-from shutil import rmtree
+from pprint import pprint
+from shutil import disk_usage, rmtree
 from tempfile import mkdtemp
 
 BASE_DIR = os.environ['PLASH_DATA']
@@ -26,13 +28,25 @@ for  dirpath, dirs, files in os.walk(BUILDS_DIR):
 layers_num = len(usages)
 delete_layers_num = int(round(0.2 * layers_num)) # delete 20% of all layers
 sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
-some_last_used = sorted_usages[:delete_layers_num]
 
-for delete_build, _ in some_last_used:
+# print(sorted_usages)
+def get_size(path):
+    out = subprocess.check_output(['du', '-sh', path])
+    return out.split()[0]
+
+
+for delete_build, _ in sorted_usages:
     tmpdir = mkdtemp(dir=TMP_DIR, suffix='.{}'.format(os.getpid()))
+    # print('Deleting: {}'.format(delete_build))
+    # measure = join(delete_build, 'payload.squashfs')
+    # if not os.path.exists(measure):
+    #     measure = join(delete_build, 'payload')
+
     print('Deleting: {}'.format(delete_build))
-    try:
-        os.rename(delete_build, join(tmpdir, '_')) # use something atomic
-    except FileNotFoundError:
-        pass # parent already deleted by this process or another parallel freespace call
-    rmtree(tmpdir)
+    print(get_size(delete_build))
+    # print(os.statvfs(delete_build))
+    # try:
+    #     os.rename(delete_build, join(tmpdir, '_')) # use something atomic
+    # except FileNotFoundError:
+    #     pass # parent already deleted by this process or another parallel freespace call
+    # rmtree(tmpdir)

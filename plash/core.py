@@ -27,11 +27,14 @@ import re
 import shutil
 import sqlite3
 import subprocess
+import tarfile
 import time
 from os.path import abspath, join
 from shutil import rmtree
 from tempfile import mkdtemp
 from urllib.request import urlopen, urlretrieve
+
+import lzma  # XXX: we need that but dont use directly, apt install python-lzma
 
 from .utils import NonZeroExitStatus, friendly_exception, hashstr, run
 
@@ -39,7 +42,7 @@ BASE_DIR = os.environ.get('PLASH_DATA', '/tmp/plashdata')
 TMP_DIR = join(BASE_DIR, 'tmp')
 MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'builds')
-LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.squashfs'
+LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
 
 class BuildError(Exception):
@@ -101,29 +104,10 @@ def reporthook(counter, buffer_size, size):
             else:
                   print('.', end='', flush=True)
 
-def layers_mount_payloads(layers):
-    for layer in layers:
-        squashfs = abspath(join(layer, '..', 'payload.squashfs'))
-        mount_at = abspath(join(layer, '..', 'payload'))
-        if not os.path.exists(squashfs):
-            return
-        # if os.listdir(join(layer))
-        cmd = ['mount', squashfs, mount_at]
-        p = subprocess.Popen(cmd,
-                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        exit = p.wait()
-        if not (exit == 0 or exit == 1):
-            print('executing "{}" returned an unexpected exit code ({})'.format(exit, cmd))
-            print('stdout output:\n{}'.format(p.stdout.read().decode()))
-            print('stderr output:\n{}'.format(p.stderr.read().decode()))
-            panic()
-
 def staple_layer(layers, layer_cmd, rebuild=False):
     last_layer = layers[-1]
     layer_name = hashstr(' '.join(layers + [layer_cmd]).encode())
     final_child_dst = join(last_layer, 'children', layer_name)
-
-    # layers_mount_payloads(layers)
 
     if not os.path.exists(final_child_dst) or rebuild:
         print('*** plash: building layer')
@@ -176,7 +160,6 @@ def umount(mountpoint):
     run(['umount', '--recursive', mountpoint])
     
 def mount_layers(layers, write_dir):
-    layers_mount_payloads(layers)
     mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix()) # save pid so we can unmout it when that pid dies
     workdir = mkdtemp(dir=MNT_DIR)
     layers=list(layers)
@@ -210,8 +193,10 @@ def prepare_base_from_linuxcontainers(image):
         os.mkdir(join(tmp_image_dir, 'children'))
         os.mkdir(join(tmp_image_dir, 'payload'))
         touch(join(tmp_image_dir, 'lastused'))
-        download_file = join(tmp_image_dir, 'payload.squashfs')
+        download_file = join(tmp_image_dir, 'download')
         urlretrieve(image_url, download_file, reporthook=reporthook)
+        t = tarfile.open(download_file)
+        t.extractall(join(tmp_image_dir, 'payload'))
 
         try:
             os.rename(tmp_image_dir, image_dir)
@@ -329,7 +314,7 @@ def execute(
 
 
 def index_lxc_images():
-    content = urlopen('https://images.linuxcontainers.org/').read().decode()
+    content = urlopen('http://images.linuxcontainers.org/').read().decode() # FIXME: use https
     matches = re.findall('<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>', content)
 
     names = {}
