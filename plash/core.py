@@ -39,7 +39,6 @@ BASE_DIR = os.environ.get('PLASH_DATA', '/tmp/plashdata')
 TMP_DIR = join(BASE_DIR, 'tmp')
 MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'builds')
-ROTATE_LOG_SIZE = 4000
 LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.squashfs'
 
 
@@ -196,20 +195,22 @@ def mount_layers(layers, write_dir):
     return mountpoint
 
 def prepare_base_from_linuxcontainers(image):
-    images = index_lxc_images()
-    try:
-        image_url = images[image]
-    except KeyError:
-        raise ValueError('No such image, available: {}'.format(' '.join(sorted(images))))
-
-    image_dir = join(BUILDS_DIR, join(hashstr(image_url.encode())))
+    image_dir = join(BUILDS_DIR, image) # XXX: dot dot attack and so son, escape or so
 
     if not os.path.exists(image_dir):
+
+        print('Downloading image: ', end='', flush=True)
+        images = index_lxc_images()
+        try:
+            image_url = images[image]
+        except KeyError:
+            raise ValueError('No such image, available: {}'.format(' '.join(sorted(images))))
+
         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
         os.mkdir(join(tmp_image_dir, 'children'))
         os.mkdir(join(tmp_image_dir, 'payload'))
+        touch(join(tmp_image_dir, 'lastused'))
         download_file = join(tmp_image_dir, 'payload.squashfs')
-        print('Downloading image: ', end='', flush=True)
         urlretrieve(image_url, download_file, reporthook=reporthook)
 
         try:
@@ -230,6 +231,7 @@ def prepare_base_from_directory(directory):
         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
         os.mkdir(join(tmp_image_dir, 'children'))
         os.symlink(directory, join(tmp_image_dir, 'payload'))
+        touch(join(tmp_image_dir, 'lastused'))
 
         try:
             os.rename(tmp_image_dir, image_dir)
