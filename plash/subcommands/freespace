@@ -15,15 +15,20 @@ TMP_DIR = join(BASE_DIR, 'tmp')
 
 usages = []
 for  dirpath, dirs, files in os.walk(BUILDS_DIR):
-    for filename in files:
-        last_used_path = join(dirpath, filename)
-        if filename == 'lastused':
-            last_modified = os.path.getmtime(last_used_path)
-            usages.append((dirpath, last_modified))
+    if 'payload' in dirs and 'children' in dirs:
+        last_modified = os.path.getmtime(dirpath)
+        usages.append((dirpath, last_modified))
 
     # don't check that one
     if 'payload' in dirs:
         dirs.remove('payload')
+
+import sys;
+sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
+pprint(sorted_usages)
+sys.exit(0)
+
+
 
 layers_num = len(usages)
 delete_layers_num = int(round(0.2 * layers_num)) # delete 20% of all layers
@@ -38,9 +43,6 @@ def get_size(path):
 for delete_build, _ in sorted_usages:
     tmpdir = mkdtemp(dir=TMP_DIR, suffix='.{}'.format(os.getpid()))
     # print('Deleting: {}'.format(delete_build))
-    # measure = join(delete_build, 'payload.squashfs')
-    # if not os.path.exists(measure):
-    #     measure = join(delete_build, 'payload')
 
     print('Deleting: {}'.format(delete_build))
     print(get_size(delete_build))

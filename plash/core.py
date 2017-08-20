@@ -51,13 +51,6 @@ class BuildError(Exception):
 def pidsuffix():
     return '.{}'.format(os.getpid())
 
-def touch(fname):
-
-    # we should also trim the logfile sometimes
-    f  = open(fname, 'a')
-    f.close()
-
-
 def prepare_data_dir(data_dir):
     for dir in [BASE_DIR, TMP_DIR, MNT_DIR, BUILDS_DIR]:
         try:
@@ -115,7 +108,6 @@ def staple_layer(layers, layer_cmd, rebuild=False):
         new_layer = join(new_child, 'payload')
         os.mkdir(new_layer)
         os.mkdir(join(new_child, 'children'))
-        touch(join(new_child, 'lastused'))
 
         mountpoint = mount_layers(layers=[join(i, 'payload') for i in layers], write_dir=new_layer)
 
@@ -192,7 +184,6 @@ def prepare_base_from_linuxcontainers(image):
         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
         os.mkdir(join(tmp_image_dir, 'children'))
         os.mkdir(join(tmp_image_dir, 'payload'))
-        touch(join(tmp_image_dir, 'lastused'))
         download_file = join(tmp_image_dir, 'download')
         urlretrieve(image_url, download_file, reporthook=reporthook)
         t = tarfile.open(download_file)
@@ -216,7 +207,6 @@ def prepare_base_from_directory(directory):
         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
         os.mkdir(join(tmp_image_dir, 'children'))
         os.symlink(directory, join(tmp_image_dir, 'payload'))
-        touch(join(tmp_image_dir, 'lastused'))
 
         try:
             os.rename(tmp_image_dir, image_dir)
@@ -291,12 +281,16 @@ def execute(
     base_dir = prepare_base(base_name)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
 
+    # update that we used this layers
+    for layer in layers:
+        os.utime(join(layer), None)
+
     if build_only:
         print('*** plash: Build is ready')
     else:
         mountpoint = mount_layers([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
         last_layer = layers[-1]
-        touch(join(last_layer, 'lastused')) # update the timestamp on this
+        # os.utime(join(last_layer, 'lastused'), times=None) # update the timestamp on this
 
         prepare_rootfs(mountpoint)
         os.chroot(mountpoint)
