@@ -38,7 +38,7 @@ import lzma  # XXX: we need that but dont use directly, apt install python-lzma
 
 from .utils import NonZeroExitStatus, friendly_exception, hashstr, run
 
-BASE_DIR = os.environ.get('PLASH_DATA', '/tmp/plashdata')
+BASE_DIR = os.environ.get('PLASH_DATA', '/var/lib/plash')
 TMP_DIR = join(BASE_DIR, 'tmp')
 MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'builds')
@@ -69,6 +69,10 @@ def prepare_rootfs(rootfs):
     run(['mount', '--bind', '/dev', join(rootfs, 'dev')])
     run(['mount', '--bind', '/dev/pts', join(rootfs, 'dev', 'pts')])
     run(['mount', '--bind', '/dev/shm', join(rootfs, 'dev', 'shm')])
+    run(['mount', '--bind', '/tmp', join(rootfs, 'tmp')])
+
+    run(['mount', '--bind', '/etc/passwd', join(rootfs, 'etc', 'passwd')]) # READONLY!! only copy this user to that!
+    run(['mount', '--bind', '/etc/shadow', join(rootfs, 'etc', 'shadow')]) # READONLY!!
     # run(['mount', '--bind', '/tmp', join(rootfs, 'tmp')])
     # run(['cp', '/etc/resolv.conf', join(rootfs, 'etc/resolv.conf')])
 
@@ -174,7 +178,7 @@ def prepare_base_from_linuxcontainers(image):
 
     if not os.path.exists(image_dir):
 
-        print('Downloading image: ', end='', flush=True)
+        print('getting images index')
         images = index_lxc_images()
         try:
             image_url = images[image]
@@ -185,6 +189,7 @@ def prepare_base_from_linuxcontainers(image):
         os.mkdir(join(tmp_image_dir, 'children'))
         os.mkdir(join(tmp_image_dir, 'payload'))
         download_file = join(tmp_image_dir, 'download')
+        print('Downloading image: ', end='', flush=True)
         urlretrieve(image_url, download_file, reporthook=reporthook)
         t = tarfile.open(download_file)
         t.extractall(join(tmp_image_dir, 'payload'))
@@ -293,6 +298,7 @@ def execute(
         # os.utime(join(last_layer, 'lastused'), times=None) # update the timestamp on this
 
         prepare_rootfs(mountpoint)
+        os.chmod(mountpoint, 755)
         os.chroot(mountpoint)
 
         os.chdir('/')

@@ -200,6 +200,7 @@ def main():
                 build_only=not command,
                 skip_if_exists=not args.build_again,
                 extra_mounts=state.pop_mountpoints(),
+                extra_envs={"DISPLAY": os.environ['DISPLAY']},
                 **execute_extra_kws)
 
         # # something that could be used in the shell prompt
