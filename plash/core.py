@@ -291,17 +291,24 @@ def execute(
         os.utime(join(layer), None)
 
     if build_only:
-        print('*** plash: Build is ready')
+        print('*** plash: Build is ready at: {}'.format(layers[-1]))
     else:
         mountpoint = mount_layers([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
+        os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
+        # subprocess.Popen(['chmod', '755', mountpoint])
         last_layer = layers[-1]
         # os.utime(join(last_layer, 'lastused'), times=None) # update the timestamp on this
 
         prepare_rootfs(mountpoint)
-        os.chmod(mountpoint, 755)
         os.chroot(mountpoint)
 
         os.chdir('/')
+
+        uid = os.environ.get('SUDO_UID')
+        if uid:
+            os.setgid(int(os.environ['SUDO_GID']))
+            os.setuid(int(uid))
+
         with friendly_exception([FileNotFoundError]):
             os.execvpe(command[0], command, extra_envs)
 
