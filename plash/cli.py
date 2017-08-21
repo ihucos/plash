@@ -77,7 +77,8 @@ def get_argument_parser():
 
     parser.add_argument("--docker", "-d", action='store_true')
 
-    parser.add_argument("--docker-save-image")
+    parser.add_argument("--docker-save-image") # join with --export
+    parser.add_argument("--export")
 
     add_shortcuts_to_parser(parser)
 
@@ -201,6 +202,7 @@ def main():
                 skip_if_exists=not args.build_again,
                 extra_mounts=state.pop_mountpoints(),
                 extra_envs=os.environ,
+                export_as=args.export,
                 **execute_extra_kws)
 
         # # something that could be used in the shell prompt

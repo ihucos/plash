@@ -23,6 +23,7 @@ root #cp /etc/resolv.conf /foo/etc/resolv.conf
 
 import errno
 import os
+import shlex
 import re
 import shutil
 import sqlite3
@@ -280,7 +281,11 @@ def execute(
         extra_mounts=[],
         build_only=False,
         skip_if_exists=True,
+        export_as=False,
         extra_envs={}):
+
+    if export_as and not command:
+        raise ValueError('if export_as is specified, a command also must be')
 
     # assert 0, layer_commands
     prepare_data_dir(BASE_DIR)
@@ -300,18 +305,30 @@ def execute(
         last_layer = layers[-1]
         # os.utime(join(last_layer, 'lastused'), times=None) # update the timestamp on this
 
-        prepare_rootfs(mountpoint)
-        os.chroot(mountpoint)
+        if export_as:
+            with open(join(mountpoint, 'entrypoint'), 'w') as f:
+                f.write('#!/bin/sh')
+                f.write('exec ' + ' '.join(shlex.quote(i) for i in command))
+            p = subprocess.Popen(['mksquashfs', mountpoint, export_as])
+            assert not p.wait(), 'bad exit code'
+        else:
+            pwd = os.getcwd()
+            prepare_rootfs(mountpoint)
+            os.chroot(mountpoint)
 
-        os.chdir('/')
+            os.chdir(pwd)
+            # try:
+            # except OSError, exc:
+            #     if exc.errno == 2: # no such file or directory
+            #         os.chdir('/')
 
-        uid = os.environ.get('SUDO_UID')
-        if uid:
-            os.setgid(int(os.environ['SUDO_GID']))
-            os.setuid(int(uid))
+            uid = os.environ.get('SUDO_UID')
+            if uid:
+                os.setgid(int(os.environ['SUDO_GID']))
+                os.setuid(int(uid))
 
-        with friendly_exception([FileNotFoundError]):
-            os.execvpe(command[0], command, extra_envs)
+            with friendly_exception([FileNotFoundError]):
+                os.execvpe(command[0], command, extra_envs)
 
 
 # this as a separate script!
