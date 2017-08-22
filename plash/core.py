@@ -82,11 +82,11 @@ def prepare_rootfs(rootfs):
     # run(['cp', '/etc/resolv.conf', join(rootfs, 'etc/resolv.conf')])
 
     # # its ok to delete it because int our case theres a layered fs
-    # try:
-    #     os.remove(join(rootfs, 'etc/resolv.conf'))
-    # except FileNotFoundError:
-    #     pass
-    # shutil.copy('/etc/resolv.conf', join(rootfs, 'etc/resolv.conf'))
+    try:
+        os.remove(join(rootfs, 'etc/resolv.conf'))
+    except FileNotFoundError:
+        pass
+    shutil.copy('/etc/resolv.conf', join(rootfs, 'etc/resolv.conf'))
 
 
 def reporthook(counter, buffer_size, size):
