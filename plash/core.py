@@ -72,6 +72,7 @@ def prepare_rootfs(rootfs):
     run(['mount', '--bind', '/dev/shm', join(rootfs, 'dev', 'shm')])
     run(['mount', '--bind', '/tmp', join(rootfs, 'tmp')])
     run(['mount', '--bind', '/home', join(rootfs, 'home')])
+    # run(['mount', '--bind', '/var', join(rootfs, 'var')])
 
     run(['mount', '--bind', '/etc/passwd', join(rootfs, 'etc', 'passwd')]) # READONLY!! only copy this user to that!
     run(['mount', '--bind', '/etc/shadow', join(rootfs, 'etc', 'shadow')]) # READONLY!!

@@ -27,6 +27,7 @@ p = subprocess.Popen(['mount', '-t', 'overlay', 'overlay', '-o',
 assert not p.wait()
 
 os.chmod(chrootdir, 0o0755)
+prepare_rootfs(chrootdir)
 os.chroot(chrootdir)
 
 uid = os.environ.get('SUDO_UID')
