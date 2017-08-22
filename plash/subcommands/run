@@ -25,5 +25,13 @@ p = subprocess.Popen(['mount', '-t', 'overlay', 'overlay', '-o',
                       'upperdir={write_dir},lowerdir={lowerdir},workdir={workdir}'.format(
                       write_dir=changes, lowerdir=squashdir, workdir=workdir), chrootdir])
 assert not p.wait()
+
+os.chmod(chrootdir, 0o0755)
 os.chroot(chrootdir)
+
+uid = os.environ.get('SUDO_UID')
+if uid:
+    os.setgid(int(os.environ['SUDO_GID']))
+    os.setuid(int(uid))
+
 os.execvpe('/entrypoint', ['/entrypoint'], os.environ)

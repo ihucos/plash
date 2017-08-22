@@ -308,7 +308,7 @@ def execute(
             with open(join(mountpoint, 'entrypoint'), 'w') as f:
                 f.write('#!/bin/sh\n') # put in one call
                 f.write('exec ' + ' '.join(shlex.quote(i) for i in command))
-            os.chmod(join(mountpoint, 'entrypoint'), 0x755)
+            os.chmod(join(mountpoint, 'entrypoint'), 0o755)
             p = subprocess.Popen(['mksquashfs', mountpoint, export_as])
             assert not p.wait(), 'bad exit code'
         else:
