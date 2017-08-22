@@ -1,5 +1,6 @@
 import argparse
 import os
+from urllib.error import URLError
 import platform
 import shlex
 import subprocess
@@ -78,7 +79,7 @@ def get_argument_parser():
     parser.add_argument("--docker", "-d", action='store_true')
 
     parser.add_argument("--docker-save-image") # join with --export
-    parser.add_argument("--export")
+    parser.add_argument("--freeze", dest='export')
 
     add_shortcuts_to_parser(parser)
 
@@ -192,6 +193,8 @@ def main():
         # bcmd = state.get_base_command() or ''
         # command = (command or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (command or [])
 
+
+    with friendly_exception([PermissionError, URLError]):
         execute(image,
                 layers,
                 command,

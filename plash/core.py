@@ -25,6 +25,7 @@ import errno
 import os
 import shlex
 import re
+import hashlib
 import shutil
 import sqlite3
 import subprocess
@@ -45,6 +46,12 @@ MNT_DIR = join(BASE_DIR, 'mnt')
 BUILDS_DIR = join(BASE_DIR, 'builds')
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
+def hashfile(fname):
+    hash_obj = hashlib.sha1()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_obj.update(chunk)
+            return hash_obj.hexdigest()
 
 class BuildError(Exception):
     pass
@@ -226,10 +233,31 @@ def prepare_base_from_directory(directory):
 
     return image_dir
 
+def prepare_base_from_squashfs(file):
+    image_dir = join(BUILDS_DIR, hashfile(file))
+
+    if not os.path.exists(image_dir):
+        tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
+        os.mkdir(join(tmp_image_dir, 'children'))
+        p = subprocess.Popen(['unsquashfs', '-d', join(tmp_image_dir, 'payload'), file])
+        exit = p.wait()
+        assert not exit
+
+        try:
+            os.rename(tmp_image_dir, image_dir)
+        except OSError as exc:
+            if exc.errno == errno.ENOTEMPTY:
+                pass
+
+    return image_dir
+
 def prepare_base(base_name):
     if base_name.startswith('/') or base_name.startswith('./'):
-        dir = abspath(base_name)
-        return prepare_base_from_directory(dir)
+        path = abspath(base_name)
+        if os.path.isdir(path):
+            return prepare_base_from_directory(path)
+        else:
+            return prepare_base_from_squashfs(base_name)
     return prepare_base_from_linuxcontainers(base_name)
 
 
