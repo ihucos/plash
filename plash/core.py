@@ -72,19 +72,21 @@ def prepare_rootfs(rootfs):
     run(['mount', '--bind', '/dev/shm', join(rootfs, 'dev', 'shm')])
     run(['mount', '--bind', '/tmp', join(rootfs, 'tmp')])
     run(['mount', '--bind', '/home', join(rootfs, 'home')])
-    # run(['mount', '--bind', '/var', join(rootfs, 'var')])
+
+
+    # run(['mount', '--bind', '/run', join(rootfs, 'run')])
 
     run(['mount', '--bind', '/etc/passwd', join(rootfs, 'etc', 'passwd')]) # READONLY!! only copy this user to that!
     run(['mount', '--bind', '/etc/shadow', join(rootfs, 'etc', 'shadow')]) # READONLY!!
     # run(['mount', '--bind', '/tmp', join(rootfs, 'tmp')])
     # run(['cp', '/etc/resolv.conf', join(rootfs, 'etc/resolv.conf')])
 
-    # its ok to delete it because int our case theres a layered fs
-    try:
-        os.remove(join(rootfs, 'etc/resolv.conf'))
-    except FileNotFoundError:
-        pass
-    shutil.copy('/etc/resolv.conf', join(rootfs, 'etc/resolv.conf'))
+    # # its ok to delete it because int our case theres a layered fs
+    # try:
+    #     os.remove(join(rootfs, 'etc/resolv.conf'))
+    # except FileNotFoundError:
+    #     pass
+    # shutil.copy('/etc/resolv.conf', join(rootfs, 'etc/resolv.conf'))
 
 
 def reporthook(counter, buffer_size, size):

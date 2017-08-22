@@ -288,6 +288,9 @@ apk add  {}
 define-package-manager: yum
 yum install -y {}
 
+define-package-manager: dnf
+dnf install -y {}
+
 define-package-manager: pip
 pip install {}
 
