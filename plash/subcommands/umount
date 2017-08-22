@@ -25,7 +25,7 @@ for line in mounts:
             if not path.exists(path.join('/proc', str(pid))):
                 umount_this.append((mountpoint, pid))
 
-# umount in this pid creation order BUG BUG BUG pids are not always ascending
+# umount in this pid creation order BUG BUG BUG pids are not always ascending use the last modified instead !!
 for mp, _ in sorted(umount_this, key=lambda i: -i[1]): # use itemgetter from itertools
     print('umount --recursive {}'.format(mp))
     exit = subprocess.Popen(['umount', '--recursive', mp]).wait()

@@ -223,7 +223,6 @@ def prepare_base_from_directory(directory):
 
     return image_dir
 
-
 def prepare_base(base_name):
     if base_name.startswith('/') or base_name.startswith('./'):
         dir = abspath(base_name)
@@ -307,8 +306,9 @@ def execute(
 
         if export_as:
             with open(join(mountpoint, 'entrypoint'), 'w') as f:
-                f.write('#!/bin/sh')
+                f.write('#!/bin/sh\n') # put in one call
                 f.write('exec ' + ' '.join(shlex.quote(i) for i in command))
+            os.chmod(join(mountpoint, 'entrypoint'), 0x755)
             p = subprocess.Popen(['mksquashfs', mountpoint, export_as])
             assert not p.wait(), 'bad exit code'
         else:

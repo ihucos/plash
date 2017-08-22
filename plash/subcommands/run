@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import subprocess
+from sys import argv
+import os
+from tempfile import mkdtemp
+
+from plash.core import prepare_rootfs
+
+BASE_DIR = os.environ['PLASH_DATA']
+TMP_DIR = os.path.join(BASE_DIR, 'tmp')
+MNT_DIR = os.path.join(BASE_DIR, 'mnt')
+
+pidsuffix = '.{}'.format(os.getpid())
+
+workdir = mkdtemp(dir=TMP_DIR)
+changes = mkdtemp(dir=TMP_DIR)
+squashdir = mkdtemp(dir=MNT_DIR, suffix=pidsuffix)
+chrootdir = mkdtemp(dir=MNT_DIR, suffix=pidsuffix)
+
+p = subprocess.Popen(['mount', argv[1], squashdir])
+assert not p.wait()
+
+p = subprocess.Popen(['mount', '-t', 'overlay', 'overlay', '-o',
+                      'upperdir={write_dir},lowerdir={lowerdir},workdir={workdir}'.format(
+                      write_dir=changes, lowerdir=squashdir, workdir=workdir), chrootdir])
+assert not p.wait()
+os.chroot(chrootdir)
+os.execvpe('/entrypoint', ['/entrypoint'], os.environ)
