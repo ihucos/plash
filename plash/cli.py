@@ -193,7 +193,6 @@ def main():
         # bcmd = state.get_base_command() or ''
         # command = (command or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (command or [])
 
-
     with friendly_exception([PermissionError, URLError]):
         execute(image,
                 layers,

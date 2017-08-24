@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+
+# write this as c with setuid - in a secure manner
+
+import os
+import shutil
+import subprocess
+import sys
+from os.path import join
+from sys import argv
+from tempfile import mkdtemp
+
+from plash.core import prepare_rootfs
+from plash.utils import run
+
+BASE_DIR = os.environ['PLASH_DATA']
+TMP_DIR = os.path.join(BASE_DIR, 'tmp')
+MNT_DIR = os.path.join(BASE_DIR, 'mnt')
+
+pidsuffix = '.{}'.format(os.getpid())
+
+chrootarg = sys.argv[1:2]
+command = sys.argv[2:]
+if chrootarg == [] or command == []:
+    print('usage: chroot dir manycommands')
+    sys.exit(1)
+chrootarg, = chrootarg
+
+
+workdir = mkdtemp(dir=TMP_DIR)
+changes = mkdtemp(dir=TMP_DIR)
+mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix)
+
+
+# os.mkdir(join(mountpoint, 'proc'))
+# os.mkdir(join(mountpoint, 'sys'))
+# os.mkdir(join(mountpoint, 'dev'))
+# run(['mount', '--rbind', '/proc', join(mountpoint, 'proc')])
+
+p = subprocess.Popen(['mount', '-t', 'overlay', 'overlay', '-o',
+                      'upperdir={write_dir},lowerdir={lowerdir},workdir={workdir}'.format(
+                      write_dir=changes, lowerdir=chrootarg, workdir=workdir), mountpoint])
+assert not p.wait()
+
+run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
+run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
+run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
+run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
+run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
+run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
+run(['mount', '--bind', '/home', join(mountpoint, 'home')])
+
+
+# run(['mount', '--bind', '/run', join(mountpoint, 'run')])
+
+run(['mount', '--bind', '/etc/passwd', join(mountpoint, 'etc', 'passwd')]) # READONLY!! only copy this user to that!
+run(['mount', '--bind', '/etc/shadow', join(mountpoint, 'etc', 'shadow')]) # READONLY!!
+# run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
+# run(['cp', '/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf')])
+
+# # its ok to delete it because int our case theres a layered fs
+try:
+    os.remove(join(mountpoint, 'etc/resolv.conf'))
+except FileNotFoundError:
+    pass
+shutil.copy('/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf'))
+
+os.chmod(mountpoint, 0o0755)
+os.chroot(mountpoint)
+
+# setuid stuff here
+# also also cwd stuff
+
+os.execvpe(command[0], command, os.environ)

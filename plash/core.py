@@ -129,10 +129,10 @@ def staple_layer(layers, layer_cmd, rebuild=False):
 
         prepare_rootfs(mountpoint)
         p = subprocess.Popen(['chroot', mountpoint, 'sh', '-ce', layer_cmd], stdout=2, stderr=2)
-        pid = p.wait()
+        exit = p.wait()
         umount(mountpoint)
-        assert pid == 0, 'Building returned non zero exit status'
-        if pid != 0:
+        assert exit == 0, 'Building returned non zero exit status'
+        if exit != 0:
             print('non zero exit status code when building')
             shutil.rmtree(build_at)
             assert False
