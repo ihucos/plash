@@ -15,5 +15,5 @@ squashdir = mkdtemp(dir=MNT_DIR, suffix='.{}'.format(os.getpid()))
 p = subprocess.Popen(['mount', argv[1], squashdir])
 assert not p.wait()
 
-cmd = ['plash', 'chroot', squashdir, '/entrypoint']
+cmd = ['plash', 'chroot', squashdir, '--', '/entrypoint'] + argv[2:]
 os.execvpe(cmd[0], cmd, os.environ)
