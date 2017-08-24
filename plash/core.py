@@ -22,10 +22,11 @@ root #cp /etc/resolv.conf /foo/etc/resolv.conf
 
 
 import errno
-import os
-import shlex
-import re
 import hashlib
+import lzma  # XXX: we need that but dont use directly, apt install python-lzma
+import os
+import re
+import shlex
 import shutil
 import sqlite3
 import subprocess
@@ -33,10 +34,9 @@ import tarfile
 import time
 from os.path import abspath, join
 from shutil import rmtree
+from sys import argv
 from tempfile import mkdtemp
 from urllib.request import urlopen, urlretrieve
-
-import lzma  # XXX: we need that but dont use directly, apt install python-lzma
 
 from .utils import NonZeroExitStatus, friendly_exception, hashstr, run
 
@@ -65,35 +65,6 @@ def prepare_data_dir(data_dir):
             os.mkdir(dir)
         except FileExistsError:
             pass
-
-
-def prepare_rootfs(rootfs):
-    # os.mkdir(join(mountpoint, 'proc'))
-    # os.mkdir(join(mountpoint, 'sys'))
-    # os.mkdir(join(mountpoint, 'dev'))
-    # run(['mount', '--rbind', '/proc', join(rootfs, 'proc')])
-    run(['mount', '-t', 'proc', 'proc', join(rootfs, 'proc')])
-    run(['mount', '--bind', '/sys', join(rootfs, 'sys')])
-    run(['mount', '--bind', '/dev', join(rootfs, 'dev')])
-    run(['mount', '--bind', '/dev/pts', join(rootfs, 'dev', 'pts')])
-    run(['mount', '--bind', '/dev/shm', join(rootfs, 'dev', 'shm')])
-    run(['mount', '--bind', '/tmp', join(rootfs, 'tmp')])
-    run(['mount', '--bind', '/home', join(rootfs, 'home')])
-
-
-    # run(['mount', '--bind', '/run', join(rootfs, 'run')])
-
-    run(['mount', '--bind', '/etc/passwd', join(rootfs, 'etc', 'passwd')]) # READONLY!! only copy this user to that!
-    run(['mount', '--bind', '/etc/shadow', join(rootfs, 'etc', 'shadow')]) # READONLY!!
-    # run(['mount', '--bind', '/tmp', join(rootfs, 'tmp')])
-    # run(['cp', '/etc/resolv.conf', join(rootfs, 'etc/resolv.conf')])
-
-    # # its ok to delete it because int our case theres a layered fs
-    try:
-        os.remove(join(rootfs, 'etc/resolv.conf'))
-    except FileNotFoundError:
-        pass
-    shutil.copy('/etc/resolv.conf', join(rootfs, 'etc/resolv.conf'))
 
 
 def reporthook(counter, buffer_size, size):
@@ -127,8 +98,12 @@ def staple_layer(layers, layer_cmd, rebuild=False):
 
         mountpoint = mount_layers(layers=[join(i, 'payload') for i in layers], write_dir=new_layer)
 
-        prepare_rootfs(mountpoint)
-        p = subprocess.Popen(['chroot', mountpoint, 'sh', '-ce', layer_cmd], stdout=2, stderr=2)
+        p = subprocess.Popen(
+            [argv[0],
+             'chroot',
+             '--cow', new_layer,
+             mountpoint,
+             '--', 'sh', '-ce', layer_cmd], stdout=2, stderr=2)
         exit = p.wait()
         umount(mountpoint)
         assert exit == 0, 'Building returned non zero exit status'
@@ -343,23 +318,25 @@ def execute(
             p = subprocess.Popen(['mksquashfs', mountpoint, export_as])
             assert not p.wait(), 'bad exit code'
         else:
-            pwd = os.getcwd()
-            prepare_rootfs(mountpoint)
-            os.chroot(mountpoint)
+            execcmd = [argv[0], 'chroot', '--mount-home', '--cwd', os.getcwd(), mountpoint, '--'] + command
+            os.execvpe(execcmd[0], execcmd, extra_envs)
+            # pwd = os.getcwd()
+            # prepare_rootfs(mountpoint)
+            # os.chroot(mountpoint)
 
-            os.chdir(pwd)
-            # try:
-            # except OSError, exc:
-            #     if exc.errno == 2: # no such file or directory
-            #         os.chdir('/')
+            # os.chdir(pwd)
+            # # try:
+            # # except OSError, exc:
+            # #     if exc.errno == 2: # no such file or directory
+            # #         os.chdir('/')
 
-            uid = os.environ.get('SUDO_UID')
-            if uid:
-                os.setgid(int(os.environ['SUDO_GID']))
-                os.setuid(int(uid))
+            # uid = os.environ.get('SUDO_UID')
+            # if uid:
+            #     os.setgid(int(os.environ['SUDO_GID']))
+            #     os.setuid(int(uid))
 
-            with friendly_exception([FileNotFoundError]):
-                os.execvpe(command[0], command, extra_envs)
+            # with friendly_exception([FileNotFoundError]):
+            #     os.execvpe(command[0], command, extra_envs)
 
 
 # this as a separate script!

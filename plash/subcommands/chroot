@@ -2,6 +2,7 @@
 
 # write this as c with setuid - in a secure manner
 
+import argparse
 import os
 import shutil
 import subprocess
@@ -10,25 +11,36 @@ from os.path import join
 from sys import argv
 from tempfile import mkdtemp
 
-from plash.core import prepare_rootfs
-from plash.utils import run
+from plash.utils import run  # get rid of all plash deps?
 
 BASE_DIR = os.environ['PLASH_DATA']
 TMP_DIR = os.path.join(BASE_DIR, 'tmp')
 MNT_DIR = os.path.join(BASE_DIR, 'mnt')
 
-pidsuffix = '.{}'.format(os.getpid())
 
-chrootarg = sys.argv[1:2]
-command = sys.argv[2:]
-if chrootarg == [] or command == []:
-    print('usage: chroot dir manycommands')
-    sys.exit(1)
-chrootarg, = chrootarg
+
+parser = argparse.ArgumentParser(
+    description='fancy chroot wrapper',
+    prog='plash chroot',
+    epilog='my help here')
+
+# parser.add_argument("--cwd", default='/')
+parser.add_argument("chroot_to", nargs=1)
+parser.add_argument("command", nargs='+')
+parser.add_argument("--mount-home", action='store_true')
+parser.add_argument("--cow")
+parser.add_argument("--cwd")
+args = parser.parse_args()
+
+pidsuffix = '.{}'.format(os.getpid())
 
 
 workdir = mkdtemp(dir=TMP_DIR)
-changes = mkdtemp(dir=TMP_DIR)
+if not args.cow:
+    changes = mkdtemp(dir=TMP_DIR)
+else:
+    changes = args.cow
+
 mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix)
 
 
@@ -39,7 +51,7 @@ mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix)
 
 p = subprocess.Popen(['mount', '-t', 'overlay', 'overlay', '-o',
                       'upperdir={write_dir},lowerdir={lowerdir},workdir={workdir}'.format(
-                      write_dir=changes, lowerdir=chrootarg, workdir=workdir), mountpoint])
+                      write_dir=changes, lowerdir=args.chroot_to[0], workdir=workdir), mountpoint])
 assert not p.wait()
 
 run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
@@ -48,7 +60,9 @@ run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
 run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
 run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
 run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
-run(['mount', '--bind', '/home', join(mountpoint, 'home')])
+
+if args.mount_home:
+    run(['mount', '--bind', '/home', join(mountpoint, 'home')])
 
 
 # run(['mount', '--bind', '/run', join(mountpoint, 'run')])
@@ -68,7 +82,8 @@ shutil.copy('/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf'))
 os.chmod(mountpoint, 0o0755)
 os.chroot(mountpoint)
 
-# setuid stuff here
-# also also cwd stuff
+os.chdir(args.cwd)
 
-os.execvpe(command[0], command, os.environ)
+# setuid stuff here
+
+os.execvpe(args.command[0], args.command, os.environ)
