@@ -88,6 +88,10 @@ def get_argument_parser():
 
 
 def main():
+
+    if os.geteuid() != 0 and os.environ.get('PLASH_AUTO_SUDO', '').lower() in ('yes', 'true', '1'):
+        os.execvpe('sudo', ['sudo', '-n'] + sys.argv, os.environ)
+    
     argv = sys.argv[1:]
 
     if argv and not argv[0].startswith('-'): # suppose its a subcommand
