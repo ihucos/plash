@@ -131,6 +131,7 @@ def main():
                 nargs='*')
 
     args = ap.parse_args(argv)
+    state.reset()
 
     build_silent = args.build_silent or os.environ.get('PLASH_BUILD_SILENT')
     lsp = getattr(args, 'lsp', [])
@@ -146,7 +147,6 @@ def main():
         print(init + lsp)
         sys.exit(0)
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
-        state.reset()
         script = eval(init + lsp)
 
     os_image = state.get_os()
