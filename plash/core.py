@@ -160,11 +160,37 @@ def mount_layers(layers, write_dir):
     run(cmd)
     return mountpoint
 
-def prepare_base_from_linuxcontainers(image):
-    image_dir = join(BUILDS_DIR, image) # XXX: dot dot attack and so son, escape or so
 
-    if not os.path.exists(image_dir):
+class BaseImageCreator:
+    def __call__(self, image):
 
+        self.arg = image
+        image_id = self.get_id()
+        image_dir = join(BUILDS_DIR, image_id)
+
+        if not os.path.exists(image_dir):
+
+            tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
+            os.mkdir(join(tmp_image_dir, 'children'))
+            os.mkdir(join(tmp_image_dir, 'payload'))
+            self.prepare_image(join(tmp_image_dir, 'payload'))
+
+            try:
+                os.rename(tmp_image_dir, image_dir)
+            except OSError as exc:
+                if exc.errno == errno.ENOTEMPTY:
+                    print('*** plash: another process already pulled that image')
+                else:
+                    raise
+        
+        return image_dir
+
+
+class LXCImageCreator(BaseImageCreator):
+    def get_id(self):
+        return self.arg # XXX: dot dot attack and so son, escape or so
+
+    def prepare_image(self, outdir):
         print('getting images index')
         images = index_lxc_images()
         try:
@@ -172,68 +198,45 @@ def prepare_base_from_linuxcontainers(image):
         except KeyError:
             raise ValueError('No such image, available: {}'.format(' '.join(sorted(images))))
 
-        tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
-        os.mkdir(join(tmp_image_dir, 'children'))
-        os.mkdir(join(tmp_image_dir, 'payload'))
         download_file = join(tmp_image_dir, 'download')
         print('Downloading image: ', end='', flush=True)
         urlretrieve(image_url, download_file, reporthook=reporthook)
         t = tarfile.open(download_file)
-        t.extractall(join(tmp_image_dir, 'payload'))
+        t.extractall(outdir)
 
-        try:
-            os.rename(tmp_image_dir, image_dir)
-        except OSError as exc:
-            if exc.errno == errno.ENOTEMPTY:
-                print('*** plash: another process already pulled that image')
-            else:
-                raise
-    
-    return image_dir
+# class DockerImageCreator(BaseImageCreator):
+#     pass
 
 
-def prepare_base_from_directory(directory):
-    image_dir = join(BUILDS_DIR, join(hashstr(directory.encode())))
-    if not os.path.exists(image_dir):
+class DirectoryImageCreator(BaseImageCreator):
 
-        tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
-        os.mkdir(join(tmp_image_dir, 'children'))
-        os.symlink(directory, join(tmp_image_dir, 'payload'))
+    def get_id(self):
+        return hashstr(self.arg.encode())
 
-        try:
-            os.rename(tmp_image_dir, image_dir)
-        except OSError as exc:
-            if exc.errno == errno.ENOTEMPTY:
-                pass
+    def prepare_image(self, outdir):
+        os.symlink(self.arg, outdir)
 
-    return image_dir
 
-def prepare_base_from_squashfs(file):
-    image_dir = join(BUILDS_DIR, hashfile(file))
+class SquashfsImageCreator(BaseImageCreator):
+    def get_id(self):
+        return hashfile(self.arg)
 
-    if not os.path.exists(image_dir):
-        tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
-        os.mkdir(join(tmp_image_dir, 'children'))
-        p = subprocess.Popen(['unsquashfs', '-d', join(tmp_image_dir, 'payload'), file])
+    def prepare(self, outdir):
+        p = subprocess.Popen(['unsquashfs', '-d', outdir, self.arg])
         exit = p.wait()
         assert not exit
 
-        try:
-            os.rename(tmp_image_dir, image_dir)
-        except OSError as exc:
-            if exc.errno == errno.ENOTEMPTY:
-                pass
-
-    return image_dir
-
+squashfs_image_creator = SquashfsImageCreator()
+directory_image_creator = DirectoryImageCreator()
+lxc_image_creator = LXCImageCreator()
 def prepare_base(base_name):
     if base_name.startswith('/') or base_name.startswith('./'):
         path = abspath(base_name)
         if os.path.isdir(path):
-            return prepare_base_from_directory(path)
+            return directory_image_creator(path)
         else:
-            return prepare_base_from_squashfs(base_name)
-    return prepare_base_from_linuxcontainers(base_name)
+            return squashfs_image_creator(base_name)
+    return lxc_image_creator(base_name)
 
 
 # def pull_base(image):
