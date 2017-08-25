@@ -35,7 +35,7 @@ import time
 from os.path import abspath, join
 from shutil import rmtree
 from sys import argv
-from tempfile import mkdtemp
+from tempfile import mkdtemp, mktemp
 from urllib.request import urlopen, urlretrieve
 
 from .utils import NonZeroExitStatus, friendly_exception, hashstr, run
@@ -196,7 +196,8 @@ class LXCImageCreator(BaseImageCreator):
         try:
             image_url = images[image]
         except KeyError:
-            raise ValueError('No such image, available: {}'.format(' '.join(sorted(images))))
+            raise ValueError('No such image, available: {}'.format(
+                ' '.join(sorted(images))))
 
         download_file = join(tmp_image_dir, 'download')
         print('Downloading image: ', end='', flush=True)
@@ -221,15 +222,46 @@ class SquashfsImageCreator(BaseImageCreator):
     def get_id(self):
         return hashfile(self.arg)
 
-    def prepare(self, outdir):
+    def prepare_image(self, outdir):
         p = subprocess.Popen(['unsquashfs', '-d', outdir, self.arg])
         exit = p.wait()
         assert not exit
 
+
+class DockerImageCreator(BaseImageCreator):
+
+    def _normalize_arg(self, image):
+        if not '/' in image:
+            image = 'library/' + image
+        if not ':' in image:
+            image += ':latest'
+        return image
+
+    def get_id(self):
+        normalized_arg = self._normalize_arg(self.arg)
+        return hashstr('dockerregistry {}'.format(normalized_arg).encode())
+
+    def prepare_image(self, outdir):
+        download_file = join(mkdtemp(), 'rootfs.tar.xz')
+        p = subprocess.Popen(['docker', 'create', self._normalize_arg(self.arg)],
+                         stdout=subprocess.PIPE)
+        exit = p.wait()
+        assert not exit
+        result = p.stdout.read()
+        container_id = result.decode().strip('\n')
+        tar = mktemp()
+        p = subprocess.Popen(['docker', 'export', '--output', tar, container_id])
+        exit = p.wait()
+        assert not exit
+        t = tarfile.open(tar)
+        t.extractall(outdir)
+
 squashfs_image_creator = SquashfsImageCreator()
 directory_image_creator = DirectoryImageCreator()
 lxc_image_creator = LXCImageCreator()
-def prepare_base(base_name):
+docker_image_creator = DockerImageCreator()
+def multi_image_creator(base_name):
+    # return docker_image_creator(base_name)
     if base_name.startswith('/') or base_name.startswith('./'):
         path = abspath(base_name)
         if os.path.isdir(path):
@@ -239,37 +271,6 @@ def prepare_base(base_name):
     return lxc_image_creator(base_name)
 
 
-# def pull_base(image):
-
-#     # normalize image name
-
-#     if not '/' in image:
-#         image = 'library/' + image
-#     if not ':' in image:
-#         image += ':latest'
-
-#     image_dir = join(BUILDS_DIR, join(hashstr('dockerregistry {}'.format(image).encode())))
-#     if not os.path.exists(image_dir):
-#         print('*** plash: preparing {}'.format(image))
-#         download_file = join(mkdtemp(), 'rootfs.tar.xz')
-#         tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
-#         os.mkdir(join(tmp_image_dir, 'children'))
-#         os.mkdir(join(tmp_image_dir, 'payload'))
-
-#         # also doable with skopeo and oci-image-tool
-#         # run(['wget', 'https://us.images.linuxcontainers.org/images/ubuntu/artful/amd64/default/20170729_03:49/rootfs.tar.xz', '-O', download_file])
-#         # run(['tar', 'xf', download_file, '--exclude=./dev', '-C', join(tmp_image_dir, 'payload')])
-
-#         # subprocess.check_output(['docker', 'create', image])
-#         run(['bash', '-c', 'docker export $(docker create '+image+') | tar -C '+join(tmp_image_dir, 'payload')+' --exclude=/dev --exclude=/proc --exclude=/sys -xf -']) # command injection!! # excluding is not working!
-
-#         try:
-#             os.rename(tmp_image_dir, image_dir)
-#         except OSError as exc:
-#             if exc.errno == errno.ENOTEMPTY:
-#                 print('*** plash: another process already pulled that image')
-
-#     return image_dir
 
 def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False):
     base = [image]
@@ -290,6 +291,7 @@ def execute(
         build_only=False,
         skip_if_exists=True,
         export_as=False,
+        docker_image=False,
         extra_envs={}):
 
     if export_as and not command:
@@ -297,7 +299,10 @@ def execute(
 
     # assert 0, layer_commands
     prepare_data_dir(BASE_DIR)
-    base_dir = prepare_base(base_name)
+    if docker_image:
+        base_dir = docker_image_creator(base_name)
+    else:
+        base_dir = multi_image_creator(base_name)
     layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
 
     # update that we used this layers

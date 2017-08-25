@@ -77,6 +77,7 @@ def get_argument_parser():
     parser.add_argument("--ignore-no-tty", action='store_false')
 
     parser.add_argument("--docker", "-d", action='store_true')
+    parser.add_argument("--docker-image", action='store_true')
 
     parser.add_argument("--docker-save-image") # join with --export
     parser.add_argument("--freeze", dest='export')
@@ -209,6 +210,7 @@ def main():
                 extra_mounts=state.pop_mountpoints(),
                 extra_envs=os.environ,
                 export_as=args.export,
+                docker_image=args.docker_image,
                 **execute_extra_kws)
 
         # # something that could be used in the shell prompt
