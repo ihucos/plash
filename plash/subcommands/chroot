@@ -31,6 +31,8 @@ parser.add_argument("chroot_to", nargs=1)
 parser.add_argument("command", nargs='+')
 parser.add_argument("--mount-home", action='store_true')
 parser.add_argument("--cow")
+parser.add_argument("--setgid", default=None)
+parser.add_argument("--setuid", default=None)
 parser.add_argument("--cwd", default='/')
 args = parser.parse_args()
 
@@ -71,8 +73,8 @@ if args.mount_home:
 
 # run(['mount', '--bind', '/run', join(mountpoint, 'run')])
 
-# run(['mount', '--bind', '/etc/passwd', join(mountpoint, 'etc', 'passwd')]) # READONLY!! only copy this user to that!
-# run(['mount', '--bind', '/etc/shadow', join(mountpoint, 'etc', 'shadow')]) # READONLY!!
+run(['mount', '--bind', '/etc/passwd', join(mountpoint, 'etc', 'passwd')]) # READONLY!! only copy this user to that!
+run(['mount', '--bind', '/etc/shadow', join(mountpoint, 'etc', 'shadow')]) # READONLY!!
 # with open(join(mountpoint, 'etc/passwd')) as f:
 #     f.write('plash:x:1000:1000:,,,:/home/resu:/bin/bash\n')
 
@@ -86,11 +88,16 @@ except FileNotFoundError:
     pass
 shutil.copy('/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf'))
 
+
 os.chmod(mountpoint, 0o0755)
 os.chroot(mountpoint)
 
-os.chdir(args.cwd)
+# XXX: assert that is enough to get away from root in this process
+if args.setgid:
+    os.setgid(args.setgid)
+if args.setuid:
+    os.setuid(args.setuid)
 
-# setuid stuff here
+os.chdir(args.cwd)
 
 os.execvpe(args.command[0], args.command, os.environ)
