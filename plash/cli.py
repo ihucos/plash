@@ -57,6 +57,15 @@ def create_collect_lsp_action(lsp_begin):
             setattr(namespace, 'lsp', previous) 
     return CollectAction
 
+
+class CollectEnvsAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        for value in values:
+            if not getattr(namespace, self.dest):
+                setattr(namespace, self.dest, {})
+            key, value = value.split('=', 1)
+            getattr(namespace, self.dest)[key] = value
+
 def get_argument_parser():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
@@ -81,6 +90,7 @@ def get_argument_parser():
 
     parser.add_argument("--docker-save-image") # join with --export
     parser.add_argument("--freeze", dest='export')
+    parser.add_argument('--envs', '-e', action=CollectEnvsAction, nargs='+')
 
     add_shortcuts_to_parser(parser)
 
@@ -91,7 +101,11 @@ def get_argument_parser():
 def main():
 
     if os.geteuid() != 0 and os.environ.get('PLASH_AUTO_SUDO', '').lower() in ('yes', 'true', '1'):
-        os.execvpe('sudo', ['sudo', '--non-interactive'] + sys.argv, os.environ)
+        envs = []
+        for key, val in os.environ.items():
+            envs.extend(['--env', '{}={}'.format(key, val)])
+        cmd = ['sudo', '--non-interactive'] + [sys.argv[0]] + envs + sys.argv[1:]
+        os.execvpe('sudo', cmd, os.environ)
     
     argv = sys.argv[1:]
 
@@ -115,7 +129,6 @@ def main():
         delimiter = argv.index('--')
         command = argv[delimiter+1:]
         argv = argv[:delimiter]
-        # assert False, (args, command)
     except ValueError:
         command = None
 
@@ -208,7 +221,7 @@ def main():
                 build_only=not command,
                 skip_if_exists=not args.build_again,
                 extra_mounts=state.pop_mountpoints(),
-                extra_envs=os.environ,
+                extra_envs=dict(os.environ, **args.envs),
                 export_as=args.export,
                 docker_image=args.docker_image,
                 **execute_extra_kws)
