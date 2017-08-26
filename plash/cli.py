@@ -97,16 +97,19 @@ def get_argument_parser():
     return parser
 
 
-
-def main():
-
+def auto_sudo():
     if os.geteuid() != 0 and os.environ.get('PLASH_AUTO_SUDO', '').lower() in ('yes', 'true', '1'):
         envs = []
         for key, val in os.environ.items():
             envs.extend(['--env', '{}={}'.format(key, val)])
         cmd = ['sudo', '--non-interactive'] + [sys.argv[0]] + envs + sys.argv[1:]
         os.execvpe('sudo', cmd, os.environ)
-    
+
+
+def main():
+
+    auto_sudo()
+
     argv = sys.argv[1:]
 
     if argv and not argv[0].startswith('-'): # suppose its a subcommand
