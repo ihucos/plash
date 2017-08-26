@@ -13,6 +13,8 @@ from tempfile import mkdtemp
 
 from plash.utils import run  # get rid of all plash deps?
 
+ROOTFS_MOUNT_OPTS = 'nosuid,'
+
 BASE_DIR = os.environ['PLASH_DATA']
 TMP_DIR = os.path.join(BASE_DIR, 'tmp')
 MNT_DIR = os.path.join(BASE_DIR, 'mnt')
@@ -50,6 +52,7 @@ mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix)
 # run(['mount', '--rbind', '/proc', join(mountpoint, 'proc')])
 
 p = subprocess.Popen(['mount', '-t', 'overlay', 'overlay', '-o',
+                      'nosuid,' # no suid on rootfs
                       'upperdir={write_dir},lowerdir={lowerdir},workdir={workdir}'.format(
                       write_dir=changes, lowerdir=args.chroot_to[0], workdir=workdir), mountpoint])
 assert not p.wait()
@@ -62,6 +65,7 @@ run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
 run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
 
 if args.mount_home:
+    # run(['mount', '-o', 'noexec', '--bind', '/home', join(mountpoint, 'home')]) # noexec is better, why is it not working
     run(['mount', '--bind', '/home', join(mountpoint, 'home')])
 
 
