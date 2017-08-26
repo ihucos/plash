@@ -214,6 +214,8 @@ def main():
         # bcmd = state.get_base_command() or ''
         # command = (command or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (command or [])
 
+    su = os.environ['SUDO_USER'] # XXX provisorisch, think of sth better
+
     with friendly_exception([PermissionError, URLError]):
         execute(image,
                 layers,
@@ -227,6 +229,7 @@ def main():
                 extra_envs=dict(os.environ, **args.envs),
                 export_as=args.export,
                 docker_image=args.docker_image,
+                su=su,
                 **execute_extra_kws)
 
         # # something that could be used in the shell prompt

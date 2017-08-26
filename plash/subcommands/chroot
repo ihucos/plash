@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 from os.path import join
+from pwd import getpwnam
 from sys import argv
 from tempfile import mkdtemp
 
@@ -31,8 +32,7 @@ parser.add_argument("chroot_to", nargs=1)
 parser.add_argument("command", nargs='+')
 parser.add_argument("--mount-home", action='store_true')
 parser.add_argument("--cow")
-parser.add_argument("--setgid", default=None)
-parser.add_argument("--setuid", default=None)
+parser.add_argument("--su", default=None)
 parser.add_argument("--cwd", default='/')
 args = parser.parse_args()
 
@@ -93,10 +93,10 @@ os.chmod(mountpoint, 0o0755)
 os.chroot(mountpoint)
 
 # XXX: assert that is enough to get away from root in this process
-if args.setgid:
-    os.setgid(args.setgid)
-if args.setuid:
-    os.setuid(args.setuid)
+if args.su:
+    pw = getpwnam(args.su)
+    os.setgid(pw.pw_gid)
+    os.setuid(pw.pw_uid)
 
 os.chdir(args.cwd)
 

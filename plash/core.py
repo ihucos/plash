@@ -292,6 +292,7 @@ def execute(
         skip_if_exists=True,
         export_as=False,
         docker_image=False,
+        su=False,
         extra_envs={}):
 
     if export_as and not command:
@@ -326,7 +327,11 @@ def execute(
             p = subprocess.Popen(['mksquashfs', mountpoint, export_as])
             assert not p.wait(), 'bad exit code'
         else:
-            execcmd = [argv[0], 'chroot', '--mount-home', '--cwd', os.getcwd(), mountpoint, '--'] + command
+            if not su:
+                suarg = []
+            else:
+                suarg = ['--su', su]
+            execcmd = [argv[0], 'chroot'] + suarg + ['--mount-home', '--cwd', os.getcwd(), mountpoint, '--'] + command
             os.execvpe(execcmd[0], execcmd, extra_envs)
             # pwd = os.getcwd()
             # prepare_rootfs(mountpoint)
