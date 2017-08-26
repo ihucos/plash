@@ -332,7 +332,7 @@ def execute(
             else:
                 suarg = ['--su', su]
             execcmd = [argv[0], 'chroot'] + suarg + ['--mount-home', '--cwd', os.getcwd(), mountpoint, '--'] + command
-            os.execvpe(execcmd[0], execcmd, extra_envs)
+            os.execvpe(execcmd[0], execcmd, extra_envs) # security vulnerability sudo env blah stuff!
             # pwd = os.getcwd()
             # prepare_rootfs(mountpoint)
             # os.chroot(mountpoint)
