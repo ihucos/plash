@@ -58,8 +58,17 @@ func main() {
 	// h := sha256.New()
 	// h.Write(m)
 	// hash := hex.EncodeToString((h.Sum(nil)))[:16]
+
+
+	err = os.Mkdir("/tmp/runp", 0700) // fix permissions later
+	if os.IsNotExist(err) {panic(err)}
+
+
 	inode := fmt.Sprintf("%v", stat.Ino)
-	mountpoint := os.TempDir() + "/" + inode + ".mount"
+	device := fmt.Sprintf("%v", stat.Dev)
+	suffix := fmt.Sprintf("runp.%v-%v.", device, inode) // code repitiion
+
+	mountpoint := "/tmp/runp/" + suffix + "link"
 	// mountpointExists := false
 	var mountpointExists bool
 	// err = os.Mkdir(mountpoint, 0755) // fix permissions later
@@ -85,8 +94,6 @@ func main() {
 	originalUid := syscall.Getuid()
 	err = syscall.Setreuid(0, 0)
 	check(err)
-	
-	suffix := fmt.Sprintf("%v.", syscall.Getpid()) // code repitiion
 
 	// if _, err := os.Stat(mountpoint); err != nil {
 	//     if os.IsNotExist(err) {
@@ -100,7 +107,7 @@ func main() {
 	if ! mountpointExists {
 
 
-		tempMountpoint, err := ioutil.TempDir("/tmp", "mysuffix")
+		tempMountpoint, err := ioutil.TempDir("/tmp/runp", suffix)
 		check(err)
 
 		run("/bin/mount", squashFile, tempMountpoint) // nosuid?
