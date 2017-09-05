@@ -8,7 +8,7 @@ from tempfile import mkdtemp
 from plash.utils import hashstr, run
 
 TMP_DIR = '/tmp'
-
+LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
 def reporthook(counter, buffer_size, size):
       expected_ticks = int(size / buffer_size)
@@ -35,6 +35,30 @@ def hashfile(fname):
             hash_obj.update(chunk)
             return hash_obj.hexdigest()
 
+def index_lxc_images():
+    content = urlopen('http://images.linuxcontainers.org/').read().decode() # FIXME: use https
+    matches = re.findall('<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>', content)
+
+    names = {}
+    for distro, version, arch, variant, date, _, _, _ in matches:
+        if not variant == 'default':
+            continue
+
+        if arch != 'amd64':  # only support this right now
+            continue
+
+        url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
+
+        if version == 'current':
+            names[distro] = url
+
+        elif version[0].isalpha():
+            # path parts with older upload_version also come later
+            # (ignore possibel alphanumeric sort for dates on this right now)
+            names[version] = url
+        else:
+            names['{}{}'.format(distro, version)] = url
+    return names
 
 class BaseImageCreator:
     def __call__(self, image):
@@ -245,10 +269,6 @@ class Container:
         else:
             print('*** plash: cached layer')
 
-    def add_layers(self, layer_cmds):
-        for cmd in layer_cmds:
-            self.add_layer(cmd)
-
     def create_runnable(self, file, executable, *, verbose_flag=False):
         mountpoint = mkdtemp(dir=TMP_DIR)
         self.mount_rootfs(mountpoint=mountpoint)
@@ -263,16 +283,40 @@ class Container:
     
     def run(self, cmd):
         assert isinstance(cmd, list)
-        cached_file = join(TMP_DIR, hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root!
+        cached_file = join(TMP_DIR, hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
         if not os.path.exists(cached_file):
             self.create_runnable(cached_file, '/usr/bin/env')
         cmd = ['/home/resu/plash/runp', cached_file] + cmd
         os.execvpe(cmd[0], cmd, os.environ)
 
+def execute(
+        base_name,
+        layer_commands,
+        command,
+        *,
+        # quiet_flag=False,
+        # verbose_flag=False,
+        # rebuild_flag=False,
+        # extra_mounts=[],
+        # build_only=False,
+        # skip_if_exists=True,
+        export_as=False,
+        # docker_image=False,
+        # su=False,
+        # extra_envs={}
+        **kw):
 
 
-
-c = Container('zesty')
-c.add_layers(['touch c', 'touch b'])
-# c.create_runnable('/tmp/mytest', "/usr/bin/python3")
-c.run(['python3'])
+    c = Container(base_name)
+    for cmd in layer_commands:
+        c.add_layer(cmd)
+    if export_as:
+        if not command:
+            print("if export_as you must supply a command")
+            sys.exit(1)
+        if len(command) == 1:
+            print("if export_as the command must be a binary")
+            sys.exit(1)
+        c.create_runnable(export_as, export_binary)
+    else:
+        c.run(cmd)
