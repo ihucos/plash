@@ -1,70 +1,18 @@
-
-'''
-file to mount in host: https://github.com/proot-me/PRoot/blob/master/doc/proot/manual.txt
-* /etc/host.conf
-* /etc/hosts
-* /etc/nsswitch.conf
-* /etc/resolv.conf
-* /dev/
-* /sys/
-* /proc/
-* /tmp/
-* /run/shm
-
-root #mount -t proc none /foo/proc
-root #mount -o bind /dev /foo/dev
-root #mount -o bind /usr/portage /foo/usr/portage
-root #mount -o bind /usr/src/linux /foo/usr/src/linux
-root #mount -o bind /lib/modules /foo/lib/modules
-root #mount -o bind /sys /foo/sys
-root #cp /etc/resolv.conf /foo/etc/resolv.conf
-'''
-
-
 import errno
-import hashlib
-import lzma  # XXX: we need that but dont use directly, apt install python-lzma
-import os
-import re
-import shlex
+import os.path
 import shutil
-import sqlite3
 import subprocess
-import tarfile
-import time
-from os.path import abspath, join
-from shutil import rmtree
-from sys import argv
-from tempfile import mkdtemp, mktemp
-from urllib.request import urlopen, urlretrieve
+from os.path import join
+from tempfile import mkdtemp
 
-from .utils import NonZeroExitStatus, friendly_exception, hashstr, run
+from .utils import hashstr, run
 
-BASE_DIR = os.environ.get('PLASH_DATA', '/var/lib/plash')
-TMP_DIR = join(BASE_DIR, 'tmp')
-MNT_DIR = join(BASE_DIR, 'mnt')
-BUILDS_DIR = join(BASE_DIR, 'builds')
+TMP_DIR = '/tmp'
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
-def hashfile(fname):
-    hash_obj = hashlib.sha1()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_obj.update(chunk)
-            return hash_obj.hexdigest()
 
 class BuildError(Exception):
     pass
-
-def pidsuffix():
-    return '.{}'.format(os.getpid())
-
-def prepare_data_dir(data_dir):
-    for dir in [BASE_DIR, TMP_DIR, MNT_DIR, BUILDS_DIR]:
-        try:
-            os.mkdir(dir)
-        except FileExistsError:
-            pass
 
 
 def reporthook(counter, buffer_size, size):
@@ -84,82 +32,38 @@ def reporthook(counter, buffer_size, size):
             else:
                   print('.', end='', flush=True)
 
-def staple_layer(layers, layer_cmd, rebuild=False):
-    last_layer = layers[-1]
-    layer_name = hashstr(' '.join(layers + [layer_cmd]).encode())
-    final_child_dst = join(last_layer, 'children', layer_name)
 
-    if not os.path.exists(final_child_dst) or rebuild:
-        print('*** plash: building layer')
-        new_child = mkdtemp(dir=TMP_DIR)
-        new_layer = join(new_child, 'payload')
-        os.mkdir(new_layer)
-        os.mkdir(join(new_child, 'children'))
+def hashfile(fname):
+    hash_obj = hashlib.sha1()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_obj.update(chunk)
+            return hash_obj.hexdigest()
 
-        mountpoint = mount_layers(layers=[join(i, 'payload') for i in layers], write_dir=new_layer)
+def index_lxc_images():
+    content = urlopen('http://images.linuxcontainers.org/').read().decode() # FIXME: use https
+    matches = re.findall('<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>', content)
 
-        p = subprocess.Popen(
-            [argv[0],
-             'chroot',
-             '--cow', new_layer,
-             mountpoint,
-             '--', 'sh', '-ce', layer_cmd], stdout=2, stderr=2)
-        exit = p.wait()
-        umount(mountpoint)
-        assert exit == 0, 'Building returned non zero exit status'
-        if exit != 0:
-            print('non zero exit status code when building')
-            shutil.rmtree(build_at)
-            assert False
+    names = {}
+    for distro, version, arch, variant, date, _, _, _ in matches:
+        if not variant == 'default':
+            continue
+
+        if arch != 'amd64':  # only support this right now
+            continue
+
+        url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
+
+        if version == 'current':
+            names[distro] = url
+
+        elif version[0].isalpha():
+            # path parts with older upload_version also come later
+            # (ignore possibel alphanumeric sort for dates on this right now)
+            names[version] = url
         else:
-            try:
-
-                # if rebuilding get rid of current build if there is one
-                # this could be done with one call with renameat2
-                if rebuild:
-                    try:
-                        os.rename(final_child_dst, mkdtemp(dir=TMP_DIR))
-                    except FileNotFoundError as exc:
-                        pass
-                    except OSError as exc:
-                        if exc.errno != errno.ENOTEMPTY:
-                            raise
-
-
-                os.rename(new_child, final_child_dst)
-            except OSError as exc:
-                if exc.errno == errno.ENOTEMPTY:
-                    print('*** plash: this layer already exists builded and will not be replaced (layer: {})'.format(layer_name))
-                else:
-                    raise
-
-    else:
-        print('*** plash: cached layer'.format(layer_name))
-
-    return layers + [final_child_dst]
-
-
-def umount(mountpoint):
-    run(['umount', '--recursive', mountpoint])
-    
-def mount_layers(layers, write_dir):
-    mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix()) # save pid so we can unmout it when that pid dies
-    workdir = mkdtemp(dir=MNT_DIR)
-    layers=list(layers)
-    cmd = [
-        'mount',
-        '-t',
-        'overlay',
-        'overlay',
-        '-o',
-        'upperdir={write_dir},lowerdir={dirs},workdir={workdir}'.format(
-            write_dir=write_dir,
-            workdir=workdir,
-            dirs=':'.join(i for i in layers)),
-        mountpoint]
-    run(cmd)
-    return mountpoint
-
+            names['{}{}'.format(distro, version)] = url
+    return names
 
 class BaseImageCreator:
     def __call__(self, image):
@@ -256,11 +160,12 @@ class DockerImageCreator(BaseImageCreator):
         t = tarfile.open(tar)
         t.extractall(outdir)
 
+
 squashfs_image_creator = SquashfsImageCreator()
 directory_image_creator = DirectoryImageCreator()
 lxc_image_creator = LXCImageCreator()
 docker_image_creator = DockerImageCreator()
-def multi_image_creator(base_name):
+def bootstrap_base_rootfs(base_name):
     # return docker_image_creator(base_name)
     if base_name.startswith('/') or base_name.startswith('./'):
         path = abspath(base_name)
@@ -271,124 +176,152 @@ def multi_image_creator(base_name):
     return lxc_image_creator(base_name)
 
 
+class Container:
 
-def build(image, layers, *, quiet_flag=False, verbose_flag=False, rebuild_flag=False):
-    base = [image]
-    for layer in layers:
-        base = staple_layer(base, layer, rebuild=rebuild_flag)
-    return base
+    def __init__(self, container_id):
+        self._layer_ids = container_id.split(':')
 
+    def hash_cmd(self, cmd):
+        return hashstr(cmd)[:12]
+
+    def get_layer_paths(self):
+        lp = ["/var/lib/plash/builds/{}".format(self._layer_ids[0])]
+        for ci in self._layer_ids[1:]:
+            lp.append(lp[-1] + '/children/' + ci)
+        # print(lp)
+        return lp
+
+    def invalidate(self):
+        pass
+
+    def mount_rootfs(self, *, mountpoint, write_dir=None, workdir=None):
+        if write_dir == None:
+            write_dir = mkdtemp(dir=TMP_DIR)
+        if workdir == None:
+            workdir = mkdtemp(dir=TMP_DIR)
+        cmd = [
+            'mount',
+            '-t',
+            'overlay',
+            'overlay',
+            '-o',
+            'upperdir={write_dir},lowerdir={dirs},workdir={workdir}'.format(
+                write_dir=write_dir,
+                workdir=workdir,
+                dirs=':'.join(join(p, 'payload') for p in self.get_layer_paths())),
+            mountpoint]
+        run(cmd)
+        return mountpoint
+
+    def prepare_chroot(self, mountpoint):
+        run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
+        run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
+        run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
+        run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
+        run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
+        run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
+
+    def build_layer(self, cmd):
+        print('*** plash: building layer')
+        new_child = mkdtemp(dir=TMP_DIR)
+        new_layer = join(new_child, 'payload')
+        os.mkdir(new_layer)
+        os.mkdir(join(new_child, 'children'))
+
+        self.mount_rootfs(mountpoint=new_layer)
+
+        self.prepare_chroot(new_layer)
+
+        if not os.fork():
+            os.chroot(new_layer)
+            # from time import sleep
+            # sleep(5)
+            shell = 'sh'
+            os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
+        child_pid, child_exit = os.wait()
+
+        run(["umount", "--recursive", new_layer])
+
+        if child_exit != 0:
+            print("*** plash: build failed with exit status: {}".format(child_exit))
+            shutil.rmtree(new_child)
+            sys.exit(1)
+
+
+        last_layer = self.get_layer_paths()[-1]
+        layer_hash = self.hash_cmd(cmd.encode())
+        final_child_dst = join(last_layer, 'children', layer_hash)
+        try:
+            os.rename(new_child, final_child_dst)
+        except OSError as exc:
+            if exc.errno == errno.ENOTEMPTY:
+                print('*** plash: this layer already exists builded and will not be replaced (layer: {})'.format(layer_hash))
+            else:
+                raise
+
+        return self._layer_ids.append(layer_hash)
+
+    def is_builded(self, cmd):
+        layer_hash = self.hash_cmd(cmd.encode())
+        last_layer = self.get_layer_paths()[-1]
+        final_child_dst = join(last_layer, 'children', layer_hash)
+        return os.path.exists(final_child_dst)
+
+
+    def add_layer(self, cmd):
+        if not self.is_builded(cmd):
+            return self.build_layer(cmd)
+        else:
+            print('*** plash: cached layer')
+
+    def create_runnable(self, file, executable, *, verbose_flag=False):
+        mountpoint = mkdtemp(dir=TMP_DIR)
+        self.mount_rootfs(mountpoint=mountpoint)
+        os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
+
+        # with open(join(mountpoint, 'entrypoint'), 'w') as f:
+            # f.write('#!/bin/sh\n') # put in one call
+            # f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
+        # os.chmod(join(mountpoint, 'entrypoint'), 0o755)
+        os.symlink(executable, join(mountpoint, 'entrypoint'))
+        run(['mksquashfs', mountpoint, file, '-Xcompression-level', '1'])
+    
+    def run(self, cmd):
+        assert isinstance(cmd, list)
+        cached_file = join(TMP_DIR, hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
+        if not os.path.exists(cached_file):
+            self.create_runnable(cached_file, '/usr/bin/env')
+        cmd = ['/home/resu/plash/runp', cached_file] + cmd
+        os.execvpe(cmd[0], cmd, os.environ)
 
 def execute(
         base_name,
         layer_commands,
         command,
         *,
-        quiet_flag=False,
-        verbose_flag=False,
-        rebuild_flag=False,
-        extra_mounts=[],
-        build_only=False,
-        skip_if_exists=True,
+        # quiet_flag=False,
+        # verbose_flag=False,
+        # rebuild_flag=False,
+        # extra_mounts=[],
+        # build_only=False,
+        # skip_if_exists=True,
         export_as=False,
-        docker_image=False,
-        su=False,
-        extra_envs={}):
+        # docker_image=False,
+        # su=False,
+        # extra_envs={}
+        **kw):
 
-    if export_as and not command:
-        raise ValueError('if export_as is specified, a command also must be')
 
-    # assert 0, layer_commands
-    prepare_data_dir(BASE_DIR)
-    if docker_image:
-        base_dir = docker_image_creator(base_name)
+    c = Container(base_name)
+    for cmd in layer_commands:
+        c.add_layer(cmd)
+    if export_as:
+        if not command:
+            print("if export_as you must supply a command")
+            sys.exit(1)
+        if len(command) == 1:
+            print("if export_as the command must be a binary")
+            sys.exit(1)
+        c.create_runnable(export_as, export_binary)
     else:
-        base_dir = multi_image_creator(base_name)
-    layers = build(base_dir, layer_commands, rebuild_flag=rebuild_flag)
-
-    # update that we used this layers
-    for layer in layers:
-        os.utime(join(layer), None)
-
-    if build_only:
-        print('*** plash: Build is ready at: {}'.format(layers[-1]))
-    else:
-        mountpoint = mount_layers([join(i, 'payload') for i in layers], mkdtemp(dir=TMP_DIR))
-        os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
-        # subprocess.Popen(['chmod', '755', mountpoint])
-        last_layer = layers[-1]
-        # os.utime(join(last_layer, 'lastused'), times=None) # update the timestamp on this
-
-        if export_as:
-            with open(join(mountpoint, 'entrypoint'), 'w') as f:
-                f.write('#!/bin/sh\n') # put in one call
-                f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
-            os.chmod(join(mountpoint, 'entrypoint'), 0o755)
-            p = subprocess.Popen(['mksquashfs', mountpoint, export_as])
-            assert not p.wait(), 'bad exit code'
-        else:
-            if not su:
-                suarg = []
-            else:
-                suarg = ['--su', su]
-            execcmd = [argv[0], 'chroot'] + suarg + ['--mount-home', '--cwd', os.getcwd(), mountpoint, '--'] + command
-            os.execvpe(execcmd[0], execcmd, extra_envs) # security vulnerability sudo env blah stuff!
-            # pwd = os.getcwd()
-            # prepare_rootfs(mountpoint)
-            # os.chroot(mountpoint)
-
-            # os.chdir(pwd)
-            # # try:
-            # # except OSError, exc:
-            # #     if exc.errno == 2: # no such file or directory
-            # #         os.chdir('/')
-
-            # uid = os.environ.get('SUDO_UID')
-            # if uid:
-            #     os.setgid(int(os.environ['SUDO_GID']))
-            #     os.setuid(int(uid))
-
-            # with friendly_exception([FileNotFoundError]):
-            #     os.execvpe(command[0], command, extra_envs)
-
-
-# this as a separate script!
-
-# cleanup_mounts()
-# import sys; sys.exit(0)
-
-
-
-def index_lxc_images():
-    content = urlopen('http://images.linuxcontainers.org/').read().decode() # FIXME: use https
-    matches = re.findall('<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>', content)
-
-    names = {}
-    for distro, version, arch, variant, date, _, _, _ in matches:
-        if not variant == 'default':
-            continue
-
-        if arch != 'amd64':  # only support this right now
-            continue
-
-        url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
-
-        if version == 'current':
-            names[distro] = url
-
-        elif version[0].isalpha():
-            # path parts with older upload_version also come later
-            # (ignore possibel alphanumeric sort for dates on this right now)
-            names[version] = url
-        else:
-            names['{}{}'.format(distro, version)] = url
-    return names
-
-if __name__ == '__main__':
-    # print(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'))
-    # print(staple_layer(staple_layer(['/tmp/data/layers/ubuntu'], 'touch a'), 'touch b'))
-    # print(build('/tmp/data/layers/ubuntu', ['touch a', 'touch b', 'rm a']))
-    execute('ubuntu:16.04', ['touch a', 'touch b', 'rm /a', 'apt-get update && apt-get install cowsay'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)
-    # call('ubuntu:16.04', ['touch ac', 'touch b', 'touch c'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)
-    # import cProfile
-    # cProfile.run("call('ubuntu:16.04', ['touch a', 'touch b', 'rm /a', 'apt-get update && apt-get install cowsay'], ['/usr/games/cowsay', 'hi'], rebuild_flag=False, verbose_flag=True)")
+        c.run(command)
