@@ -1,3 +1,4 @@
+import errno
 import os.path
 import shutil
 import subprocess
@@ -15,10 +16,14 @@ class Container:
     def __init__(self, container_id):
         self._layer_ids = container_id.split(':')
 
+    def hash_cmd(self, cmd):
+        return hashstr(cmd)[:12]
+
     def get_layer_paths(self):
         lp = ["/var/lib/plash/builds/{}".format(self._layer_ids[0])]
         for ci in self._layer_ids[1:]:
-            lp.append(lp[-1] + 'children/' + ci)
+            lp.append(lp[-1] + '/children/' + ci)
+        # print(lp)
         return lp
 
     def invalidate(self):
@@ -62,23 +67,24 @@ class Container:
 
         self.prepare_chroot(new_layer)
 
-        if os.fork():
+        if not os.fork():
             os.chroot(new_layer)
-            asdf
+            # from time import sleep
+            # sleep(5)
             shell = 'sh'
             os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
-        exit = os.wait()
-        assert False, exit
-        run("umount", "--recursive", new_layer)
-        assert exit == 0, 'Building returned non zero exit status'
-        if exit != 0:
-            from time import sleep
-            sleep(3)
-            print('non zero exit status code when building')
-            shutil.rmtree(new_child) # cleanup
+        child_pid, child_exit = os.wait()
+
+        run(["umount", "--recursive", new_layer])
+
+        if child_exit != 0:
+            print("*** plash: build failed with exit status: {}".format(child_exit))
+            shutil.rmtree(new_child)
+            sys.exit(1)
+
 
         last_layer = self.get_layer_paths()[-1]
-        layer_hash = hashstr(cmd.encode())
+        layer_hash = self.hash_cmd(cmd.encode())
         final_child_dst = join(last_layer, 'children', layer_hash)
         try:
             os.rename(new_child, final_child_dst)
@@ -91,7 +97,7 @@ class Container:
         return self._layer_ids.append(layer_hash)
 
     def is_builded(self, cmd):
-        layer_hash = hashstr(cmd).encode()
+        layer_hash = self.hash_cmd(cmd.encode())
         last_layer = self.get_layer_paths()[-1]
         final_child_dst = join(last_layer, 'children', layer_hash)
         return os.path.exists(final_child_dst)
@@ -105,7 +111,7 @@ class Container:
 
     def create_runnable(self, file, layers_cmd, executable, *, verbose_flag=False):
         for cmd in layers_cmd:
-            self.build_layer(cmd)
+            self.add_layer(cmd)
 
         mp = mkdtemp(dir=TMP_DIR)
         self.mount_rootfs(mountpoint=mp)
@@ -115,4 +121,4 @@ class Container:
 
 
 c = Container('zesty')
-c.create_runnable('/tmp/mytest', ['touch a'], "python3")
+c.create_runnable('/tmp/mytest', ['touch a', 'touch b'], "python3")
