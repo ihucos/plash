@@ -62,20 +62,20 @@ class Container:
 
         self.prepare_chroot(new_layer)
 
-        # do that with fork, chroot and exec?
-        p = subprocess.Popen(
-            [argv[0],
-             'chroot',
-             '--cow', new_layer,
-             new_layer,
-             '--', 'sh', '-ce', cmd], stdout=2, stderr=2)
-        exit = p.wait()
+        if os.fork():
+            os.chroot(new_layer)
+            asdf
+            shell = 'sh'
+            os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
+        exit = os.wait()
+        assert False, exit
         run("umount", "--recursive", new_layer)
         assert exit == 0, 'Building returned non zero exit status'
         if exit != 0:
+            from time import sleep
+            sleep(3)
             print('non zero exit status code when building')
             shutil.rmtree(new_child) # cleanup
-            assert False
 
         last_layer = self.get_layer_paths()[-1]
         layer_hash = hashstr(cmd.encode())
@@ -114,5 +114,5 @@ class Container:
 
 
 
-c = Container('ubuntu')
+c = Container('zesty')
 c.create_runnable('/tmp/mytest', ['touch a'], "python3")
