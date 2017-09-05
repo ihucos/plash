@@ -15,56 +15,6 @@ class BuildError(Exception):
     pass
 
 
-def reporthook(counter, buffer_size, size):
-      expected_ticks = int(size / buffer_size)
-      dot_every_ticks = int(expected_ticks / 40)
-      if counter % dot_every_ticks == 0:
-            dot_count = counter / dot_every_ticks
-
-            if dot_count % 4 == 0:
-                  countdown = 10 - int(round((counter * buffer_size / size) * 10))
-                  if countdown != 10:
-                        print(' ', end='', flush=True)
-                  if countdown == 0:
-                        print('ready', flush=True)
-                  else:
-                        print(countdown, end='', flush=True)
-            else:
-                  print('.', end='', flush=True)
-
-
-def hashfile(fname):
-    hash_obj = hashlib.sha1()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_obj.update(chunk)
-            return hash_obj.hexdigest()
-
-def index_lxc_images():
-    content = urlopen('http://images.linuxcontainers.org/').read().decode() # FIXME: use https
-    matches = re.findall('<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>', content)
-
-    names = {}
-    for distro, version, arch, variant, date, _, _, _ in matches:
-        if not variant == 'default':
-            continue
-
-        if arch != 'amd64':  # only support this right now
-            continue
-
-        url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
-
-        if version == 'current':
-            names[distro] = url
-
-        elif version[0].isalpha():
-            # path parts with older upload_version also come later
-            # (ignore possibel alphanumeric sort for dates on this right now)
-            names[version] = url
-        else:
-            names['{}{}'.format(distro, version)] = url
-    return names
-
 class BaseImageCreator:
     def __call__(self, image):
 
@@ -96,7 +46,7 @@ class LXCImageCreator(BaseImageCreator):
 
     def prepare_image(self, outdir):
         print('getting images index')
-        images = index_lxc_images()
+        images = self._index_lxc_images()
         try:
             image_url = images[image]
         except KeyError:
@@ -105,12 +55,51 @@ class LXCImageCreator(BaseImageCreator):
 
         download_file = join(tmp_image_dir, 'download')
         print('Downloading image: ', end='', flush=True)
-        urlretrieve(image_url, download_file, reporthook=reporthook)
+        urlretrieve(image_url, download_file, reporthook=self._reporthook)
         t = tarfile.open(download_file)
         t.extractall(outdir)
 
-# class DockerImageCreator(BaseImageCreator):
-#     pass
+    def _reporthook(self, counter, buffer_size, size):
+          expected_ticks = int(size / buffer_size)
+          dot_every_ticks = int(expected_ticks / 40)
+          if counter % dot_every_ticks == 0:
+                dot_count = counter / dot_every_ticks
+
+                if dot_count % 4 == 0:
+                      countdown = 10 - int(round((counter * buffer_size / size) * 10))
+                      if countdown != 10:
+                            print(' ', end='', flush=True)
+                      if countdown == 0:
+                            print('ready', flush=True)
+                      else:
+                            print(countdown, end='', flush=True)
+                else:
+                      print('.', end='', flush=True)
+
+    def _index_lxc_images(self):
+        content = urlopen('http://images.linuxcontainers.org/').read().decode() # FIXME: use https
+        matches = re.findall('<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>', content)
+
+        names = {}
+        for distro, version, arch, variant, date, _, _, _ in matches:
+            if not variant == 'default':
+                continue
+
+            if arch != 'amd64':  # only support this right now
+                continue
+
+            url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
+
+            if version == 'current':
+                names[distro] = url
+
+            elif version[0].isalpha():
+                # path parts with older upload_version also come later
+                # (ignore possibel alphanumeric sort for dates on this right now)
+                names[version] = url
+            else:
+                names['{}{}'.format(distro, version)] = url
+        return names
 
 
 class DirectoryImageCreator(BaseImageCreator):
@@ -124,12 +113,19 @@ class DirectoryImageCreator(BaseImageCreator):
 
 class SquashfsImageCreator(BaseImageCreator):
     def get_id(self):
-        return hashfile(self.arg)
+        return self._hashfile(self.arg)
 
     def prepare_image(self, outdir):
         p = subprocess.Popen(['unsquashfs', '-d', outdir, self.arg])
         exit = p.wait()
         assert not exit
+
+    def _hashfile(fname):
+        hash_obj = hashlib.sha1()
+        with open(fname, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_obj.update(chunk)
+                return hash_obj.hexdigest()
 
 
 class DockerImageCreator(BaseImageCreator):
