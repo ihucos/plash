@@ -1,25 +1,34 @@
-from plash.utils import hashstr
-from os.path import join
 import os.path
+import shutil
+import subprocess
+from os.path import join
+from sys import argv
+from tempfile import mkdtemp
+
+from plash.utils import hashstr, run
+
+TMP_DIR = '/tmp'
 
 
 class Container:
 
-    def __init__(self, layers_ids):
-        self._layer_ids = []
+    def __init__(self, container_id):
+        self._layer_ids = container_id.split(':')
 
     def get_layer_paths(self):
-        lp = ["/var/lib/plash/builds/{}".format(self._container_id[0])]
-        for ci in self._container_id[1:]:
-            lp.append(lp[-1] + 'children/' + ci
+        lp = ["/var/lib/plash/builds/{}".format(self._layer_ids[0])]
+        for ci in self._layer_ids[1:]:
+            lp.append(lp[-1] + 'children/' + ci)
         return lp
 
-    def invalidate(self, self):
-          pass
+    def invalidate(self):
+        pass
 
-    def mount_rootfs(self, write_dir, mountpoint):
-        mountpoint = mkdtemp(dir=MNT_DIR, suffix=pidsuffix()) # save pid so we can unmout it when that pid dies
-        workdir = mkdtemp(dir=MNT_DIR)
+    def mount_rootfs(self, *, mountpoint, write_dir=None, workdir=None):
+        if write_dir == None:
+            write_dir = mkdtemp(dir=TMP_DIR)
+        if workdir == None:
+            workdir = mkdtemp(dir=TMP_DIR)
         cmd = [
             'mount',
             '-t',
@@ -42,7 +51,6 @@ class Container:
         run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
         run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
 
-
     def build_layer(self, cmd):
         print('*** plash: building layer')
         new_child = mkdtemp(dir=TMP_DIR)
@@ -50,26 +58,27 @@ class Container:
         os.mkdir(new_layer)
         os.mkdir(join(new_child, 'children'))
 
-        self.mount_rootfs(workdir=mkdtemp(dir=TMP_DIR), mounpoint=new_layer)
+        self.mount_rootfs(mountpoint=new_layer)
 
-        self.prepare_chroot(mounpoint)
+        self.prepare_chroot(new_layer)
 
         # do that with fork, chroot and exec?
         p = subprocess.Popen(
             [argv[0],
              'chroot',
              '--cow', new_layer,
-             mountpoint,
+             new_layer,
              '--', 'sh', '-ce', cmd], stdout=2, stderr=2)
         exit = p.wait()
-        run("umount", mountpoint)
+        run("umount", "--recursive", new_layer)
         assert exit == 0, 'Building returned non zero exit status'
         if exit != 0:
             print('non zero exit status code when building')
-            shutil.rmtree(build_at)
+            shutil.rmtree(new_child) # cleanup
             assert False
 
-        layer_hash = hashstr(' '.join(layers + [layer_cmd]).encode())
+        last_layer = self.get_layer_paths()[-1]
+        layer_hash = hashstr(cmd.encode())
         final_child_dst = join(last_layer, 'children', layer_hash)
         try:
             os.rename(new_child, final_child_dst)
@@ -82,28 +91,28 @@ class Container:
         return self._layer_ids.append(layer_hash)
 
     def is_builded(self, cmd):
-        last_layer = self.get_layers()[-1]
-        layer_hash = hashstr(' '.join(layers + [layer_cmd]).encode())
+        layer_hash = hashstr(cmd).encode()
+        last_layer = self.get_layer_paths()[-1]
         final_child_dst = join(last_layer, 'children', layer_hash)
         return os.path.exists(final_child_dst)
 
 
     def add_layer(self, cmd):
-        if not self.is_builded(cmd)
-              return build_layer(cmd)
+        if not self.is_builded(cmd):
+            return self.build_layer(cmd)
         else:
-            print('*** plash: cached layer'.format(layer_hash))
+            print('*** plash: cached layer')
 
-    def create_runnable(file, layers_cmd, *, verbose_flag=False):
+    def create_runnable(self, file, layers_cmd, executable, *, verbose_flag=False):
         for cmd in layers_cmd:
             self.build_layer(cmd)
 
         mp = mkdtemp(dir=TMP_DIR)
-        self.mount_rootfs(workdir=mkdtemp(dir=TMP_DIR), mounpoint=mp)
+        self.mount_rootfs(mountpoint=mp)
 
         assert False, mp # create runnable from here
 
 
 
-
-create_runnable('/tmp/mytest', ["ubuntu"], ['touch a'], "python3")
+c = Container('ubuntu')
+c.create_runnable('/tmp/mytest', ['touch a'], "python3")
