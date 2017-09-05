@@ -3,12 +3,148 @@ import os.path
 import shutil
 import subprocess
 from os.path import join
-from sys import argv
 from tempfile import mkdtemp
 
 from plash.utils import hashstr, run
 
 TMP_DIR = '/tmp'
+
+
+def reporthook(counter, buffer_size, size):
+      expected_ticks = int(size / buffer_size)
+      dot_every_ticks = int(expected_ticks / 40)
+      if counter % dot_every_ticks == 0:
+            dot_count = counter / dot_every_ticks
+
+            if dot_count % 4 == 0:
+                  countdown = 10 - int(round((counter * buffer_size / size) * 10))
+                  if countdown != 10:
+                        print(' ', end='', flush=True)
+                  if countdown == 0:
+                        print('ready', flush=True)
+                  else:
+                        print(countdown, end='', flush=True)
+            else:
+                  print('.', end='', flush=True)
+
+
+def hashfile(fname):
+    hash_obj = hashlib.sha1()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_obj.update(chunk)
+            return hash_obj.hexdigest()
+
+
+class BaseImageCreator:
+    def __call__(self, image):
+
+        self.arg = image
+        image_id = self.get_id()
+        image_dir = join(BUILDS_DIR, image_id)
+
+        if not os.path.exists(image_dir):
+
+            tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
+            os.mkdir(join(tmp_image_dir, 'children'))
+            os.mkdir(join(tmp_image_dir, 'payload'))
+            self.prepare_image(join(tmp_image_dir, 'payload'))
+
+            try:
+                os.rename(tmp_image_dir, image_dir)
+            except OSError as exc:
+                if exc.errno == errno.ENOTEMPTY:
+                    print('*** plash: another process already pulled that image')
+                else:
+                    raise
+        
+        return image_dir
+
+
+class LXCImageCreator(BaseImageCreator):
+    def get_id(self):
+        return self.arg # XXX: dot dot attack and so son, escape or so
+
+    def prepare_image(self, outdir):
+        print('getting images index')
+        images = index_lxc_images()
+        try:
+            image_url = images[image]
+        except KeyError:
+            raise ValueError('No such image, available: {}'.format(
+                ' '.join(sorted(images))))
+
+        download_file = join(tmp_image_dir, 'download')
+        print('Downloading image: ', end='', flush=True)
+        urlretrieve(image_url, download_file, reporthook=reporthook)
+        t = tarfile.open(download_file)
+        t.extractall(outdir)
+
+# class DockerImageCreator(BaseImageCreator):
+#     pass
+
+
+class DirectoryImageCreator(BaseImageCreator):
+
+    def get_id(self):
+        return hashstr(self.arg.encode())
+
+    def prepare_image(self, outdir):
+        os.symlink(self.arg, outdir)
+
+
+class SquashfsImageCreator(BaseImageCreator):
+    def get_id(self):
+        return hashfile(self.arg)
+
+    def prepare_image(self, outdir):
+        p = subprocess.Popen(['unsquashfs', '-d', outdir, self.arg])
+        exit = p.wait()
+        assert not exit
+
+
+class DockerImageCreator(BaseImageCreator):
+
+    def _normalize_arg(self, image):
+        if not '/' in image:
+            image = 'library/' + image
+        if not ':' in image:
+            image += ':latest'
+        return image
+
+    def get_id(self):
+        normalized_arg = self._normalize_arg(self.arg)
+        return hashstr('dockerregistry {}'.format(normalized_arg).encode())
+
+    def prepare_image(self, outdir):
+        download_file = join(mkdtemp(), 'rootfs.tar.xz')
+        p = subprocess.Popen(['docker', 'create', self._normalize_arg(self.arg)],
+                         stdout=subprocess.PIPE)
+        exit = p.wait()
+        assert not exit
+        result = p.stdout.read()
+        container_id = result.decode().strip('\n')
+        tar = mktemp()
+        p = subprocess.Popen(['docker', 'export', '--output', tar, container_id])
+        exit = p.wait()
+        assert not exit
+        t = tarfile.open(tar)
+        t.extractall(outdir)
+
+
+squashfs_image_creator = SquashfsImageCreator()
+directory_image_creator = DirectoryImageCreator()
+lxc_image_creator = LXCImageCreator()
+docker_image_creator = DockerImageCreator()
+def bootstrap_base_rootfs(base_name):
+    # return docker_image_creator(base_name)
+    if base_name.startswith('/') or base_name.startswith('./'):
+        path = abspath(base_name)
+        if os.path.isdir(path):
+            return directory_image_creator(path)
+        else:
+            return squashfs_image_creator(base_name)
+    return lxc_image_creator(base_name)
 
 
 class Container:
@@ -109,16 +245,34 @@ class Container:
         else:
             print('*** plash: cached layer')
 
-    def create_runnable(self, file, layers_cmd, executable, *, verbose_flag=False):
-        for cmd in layers_cmd:
+    def add_layers(self, layer_cmds):
+        for cmd in layer_cmds:
             self.add_layer(cmd)
 
-        mp = mkdtemp(dir=TMP_DIR)
-        self.mount_rootfs(mountpoint=mp)
+    def create_runnable(self, file, executable, *, verbose_flag=False):
+        mountpoint = mkdtemp(dir=TMP_DIR)
+        self.mount_rootfs(mountpoint=mountpoint)
+        os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
 
-        assert False, mp # create runnable from here
+        # with open(join(mountpoint, 'entrypoint'), 'w') as f:
+            # f.write('#!/bin/sh\n') # put in one call
+            # f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
+        # os.chmod(join(mountpoint, 'entrypoint'), 0o755)
+        os.symlink(executable, join(mountpoint, 'entrypoint'))
+        run(['mksquashfs', mountpoint, file, '-Xcompression-level', '1'])
+    
+    def run(self, cmd):
+        assert isinstance(cmd, list)
+        cached_file = join(TMP_DIR, hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root!
+        if not os.path.exists(cached_file):
+            self.create_runnable(cached_file, '/usr/bin/env')
+        cmd = ['/home/resu/plash/runp', cached_file] + cmd
+        os.execvpe(cmd[0], cmd, os.environ)
+
 
 
 
 c = Container('zesty')
-c.create_runnable('/tmp/mytest', ['touch a', 'touch b'], "python3")
+c.add_layers(['touch c', 'touch b'])
+# c.create_runnable('/tmp/mytest', "/usr/bin/python3")
+c.run(['python3'])
