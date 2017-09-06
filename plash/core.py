@@ -180,18 +180,31 @@ class Container:
         self._layer_ids = container_id.split(':')
 
     # def _get_last_layer_salt_file(self):
-    #     return join(self.get_layer_paths()[-1], 'salt')
+    #     return join(self._get_layer_paths()[-1], 'salt')
 
-    def hash_cmd(self, cmd):
-        self.get_layer_paths()[-1]
+    def _get_child_path(self, cmd):
+        layer_hash = self._hash_cmd(cmd.encode())
+        last_layer = self._get_layer_paths()[-1]
+        return join(last_layer, 'children', layer_hash)
+
+    def _hash_cmd(self, cmd):
+        # self._get_layer_paths()[-1]
         return hashstr(cmd)[:12]
 
-    def get_layer_paths(self):
+    def _get_layer_paths(self):
         lp = ["/var/lib/plash/builds/{}".format(self._layer_ids[0])]
         for ci in self._layer_ids[1:]:
             lp.append(lp[-1] + '/children/' + ci)
         # print(lp)
         return lp
+
+    def _prepare_chroot(self, mountpoint):
+        run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
+        run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
+        run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
+        run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
+        run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
+        run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
 
     def invalidate(self):
         pass
@@ -210,18 +223,10 @@ class Container:
             'upperdir={write_dir},lowerdir={dirs},workdir={workdir}'.format(
                 write_dir=write_dir,
                 workdir=workdir,
-                dirs=':'.join(join(p, 'payload') for p in self.get_layer_paths())),
+                dirs=':'.join(join(p, 'payload') for p in self._get_layer_paths())),
             mountpoint]
         run(cmd)
         return mountpoint
-
-    def prepare_chroot(self, mountpoint):
-        run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
-        run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
-        run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-        run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
-        run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
-        run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
 
     def build_layer(self, cmd):
         print('*** plash: building layer')
@@ -232,7 +237,7 @@ class Container:
 
         self.mount_rootfs(mountpoint=new_layer)
 
-        self.prepare_chroot(new_layer)
+        self._prepare_chroot(new_layer)
 
         if not os.fork():
             os.chroot(new_layer)
@@ -263,13 +268,7 @@ class Container:
             else:
                 raise
 
-        return self._layer_ids.append(self.hash_cmd(cmd.encode()))
-
-    def _get_child_path(self, cmd):
-        layer_hash = self.hash_cmd(cmd.encode())
-        last_layer = self.get_layer_paths()[-1]
-        return join(last_layer, 'children', layer_hash)
-
+        return self._layer_ids.append(self._hash_cmd(cmd.encode()))
 
     def add_layer(self, cmd):
         if not path.exists(self._get_child_path(cmd)):
