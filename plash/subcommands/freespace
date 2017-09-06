@@ -2,16 +2,66 @@
 
 from __future__ import print_function
 
+import atexit
 import os
 import subprocess
+import sys
+from datetime import datetime
 from os.path import join
 from pprint import pprint
 from shutil import disk_usage, rmtree
 from tempfile import mkdtemp
+from time import sleep
 
-BASE_DIR = os.environ['PLASH_DATA']
+BASE_DIR = '/var/lib/plash'
+LOCKFILE = '/var/lib/plash/lockfile'
 BUILDS_DIR = join(BASE_DIR, 'builds')
 TMP_DIR = join(BASE_DIR, 'tmp')
+
+
+def get_current_plash_build_processes():
+    pids = []
+    for f in os.listdir('/proc'):
+          if f.isdigit():
+                proc_root =  os.readlink(join('/proc', f, 'root'))
+                if proc_root.endswith("/payload"): # FIXME: check for sth more robust
+                      pids.append(int(f))
+    return pids
+
+# def ensure_no_plash_build_process():
+#     pids = get_current_plash_build_processes()
+#     if pids:
+#         print("freespace can not run while there are build processes in progress")
+#         print("Current build procees pid(s): {}".format(' '.join(str(i) for i in pids)))
+#         sys.exit(1)
+
+# def temporary_lock():
+#     while True:
+#         try:
+#             fd = os.open(LOCKFILE, os.O_EXCL | os.O_CREAT)
+#         except FileExistsError:
+#             print('lockfile found - wait 20 seconds')
+#             sleep(20)
+#             os.unlink(LOCKFILE)
+#             print("lockfile deleted")
+#         else:
+#             os.close(fd)
+#             break
+
+# @atexit.register
+# def delete_lockfile():
+#     try:
+#         os.unlink(LOCKFILE)
+#     except FileNotFoundError:
+#         pass
+
+
+# ensure_no_plash_build_process() # it think this call is only there for emore rubustness?
+# temporary_lock()
+# ensure_no_plash_build_process()
+
+# from time import sleep
+# sleep(100)
 
 usages = []
 for  dirpath, dirs, files in os.walk(BUILDS_DIR):
@@ -23,21 +73,29 @@ for  dirpath, dirs, files in os.walk(BUILDS_DIR):
     if 'payload' in dirs:
         dirs.remove('payload')
 
-import sys;
-sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
-pprint(sorted_usages)
+tempdir = mkdtemp(prefix='deleteme-')
+print(tempdir)
+for counter, (path, _) in enumerate(usages):
+    move_to = join(tempdir, str(counter))
+    try:
+        print(path, move_to)
+        os.rename(path, move_to)
+    except FileNotFoundError:
+        pass # probably a parent already was removed
+
 sys.exit(0)
 
-
+sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
+pprint([(a, datetime.fromtimestamp(b).strftime("%Y-%m-%d %H:%M:%S")) for (a, b) in sorted_usages])
 
 layers_num = len(usages)
 delete_layers_num = int(round(0.2 * layers_num)) # delete 20% of all layers
 sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
 
-# print(sorted_usages)
-def get_size(path):
-    out = subprocess.check_output(['du', '-sh', path])
-    return out.split()[0]
+# # print(sorted_usages)
+# def get_size(path):
+#     out = subprocess.check_output(['du', '-sh', path])
+#     return out.split()[0]
 
 
 for delete_build, _ in sorted_usages:

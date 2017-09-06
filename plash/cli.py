@@ -126,7 +126,7 @@ def main():
         os.execvpe(
             subcommand_executable,
             [subcommand_executable] + argv[1:],
-            dict(os.environ, PLASH_DATA=core.BASE_DIR))
+            dict())
 
     try:
         delimiter = argv.index('--')
