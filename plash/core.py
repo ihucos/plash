@@ -2,6 +2,7 @@ import errno
 import os
 import shutil
 import subprocess
+import sys
 from os import path
 from os.path import join
 from tempfile import mkdtemp
@@ -236,6 +237,12 @@ class Container:
         if not os.fork():
             os.chroot(new_layer)
             os.chdir("/")
+
+            # don't allow build processes to read from stdin, since we want as "deterministic as possible" builds
+            fd = os.open("/dev/null", os.O_WRONLY)
+            os.dup2(fd, 0);
+            os.close(fd);
+
             shell = 'sh'
             os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
         child_pid, child_exit = os.wait()
