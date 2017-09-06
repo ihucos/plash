@@ -235,8 +235,7 @@ class Container:
 
         if not os.fork():
             os.chroot(new_layer)
-            # from time import sleep
-            # sleep(5)
+            os.chdir("/")
             shell = 'sh'
             os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
         child_pid, child_exit = os.wait()
