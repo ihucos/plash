@@ -19,6 +19,15 @@ BUILDS_DIR = join(BASE_DIR, 'builds')
 TMP_DIR = join(BASE_DIR, 'tmp')
 
 
+"""
+file locking:
+freespace writes a lockfile, this garantees, that not plash build process will 
+will use the builds for 20 seconds. after 20 seconds waiting plash build process will delete the lockfile
+
+This process will self terminate in 19 seconds via signal.settitmeout or so
+"""
+
+
 def get_current_plash_build_processes():
     pids = []
     for f in os.listdir('/proc'):
@@ -28,12 +37,12 @@ def get_current_plash_build_processes():
                       pids.append(int(f))
     return pids
 
-# def ensure_no_plash_build_process():
-#     pids = get_current_plash_build_processes()
-#     if pids:
-#         print("freespace can not run while there are build processes in progress")
-#         print("Current build procees pid(s): {}".format(' '.join(str(i) for i in pids)))
-#         sys.exit(1)
+def ensure_no_plash_build_process():
+    pids = get_current_plash_build_processes()
+    if pids:
+        print("freespace can not run while there are build processes in progress")
+        print("Current build procees pid(s): {}".format(' '.join(str(i) for i in pids)))
+        sys.exit(1)
 
 # def temporary_lock():
 #     while True:
@@ -56,7 +65,7 @@ def get_current_plash_build_processes():
 #         pass
 
 
-# ensure_no_plash_build_process() # it think this call is only there for emore rubustness?
+ensure_no_plash_build_process() # it think this call is only there for user friendlyness?
 # temporary_lock()
 # ensure_no_plash_build_process()
 
@@ -65,31 +74,31 @@ def get_current_plash_build_processes():
 
 usages = []
 for  dirpath, dirs, files in os.walk(BUILDS_DIR):
-    if 'payload' in dirs and 'children' in dirs:
+    if dirpath != BUILDS_DIR and os.path.basename(dirpath) != 'children':
         last_modified = os.path.getmtime(dirpath)
         usages.append((dirpath, last_modified))
 
-    # don't check that one
+    # don't dive into that one
     if 'payload' in dirs:
         dirs.remove('payload')
 
-tempdir = mkdtemp(prefix='deleteme-')
-print(tempdir)
-for counter, (path, _) in enumerate(usages):
-    move_to = join(tempdir, str(counter))
-    try:
-        print(path, move_to)
-        os.rename(path, move_to)
-    except FileNotFoundError:
-        pass # probably a parent already was removed
+# tempdir = mkdtemp(prefix='deleteme-')
+# print(tempdir)
+# for counter, (path, _) in enumerate(usages):
+#     move_to = join(tempdir, str(counter))
+#     try:
+#         print(path, move_to)
+#         os.rename(path, move_to)
+#     except FileNotFoundError:
+#         pass # probably a parent already was removed
 
-sys.exit(0)
+# sys.exit(0)
 
 sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
-pprint([(a, datetime.fromtimestamp(b).strftime("%Y-%m-%d %H:%M:%S")) for (a, b) in sorted_usages])
+# pprint([(a, datetime.fromtimestamp(b).strftime("%Y-%m-%d %H:%M:%S")) for (a, b) in sorted_usages])
 
 layers_num = len(usages)
-delete_layers_num = int(round(0.2 * layers_num)) # delete 20% of all layers
+delete_layers_num = int(round(0.5 * layers_num)) # delete 50% of all layers
 sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
 
 # # print(sorted_usages)
