@@ -1,7 +1,8 @@
 import errno
-import os.path
+import os
 import shutil
 import subprocess
+from os import path
 from os.path import join
 from tempfile import mkdtemp
 
@@ -174,10 +175,14 @@ def bootstrap_base_rootfs(base_name):
 
 class Container:
 
-    def __init__(self, container_id):
+    def __init__(self, container_id=''):
         self._layer_ids = container_id.split(':')
 
+    # def _get_last_layer_salt_file(self):
+    #     return join(self.get_layer_paths()[-1], 'salt')
+
     def hash_cmd(self, cmd):
+        self.get_layer_paths()[-1]
         return hashstr(cmd)[:12]
 
     def get_layer_paths(self):
@@ -243,10 +248,7 @@ class Container:
             shutil.rmtree(new_child)
             sys.exit(1)
 
-
-        last_layer = self.get_layer_paths()[-1]
-        layer_hash = self.hash_cmd(cmd.encode())
-        final_child_dst = join(last_layer, 'children', layer_hash)
+        final_child_dst = self._get_child_path(cmd)
         try:
             os.rename(new_child, final_child_dst)
         except OSError as exc:
@@ -255,20 +257,19 @@ class Container:
             else:
                 raise
 
-        return self._layer_ids.append(layer_hash)
+        return self._layer_ids.append(self.hash_cmd(cmd.encode()))
 
-    def is_builded(self, cmd):
+    def _get_child_path(self, cmd):
         layer_hash = self.hash_cmd(cmd.encode())
         last_layer = self.get_layer_paths()[-1]
-        final_child_dst = join(last_layer, 'children', layer_hash)
-        return os.path.exists(final_child_dst)
+        return join(last_layer, 'children', layer_hash)
 
 
     def add_layer(self, cmd):
-        if not self.is_builded(cmd):
+        if not path.exists(self._get_child_path(cmd)):
             return self.build_layer(cmd)
-        else:
-            print('*** plash: cached layer')
+        # else:
+        #     print('*** plash: cached layer')
 
     def create_runnable(self, file, executable, *, verbose_flag=False):
         mountpoint = mkdtemp(dir=TMP_DIR)
