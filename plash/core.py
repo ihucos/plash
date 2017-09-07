@@ -1,4 +1,5 @@
-import errno
+rmport errno
+import hashlib
 import os
 import re
 import shutil
@@ -6,7 +7,7 @@ import subprocess
 import sys
 import tarfile
 from os import path
-from os.path import join
+from os.path import abspath, join
 from tempfile import mkdtemp
 from urllib.request import urlopen, urlretrieve
 
@@ -125,7 +126,7 @@ class SquashfsImageCreator(BaseImageCreator):
         exit = p.wait()
         assert not exit
 
-    def _hashfile(fname):
+    def _hashfile(self, fname):
         hash_obj = hashlib.sha1()
         with open(fname, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
@@ -292,6 +293,8 @@ class Container:
             # f.write('#!/bin/sh\n') # put in one call
             # f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
         # os.chmod(join(mountpoint, 'entrypoint'), 0o755)
+        with open(join(mountpoint, 'etc', 'resolv.conf'), 'w') as _:
+            pass
         os.symlink(executable, join(mountpoint, 'entrypoint'))
         run(['mksquashfs', mountpoint, file, '-Xcompression-level', '1'])
     
@@ -329,9 +332,9 @@ def execute(
         if not command:
             print("if export_as you must supply a command")
             sys.exit(1)
-        if len(command) == 1:
+        if not len(command) == 1:
             print("if export_as the command must be a binary")
             sys.exit(1)
-        c.create_runnable(export_as, export_binary)
+        c.create_runnable(export_as, command[0])
     else:
         c.run(command)
