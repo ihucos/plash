@@ -1,4 +1,4 @@
-rmport errno
+import errno
 import hashlib
 import os
 import re

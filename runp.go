@@ -47,7 +47,7 @@ func main() {
 
 	// squashFile := filepath.Abs(cmd.Args[1])
 	squashFile := os.Args[1]
-	squashArgs := os.Args[1:]
+	squashArgs := os.Args[2:]
 
 	// cheapo file hashing
 	var stat syscall.Stat_t
@@ -184,7 +184,10 @@ func main() {
 
 
 	// err = syscall.Exec("/bin/sh", squashArgs, os.Environ())
-	err = syscall.Exec("/entrypoint", squashArgs, os.Environ())
+	argv0 := []string{"/entrypoint"}
+	// fmt.Println(os.Args)
+	// panic("")
+	err = syscall.Exec("/entrypoint", append(argv0, squashArgs...), os.Environ())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not exec inside the chroot:")
 		fmt.Fprintln(os.Stderr, err)
