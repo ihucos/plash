@@ -2,6 +2,7 @@ import errno
 import hashlib
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -284,25 +285,28 @@ class Container:
         # else:
         #     print('*** plash: cached layer')
 
-    def create_runnable(self, file, executable, *, verbose_flag=False):
+    def create_runnable(self, file, command, *, verbose_flag=False):
         mountpoint = mkdtemp(dir=TMP_DIR)
         self.mount_rootfs(mountpoint=mountpoint)
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
 
-        # with open(join(mountpoint, 'entrypoint'), 'w') as f:
-            # f.write('#!/bin/sh\n') # put in one call
-            # f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
-        # os.chmod(join(mountpoint, 'entrypoint'), 0o755)
-        with open(join(mountpoint, 'etc', 'resolv.conf'), 'w') as _:
+        with open(join(mountpoint, 'entrypoint'), 'w') as f:
+            f.write('#!/bin/sh\n') # put in one call
+            f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
+        os.chmod(join(mountpoint, 'entrypoint'), 0o755)
+
+        # create that file so we can overmount it
+        with open(join(mountpoint, 'etc', 'resolv.conf'), 'a') as _:
             pass
-        os.symlink(executable, join(mountpoint, 'entrypoint'))
+
+        # os.symlink(executable, join(mountpoint, 'entrypoint'))
         run(['mksquashfs', mountpoint, file, '-Xcompression-level', '1'])
     
     def run(self, cmd):
         assert isinstance(cmd, list)
-        cached_file = join(TMP_DIR, hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
+        cached_file = join(TMP_DIR, 'plash-' + hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
         if not os.path.exists(cached_file):
-            self.create_runnable(cached_file, '/usr/bin/env')
+            self.create_runnable(cached_file, ['/usr/bin/env'])
         cmd = ['/home/resu/plash/runp', cached_file] + cmd
         os.execvpe(cmd[0], cmd, os.environ)
 
@@ -335,6 +339,9 @@ def execute(
         if not len(command) == 1:
             print("if export_as the command must be a binary")
             sys.exit(1)
-        c.create_runnable(export_as, command[0])
+        c.create_runnable(export_as, command)
     else:
-        c.run(command)
+        if not command:
+            print('*** plash: build is ready')
+        else:
+            c.run(command)

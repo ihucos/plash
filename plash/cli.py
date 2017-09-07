@@ -226,7 +226,7 @@ def main():
                 build_only=not command,
                 skip_if_exists=not args.build_again,
                 extra_mounts=state.pop_mountpoints(),
-                extra_envs=dict(os.environ, **args.envs),
+                extra_envs=dict(os.environ, **(args.envs or {})),
                 export_as=args.export,
                 docker_image=args.docker_image,
                 su=su,
