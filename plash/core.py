@@ -1,11 +1,14 @@
 import errno
 import os
+import re
 import shutil
 import subprocess
 import sys
+import tarfile
 from os import path
 from os.path import join
 from tempfile import mkdtemp
+from urllib.request import urlopen, urlretrieve
 
 from .utils import hashstr, run
 
@@ -22,7 +25,7 @@ class BaseImageCreator:
 
         self.arg = image
         image_id = self.get_id()
-        image_dir = join(BUILDS_DIR, image_id)
+        image_dir = join('/var/lib/plash/builds', image_id)
 
         if not os.path.exists(image_dir):
 
@@ -50,12 +53,12 @@ class LXCImageCreator(BaseImageCreator):
         print('getting images index')
         images = self._index_lxc_images()
         try:
-            image_url = images[image]
+            image_url = images[self.arg]
         except KeyError:
             raise ValueError('No such image, available: {}'.format(
                 ' '.join(sorted(images))))
 
-        download_file = join(tmp_image_dir, 'download')
+        download_file = join(outdir, 'download')
         print('Downloading image: ', end='', flush=True)
         urlretrieve(image_url, download_file, reporthook=self._reporthook)
         t = tarfile.open(download_file)
@@ -181,6 +184,10 @@ class Container:
 
     # def _get_last_layer_salt_file(self):
     #     return join(self._get_layer_paths()[-1], 'salt')
+
+    def ensure_base(self):
+        assert self._layer_ids
+        bootstrap_base_rootfs(self._layer_ids[0])
 
     def _get_child_path(self, cmd):
         layer_hash = self._hash_cmd(cmd.encode())
@@ -315,6 +322,7 @@ def execute(
 
 
     c = Container(base_name)
+    c.ensure_base()
     for cmd in layer_commands:
         c.add_layer(cmd)
     if export_as:
