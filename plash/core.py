@@ -214,7 +214,13 @@ class Container:
         # run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
         # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
         run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
-        run(['mount', '--bind', '/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf')])
+
+        # kind of hacky, we create an empty etc/resolv.conf so we can mount over it if it does not exists
+        resolv_file = join(mountpoint, 'etc/resolv.conf')
+        if not os.path.exists(resolv_file):
+            with open(resolv_file, 'w') as _:
+                pass
+        run(['mount', '--bind', '/etc/resolv.conf', resolv_file])
 
     def invalidate(self):
         pass
@@ -248,16 +254,15 @@ class Container:
         self.mount_rootfs(mountpoint=new_layer)
 
         self._prepare_chroot(new_layer)
-        assert False, new_layer
 
         if not os.fork():
             os.chroot(new_layer)
             os.chdir("/")
 
-            # # don't allow build processes to read from stdin, since we want as "deterministic as possible" builds
-            # fd = os.open("/dev/null", os.O_WRONLY)
-            # os.dup2(fd, 0);
-            # os.close(fd);
+            # don't allow build processes to read from stdin, since we want as "deterministic as possible" builds
+            fd = os.open("/dev/null", os.O_WRONLY)
+            os.dup2(fd, 0);
+            os.close(fd);
 
             shell = 'sh'
             os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
