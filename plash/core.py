@@ -213,7 +213,8 @@ class Container:
         run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
         # run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
         # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
-        run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')]) # mount tmpfs instead for determinism
+        run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
+        run(['mount', '--bind', '/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf')])
 
     def invalidate(self):
         pass
@@ -247,15 +248,16 @@ class Container:
         self.mount_rootfs(mountpoint=new_layer)
 
         self._prepare_chroot(new_layer)
+        assert False, new_layer
 
         if not os.fork():
             os.chroot(new_layer)
             os.chdir("/")
 
-            # don't allow build processes to read from stdin, since we want as "deterministic as possible" builds
-            fd = os.open("/dev/null", os.O_WRONLY)
-            os.dup2(fd, 0);
-            os.close(fd);
+            # # don't allow build processes to read from stdin, since we want as "deterministic as possible" builds
+            # fd = os.open("/dev/null", os.O_WRONLY)
+            # os.dup2(fd, 0);
+            # os.close(fd);
 
             shell = 'sh'
             os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
