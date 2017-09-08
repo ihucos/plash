@@ -211,9 +211,9 @@ class Container:
         run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
         run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
         run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-        run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
-        run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
-        run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')])
+        # run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
+        # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
+        run(['mount', '--bind', '/tmp', join(mountpoint, 'tmp')]) # mount tmpfs instead for determinism
 
     def invalidate(self):
         pass
