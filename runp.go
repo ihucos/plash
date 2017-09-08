@@ -148,7 +148,7 @@ func main() {
 		run("/bin/mount", "--bind", "-o", "ro", "/etc/resolv.conf", tempMountpoint + "/etc/resolv.conf")
 		// run("mount", "--bind", "-o", "ro", newGuestShadow.Name(), mountpoint + "/etc/shadow")
 		// run("mount", "--bind", "-o", "ro", "/etc/group", mountpoint + "/etc/group")
-		mounts := [5]string{"/sys", "/dev", "/dev/pts", "/tmp", "/home"} // home should be noexec
+		mounts := [5]string{"/sys", "/dev", "/tmp", "/home"} // home should be noexec
 		for _, mount := range mounts {
 			// run("/bin/mount", "--bind", mount, mountpoint + mount)
 			// Mostly use the mount binary for now but switch to the system call if i can set all mounts into stone
