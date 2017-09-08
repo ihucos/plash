@@ -247,16 +247,17 @@ class Container:
     def build_layer(self, cmd):
         print('*** plash: building layer')
         new_child = mkdtemp(dir=TMP_DIR)
+        mountpoint = mkdtemp(dir=TMP_DIR)
         new_layer = join(new_child, 'payload')
         os.mkdir(new_layer)
         os.mkdir(join(new_child, 'children'))
 
-        self.mount_rootfs(mountpoint=new_layer)
+        self.mount_rootfs(mountpoint=mountpoint, write_dir=new_layer)
 
-        self._prepare_chroot(new_layer)
+        self._prepare_chroot(mountpoint)
 
         if not os.fork():
-            os.chroot(new_layer)
+            os.chroot(mountpoint)
             os.chdir("/")
 
             # don't allow build processes to read from stdin, since we want as "deterministic as possible" builds
@@ -268,7 +269,7 @@ class Container:
             os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
         child_pid, child_exit = os.wait()
 
-        run(["umount", "--recursive", new_layer])
+        run(["umount", "--recursive", mountpoint])
 
         if child_exit != 0:
             print("*** plash: build failed with exit status: {}".format(child_exit))
