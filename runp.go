@@ -6,7 +6,7 @@ import "os"
 // import "encoding/hex"
 import "os/exec"
 import "os/user"
-// import "strings"
+import "strings"
 // import "bytes"
 import "io/ioutil"
 import "syscall"
@@ -64,7 +64,7 @@ func main() {
 
 	bootId, err := ioutil.ReadFile("/proc/sys/kernel/random/boot_id")
 	check(err)
-	suffix := fmt.Sprintf("runp.%v.%v.%v.", bootId, device, inode) // code repitition
+	suffix := fmt.Sprintf("runp.%v.%v.%v.", strings.Trim(string(bootId), "\n"), device, inode) // code repitition
 
 	mountpoint := "/var/tmp/" + suffix + "link"
 	// mountpointExists := false
