@@ -59,16 +59,14 @@ func main() {
 	// h.Write(m)
 	// hash := hex.EncodeToString((h.Sum(nil)))[:16]
 
-
-	err = os.Mkdir("/tmp/runp", 0700) // fix permissions later
-	if os.IsNotExist(err) {panic(err)}
-
-
 	inode := fmt.Sprintf("%v", stat.Ino)
 	device := fmt.Sprintf("%v", stat.Dev)
-	suffix := fmt.Sprintf("runp.%v-%v.", device, inode) // code repitiion
 
-	mountpoint := "/tmp/runp/" + suffix + "link"
+	bootId, err := ioutil.ReadFile("/proc/sys/kernel/random/boot_id")
+	check(err)
+	suffix := fmt.Sprintf("runp.%v.%v.%v.", bootId, device, inode) // code repitition
+
+	mountpoint := "/var/tmp/" + suffix + "link"
 	// mountpointExists := false
 	var mountpointExists bool
 	// err = os.Mkdir(mountpoint, 0755) // fix permissions later
@@ -106,8 +104,10 @@ func main() {
 
 	if ! mountpointExists {
 
+		// err = os.Mkdir("/var/tmp/runp", 0700) // fix permissions later
+		// if os.IsNotExist(err) {panic(err)}
 
-		tempMountpoint, err := ioutil.TempDir("/tmp/runp", suffix)
+		tempMountpoint, err := ioutil.TempDir("/var/tmp", suffix)
 		check(err)
 
 		run("/bin/mount", squashFile, tempMountpoint) // nosuid?
@@ -126,7 +126,7 @@ func main() {
 			rawGuestPasswd, err := ioutil.ReadFile(tempMountpoint + "/etc/passwd")
 			guestPasswd := string(rawGuestPasswd)
 			check(err)
-			newGuestPasswd, err := ioutil.TempFile("/var/lib/plash/tmp", suffix)
+			newGuestPasswd, err := ioutil.TempFile("/var/tmp", suffix)
 			check(err)
 			user, err := user.LookupId(fmt.Sprintf("%v", originalUid))
 			check(err)
