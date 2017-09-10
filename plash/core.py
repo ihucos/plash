@@ -285,13 +285,13 @@ class Container:
             else:
                 raise
 
-        return self._layer_ids.append(self._hash_cmd(cmd.encode()))
-
     def add_layer(self, cmd):
         if not path.exists(self._get_child_path(cmd)):
-            return self.build_layer(cmd)
-        # else:
-        #     print('*** plash: cached layer')
+            self.build_layer(cmd)
+        else:
+            pass
+            # print('*** plash: cached layer')
+        self._layer_ids.append(self._hash_cmd(cmd.encode()))
 
     def create_runnable(self, file, command, *, verbose_flag=False):
         mountpoint = mkdtemp(dir=TMP_DIR)
@@ -340,6 +340,7 @@ def execute(
     c.ensure_base()
     for cmd in layer_commands:
         c.add_layer(cmd)
+    print(c._layer_ids)
     if export_as:
         if not command:
             print("if export_as you must supply a command")
