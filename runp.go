@@ -146,16 +146,20 @@ func main() {
 		//
 		run("/bin/mount", "-t", "proc", "proc", tempMountpoint + "/proc")
 		run("/bin/mount", "--bind", "-o", "ro", "/etc/resolv.conf", tempMountpoint + "/etc/resolv.conf")
+		// err = os.Link("/var/run/dbus/system_bus_socket", tempMountpoint + "/var/run/dbus/system_bus_socket")
+		// check(err)
+		// run("/bin/mount", "--bind", "-o", "ro", "/var/run/dbus/system_bus_socket", tempMountpoint + "/var/run/dbus/system_bus_socket")
 		// run("mount", "--bind", "-o", "ro", newGuestShadow.Name(), mountpoint + "/etc/shadow")
 		// run("mount", "--bind", "-o", "ro", "/etc/group", mountpoint + "/etc/group")
-		mounts := [5]string{"/sys", "/dev", "/tmp", "/home"} // home should be noexec
-		// mounts := [5]string{"/sys", "/dev", "/tmp", "/home", "/var/run/dbus"} // home should be noexec
+		mounts := [4]string{"/sys", "/dev", "/tmp", "/home"} // home should be noexec
 		for _, mount := range mounts {
-			// run("/bin/mount", "--bind", mount, mountpoint + mount)
+			// run("/bin/mount", "--bind", mount, tempMountpoint + mount)
 			// Mostly use the mount binary for now but switch to the system call if i can set all mounts into stone
 			err := syscall.Mount(mount, tempMountpoint + mount, "bind", syscall.MS_MGC_VAL|syscall.MS_BIND, "")
 			check(err)
 		}
+		run("/bin/mount", "--bind", "/run", tempMountpoint + "/run") // we want /var/run but its a symlink, we need to autmotazize following it
+		fmt.Println(tempMountpoint)
 
 		// err = os.Mkdir(mountpoint, 0755) // fix permissions later // "short" race codition here
 		// check(err)

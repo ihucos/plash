@@ -204,7 +204,6 @@ class Container:
         lp = ["/var/lib/plash/builds/{}".format(self._layer_ids[0])]
         for ci in self._layer_ids[1:]:
             lp.append(lp[-1] + '/children/' + ci)
-        # print(lp)
         return lp
 
     def _prepare_chroot(self, mountpoint):
@@ -340,7 +339,6 @@ def execute(
     c.ensure_base()
     for cmd in layer_commands:
         c.add_layer(cmd)
-    print(c._layer_ids)
     if export_as:
         if not command:
             print("if export_as you must supply a command")
