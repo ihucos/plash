@@ -97,18 +97,7 @@ def get_argument_parser():
     return parser
 
 
-def auto_sudo():
-    if os.geteuid() != 0 and os.environ.get('PLASH_AUTO_SUDO', '').lower() in ('yes', 'true', '1'):
-        envs = []
-        for key, val in os.environ.items():
-            envs.extend(['--env', '{}={}'.format(key, val)])
-        cmd = ['sudo', '--non-interactive'] + [sys.argv[0]] + envs + sys.argv[1:]
-        os.execvpe('sudo', cmd, os.environ)
-
-
 def main():
-
-    auto_sudo()
 
     argv = sys.argv[1:]
 
@@ -214,7 +203,6 @@ def main():
         # bcmd = state.get_base_command() or ''
         # command = (command or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (command or [])
 
-    su = os.environ['SUDO_USER'] # XXX provisorisch, think of sth better
 
     with friendly_exception([PermissionError, URLError]):
         execute(image,
@@ -229,7 +217,6 @@ def main():
                 extra_envs=dict(os.environ, **(args.envs or {})),
                 export_as=args.export,
                 docker_image=args.docker_image,
-                su=su,
                 **execute_extra_kws)
 
         # # something that could be used in the shell prompt

@@ -27,10 +27,14 @@ class BaseImageCreator:
 
         self.arg = image
         image_id = self.get_id()
-        image_dir = join('/var/lib/plash/builds', image_id)
+        image_dir = join('/var/lib/plash', image_id)
 
         if not os.path.exists(image_dir):
 
+            try:
+                os.mkdir('/var/lib/plash', 0o0700)
+            except FileExistsError:
+                pass
             tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
             os.mkdir(join(tmp_image_dir, 'children'))
             os.mkdir(join(tmp_image_dir, 'payload'))
@@ -201,7 +205,7 @@ class Container:
         return hashstr(cmd)[:12]
 
     def _get_layer_paths(self):
-        lp = ["/var/lib/plash/builds/{}".format(self._layer_ids[0])]
+        lp = ["/var/lib/plash/{}".format(self._layer_ids[0])]
         for ci in self._layer_ids[1:]:
             lp.append(lp[-1] + '/children/' + ci)
         return lp
@@ -331,7 +335,6 @@ def execute(
         # skip_if_exists=True,
         export_as=False,
         # docker_image=False,
-        # su=False,
         # extra_envs={}
         **kw):
 

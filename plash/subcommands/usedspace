@@ -1,3 +1,2 @@
 #!/bin/sh
-du -sh /var/lib/plash/builds 2> /dev/null
-du -sh /var/lib/plash/tmp 2> /dev/null
+du -sh /var/lib/plash 2> /dev/null
