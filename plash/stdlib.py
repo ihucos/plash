@@ -268,7 +268,7 @@ def os_(os):
 
 @action(echo=False)
 def entrypoint(binary):
-    return '[[ -x {0} ]] && printf "#!/bin/sh\\nexec {0} $@" > /entrypoint && chmod 755 /entrypoint'.format(binary)
+    return '[[ -x {0} ]] && printf \'#!/bin/sh\\nexec {0} "$@"\' > /entrypoint && chmod 755 /entrypoint'.format(binary)
     # return "ln -s {} /entrypoint".format(shlex.quote(binary)) # lik doesnt work with busybox
 
 
