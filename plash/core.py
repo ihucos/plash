@@ -307,7 +307,7 @@ class Container:
             pass
 
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
-        run(['mksquashfs', mountpoint, file + '.runp', '-Xcompression-level', '1'])
+        run(['mksquashfs', mountpoint, file + '.squashfs', '-Xcompression-level', '1'])
         os.symlink('/home/resu/plash/runp', file) # fixme: take if from /usr/bin/runp 
     
     def run(self, cmd):

@@ -46,7 +46,7 @@ func main() {
 	runtime.LockOSThread() // golang has some scheduler or so that runs this in different os threads, but setuid affects only the current thread, soo we need this call
 
 	// squashFile := filepath.Abs(cmd.Args[1])
-	squashFile := os.Args[0] + ".runp"
+	squashFile := os.Args[0] + ".squashfs"
 	squashArgs := os.Args[1:]
 
 	// cheapo file hashing
