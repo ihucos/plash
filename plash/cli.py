@@ -168,6 +168,7 @@ def main():
         sys.exit(0)
 
 
+    # shoud be inside cokercore.py
     if os_image.startswith('build://'):
         build = os_image[len('build://'):]
         tmp_image = rand() # fixme cleanup this image later

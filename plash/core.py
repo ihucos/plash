@@ -296,15 +296,15 @@ class Container:
             # print('*** plash: cached layer')
         self._layer_ids.append(self._hash_cmd(cmd.encode()))
 
-    def create_runnable(self, file, command, *, verbose_flag=False):
+    def create_runnable(self, file, *, verbose_flag=False):
         mountpoint = mkdtemp(dir=TMP_DIR)
         self.mount_rootfs(mountpoint=mountpoint)
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
 
-        with open(join(mountpoint, 'entrypoint'), 'w') as f:
-            f.write('#!/bin/sh\n') # put in one call
-            f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
-        os.chmod(join(mountpoint, 'entrypoint'), 0o755)
+        # with open(join(mountpoint, 'entrypoint'), 'w') as f:
+        #     f.write('#!/bin/sh\n') # put in one call
+        #     f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
+        # os.chmod(join(mountpoint, 'entrypoint'), 0o755)
 
         # create that file so we can overmount it
         with open(join(mountpoint, 'etc', 'resolv.conf'), 'a') as _:
@@ -344,13 +344,7 @@ def execute(
     for cmd in layer_commands:
         c.add_layer(cmd)
     if export_as:
-        if not command:
-            print("if export_as you must supply a command")
-            sys.exit(1)
-        if not len(command) == 1:
-            print("if export_as the command must be a binary")
-            sys.exit(1)
-        c.create_runnable(export_as, command)
+        c.create_runnable(export_as)
     else:
         if not command:
             print('*** plash: build is ready')

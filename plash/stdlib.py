@@ -267,8 +267,9 @@ def os_(os):
     state.set_os(os)
 
 @action(echo=False)
-def cmd(os):
-    state.set_base_command(os)
+def entrypoint(binary):
+    return '[[ -x {0} ]] && printf "#!/bin/sh\\nexec {0} $@" > /entrypoint && chmod 755 /entrypoint'.format(binary)
+    # return "ln -s {} /entrypoint".format(shlex.quote(binary)) # lik doesnt work with busybox
 
 
 eval(script2lsp('''
