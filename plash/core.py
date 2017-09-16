@@ -307,14 +307,15 @@ class Container:
             pass
 
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
-        run(['mksquashfs', mountpoint, file, '-Xcompression-level', '1'])
+        run(['mksquashfs', mountpoint, file + '.runp', '-Xcompression-level', '1'])
+        os.symlink('/home/resu/plash/runp', file) # fixme: take if from /usr/bin/runp 
     
     def run(self, cmd):
         assert isinstance(cmd, list)
         cached_file = join(TMP_DIR, 'plash-' + hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
         if not os.path.exists(cached_file):
             self.create_runnable(cached_file, ['/usr/bin/env'])
-        cmd = ['/home/resu/plash/runp', cached_file] + cmd
+        cmd = [cached_file] + cmd
         os.execvpe(cmd[0], cmd, os.environ)
 
 def execute(
