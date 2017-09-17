@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import sys
+
+from plash.core import Container
+
+thisscript = sys.argv[0]
+buildscript = os.path.join(os.path.dirname(thisscript), 'build')
+source_binary = sys.argv[1]
+install_to = sys.argv[2]
+p = subprocess.Popen([buildscript] + sys.argv[3:], stdout=subprocess.PIPE)
+while True:
+    read = p.stdout.readline().decode()
+    if not read:
+        break
+    line = read
+    sys.stdout.write(line)
+
+build_exit = p.wait()
+if not build_exit:
+    container_name = line.split()[-1]
+    c = Container(container_name)
+    c.create_runnable(source_binary, install_to)
+else:
+    sys.exit(build_exit)

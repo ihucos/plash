@@ -296,23 +296,24 @@ class Container:
             # print('*** plash: cached layer')
         self._layer_ids.append(self._hash_cmd(cmd.encode()))
 
-    def create_runnable(self, file, *, verbose_flag=False):
+    def create_runnable(self, source_binary, runnable):
         mountpoint = mkdtemp(dir=TMP_DIR)
         self.mount_rootfs(mountpoint=mountpoint)
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
 
-        # with open(join(mountpoint, 'entrypoint'), 'w') as f:
-        #     f.write('#!/bin/sh\n') # put in one call
-        #     f.write('exec {} $@'.format(' '.join(shlex.quote(i) for i in command)))
-        # os.chmod(join(mountpoint, 'entrypoint'), 0o755)
+        if runnable != '/entrypoint': # if it is we dont't need to create this "link" (this is a little smartasssish)
+            with open(join(mountpoint, 'entrypoint'), 'w') as f:
+                f.write('#!/bin/sh\n') # put in one call
+                f.write('exec {} $@'.format(shlex.quote(source_binary)))
+            os.chmod(join(mountpoint, 'entrypoint'), 0o755)
 
         # create that file so we can overmount it
         with open(join(mountpoint, 'etc', 'resolv.conf'), 'a') as _:
             pass
 
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
-        run(['mksquashfs', mountpoint, file + '.squashfs', '-Xcompression-level', '1'])
-        os.symlink('/home/resu/plash/runp', file) # fixme: take if from /usr/bin/runp 
+        run(['mksquashfs', mountpoint, runnable + '.squashfs', '-Xcompression-level', '1'])
+        os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
     
     def run(self, cmd):
         assert isinstance(cmd, list)
@@ -321,32 +322,35 @@ class Container:
             self.create_runnable(cached_file, ['/usr/bin/env'])
         cmd = [cached_file] + cmd
         os.execvpe(cmd[0], cmd, os.environ)
+    
+    def __repr__(self):
+        return ':'.join(self._layer_ids)
 
-def execute(
-        base_name,
-        layer_commands,
-        command,
-        *,
-        # quiet_flag=False,
-        # verbose_flag=False,
-        # rebuild_flag=False,
-        # extra_mounts=[],
-        # build_only=False,
-        # skip_if_exists=True,
-        export_as=False,
-        # docker_image=False,
-        # extra_envs={}
-        **kw):
+# def execute(
+#         base_name,
+#         layer_commands,
+#         command,
+#         *,
+#         # quiet_flag=False,
+#         # verbose_flag=False,
+#         # rebuild_flag=False,
+#         # extra_mounts=[],
+#         # build_only=False,
+#         # skip_if_exists=True,
+#         export_as=False,
+#         # docker_image=False,
+#         # extra_envs={}
+#         **kw):
 
 
-    c = Container(base_name)
-    c.ensure_base()
-    for cmd in layer_commands:
-        c.add_layer(cmd)
-    if export_as:
-        c.create_runnable(export_as)
-    else:
-        if not command:
-            print('*** plash: build is ready')
-        else:
-            c.run(command)
+#     c = Container(base_name)
+#     c.ensure_base()
+#     for cmd in layer_commands:
+#         c.add_layer(cmd)
+#     if export_as:
+#         c.create_runnable(export_as)
+#     else:
+#         if not command:
+#             print('*** plash: build is ready')
+#         else:
+#             c.run(command)
