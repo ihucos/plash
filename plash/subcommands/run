@@ -1,0 +1,36 @@
+#!/usr/bin/python3
+import argparse
+import os
+import subprocess
+import sys
+import tempfile
+import uuid
+
+args = sys.argv[1:]
+cmd = []
+filtered_args = []
+found_first_opt = False
+while args:
+    arg = args.pop(0)
+    if not arg.startswith('-') and not found_first_opt:
+        cmd.append(arg)
+    elif arg == '--':
+        cmd += args
+        args = None
+    else:
+        filtered_args.append(arg)
+        found_first_opt = True
+
+if not cmd:
+    print("needs at least one command")
+    sys.exit(0)
+
+exportscript = os.path.join(os.path.dirname(sys.argv[0]), 'export')
+
+tempfname = os.path.join(tempfile.gettempdir(), "plash-" + str(uuid.uuid4()))
+if not os.fork():
+    cmd = [exportscript, '/usr/bin/env', tempfname] + filtered_args
+    os.execvpe(cmd[0], cmd, os.environ)
+
+pid, exit = os.wait()
+assert False, (pid, exit, tempfname)
