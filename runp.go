@@ -189,10 +189,13 @@ func main() {
 
 
 	// err = syscall.Exec("/bin/sh", squashArgs, os.Environ())
-	argv0 := []string{"/entrypoint"}
+	myexec, err := os.Readlink("/etc/runp_exec")
+	check(err)
+
+	argv0 := []string{myexec}
 	// fmt.Println(os.Args)
 	// panic("")
-	err = syscall.Exec("/entrypoint", append(argv0, squashArgs...), os.Environ())
+	err = syscall.Exec(myexec, append(argv0, squashArgs...), os.Environ())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not exec inside the chroot:")
 		fmt.Fprintln(os.Stderr, err)

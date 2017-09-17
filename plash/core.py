@@ -301,11 +301,12 @@ class Container:
         self.mount_rootfs(mountpoint=mountpoint)
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
 
-        if runnable != '/entrypoint': # if it is we dont't need to create this "link" (this is a little smartasssish)
-            with open(join(mountpoint, 'entrypoint'), 'w') as f:
-                f.write('#!/bin/sh\n') # put in one call
-                f.write('exec {} $@'.format(shlex.quote(source_binary)))
-            os.chmod(join(mountpoint, 'entrypoint'), 0o755)
+        # if runnable != '/entrypoint': # if it is we dont't need to create this "link" (this is a little smartasssish)
+        #     with open(join(mountpoint, 'entrypoint'), 'w') as f:
+        #         f.write('#!/bin/sh\n') # put in one call
+        #         f.write('exec {} $@'.format(shlex.quote(source_binary)))
+        #     os.chmod(join(mountpoint, 'entrypoint'), 0o755)
+        os.symlink(source_binary, join(mountpoint, 'etc/runp_exec'))
 
         # create that file so we can overmount it
         with open(join(mountpoint, 'etc', 'resolv.conf'), 'a') as _:
