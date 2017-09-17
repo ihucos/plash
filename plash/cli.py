@@ -89,7 +89,7 @@ def get_argument_parser():
     parser.add_argument("--docker-image", action='store_true')
 
     parser.add_argument("--docker-save-image") # join with --export
-    parser.add_argument("--freeze", dest='export')
+    parser.add_argument("--install", dest='export')
     parser.add_argument('--envs', '-e', action=CollectEnvsAction, nargs='+')
 
     add_shortcuts_to_parser(parser)
