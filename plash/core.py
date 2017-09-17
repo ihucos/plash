@@ -313,8 +313,10 @@ class Container:
             pass
 
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
-        run(['mksquashfs', mountpoint, runnable + '.squashfs', '-Xcompression-level', '1'])
+        print('Squashing...', end='')
+        subprocess.check_call(['mksquashfs', mountpoint, runnable + '.squashfs', '-Xcompression-level', '1'], stdout=subprocess.DEVNULL)
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
+        print(' OK')
     
     def run(self, cmd):
         assert isinstance(cmd, list)
