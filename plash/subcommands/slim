@@ -17,9 +17,9 @@ BUILDS_DIR = '/var/lib/plash'
 TMP_DIR = '/tmp'
 DELETE_RATIO = 0.43
 
-CONFIRM = """WARNING: This can put containerized filesystems of other plash instances in a not defined state.
+CONFIRM = """WARNING: This can put containerized filesystems of other plash processes in a not defined state.
 Type "yes" if you feel comfortable about this.
-Ok? """
+> """
 
 
 """

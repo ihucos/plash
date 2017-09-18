@@ -1,0 +1,9 @@
+#!/bin/sh
+
+read -r -p "Delete all build data? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+        rm /var/lib/plash
+        ;;
+    *)
+esac
