@@ -1,23 +1,16 @@
 #!/usr/bin/env python3
 
+import inspect
 import os
 import sys
 
 import plash
-import pkgutil
-import inspect
-
+from plash import utils
 
 subcommand = sys.argv[1]
-subcommand_args = sys.argv[1:]
+subcommand_args = sys.argv[2:]
 
-# very ugly, no idea how this is suppsed to be done
-from plash import core
-module_dir = os.path.dirname(os.path.abspath(core.__file__))
-subcommands_dir = os.path.join(module_dir, '..', 'data', 'bin')
-
-
-subcommand_executable = os.path.join(subcommands_dir, subcommand)
+subcommand_executable = utils.get_subcommand_path(subcommand)
 try:
     os.execvpe(
         subcommand_executable,

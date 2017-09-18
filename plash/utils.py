@@ -56,3 +56,12 @@ def run(command):
 #         f.write(script)
 #     st = os.stat(fname)
 #     ou.chmod(fname, st.st_mode | stat.S_IEXEC)
+
+def get_subcommand_path(name):
+    # very ugly, no idea how this is suppsed to be done
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+    subcommands_dir = os.path.join(module_dir, '..', 'data', 'bin')
+    return os.path.abspath(os.path.join(subcommands_dir, name)) # what if '/' in subcommand
+
+
+
