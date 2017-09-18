@@ -12,4 +12,4 @@ setup(name='plash',
       install_requires=[
       ],
       include_package_data=True,
-      zip_safe=True)
+      zip_safe=False)
