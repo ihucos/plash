@@ -28,9 +28,13 @@ if not cmd:
 exportscript = os.path.join(os.path.dirname(sys.argv[0]), 'export')
 
 tempfname = os.path.join(tempfile.gettempdir(), "plash-" + str(uuid.uuid4()))
-if not os.fork():
-    cmd = [exportscript, '/usr/bin/env', tempfname] + filtered_args
-    os.execvpe(cmd[0], cmd, os.environ)
+p = subprocess.Popen([exportscript, cmd[0], tempfname] + filtered_args)
+exit = p.wait()
+if exit:
+    sys.exit(exit)
 
-pid, exit = os.wait()
-assert False, (pid, exit, tempfname)
+p = subprocess.Popen([tempfname] + cmd[1:])
+exit = p.wait()
+print("*** plash: exit status {}".format(exit))
+os.unlink(tempfname + '.squashfs')
+os.unlink(tempfname)
