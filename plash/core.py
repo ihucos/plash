@@ -331,7 +331,7 @@ class Container:
     def run(self, cmd):
 
         # SECURITY: fix permissions
-        mountpoint = mkdtemp(dir=TMP_DIR)
+        mountpoint = mkdtemp(dir='/var/tmp') # don't use /tmp because its mounted on the container, that would cause weird mount recursion
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
         self.mount_rootfs(mountpoint=mountpoint)
 
@@ -350,6 +350,7 @@ class Container:
         _, child_exit = os.wait()
 
         run(["/bin/umount", "--recursive", mountpoint])
+        os.rmdir(mountpoint)
         print("*** plash: program exit status {}".format(child_exit // 256)) # that // 256 is one of these things i don't fully understand
 
 
