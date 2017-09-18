@@ -101,6 +101,11 @@ def get_argument_parser():
 
 def main():
 
+    if os.getuid():
+        print("need to be root")
+        sys.exit(1)
+
+
     argv = sys.argv[1:]
 
     try:
@@ -139,7 +144,7 @@ def main():
         print(init + lsp)
         sys.exit(0)
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
-        script = eval(init + lsp)
+        script = eval(init + lsp) # we don't want to do that while in root!
 
     os_image = state.get_os()
     if not os_image:

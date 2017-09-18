@@ -10,7 +10,7 @@ import tarfile
 from os import path
 from os.path import abspath, join
 from tempfile import mkdtemp
-from urllib.request import urlopen, urlretrieve
+from urllib.request import urlopen
 
 from .utils import hashstr, run
 
@@ -64,28 +64,11 @@ class LXCImageCreator(BaseImageCreator):
             raise ValueError('No such image, available: {}'.format(
                 ' '.join(sorted(images))))
 
-        download_file = join(outdir, 'download')
-        print('Downloading image: ', end='', flush=True)
-        urlretrieve(image_url, download_file, reporthook=self._reporthook)
+        import tempfile
+        _, download_file = tempfile.mkstemp(prefix=self.arg + '.', suffix='.tar.xz') # join(mkdtemp(), self.arg + '.tar.xz')
+        run(['wget', '-q', '--show-progress', image_url, '-O', download_file])
         t = tarfile.open(download_file)
         t.extractall(outdir)
-
-    def _reporthook(self, counter, buffer_size, size):
-          expected_ticks = int(size / buffer_size)
-          dot_every_ticks = int(expected_ticks / 40)
-          if counter % dot_every_ticks == 0:
-                dot_count = counter / dot_every_ticks
-
-                if dot_count % 4 == 0:
-                      countdown = 10 - int(round((counter * buffer_size / size) * 10))
-                      if countdown != 10:
-                            print(' ', end='', flush=True)
-                      if countdown == 0:
-                            print('ready', flush=True)
-                      else:
-                            print(countdown, end='', flush=True)
-                else:
-                      print('.', end='', flush=True)
 
     def _index_lxc_images(self):
         content = urlopen('http://images.linuxcontainers.org/').read().decode() # FIXME: use https
