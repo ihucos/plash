@@ -210,6 +210,10 @@ class Container:
             lp.append(lp[-1] + '/children/' + ci)
         return lp
 
+    def log_access(self):
+        for path in self._get_layer_paths():
+            os.utime(path, None)
+
     def _prepare_chroot(self, mountpoint):
         run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
         run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])

@@ -13,10 +13,12 @@ from shutil import disk_usage, rmtree
 from tempfile import mkdtemp
 from time import sleep
 
-BASE_DIR = '/var/lib/plash'
-LOCKFILE = '/var/lib/plash/lockfile'
-BUILDS_DIR = join(BASE_DIR, 'builds')
-TMP_DIR = join(BASE_DIR, 'tmp')
+BUILDS_DIR = '/var/lib/plash'
+TMP_DIR = '/tmp'
+
+CONFIRM = """WARNING: This can put containerized filesystems of other plash instances in a not defined state.
+Type "yes" if you feel comfortable about this.
+Ok? """
 
 
 """
@@ -27,50 +29,14 @@ will use the builds for 20 seconds. after 20 seconds waiting plash build process
 This process will self terminate in 19 seconds via signal.settitmeout or so
 """
 
+if not os.access(BUILDS_DIR, os.W_OK):
+    print('No write access to ' + BUILDS_DIR)
+    sys.exit(1)
 
-def get_current_plash_build_processes():
-    pids = []
-    for f in os.listdir('/proc'):
-          if f.isdigit():
-                proc_root =  os.readlink(join('/proc', f, 'root'))
-                if proc_root.endswith("/payload"): # FIXME: check for sth more robust
-                      pids.append(int(f))
-    return pids
+continue_ = input(CONFIRM) if not '--yes' in sys.argv[1:] else 'yes'
+if not continue_.lower() == 'yes':
+    sys.exit(1)
 
-def ensure_no_plash_build_process():
-    pids = get_current_plash_build_processes()
-    if pids:
-        print("freespace can not run while there are build processes in progress")
-        print("Current build procees pid(s): {}".format(' '.join(str(i) for i in pids)))
-        sys.exit(1)
-
-# def temporary_lock():
-#     while True:
-#         try:
-#             fd = os.open(LOCKFILE, os.O_EXCL | os.O_CREAT)
-#         except FileExistsError:
-#             print('lockfile found - wait 20 seconds')
-#             sleep(20)
-#             os.unlink(LOCKFILE)
-#             print("lockfile deleted")
-#         else:
-#             os.close(fd)
-#             break
-
-# @atexit.register
-# def delete_lockfile():
-#     try:
-#         os.unlink(LOCKFILE)
-#     except FileNotFoundError:
-#         pass
-
-
-ensure_no_plash_build_process() # it think this call is only there for user friendlyness?
-# temporary_lock()
-# ensure_no_plash_build_process()
-
-# from time import sleep
-# sleep(100)
 
 usages = []
 for  dirpath, dirs, files in os.walk(BUILDS_DIR):
@@ -106,13 +72,45 @@ sorted_usages = sorted(usages, key=lambda i: i[1]) # itemgetter?
 #     out = subprocess.check_output(['du', '-sh', path])
 #     return out.split()[0]
 
+# https://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
+def sizeof_fmt(num, suffix='B'):
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Yi', suffix)
 
+def getsize(path):
+    out = subprocess.check_output(['du', '-s', path])
+    return int(out.split()[0]) * 1024
+
+
+DELETE_RATIO = 0.5
+size_beginning = getsize(BUILDS_DIR)
 for delete_build, _ in sorted_usages:
     tmpdir = mkdtemp(dir=TMP_DIR, suffix='.{}'.format(os.getpid()))
     # print('Deleting: {}'.format(delete_build))
 
-    print('Deleting: {}'.format(delete_build))
-    print(get_size(delete_build))
+    if not os.path.exists(delete_build): # a parent may be deleted
+        continue
+
+    nice_for_user = sizeof_fmt(getsize(delete_build))
+    print('Freeing {} at {}'.format(nice_for_user, delete_build))
+
+    try:
+        os.rename(delete_build, join(tmpdir, '_')) # use something atomic
+    except FileNotFoundError:
+        pass # parent already deleted by this process or another parallel freespace call
+    rmtree(tmpdir)
+
+    size_now = getsize(BUILDS_DIR)
+    if size_now / size_beginning <= DELETE_RATIO:
+        print()
+        print("Previous disk usage: {}".format(sizeof_fmt(size_beginning)))
+        print(" Current disk usage: {}".format(sizeof_fmt(size_now)))
+        break
+
+    # print(sizeof_fmt(getsize(delete_build)))
     # print(os.statvfs(delete_build))
     # try:
     #     os.rename(delete_build, join(tmpdir, '_')) # use something atomic

@@ -206,6 +206,7 @@ def main():
         c.ensure_base()
         for cmd in layers:
             c.add_layer(cmd)
+        c.log_access()
         print('Build ready: {}'.format(c))
 
         # # something that could be used in the shell prompt
