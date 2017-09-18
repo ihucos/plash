@@ -275,7 +275,7 @@ class Container:
         run(["umount", "--recursive", mountpoint])
 
         if child_exit != 0:
-            print("*** plash: build failed with exit status: {}".format(child_exit))
+            print("*** plash: build failed with exit status: {}".format(child_exit // 256))
             shutil.rmtree(new_child)
             sys.exit(1)
 
@@ -297,6 +297,7 @@ class Container:
         self._layer_ids.append(self._hash_cmd(cmd.encode()))
 
     def create_runnable(self, source_binary, runnable):
+        # SECURITY: fix permissions
         mountpoint = mkdtemp(dir=TMP_DIR)
         self.mount_rootfs(mountpoint=mountpoint)
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
@@ -323,23 +324,42 @@ class Container:
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
         print('Squashing... ', end='', flush=True)
         subprocess.check_call(['mksquashfs', mountpoint, runnable + '.squashfs', '-Xcompression-level', '1', '-noappend'], stdout=subprocess.DEVNULL)
-        # assert 0, runnable + '.squashfs'
-# -noInodeCompression     alternative name for -noI
-# -noDataCompression      alternative name for -noD
-# -noFragmentCompression  alternative name for -noF
-# -noXattrCompression     alternative name for -noX
 
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
         print('OK')
     
     def run(self, cmd):
-        # XXX: run with chroot and exec instead!!
-        assert isinstance(cmd, list)
-        cached_file = join(TMP_DIR, 'plash-' + hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
-        if not os.path.exists(cached_file):
-            self.create_runnable(cached_file, ['/usr/bin/env'])
-        cmd = [cached_file] + cmd
-        os.execvpe(cmd[0], cmd, os.environ)
+
+        # SECURITY: fix permissions
+        mountpoint = mkdtemp(dir=TMP_DIR)
+        os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
+        self.mount_rootfs(mountpoint=mountpoint)
+
+        # mounting that as we currently do in runp.go is really fucked up, on ubuntu because of symlink umounting it again does not work
+        with open(join(mountpoint, 'etc', 'resolv.conf'), 'w') as f:
+            f.write(open('/etc/resolv.conf').read())
+
+        # same as what is in runp.go, keep both in sync!
+        run(["/bin/mount", "-t", "proc", "proc", mountpoint + "/proc"])
+        # run(["/bin/mount", "--bind", "-o", "ro", "/etc/resolv.conf", mountpoint + "/etc/resolv.conf"])
+        for mount in ["/sys", "/dev", "/tmp", "/home", "/run"]:
+            run(["/bin/mount", "--bind", mount, mountpoint + mount])
+        if not os.fork():
+            os.chroot(mountpoint)
+            os.execvpe(cmd[0], cmd, os.environ)
+        _, child_exit = os.wait()
+
+        run(["/bin/umount", "--recursive", mountpoint])
+        print("*** plash: program exit status {}".format(child_exit // 256)) # that // 256 is one of these things i don't fully understand
+
+
+        # # XXX: run with chroot and exec instead!!
+        # assert isinstance(cmd, list)
+        # cached_file = join(TMP_DIR, 'plash-' + hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
+        # if not os.path.exists(cached_file):
+        #     self.create_runnable(cached_file, ['/usr/bin/env'])
+        # cmd = [cached_file] + cmd
+        # os.execvpe(cmd[0], cmd, os.environ)
     
     def __repr__(self):
         return ':'.join(self._layer_ids)

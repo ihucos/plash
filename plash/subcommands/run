@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
+from plash.core import Container
 
 args = sys.argv[1:]
 cmd = []
@@ -26,17 +27,21 @@ if not cmd:
     print("needs at least one command")
     sys.exit(0)
 
-exportscript = os.path.join(os.path.dirname(sys.argv[0]), 'export')
 
-tempfname = os.path.join(tempfile.gettempdir(), "plash-" + str(uuid.uuid4()))
-p = subprocess.Popen([exportscript, cmd[0], tempfname] + filtered_args)
-atexit.register(p.kill)
-exit = p.wait()
-if exit:
-    sys.exit(exit)
+# well, that is copy and paste from the export script
+buildscript = os.path.join(os.path.dirname(sys.argv[0]), 'build')
+p = subprocess.Popen([buildscript] + filtered_args, stdout=subprocess.PIPE)
+while True:
+    read = p.stdout.readline().decode()
+    if not read:
+        break
+    line = read
+    sys.stdout.write(line)
+build_exit = p.wait()
 
-p = subprocess.Popen([tempfname] + cmd[1:])
-exit = p.wait()
-print("*** plash: exit status {}".format(exit))
-os.unlink(tempfname + '.squashfs')
-os.unlink(tempfname)
+if not build_exit:
+    container_name = line.split()[-1]
+    c = Container(container_name)
+    c.run(cmd)
+else:
+    sys.exit(build_exit)
