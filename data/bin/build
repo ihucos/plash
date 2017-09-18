@@ -94,6 +94,8 @@ def get_argument_parser():
     parser.add_argument("--install", dest='export')
     parser.add_argument('--envs', '-e', action=CollectEnvsAction, nargs='+')
 
+    parser.add_argument("--print-container-id", action='store_true')
+
     add_shortcuts_to_parser(parser)
 
     return parser
@@ -101,10 +103,9 @@ def get_argument_parser():
 
 def main():
 
-    if os.getuid():
-        print("need to be root")
-        sys.exit(1)
-
+    # if os.getuid():
+    #     print("need to be root")
+    #     sys.exit(1)
 
     argv = sys.argv[1:]
 
@@ -207,12 +208,19 @@ def main():
         #         export_as=args.export,
         #         docker_image=args.docker_image,
         #         **execute_extra_kws)
-        c = core.Container(image)
-        c.ensure_base()
-        for cmd in layers:
-            c.add_layer(cmd)
-        c.log_access()
-        print('Build ready: {}'.format(c))
+        if not args.print_container_id:
+            c = core.Container(image)
+            c.ensure_base()
+            for cmd in layers:
+                c.add_or_build_layer(cmd)
+            c.log_access()
+
+            print('Build ready: {}'.format(c))
+        else:
+            c = core.Container(image)
+            for cmd in layers:
+                c.add_layer(cmd)
+            print(c)
 
         # # something that could be used in the shell prompt
         # docker_run(

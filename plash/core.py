@@ -56,7 +56,7 @@ class LXCImageCreator(BaseImageCreator):
         return self.arg # XXX: dot dot attack and so son, escape or so
 
     def prepare_image(self, outdir):
-        print('getting images index')
+        print('Fetching image index...')
         images = self._index_lxc_images()
         try:
             image_url = images[self.arg]
@@ -67,6 +67,7 @@ class LXCImageCreator(BaseImageCreator):
         import tempfile
         _, download_file = tempfile.mkstemp(prefix=self.arg + '.', suffix='.tar.xz') # join(mkdtemp(), self.arg + '.tar.xz')
         run(['wget', '-q', '--show-progress', image_url, '-O', download_file])
+        print('Unpacking...')
         t = tarfile.open(download_file)
         t.extractall(outdir)
 
@@ -172,7 +173,7 @@ class Container:
         self._layer_ids = container_id.split(':')
 
     # def _get_last_layer_salt_file(self):
-    #     return join(self._get_layer_paths()[-1], 'salt')
+    #     return join(self.get_layer_paths()[-1], 'salt')
 
     def ensure_base(self):
         assert self._layer_ids
@@ -180,21 +181,21 @@ class Container:
 
     def _get_child_path(self, cmd):
         layer_hash = self._hash_cmd(cmd.encode())
-        last_layer = self._get_layer_paths()[-1]
+        last_layer = self.get_layer_paths()[-1]
         return join(last_layer, 'children', layer_hash)
 
     def _hash_cmd(self, cmd):
-        # self._get_layer_paths()[-1]
+        # self.get_layer_paths()[-1]
         return hashstr(cmd)[:12]
 
-    def _get_layer_paths(self):
+    def get_layer_paths(self):
         lp = ["/var/lib/plash/{}".format(self._layer_ids[0])]
         for ci in self._layer_ids[1:]:
             lp.append(lp[-1] + '/children/' + ci)
         return lp
 
     def log_access(self):
-        for path in reversed(self._get_layer_paths()):
+        for path in reversed(self.get_layer_paths()):
             os.utime(path, None)
 
     def _prepare_chroot(self, mountpoint):
@@ -229,7 +230,7 @@ class Container:
             'upperdir={write_dir},lowerdir={dirs},workdir={workdir}'.format(
                 write_dir=write_dir,
                 workdir=workdir,
-                dirs=':'.join(join(p, 'payload') for p in self._get_layer_paths())),
+                dirs=':'.join(join(p, 'payload') for p in self.get_layer_paths())),
             mountpoint]
         run(cmd)
         return mountpoint
@@ -275,12 +276,15 @@ class Container:
             else:
                 raise
 
-    def add_layer(self, cmd):
+    def add_or_build_layer(self, cmd):
         if not path.exists(self._get_child_path(cmd)):
             self.build_layer(cmd)
         else:
             pass
             # print('*** plash: cached layer')
+        self.add_layer(cmd)
+    
+    def add_layer(self, cmd):
         self._layer_ids.append(self._hash_cmd(cmd.encode()))
 
     def create_runnable(self, source_binary, runnable):
@@ -378,7 +382,7 @@ class Container:
 #     c = Container(base_name)
 #     c.ensure_base()
 #     for cmd in layer_commands:
-#         c.add_layer(cmd)
+#         c.add_or_build_layer(cmd)
 #     if export_as:
 #         c.create_runnable(export_as)
 #     else:
