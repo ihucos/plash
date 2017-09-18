@@ -203,6 +203,7 @@ def main():
         #         docker_image=args.docker_image,
         #         **execute_extra_kws)
         c = core.Container(image)
+        c.ensure_base()
         for cmd in layers:
             c.add_layer(cmd)
         print('Build ready: {}'.format(c))

@@ -214,7 +214,7 @@ class Container:
         run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
         run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
         run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-        # run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')])
+        run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')]) # apt-get needs that
         # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
         run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
 
@@ -322,7 +322,7 @@ class Container:
 
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
         print('Squashing...', end='')
-        subprocess.check_call(['mksquashfs', mountpoint, runnable + '.squashfs', '-Xcompression-level', '1'], stdout=subprocess.DEVNULL)
+        subprocess.check_call(['mksquashfs', mountpoint, runnable + '.squashfs', '-Xcompression-level', '1', '-noappend'], stdout=subprocess.DEVNULL)
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
         print(' OK')
     
