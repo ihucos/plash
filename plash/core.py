@@ -211,7 +211,7 @@ class Container:
         return lp
 
     def log_access(self):
-        for path in self._get_layer_paths():
+        for path in reversed(self._get_layer_paths()):
             os.utime(path, None)
 
     def _prepare_chroot(self, mountpoint):

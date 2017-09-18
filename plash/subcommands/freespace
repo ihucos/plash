@@ -15,6 +15,7 @@ from time import sleep
 
 BUILDS_DIR = '/var/lib/plash'
 TMP_DIR = '/tmp'
+DELETE_RATIO = 0.5
 
 CONFIRM = """WARNING: This can put containerized filesystems of other plash instances in a not defined state.
 Type "yes" if you feel comfortable about this.
@@ -42,7 +43,8 @@ usages = []
 for  dirpath, dirs, files in os.walk(BUILDS_DIR):
     if dirpath != BUILDS_DIR and os.path.basename(dirpath) != 'children':
         last_modified = os.path.getmtime(dirpath)
-        usages.append((dirpath, last_modified))
+        score = (last_modified, -1 * len(dirpath))
+        usages.append((dirpath, score))
 
     # don't dive into that one
     if 'payload' in dirs:
@@ -84,8 +86,6 @@ def getsize(path):
     out = subprocess.check_output(['du', '-s', path])
     return int(out.split()[0]) * 1024
 
-
-DELETE_RATIO = 0.5
 size_beginning = getsize(BUILDS_DIR)
 for delete_build, _ in sorted_usages:
     tmpdir = mkdtemp(dir=TMP_DIR, suffix='.{}'.format(os.getpid()))
