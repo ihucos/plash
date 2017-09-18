@@ -321,12 +321,19 @@ class Container:
             pass
 
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
-        print('Squashing...', end='')
+        print('Squashing... ', end='', flush=True)
         subprocess.check_call(['mksquashfs', mountpoint, runnable + '.squashfs', '-Xcompression-level', '1', '-noappend'], stdout=subprocess.DEVNULL)
+        # assert 0, runnable + '.squashfs'
+# -noInodeCompression     alternative name for -noI
+# -noDataCompression      alternative name for -noD
+# -noFragmentCompression  alternative name for -noF
+# -noXattrCompression     alternative name for -noX
+
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
-        print(' OK')
+        print('OK')
     
     def run(self, cmd):
+        # XXX: run with chroot and exec instead!!
         assert isinstance(cmd, list)
         cached_file = join(TMP_DIR, 'plash-' + hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
         if not os.path.exists(cached_file):

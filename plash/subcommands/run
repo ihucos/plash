@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import atexit
 import os
 import subprocess
 import sys
@@ -29,6 +30,7 @@ exportscript = os.path.join(os.path.dirname(sys.argv[0]), 'export')
 
 tempfname = os.path.join(tempfile.gettempdir(), "plash-" + str(uuid.uuid4()))
 p = subprocess.Popen([exportscript, cmd[0], tempfname] + filtered_args)
+atexit.register(p.kill)
 exit = p.wait()
 if exit:
     sys.exit(exit)
