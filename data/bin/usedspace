@@ -1,2 +1,0 @@
-#!/bin/sh
-du -sh /var/lib/plash 2> /dev/null

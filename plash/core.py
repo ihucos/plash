@@ -290,7 +290,7 @@ class Container:
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
 
         if not '/' in source_binary:
-            p = subprocess.Popen(['which', source_binary], stdout=subprocess.PIPE, preexec_fn=lambda: os.chroot(mountpoint))
+            p = subprocess.Popen(['sh', '-c', 'command -v ' + shlex.quote(source_binary)], stdout=subprocess.PIPE, preexec_fn=lambda: os.chroot(mountpoint))
             p.wait()
             found_source_binary =  p.stdout.read().decode().strip("\n")
             if not found_source_binary:
