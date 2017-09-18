@@ -345,7 +345,13 @@ class Container:
         for mount in ["/sys", "/dev", "/tmp", "/home", "/run"]:
             run(["/bin/mount", "--bind", mount, mountpoint + mount])
         if not os.fork():
+            old_pwd = os.getcwd()
             os.chroot(mountpoint)
+            os.chdir('/')
+            try:
+                os.chdir(old_pwd)
+            except FileNotFoundError:
+                pass # we are fine staying at /
             os.execvpe(cmd[0], cmd, os.environ)
         _, child_exit = os.wait()
 
