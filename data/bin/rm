@@ -10,11 +10,8 @@ from plash.core import Container
 from plash.utils import get_subcommand_path
 
 WARNING = """WARNING: If you have other plash processes using the last layer of this container its container filesystems will get to an undefined state.""" 
-buildscript = get_subcommand_path('build')
 
-raw_container_id = subprocess.check_output([buildscript] + sys.argv[1:] + ['--print-container-id'])
-container_id = raw_container_id.decode().strip('\n')
-
+container_id = sys.argv[1]
 c = Container(container_id)
 last_layer = c.get_layer_paths()[-1]
 

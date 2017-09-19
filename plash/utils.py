@@ -64,4 +64,18 @@ def get_subcommand_path(name):
     return os.path.abspath(os.path.join(subcommands_dir, name)) # what if '/' in subcommand
 
 
-
+def filter_positionals(args):
+    positional = []
+    filtered_args = []
+    found_first_opt = False
+    while args:
+        arg = args.pop(0)
+        if not arg.startswith('-') and not found_first_opt:
+            positional.append(arg)
+        elif arg == '--':
+            positional += args
+            args = None
+        else:
+            filtered_args.append(arg)
+            found_first_opt = True
+    return positional, filtered_args

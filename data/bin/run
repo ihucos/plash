@@ -11,29 +11,9 @@ from plash import utils
 from plash.core import Container
 from plash.utils import get_subcommand_path
 
-args = sys.argv[1:]
-cmd = []
-filtered_args = []
-found_first_opt = False
-while args:
-    arg = args.pop(0)
-    if not arg.startswith('-') and not found_first_opt:
-        cmd.append(arg)
-    elif arg == '--':
-        cmd += args
-        args = None
-    else:
-        filtered_args.append(arg)
-        found_first_opt = True
+container_id = sys.argv[1]
+cmd = sys.argv[2:]
 
-if not cmd:
-    print("needs at least one command")
-    sys.exit(0)
-
-
-buildscript = get_subcommand_path('build')
-raw_container_id = subprocess.check_output([buildscript] + filtered_args + ['--print-container-id'])
-container_id = raw_container_id.decode().strip('\n')
 c = Container(container_id)
 if not c.is_builded():
     print("Container not builded")

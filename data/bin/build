@@ -214,7 +214,7 @@ def main():
                 c.add_or_build_layer(cmd)
             c.log_access()
 
-            print('Build ready: {}'.format(c))
+            print(c)
         else:
             c = core.Container(image)
             for cmd in layers:

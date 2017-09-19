@@ -54,7 +54,7 @@ class BaseImageCreator:
                 os.rename(tmp_image_dir, image_dir)
             except OSError as exc:
                 if exc.errno == errno.ENOTEMPTY:
-                    print('*** plash: another process already pulled that image')
+                    print('*** plash: another process already pulled that image', file=sys.stderr)
                 else:
                     raise
         
@@ -248,7 +248,7 @@ class Container:
         return mountpoint
 
     def build_layer(self, cmd):
-        print('*** plash: building layer')
+        print('*** plash: building layer', file=sys.stderr)
         new_child = mkdtemp(dir=TMP_DIR)
         mountpoint = mkdtemp(dir=TMP_DIR)
         new_layer = join(new_child, 'payload')
@@ -267,6 +267,7 @@ class Container:
             fd = os.open("/dev/null", os.O_WRONLY)
             os.dup2(fd, 0);
             os.close(fd);
+            os.dup2(2, 1);
 
             shell = 'sh'
             os.execvpe(shell, [shell, '-cxe', cmd], os.environ) # maybe isolate envs better?
@@ -275,7 +276,7 @@ class Container:
         run(["umount", "--recursive", mountpoint])
 
         if child_exit != 0:
-            print("*** plash: build failed with exit status: {}".format(child_exit // 256))
+            print("*** plash: build failed with exit status: {}".format(child_exit // 256), file=sys.stderr)
             shutil.rmtree(new_child)
             sys.exit(1)
 
@@ -284,7 +285,7 @@ class Container:
             os.rename(new_child, final_child_dst)
         except OSError as exc:
             if exc.errno == errno.ENOTEMPTY:
-                print('*** plash: this layer already exists builded and will not be replaced (layer: {})'.format(layer_hash))
+                print('*** plash: this layer already exists builded and will not be replaced (layer: {})'.format(layer_hash), file=sys.stderr)
             else:
                 raise
 
@@ -293,7 +294,7 @@ class Container:
             self.build_layer(cmd)
         else:
             pass
-            # print('*** plash: cached layer')
+            # print('*** plash: cached layer', file=sys.stderr)
         self.add_layer(cmd)
     
     def add_layer(self, cmd):
