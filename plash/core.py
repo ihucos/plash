@@ -214,9 +214,6 @@ class Container:
                 pass
         run(['mount', '--bind', '/etc/resolv.conf', resolv_file])
 
-    def invalidate(self):
-        pass
-
     def mount_rootfs(self, *, mountpoint, write_dir=None, workdir=None):
         if write_dir == None:
             write_dir = mkdtemp(dir=TMP_DIR)
