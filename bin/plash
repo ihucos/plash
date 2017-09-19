@@ -15,7 +15,7 @@ try:
     os.execvpe(
         subcommand_executable,
         [subcommand_executable] + subcommand_args,
-        dict())
+        os.environ)
 except FileNotFoundError:
     all_subcommands = os.listdir(subcommands_dir)
     print('No subcommand {}, available: {}'.format(repr(subcommand), ' '.join(sorted(all_subcommands))))

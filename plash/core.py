@@ -200,6 +200,7 @@ class Container:
 
     def _prepare_chroot(self, mountpoint):
         run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
+        run(['mount', '--bind', '/home', join(mountpoint, 'home')])
         run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
         run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
         run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')]) # apt-get needs that
@@ -257,7 +258,7 @@ class Container:
             os.close(fd);
 
             shell = 'sh'
-            os.execvpe(shell, [shell, '-ce', cmd], os.environ) # maybe isolate envs better?
+            os.execvpe(shell, [shell, '-cxe', cmd], os.environ) # maybe isolate envs better?
         child_pid, child_exit = os.wait()
 
         run(["umount", "--recursive", mountpoint])

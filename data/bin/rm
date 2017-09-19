@@ -27,4 +27,3 @@ except FileNotFoundError:
       print('ERROR: no such container is builded')
       sys.exit(1)
 rmtree(delme)
-print("SUCCESS: It's gone.")

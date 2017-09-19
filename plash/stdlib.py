@@ -53,8 +53,10 @@ def run(*lines):
                 mount_to = os.path.join('/mnt', hash)
                 state.add_mount(abs_path, mount_to)
                 expanded =  shlex.quote(mount_to)
+            elif e == 'pwd':
+                expanded = os.getcwd()
             else:
-                raise ArgError('Template var must start with a "./" or "$" (got "{}")'.format('exp'))
+                raise ArgError('Template var must start with a "./" or "$" or be "pwd" (got "{}")'.format('exp'))
 
             line = templ_re.sub(expanded, line, count=1)
         yield line
@@ -92,7 +94,7 @@ def all_files(dir):
             yield fname
 
 @action()
-def rebuild_when_changed(self, *paths):
+def rebuild_when_changed(*paths):
     hash = hash_paths(paths)
     return "echo 'rebuild-when-changed: hash {}'".format(hash)
 
