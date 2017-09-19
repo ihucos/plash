@@ -78,7 +78,7 @@ def hash_paths(paths):
         perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
                   ).encode()
         with open(fname, 'rb') as f:
-            fread = f.read()
+            fread = f.read() # well, no buffering?
         hasher.update(fname.encode())
         hasher.update(perm)
 
@@ -273,6 +273,13 @@ def entrypoint(binary):
     return '[[ -x {0} ]] && printf \'#!/bin/sh\\nexec {0} "$@"\' > /entrypoint && chmod 755 /entrypoint'.format(binary)
     # return "ln -s {} /entrypoint".format(shlex.quote(binary)) # lik doesnt work with busybox
 
+@action(echo=False)
+def host(*lines):
+    tmp = tempfile.mktemp()
+    with open(tmp, 'w') as f:
+        f.write('\n'.join(lines))
+    os.chmod(tmp, 0o755) # check if this access rights are right
+    subprocess.check_call([tmp])
 
 eval(script2lsp('''
 

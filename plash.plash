@@ -1,0 +1,25 @@
+os: alpine3.6
+
+
+#: delete theese files since they fuck up rebuild-when-changed
+host:
+#!/bin/sh
+rm -rf ./plash.egg-info
+rm -rf ./dist
+
+apk: python3 wget
+
+layer:
+
+run:
+easy_install-3.6 pip
+
+layer:
+
+rebuild-when-changed: ./
+
+layer:
+
+run:
+cd {{pwd}}
+python3 setup.py install
