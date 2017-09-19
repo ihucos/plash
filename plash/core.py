@@ -204,6 +204,10 @@ class Container:
             lp.append(lp[-1] + '/children/' + ci)
         return lp
 
+    def is_builded(self):
+        last_layer = self.get_layer_paths()[-1]
+        return os.path.exists(last_layer)
+
     def log_access(self):
         for path in reversed(self.get_layer_paths()):
             os.utime(path, None)
@@ -356,17 +360,8 @@ class Container:
 
         run(["/bin/umount", "--recursive", mountpoint])
         os.rmdir(mountpoint)
-        print("*** plash: program exit status {}".format(child_exit // 256)) # that // 256 is one of these things i don't fully understand
+        sys.exit(child_exit // 256) # that // 256 is one of these things i don't fully understand
 
-
-        # # XXX: run with chroot and exec instead!!
-        # assert isinstance(cmd, list)
-        # cached_file = join(TMP_DIR, 'plash-' + hashstr(' '.join(self._layer_ids).encode())) # SECURITY: check that file owner is root -- but then timing attack possible!
-        # if not os.path.exists(cached_file):
-        #     self.create_runnable(cached_file, ['/usr/bin/env'])
-        # cmd = [cached_file] + cmd
-        # os.execvpe(cmd[0], cmd, os.environ)
-    
     def __repr__(self):
         return ':'.join(self._layer_ids)
 

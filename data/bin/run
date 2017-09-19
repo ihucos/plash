@@ -9,6 +9,7 @@ import uuid
 
 from plash import utils
 from plash.core import Container
+from plash.utils import get_subcommand_path
 
 args = sys.argv[1:]
 cmd = []
@@ -30,20 +31,11 @@ if not cmd:
     sys.exit(0)
 
 
-# well, that is copy and paste from the export script
-buildscript = utils.get_subcommand_path('build')
-p = subprocess.Popen([buildscript] + filtered_args, stdout=subprocess.PIPE)
-while True:
-    read = p.stdout.readline().decode()
-    if not read:
-        break
-    line = read
-    sys.stdout.write(line)
-build_exit = p.wait()
-
-if not build_exit:
-    container_name = line.split()[-1]
-    c = Container(container_name)
-    c.run(cmd)
-else:
-    sys.exit(build_exit)
+buildscript = get_subcommand_path('build')
+raw_container_id = subprocess.check_output([buildscript] + filtered_args + ['--print-container-id'])
+container_id = raw_container_id.decode().strip('\n')
+c = Container(container_id)
+if not c.is_builded():
+    print("Container not builded")
+    sys.exit(1)
+c.run(cmd)
