@@ -13,9 +13,11 @@ from plash.utils import get_subcommand_path
 
 container_id = sys.argv[1]
 cmd = sys.argv[2:]
-
-c = Container(container_id)
-if not c.is_builded():
-    print("Container not builded")
-    sys.exit(1)
-c.run(cmd)
+if not cmd:
+    print(container_id)
+else:
+    c = Container(container_id)
+    if not c.is_builded():
+        print("Container not builded")
+        sys.exit(1)
+    c.run(cmd)

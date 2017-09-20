@@ -33,7 +33,7 @@ def friendly_exception(exceptions, debug=None):
             else:
                 msg = 'plash error: {message}'.format(message=str(exc))
 
-            print("\033[91m{}\033[0m".format(msg))
+            print("\033[91m{}\033[0m".format(msg), file=sys.stderr)
             # raise exc # TODO: experiment with nested friendly_exception for example at load
             sys.exit(1)
 

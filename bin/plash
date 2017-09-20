@@ -7,8 +7,14 @@ import sys
 import plash
 from plash import utils
 
-subcommand = sys.argv[1]
-subcommand_args = sys.argv[2:]
+args = sys.argv[1:]
+
+# "do run" is used as default command when no other was given
+if args[0].startswith('-'):
+    args = ['do', 'run'] + args
+
+subcommand = args[0]
+subcommand_args = args[1:]
 
 subcommand_executable = utils.get_subcommand_path(subcommand)
 try:
@@ -17,5 +23,5 @@ try:
         [subcommand_executable] + subcommand_args,
         os.environ)
 except FileNotFoundError:
-    all_subcommands = os.listdir(subcommands_dir)
+    all_subcommands = os.listdir(os.path.dirname(subcommand_executable))
     print('No subcommand {}, available: {}'.format(repr(subcommand), ' '.join(sorted(all_subcommands))))
