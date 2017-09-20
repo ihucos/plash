@@ -2,19 +2,20 @@
 
 import argparse
 import os
-from urllib.error import URLError
 import platform
 import shlex
 import subprocess
 import sys
 from subprocess import CalledProcessError, list2cmdline
+from urllib.error import URLError
 
 from plash import core, dockercore, state
 from plash.core import BuildError
 from plash.dockercore import DockerBuildError, docker_get_image_shell
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
-from plash.utils import (disable_friendly_exception, friendly_exception, hashstr,
-                    rand)
+from plash.utils import (deescalate_sudo_call,
+                         disable_friendly_exception, friendly_exception,
+                         hashstr, rand)
 
 HELP = 'my help'
 PROG = 'plash'
@@ -126,7 +127,6 @@ def main():
                 nargs='*')
 
     args = ap.parse_args(argv)
-    state.reset()
 
     build_silent = args.build_silent or os.environ.get('PLASH_BUILD_SILENT')
     lsp = getattr(args, 'lsp', [])
@@ -142,9 +142,13 @@ def main():
         print(init + lsp)
         sys.exit(0)
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
-        script = eval(init + lsp) # we don't want to do that while in root!
 
-    os_image = state.get_os()
+        def deescalated():
+            state.reset()
+            script = eval(init+lsp)
+            return state.get_os(), script
+        os_image, script = deescalate_sudo_call(deescalated)
+
     if not os_image:
         ap.error('Specify an image')
     if script:

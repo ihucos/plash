@@ -12,7 +12,7 @@ from os.path import abspath, join
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
-from .utils import hashstr, run
+from .utils import hashstr, run, deescalate_sudo
 
 TMP_DIR = '/tmp'
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
@@ -336,8 +336,8 @@ class Container:
 
         # SECURITY: fix permissions
         mountpoint = mkdtemp(dir='/var/tmp') # don't use /tmp because its mounted on the container, that would cause weird mount recursion
-        os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
         self.mount_rootfs(mountpoint=mountpoint)
+        os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
 
         # mounting that as we currently do in runp.go is really fucked up, on ubuntu because of symlink umounting it again does not work
         with open(join(mountpoint, 'etc', 'resolv.conf'), 'w') as f:
@@ -356,6 +356,8 @@ class Container:
                 os.chdir(old_pwd)
             except FileNotFoundError:
                 pass # we are fine staying at /
+
+            deescalate_sudo()
             os.execvpe(cmd[0], cmd, os.environ)
         _, child_exit = os.wait()
 

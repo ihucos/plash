@@ -275,6 +275,11 @@ def entrypoint(binary):
 
 @action(echo=False)
 def host(*lines):
+    lines = list(lines)
+    if not lines:
+        raise ArgError('needs at least one arg')
+    if not lines[0].startswith('#!'):
+        lines = ['#!/bin/sh'] + lines
     tmp = tempfile.mktemp()
     with open(tmp, 'w') as f:
         f.write('\n'.join(lines))

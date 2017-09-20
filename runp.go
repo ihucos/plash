@@ -180,7 +180,7 @@ func main() {
 	err = os.Chdir("/")
 	check(err)
 
-	err = syscall.Setreuid(originalUid, originalUid)
+	err = syscall.Setreuid(originalUid, originalUid) // SECURITY: also do that with the group id and what about supplementary groups
 	check(err)
 	// some threads in this golang process are still root, i need to check if exec vanishes that
 
