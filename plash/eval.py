@@ -3,7 +3,9 @@ from importlib import import_module
 
 from .utils import friendly_exception, rand
 
-ECHO_DEBUG = "echo \*\*\* plash: running --{action_name} {args}"
+# ECHO_DEBUG = "echo \*\*\* plash: running --{action_name} {args}"
+ECHO_DEBUG = "# {action_name}\({args}\)"
+
 
 layer_marker_rand = rand()
 state = {'actions': {}} # put that in state.py ?
@@ -38,7 +40,7 @@ def action(action_name=None, echo=True):
             else:
                 echo_cmd = ECHO_DEBUG.format(
                     action_name=shlex.quote(action),
-                    args=' '.join(shlex.quote(shlex.quote(i)) for i in args))
+                    args=', '.join(shlex.quote(shlex.quote(i)) for i in args))
                 return "{}\n{}".format(echo_cmd, res or '')
 
         state['actions'][action] = function_wrapper

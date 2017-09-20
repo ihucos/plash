@@ -177,6 +177,20 @@ def bootstrap_base_rootfs(base_name):
     return lxc_image_creator(base_name)
 
 
+def find_executable(programm, root=None):
+
+    if root:
+        preexec_fn = lambda: os.chroot(root)
+    else:
+        preexec_fn = None
+
+    p = subprocess.Popen(['sh', '-c', 'command -v ' + shlex.quote(programm)], stdout=subprocess.PIPE, preexec_fn=preexec_fn)
+    p.wait()
+    found_source_binary =  p.stdout.read().decode().strip("\n")
+    if not found_source_binary:
+        raise ValueError("No such program found: {}".format(programm))
+    return found_source_binary
+
 class Container:
 
     def __init__(self, container_id=''):
@@ -299,6 +313,7 @@ class Container:
     
     def add_layer(self, cmd):
         self._layer_ids.append(self._hash_cmd(cmd.encode()))
+    
 
     def create_runnable(self, source_binary, runnable):
         # SECURITY: fix permissions
@@ -307,12 +322,7 @@ class Container:
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
 
         if not '/' in source_binary:
-            p = subprocess.Popen(['sh', '-c', 'command -v ' + shlex.quote(source_binary)], stdout=subprocess.PIPE, preexec_fn=lambda: os.chroot(mountpoint))
-            p.wait()
-            found_source_binary =  p.stdout.read().decode().strip("\n")
-            if not found_source_binary:
-                raise ValueError("No such program found in container: {}".format(source_binary))
-            source_binary = found_source_binary
+            source_binary = find_executable(source_binary, root=mountpoint)
 
         # if runnable != '/entrypoint': # if it is we dont't need to create this "link" (this is a little smartasssish)
         #     with open(join(mountpoint, 'entrypoint'), 'w') as f:
@@ -358,7 +368,12 @@ class Container:
                 pass # we are fine staying at /
 
             deescalate_sudo()
-            os.execvpe(cmd[0], cmd, os.environ)
+
+            try:
+                os.execvpe(cmd[0], cmd, os.environ)
+            except FileNotFoundError:
+                print('{}: not found'.format(cmd[0]))
+                sys.exit(1)
         _, child_exit = os.wait()
 
         run(["/bin/umount", "--recursive", mountpoint])
