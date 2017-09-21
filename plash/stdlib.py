@@ -286,6 +286,10 @@ def host(*lines):
     os.chmod(tmp, 0o755) # check if this access rights are right
     subprocess.check_call([tmp])
 
+@action(echo=False)
+def device(ds):
+    return eval([['run', 'mkdir -p /etc/runp && echo {} >> /etc/runp/devices'.format(shlex.quote(ds))]])
+
 eval(script2lsp('''
 
 define-package-manager: apt
@@ -298,7 +302,7 @@ run add-apt-repository -y {}
 
 define-package-manager: apk
 apk update
-apk add  {}
+apk add {}
 
 define-package-manager: yum
 yum install -y {}

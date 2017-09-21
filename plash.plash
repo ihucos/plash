@@ -3,7 +3,7 @@
 os: alpine3.6
 
 
-#: delete theese files since they fuck up rebuild-when-changed
+#: delete these files since they fuck up rebuild-when-changed
 host:
 #!/bin/sh
 rm -rf ./plash.egg-info
@@ -24,3 +24,8 @@ layer:
 run:
 cd {{pwd}}
 python3 setup.py install
+
+layer:
+
+device: plash-build-data:/var/lib/plash
+device: plash-tmp:/var/tmp

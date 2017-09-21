@@ -14,7 +14,7 @@ from urllib.request import urlopen
 
 from .utils import hashstr, run, deescalate_sudo
 
-TMP_DIR = '/tmp'
+TMP_DIR = '/var/tmp'
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
 
@@ -235,7 +235,6 @@ class Container:
         # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
         run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
 
-
         # run(['mount', '--bind', '/var/lib/runc/mydata', join(mountpoint, '/mnt')])
 
         # kind of hacky, we create an empty etc/resolv.conf so we can mount over it if it does not exists
@@ -332,7 +331,10 @@ class Container:
         #         f.write('#!/bin/sh\n') # put in one call
         #         f.write('exec {} $@'.format(shlex.quote(source_binary)))
         #     os.chmod(join(mountpoint, 'entrypoint'), 0o755)
-        os.symlink(source_binary, join(mountpoint, 'etc/runp_exec'))
+        etc_runp = join(mountpoint, 'etc/runp')
+        if not os.path.exists(etc_runp):
+            os.mkdir(etc_runp)
+        os.symlink(source_binary, join(etc_runp, 'exec'))
 
         # create that file so we can overmount it
         with open(join(mountpoint, 'etc', 'resolv.conf'), 'a') as _:
@@ -361,6 +363,27 @@ class Container:
         # run(["/bin/mount", "--bind", "-o", "ro", "/etc/resolv.conf", mountpoint + "/etc/resolv.conf"])
         for mount in ["/sys", "/dev", "/tmp", "/home", "/run"]:
             run(["/bin/mount", "--bind", mount, mountpoint + mount])
+
+
+        try:
+            with open(join(mountpoint, 'etc/runp/devices')) as f:
+                devices = f.read().splitlines()
+        except FileNotFoundError:
+            devices = []
+        for device in devices:
+            device_name, device_dst = device.split(':')
+            source = join('/var/lib/runp-devices', device_name)
+            device_mp = join(mountpoint, device_dst.lstrip('/'))
+            try:
+                os.makedirs(source)
+            except FileExistsError:
+                pass
+            try:
+                os.makedirs(device_mp)
+            except FileExistsError:
+                pass
+            run(['/bin/mount', '--bind', source, device_mp])
+
         if not os.fork():
             old_pwd = os.getcwd()
             os.chroot(mountpoint)

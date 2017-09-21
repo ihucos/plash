@@ -189,7 +189,7 @@ func main() {
 
 
 	// err = syscall.Exec("/bin/sh", squashArgs, os.Environ())
-	myexec, err := os.Readlink("/etc/runp_exec")
+	myexec, err := os.Readlink("/etc/runp/exec")
 	check(err)
 
 	argv0 := []string{myexec}
