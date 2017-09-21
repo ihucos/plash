@@ -1,0 +1,240 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+import platform
+import shlex
+import subprocess
+import sys
+from subprocess import CalledProcessError, list2cmdline
+from urllib.error import URLError
+
+from plash import core, dockercore, state
+from plash.core import BuildError
+from plash.dockercore import DockerBuildError, docker_get_image_shell
+from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
+from plash.utils import (deescalate_sudo_call,
+                         disable_friendly_exception, friendly_exception,
+                         hashstr, rand)
+
+HELP = 'my help'
+PROG = 'plash'
+
+NO_TERM_BUILD_ERROR = """plash error: Refusing to build when not connected to a tty(-like) device.
+Set the env PLASH_BUILD_SILENT to enable building without output is such cases.
+Or invoke this call with --build-only from a terminal to build and then run again.
+The argv of this program was: {}""".format(sys.argv)
+
+# shortcuts are specific to the stdlib
+SHORTCUTS = [
+    # shortcut, lsp, nargs
+    ('-x', ['run'], '+'),
+    ('-a', ['apt'], '+'),
+    ('-y', ['yum'], '+'),
+    ('-p', ['pip'], '+'),
+    ('-b', ['apt', 'ubuntu-server'], 0),
+    ('-o', ['os'], 1),
+    ('-r', ['include', '~/.plashrc'], 0),
+    ('-U', ['os', 'ubuntu'], 0),
+    ('-F', ['os', 'fedora'], 0),
+    ('-D', ['os', 'debian'], 0),
+    ('-l', ['layer'], 0),
+ ]
+
+def add_shortcuts_to_parser(parser):
+    group = parser.add_argument_group('shortcuts', 'shortcuts')
+    for shortcut, lsp, nargs in SHORTCUTS:
+        group.add_argument(
+            shortcut,
+            action=create_collect_lsp_action(lsp),
+            nargs=nargs)
+
+def create_collect_lsp_action(lsp_begin):
+    class CollectAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            if not 'lsp' in namespace:
+                setattr(namespace, 'lsp', [])
+            previous = namespace.lsp
+            previous.append(lsp_begin + list(values))
+            setattr(namespace, 'lsp', previous) 
+    return CollectAction
+
+
+class CollectEnvsAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        for value in values:
+            if not getattr(namespace, self.dest):
+                setattr(namespace, self.dest, {})
+            key, value = value.split('=', 1)
+            getattr(namespace, self.dest)[key] = value
+
+def get_argument_parser():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description='Run programm from any Linux',
+        prog=PROG,
+        epilog=HELP)
+
+    # parser.add_argument("subcommand", nargs='?')
+    parser.add_argument("--build-silent", action='store_true')
+    parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
+    parser.add_argument("--build-only", action='store_true')
+    parser.add_argument("--build-again", "--rebuild", "--again", action='store_true')
+
+    parser.add_argument("--no-stdlib", action='store_true')
+    parser.add_argument("--traceback", action='store_true')
+    parser.add_argument("--debug-lsp", action='store_true')
+
+    parser.add_argument("--ignore-no-tty", action='store_false')
+    parser.add_argument("--all-root", action='store_true')
+
+    parser.add_argument("--docker", "-d", action='store_true')
+    parser.add_argument("--docker-image", action='store_true')
+
+    parser.add_argument("--docker-save-image") # join with --export
+    parser.add_argument("--install", dest='export')
+    parser.add_argument('--envs', '-e', action=CollectEnvsAction, nargs='+')
+
+    add_shortcuts_to_parser(parser)
+
+    return parser
+
+
+def main():
+
+    if os.getuid():
+        print("Need to be root", file=sys.stderr)
+        sys.exit(1)
+
+    argv = sys.argv[1:]
+
+    try:
+        delimiter = argv.index('--')
+        command = argv[delimiter+1:]
+        argv = argv[:delimiter]
+    except ValueError:
+        command = None
+
+    ap = get_argument_parser()
+    _, unused_args = ap.parse_known_args(argv)
+    # lsp = unused_args_to_lsp(unused_args)
+    for arg in set(unused_args):
+        if arg == '--':
+            break
+        if arg.startswith('--'):
+            ap.add_argument(
+                arg,
+                action=create_collect_lsp_action([arg[2:]]),
+                nargs='*')
+
+    args = ap.parse_args(argv)
+
+    build_silent = args.build_silent or os.environ.get('PLASH_BUILD_SILENT')
+    lsp = getattr(args, 'lsp', [])
+
+    if args.traceback:
+        disable_friendly_exception()
+    if not args.no_stdlib:
+        init = [['import', 'plash.stdlib']]
+    else:
+        init = []
+
+    if args.debug_lsp:
+        print(init + lsp)
+        sys.exit(0)
+    with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
+
+        def deescalated():
+            state.reset()
+            script = eval(init+lsp)
+            return state.get_os(), script
+        os_image, script = deescalate_sudo_call(deescalated) if not args.all_root else deescalated()
+
+    if not os_image:
+        ap.error('Specify an image')
+    if script:
+        layers = (script + '\n').split(layer() + '\n')
+        layers = [l for l in layers if l]
+    else:
+        layers = []
+    if os_image == 'print':
+        print(script)
+        sys.exit(0)
+
+
+    # shoud be inside cokercore.py
+    if os_image.startswith('build://'):
+        build = os_image[len('build://'):]
+        tmp_image = rand() # fixme cleanup this image later
+        p = subprocess.Popen(['docker', 'build', build, '-t', tmp_image])
+        exit = p.wait()
+        assert exit == 0
+        image = subprocess.check_output(
+            ['docker', 'images', '--quiet', tmp_image])
+        image = image.decode().rstrip('\n')
+        subprocess.check_output(['docker', 'rmi', tmp_image])
+    else:
+        image = os_image
+
+    # b = LayeredDockerBuildable.create(image, layers)
+    # with friendly_exception([BuildError, CalledProcessError]):
+    #     if args.build_again or not b.image_ready():
+    #         if not sys.stdout.isatty() and not build_silent and not args.ignore_no_tty:
+    #             sys.stderr.write(NO_TERM_BUILD_ERROR)
+    #             print()
+    #             sys.exit(127)
+
+        plash_env = '{}-{}'.format( # some 
+            os_image,
+            hashstr('\n'.join(layers).encode())[:4])
+
+        # if args.docker or platform.system() in ('Darwin', 'Windows'):
+        #     execute = dockercore.execute
+        #     execute_extra_kws = {'docker_save_image': args.docker_save_image}
+        # else:
+        # execute = core.create_runnable
+
+        # bcmd = state.get_base_command() or ''
+        # command = (command or [docker_get_image_shell(image)]) if not bcmd else shlex.split(bcmd) + (command or [])
+
+
+    with friendly_exception([PermissionError, URLError]):
+        # execute(image,
+        #         layers,
+        #         quiet_flag=args.build_silent,
+        #         rebuild_flag=args.build_again,
+        #         verbose_flag=args.verbose,
+        #         skip_if_exists=not args.build_again,
+        #         extra_mounts=state.pop_mountpoints(),
+        #         extra_envs=dict(os.environ, **(args.envs or {})),
+        #         export_as=args.export,
+        #         docker_image=args.docker_image,
+        #         **execute_extra_kws)
+        c = core.Container(image)
+        c.ensure_base()
+        for cmd in layers:
+            c.add_or_build_layer(cmd)
+        c.log_access()
+
+        print(c)
+
+        # # something that could be used in the shell prompt
+        # docker_run(
+        #     b.get_image_name(),
+        #     command,
+        #     extra_envs={'PLASH_ENV': plash_env},
+        #     )
+
+        #     print('*** plash: building...')
+        #     b.build(
+        #         shell=docker_get_image_shell(image),
+        #         quiet=build_silent,
+        #         verbose=args.verbose,
+        #         extra_mounts=state.pop_mountpoints(),
+        #         skip_if_exists=not args.build_again)
+        #     print('*** plash: done')
+        #     print()
+
+
+if __name__ == '__main__':
+    main()

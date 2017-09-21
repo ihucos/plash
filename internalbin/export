@@ -1,0 +1,14 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import sys
+
+from plash.core import Container
+
+container_name = sys.argv[1]
+source_binary = sys.argv[2]
+install_to = sys.argv[3]
+
+c = Container(container_name)
+c.create_runnable(source_binary, install_to)

@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import sys
+from shutil import rmtree
+from tempfile import mkdtemp
+
+from plash.core import Container
+from plash.utils import get_subcommand_path
+
+WARNING = """WARNING: If you have other plash processes using the last layer of this container its container filesystems will get to an undefined state.""" 
+
+container_id = sys.argv[1]
+c = Container(container_id)
+last_layer = c.get_layer_paths()[-1]
+
+print(WARNING)
+
+delme = mkdtemp(suffix=".delme")
+try:
+      os.rename(last_layer, delme)
+except FileNotFoundError:
+      print('ERROR: no such container is builded')
+      sys.exit(1)
+rmtree(delme)

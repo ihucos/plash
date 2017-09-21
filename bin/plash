@@ -1,6 +1,27 @@
 #!/usr/bin/env python3
 
-from plash import cli
+import inspect
+import os
+import sys
 
-if __name__ == '__main__':
-    cli.main()
+import plash
+from plash import utils
+
+args = sys.argv[1:]
+
+# "do run" is used as default command when no other was given
+if args[0].startswith('-'):
+    args = ['do', 'run'] + args
+
+subcommand = args[0]
+subcommand_args = args[1:]
+
+subcommand_executable = utils.get_subcommand_path(subcommand)
+try:
+    os.execvpe(
+        subcommand_executable,
+        [subcommand_executable] + subcommand_args,
+        os.environ)
+except FileNotFoundError:
+    all_subcommands = os.listdir(os.path.dirname(subcommand_executable))
+    print('No subcommand {}, available: {}'.format(repr(subcommand), ' '.join(sorted(all_subcommands))))

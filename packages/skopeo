@@ -1,0 +1,23 @@
+#!/usr/bin/env plashexec
+
+os: ubuntu
+cmd: skopeo
+
+apt: curl
+
+run:
+curl https://get.docker.com/ | bash
+
+layer:
+apt: wget
+
+run:
+wget https://github.com/projectatomic/skopeo/archive/v0.1.23.tar.gz -O /tmp/download
+tar -xf /tmp/download -C /tmp
+
+layer:
+mount: /var/run/docker.sock /var/run/docker.sock
+apt: make
+run:
+cd /tmp/skopeo-0.1.23
+make binary

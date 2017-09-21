@@ -53,8 +53,10 @@ def run(*lines):
                 mount_to = os.path.join('/mnt', hash)
                 state.add_mount(abs_path, mount_to)
                 expanded =  shlex.quote(mount_to)
+            elif e == 'pwd':
+                expanded = os.getcwd()
             else:
-                raise ArgError('Template var must start with a "./" or "$" (got "{}")'.format('exp'))
+                raise ArgError('Template var must start with a "./" or "$" or be "pwd" (got "{}")'.format('exp'))
 
             line = templ_re.sub(expanded, line, count=1)
         yield line
@@ -76,7 +78,7 @@ def hash_paths(paths):
         perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))
                   ).encode()
         with open(fname, 'rb') as f:
-            fread = f.read()
+            fread = f.read() # well, no buffering?
         hasher.update(fname.encode())
         hasher.update(perm)
 
@@ -92,7 +94,7 @@ def all_files(dir):
             yield fname
 
 @action()
-def rebuild_when_changed(self, *paths):
+def rebuild_when_changed(*paths):
     hash = hash_paths(paths)
     return "echo 'rebuild-when-changed: hash {}'".format(hash)
 
@@ -216,6 +218,7 @@ def script(*lines):
 
 
 def script2lsp(script):
+    # FIXME: #: mybla: arg does not work, mybla should be ignored by comment
     lines = script.splitlines()
 
     # ignore shebangs
@@ -267,9 +270,26 @@ def os_(os):
     state.set_os(os)
 
 @action(echo=False)
-def cmd(os):
-    state.set_base_command(os)
+def entrypoint(binary):
+    return '[[ -x {0} ]] && printf \'#!/bin/sh\\nexec {0} "$@"\' > /entrypoint && chmod 755 /entrypoint'.format(binary)
+    # return "ln -s {} /entrypoint".format(shlex.quote(binary)) # lik doesnt work with busybox
 
+@action(echo=False)
+def host(*lines):
+    lines = list(lines)
+    if not lines:
+        raise ArgError('needs at least one arg')
+    if not lines[0].startswith('#!'):
+        lines = ['#!/bin/sh'] + lines
+    tmp = tempfile.mktemp()
+    with open(tmp, 'w') as f:
+        f.write('\n'.join(lines))
+    os.chmod(tmp, 0o755) # check if this access rights are right
+    subprocess.check_call([tmp])
+
+@action(echo=False)
+def device(name, path):
+    return eval([['run', 'mkdir -p /etc/runp && echo {} >> /etc/runp/devices'.format(shlex.quote(name + ' ' + path))]])
 
 eval(script2lsp('''
 
@@ -283,10 +303,13 @@ run add-apt-repository -y {}
 
 define-package-manager: apk
 apk update
-apk add  {}
+apk add {}
 
 define-package-manager: yum
 yum install -y {}
+
+define-package-manager: dnf
+dnf install -y {}
 
 define-package-manager: pip
 pip install {}
