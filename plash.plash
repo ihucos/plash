@@ -1,6 +1,6 @@
 #!/usr/bin/env plashexec
 
-os: alpine3.6
+os: zesty
 
 
 #: delete these files since they fuck up rebuild-when-changed
@@ -9,10 +9,8 @@ host:
 rm -rf ./plash.egg-info
 rm -rf ./dist
 
-apk: python3 wget squashfs-tools
+apt: python3 wget squashfs-tools python3-setuptools
 
-#: layer:
-#: run:
 #: easy_install-3.6 pip
 
 layer:
@@ -28,4 +26,3 @@ python3 setup.py install
 layer:
 
 device: plash.build-data /var/lib/plash
-device: plash.tmp /var/tmp

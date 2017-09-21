@@ -14,7 +14,9 @@ from urllib.request import urlopen
 
 from .utils import hashstr, run, deescalate_sudo
 
-TMP_DIR = '/var/tmp'
+BASE_DIR = '/var/lib/plash'
+TMP_DIR = join(BASE_DIR, 'tmp')
+BUILDS_DIR = join(BASE_DIR, 'builds')
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
 
@@ -32,19 +34,31 @@ def signal_handler(signal, frame):
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 
+def umount(mountpoint):
+    subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
+
 class BaseImageCreator:
     def __call__(self, image):
 
         self.arg = image
         image_id = self.get_id()
-        image_dir = join('/var/lib/plash', image_id)
+        image_dir = join(BUILDS_DIR, image_id)
 
         if not os.path.exists(image_dir):
 
             try:
-                os.mkdir('/var/lib/plash', 0o0700)
+                os.mkdir(BASE_DIR, 0o0700)
             except FileExistsError:
                 pass
+            try:
+                os.mkdir(BUILDS_DIR)
+            except FileExistsError:
+                pass
+            try:
+                os.mkdir(TMP_DIR)
+            except FileExistsError:
+                pass
+
             tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
             os.mkdir(join(tmp_image_dir, 'children'))
             os.mkdir(join(tmp_image_dir, 'payload'))
@@ -213,7 +227,7 @@ class Container:
         return hashstr(cmd)[:12]
 
     def get_layer_paths(self):
-        lp = ["/var/lib/plash/{}".format(self._layer_ids[0])]
+        lp = [join(BUILDS_DIR, self._layer_ids[0])]
         for ci in self._layer_ids[1:]:
             lp.append(lp[-1] + '/children/' + ci)
         return lp
@@ -289,7 +303,7 @@ class Container:
             os.execvpe(shell, [shell, '-cxe', cmd], os.environ) # maybe isolate envs better?
         child_pid, child_exit = os.wait()
 
-        run(["umount", "--recursive", mountpoint])
+        umount(mountpoint)
 
         if child_exit != 0:
             print("*** plash: build failed with exit status: {}".format(child_exit // 256), file=sys.stderr)
@@ -402,7 +416,7 @@ class Container:
                 sys.exit(1)
         _, child_exit = os.wait()
 
-        run(["/bin/umount", "--recursive", mountpoint])
+        umount(mountpoint)
         os.rmdir(mountpoint)
         sys.exit(child_exit // 256) # that // 256 is one of these things i don't fully understand
 

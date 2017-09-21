@@ -218,6 +218,7 @@ def script(*lines):
 
 
 def script2lsp(script):
+    # FIXME: #: mybla: arg does not work, mybla should be ignored by comment
     lines = script.splitlines()
 
     # ignore shebangs
