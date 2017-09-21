@@ -10,7 +10,7 @@ setup(name='plash',
       packages=['plash'],
       scripts=['bin/plash', 'bin/plashexec'],
       package_dir={'plash': '.'},
-      package_data={'plash': ['data/bin/*']},
+      package_data={'plash': ['internalbin/*']},
       install_requires=[
       ],
       include_package_data=True,

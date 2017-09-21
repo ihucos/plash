@@ -9,7 +9,7 @@ host:
 rm -rf ./plash.egg-info
 rm -rf ./dist
 
-apk: python3 wget
+apk: python3 wget squashfs-tools
 
 #: layer:
 #: run:

@@ -63,7 +63,9 @@ def run(command):
 def get_subcommand_path(name):
     # very ugly, no idea how this is suppsed to be done
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    subcommands_dir = os.path.join(module_dir, '..', 'data', 'bin')
+    subcommands_dir = os.path.join(module_dir, 'internalbin')
+    if not os.path.isdir(subcommands_dir):
+        subcommands_dir = os.path.join(module_dir, '..', 'internalbin')
     return os.path.abspath(os.path.join(subcommands_dir, name)) # what if '/' in subcommand
 
 
