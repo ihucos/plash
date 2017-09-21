@@ -1,0 +1,41 @@
+#!/usr/bin/python 
+# use the build in python distribution on mac (please don't do this script if you don't have to)
+
+import os
+import subprocess
+import sys
+import tarfile
+from os import unlink
+from os.path import abspath
+from shutil import rmtree
+from tempfile import mkdtemp, mkstemp
+
+
+def docker_import_squashfs(squashfs_file):
+      dir = mkdtemp()
+      _, tgz_out = mkstemp()
+      subprocess.check_call(['unsquashfs', '-f', '-d', dir, squashfs_file])
+
+      # well, what can i say
+      docker_entrypoint = os.path.join(dir, 'docker_entrypoint')
+      with open(docker_entrypoint, 'w') as f:
+            f.write('#!/bin/sh\nexec $(readlink /etc/runp_exec) "$@"\n')
+      os.chmod(docker_entrypoint, 0o755)
+            
+      subprocess.check_call(['tar', '-czvf', tgz_out, '-C', dir, '.'])
+
+      assert '/tmp/' in dir or dir.startswith('/var/folders/')
+      rmtree(dir) # be carefull with this call
+
+      image = subprocess.check_output(['docker', 'import', tgz_out]).strip('\n')
+      unlink(tgz_out)
+      return image
+
+squashfs_file = sys.argv[1]
+out = sys.argv[2]
+docker_image = docker_import_squashfs(squashfs_file)
+with open(out, 'w') as f:
+      f.write('''#!/bin/sh
+exec docker run -ti {} /docker_entrypoint "$@"
+'''.format(docker_image))
+os.chmod(out, 0o755)
