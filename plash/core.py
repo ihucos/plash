@@ -235,6 +235,9 @@ class Container:
         # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
         run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
 
+
+        # run(['mount', '--bind', '/var/lib/runc/mydata', join(mountpoint, '/mnt')])
+
         # kind of hacky, we create an empty etc/resolv.conf so we can mount over it if it does not exists
         resolv_file = join(mountpoint, 'etc/resolv.conf')
         if not os.path.exists(resolv_file):
@@ -367,7 +370,7 @@ class Container:
             except FileNotFoundError:
                 pass # we are fine staying at /
 
-            deescalate_sudo()
+            # deescalate_sudo()
 
             try:
                 os.execvpe(cmd[0], cmd, os.environ)
