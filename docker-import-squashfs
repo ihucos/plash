@@ -1,5 +1,5 @@
 #!/usr/bin/python 
-# use the build in python distribution on mac (please don't do this script if you don't have to)
+# use the buildin python distribution on mac (please don't do this script if you don't have to)
 
 import os
 import subprocess
@@ -32,10 +32,5 @@ def docker_import_squashfs(squashfs_file):
       return image
 
 squashfs_file = sys.argv[1]
-out = sys.argv[2]
 docker_image = docker_import_squashfs(squashfs_file)
-with open(out, 'w') as f:
-      f.write('''#!/bin/sh
-exec docker run -ti {} /docker_entrypoint "$@"
-'''.format(docker_image))
-os.chmod(out, 0o755)
+print(docker_iamge)
