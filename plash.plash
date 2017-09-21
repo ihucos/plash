@@ -27,5 +27,5 @@ python3 setup.py install
 
 layer:
 
-device: plash-build-data:/var/lib/plash
-device: plash-tmp:/var/tmp
+device: plash.build-data /var/lib/plash
+device: plash.tmp /var/tmp

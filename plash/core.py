@@ -371,7 +371,7 @@ class Container:
         except FileNotFoundError:
             devices = []
         for device in devices:
-            device_name, device_dst = device.split(':')
+            device_name, device_dst = device.split(None, 1)
             source = join('/var/lib/runp-devices', device_name)
             device_mp = join(mountpoint, device_dst.lstrip('/'))
             try:

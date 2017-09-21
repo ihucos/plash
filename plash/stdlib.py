@@ -287,8 +287,8 @@ def host(*lines):
     subprocess.check_call([tmp])
 
 @action(echo=False)
-def device(ds):
-    return eval([['run', 'mkdir -p /etc/runp && echo {} >> /etc/runp/devices'.format(shlex.quote(ds))]])
+def device(name, path):
+    return eval([['run', 'mkdir -p /etc/runp && echo {} >> /etc/runp/devices'.format(shlex.quote(name + ' ' + path))]])
 
 eval(script2lsp('''
 
