@@ -11,10 +11,9 @@ rm -rf ./dist
 
 apk: python3 wget
 
-layer:
-
-run:
-easy_install-3.6 pip
+#: layer:
+#: run:
+#: easy_install-3.6 pip
 
 layer:
 

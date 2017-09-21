@@ -256,7 +256,7 @@ class Container:
             'upperdir={write_dir},lowerdir={dirs},workdir={workdir}'.format(
                 write_dir=write_dir,
                 workdir=workdir,
-                dirs=':'.join(join(p, 'payload') for p in self.get_layer_paths())),
+                dirs=':'.join(join(p, 'payload') for p in reversed(self.get_layer_paths()))),
             mountpoint]
         run(cmd)
         return mountpoint
