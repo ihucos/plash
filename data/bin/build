@@ -86,6 +86,7 @@ def get_argument_parser():
     parser.add_argument("--debug-lsp", action='store_true')
 
     parser.add_argument("--ignore-no-tty", action='store_false')
+    parser.add_argument("--all-root", action='store_true')
 
     parser.add_argument("--docker", "-d", action='store_true')
     parser.add_argument("--docker-image", action='store_true')
@@ -147,7 +148,7 @@ def main():
             state.reset()
             script = eval(init+lsp)
             return state.get_os(), script
-        os_image, script = deescalate_sudo_call(deescalated)
+        os_image, script = deescalate_sudo_call(deescalated) if not args.all_root else deescalated()
 
     if not os_image:
         ap.error('Specify an image')
