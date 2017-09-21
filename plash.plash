@@ -25,4 +25,16 @@ python3 setup.py install
 
 layer:
 
+
+#: strip the system, the docker image does some of this automcally, plash may have something programmatically for this at some point.
+run:
+rm -rf /var/cache/apt
+rm -rf /var/lib/apt/lists
+layer:
+
+run:
+apt-get purge -y vim vim.tiny vim-common vim-runtime
+
+layer:
+
 device: plash.build-data /var/lib/plash

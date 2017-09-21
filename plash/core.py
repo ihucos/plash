@@ -245,7 +245,7 @@ class Container:
         run(['mount', '--bind', '/home', join(mountpoint, 'home')])
         run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
         run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-        run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')]) # apt-get needs that
+        # run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')]) # apt-get needs that
         # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
         run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
 
