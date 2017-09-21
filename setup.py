@@ -9,6 +9,8 @@ setup(name='plash',
       license='MIT',
       packages=['plash'],
       scripts=['bin/plash', 'bin/plashexec'],
+      package_dir={'plash': '.'},
+      package_data={'plash': ['data/bin/*']},
       install_requires=[
       ],
       include_package_data=True,
