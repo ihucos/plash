@@ -47,12 +47,18 @@ func main() {
 
 	// squashFile := filepath.Abs(cmd.Args[1])
 	squashFile := os.Args[0] + ".squashfs"
+	rootfsDir := os.Args[0] + ".dir"
 	squashArgs := os.Args[1:]
 
 	// cheapo file hashing
 	var stat syscall.Stat_t
-	err := syscall.Stat(squashFile, &stat)
-	check(err)
+	isSquashfile := false
+	err := syscall.Stat(rootfsDir, &stat)
+	if os.IsNotExist(err) {
+		isSquashfile = true
+		err = syscall.Stat(squashFile, &stat)
+		check(err)
+	}
 	// m, err := json.Marshal(squashFile)
 	// check(err)
 	// h := sha256.New()
@@ -110,7 +116,11 @@ func main() {
 		tempMountpoint, err := ioutil.TempDir("/var/tmp", suffix)
 		check(err)
 
-		run("/bin/mount", squashFile, tempMountpoint) // nosuid?
+		if isSquashfile {
+			run("/bin/mount", squashFile, tempMountpoint) // nosuid?
+		} else {
+			run("/bin/mount", "--bind", "-o", "ro", rootfsDir, tempMountpoint) // nosuid?
+		}
 
 
 
@@ -159,7 +169,7 @@ func main() {
 			check(err)
 		}
 		run("/bin/mount", "--bind", "/run", tempMountpoint + "/run") // we want /var/run but its a symlink, we need to autmotazize following it
-		fmt.Println(tempMountpoint)
+		// fmt.Println(tempMountpoint)
 
 		// err = os.Mkdir(mountpoint, 0755) // fix permissions later // "short" race codition here
 		// check(err)

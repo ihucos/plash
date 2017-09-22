@@ -1,0 +1,2 @@
+#!/bin/sh
+exec docker run -ti sha256:bf0c12be856734be2020e24cf3830a0de7b5db2c0d119fa4743acdccd1e53218 /docker_entrypoint "$@"

@@ -61,12 +61,8 @@ def run(command):
 #     ou.chmod(fname, st.st_mode | stat.S_IEXEC)
 
 def get_subcommand_path(name):
-    # very ugly, no idea how this is suppsed to be done
-    module_dir = os.path.dirname(os.path.abspath(__file__))
-    subcommands_dir = os.path.join(module_dir, 'internalbin')
-    if not os.path.isdir(subcommands_dir):
-        subcommands_dir = os.path.join(module_dir, '..', 'internalbin')
-    return os.path.abspath(os.path.join(subcommands_dir, name)) # what if '/' in subcommand
+    dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+    return os.path.abspath(os.path.join(dir, 'plash.{}'.format(name))) # what if '/' in subcommand
 
 
 def filter_positionals(args):

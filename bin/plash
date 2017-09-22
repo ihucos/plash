@@ -23,5 +23,5 @@ try:
         [subcommand_executable] + subcommand_args,
         os.environ)
 except FileNotFoundError:
-    all_subcommands = os.listdir(os.path.dirname(subcommand_executable))
-    print('No subcommand {}, available: {}'.format(repr(subcommand), ' '.join(sorted(all_subcommands))))
+    raise
+    print('No subcommand {}, available')

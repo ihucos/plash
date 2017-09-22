@@ -8,8 +8,9 @@ host:
 #!/bin/sh
 rm -rf ./plash.egg-info
 rm -rf ./dist
+rm -rf ./plash/__pycache__
 
-apt: python3 wget squashfs-tools python3-setuptools
+apt: python3 wget squashfs-tools python3-setuptools tree
 
 #: easy_install-3.6 pip
 

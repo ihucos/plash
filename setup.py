@@ -1,4 +1,8 @@
+from os import listdir, path
+
 from setuptools import setup
+
+bins = listdir(path.join((path.dirname(__file__)), 'bin'))
 
 setup(name='plash',
       version='0.2.0',
@@ -8,9 +12,7 @@ setup(name='plash',
       author_email='irae.hueck.costa@gmail.com',
       license='MIT',
       packages=['plash'],
-      scripts=['bin/plash', 'bin/plashexec'],
-      package_dir={'plash': 'plash'},
-      package_data={'plash': ['internalbin/*']},
+      scripts=[path.join('bin', b) for b in bins],
       install_requires=[
       ],
       include_package_data=True,

@@ -33,4 +33,4 @@ def docker_import_squashfs(squashfs_file):
 
 squashfs_file = sys.argv[1]
 docker_image = docker_import_squashfs(squashfs_file)
-print(docker_iamge)
+print(docker_image)
