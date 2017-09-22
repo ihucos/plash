@@ -16,7 +16,8 @@ apt: python3 wget squashfs-tools python3-setuptools tree
 
 layer:
 
-rebuild-when-changed: ./
+# rebuild-when-changed ./
+bustcache:
 
 layer:
 

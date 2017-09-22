@@ -364,61 +364,18 @@ class Container:
     def run(self, cmd):
 
         # SECURITY: fix permissions
-        mountpoint = mkdtemp(dir='/var/tmp') # don't use /tmp because its mounted on the container, that would cause weird mount recursion
+        mountpoint_wrapper = mkdtemp(dir='/var/tmp') # don't use /tmp because its mounted on the container, that would cause weird mount recursion
+        mountpoint = join(mountpoint_wrapper, 'env.dir')
+        os.symlink('/home/iraehueckcosta/plash/runp', join(mountpoint_wrapper, 'env'))
         self.mount_rootfs(mountpoint=mountpoint)
+
+        if not os.path.exists(etc_runp):
+            os.mkdir(etc_runp)
+        os.symlink('/usr/bin/env', join(etc_runp, 'exec'))
+
         os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
-
-        # mounting that as we currently do in runp.go is really fucked up, on ubuntu because of symlink umounting it again does not work
-        with open(join(mountpoint, 'etc', 'resolv.conf'), 'w') as f:
-            f.write(open('/etc/resolv.conf').read())
-
-        # same as what is in runp.go, keep both in sync!
-        run(["/bin/mount", "-t", "proc", "proc", mountpoint + "/proc"])
-        # run(["/bin/mount", "--bind", "-o", "ro", "/etc/resolv.conf", mountpoint + "/etc/resolv.conf"])
-        for mount in ["/sys", "/dev", "/tmp", "/home", "/run"]:
-            run(["/bin/mount", "--bind", mount, mountpoint + mount])
-
-
-        try:
-            with open(join(mountpoint, 'etc/runp/devices')) as f:
-                devices = f.read().splitlines()
-        except FileNotFoundError:
-            devices = []
-        for device in devices:
-            device_name, device_dst = device.split(None, 1)
-            source = join('/var/lib/runp-devices', device_name)
-            device_mp = join(mountpoint, device_dst.lstrip('/'))
-            try:
-                os.makedirs(source)
-            except FileExistsError:
-                pass
-            try:
-                os.makedirs(device_mp)
-            except FileExistsError:
-                pass
-            run(['/bin/mount', '--bind', source, device_mp])
-
-        if not os.fork():
-            old_pwd = os.getcwd()
-            os.chroot(mountpoint)
-            os.chdir('/')
-            try:
-                os.chdir(old_pwd)
-            except FileNotFoundError:
-                pass # we are fine staying at /
-
-            # deescalate_sudo()
-
-            try:
-                os.execvpe(cmd[0], cmd, os.environ)
-            except FileNotFoundError:
-                print('{}: not found'.format(cmd[0]))
-                sys.exit(1)
-        _, child_exit = os.wait()
-
-        umount(mountpoint)
-        os.rmdir(mountpoint)
-        sys.exit(child_exit // 256) # that // 256 is one of these things i don't fully understand
+        cmd = [join(mountpoint_wrapper, 'env')] + cmd
+        os.execvpe(cmd[0], cmd, os.environ)
 
     def __repr__(self):
         return ':'.join(self._layer_ids)
