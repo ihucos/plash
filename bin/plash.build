@@ -212,6 +212,12 @@ def main():
         #         **execute_extra_kws)
         c = core.Container(image)
         c.ensure_base()
+
+        # this is not totally nice here, but no idea where to put it
+        # for us to mount over /etc/resolv.conf it should exist and be a file and not a symlink
+        # runp needs this
+        c.add_or_build_layer('rm /etc/resolv.conf && touch /etc/resolv.conf')
+
         for cmd in layers:
             c.add_or_build_layer(cmd)
         c.log_access()

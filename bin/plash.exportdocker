@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import sys
+from tempfile import mkdtemp
+
+from plash.core import Container
+
+container_name = sys.argv[1]
+
+c = Container(container_name)
+mountpoint = mkdtemp()
+c.mount_rootfs(mountpoint=mountpoint)
+os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
+subprocess.check_call(['tar', '-cz', 'mountpoint'])

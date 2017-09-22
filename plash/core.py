@@ -329,7 +329,6 @@ class Container:
     
     def add_layer(self, cmd):
         self._layer_ids.append(self._hash_cmd(cmd.encode()))
-    
 
     def create_runnable(self, source_binary, runnable):
         # SECURITY: fix permissions
@@ -360,12 +359,6 @@ class Container:
 
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
         print('OK')
-    
-    def docker_export(self):
-        mountpoint = mkdtemp(dir=TMP_DIR)
-        self.mount_rootfs(mountpoint=mountpoint)
-        os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
-        subprocess.check_call(['tar', '-cz', 'mountpoint'])
     
     def run(self, cmd):
 

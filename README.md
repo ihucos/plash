@@ -1,3 +1,5 @@
+## This README is old, documentation will be writte for the first stable release
+
 # plash
 
 Plash is a flexible build tool for docker images. Current version is 0.2 alpha.
