@@ -356,7 +356,7 @@ class Container:
 
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
         print('Squashing... ', end='', flush=True)
-        subprocess.check_call(['mksquashfs', mountpoint, runnable + '.squashfs', '-Xcompression-level', '1', '-noappend'], stdout=subprocess.DEVNULL)
+        subprocess.check_call(['mksquashfs', mountpoint, runnable + '.squashfs', '-comp', 'xz', '-noappend'], stdout=subprocess.DEVNULL)
 
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
         print('OK')
