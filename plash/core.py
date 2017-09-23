@@ -279,7 +279,6 @@ class Container:
                 dirs=':'.join(join(p, 'payload') for p in reversed(self.get_layer_paths()))),
             mountpoint]
         run(cmd)
-        return mountpoint
 
     def build_layer(self, cmd):
         print('*** plash: building layer', file=sys.stderr)

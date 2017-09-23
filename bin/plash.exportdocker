@@ -3,14 +3,18 @@
 import os
 import subprocess
 import sys
+import tarfile
+from os.path import join
+from shutil import copytree
 from tempfile import mkdtemp
 
 from plash.core import Container
 
 container_name = sys.argv[1]
 
+# yeah, idk the bytes that come out from here are bad
 c = Container(container_name)
-mountpoint = mkdtemp()
+mountpoint = mkdtemp(dir='/var/lib/plash/tmp')
 c.mount_rootfs(mountpoint=mountpoint)
-os.chmod(mountpoint, 0o755) # that permission the root directory '/' needs
-subprocess.check_call(['tar', '-cz', 'mountpoint'])
+with tarfile.open(None, 'w|bz2', fileobj=sys.stdout.buffer) as archive_fd:
+    archive_fd.add(mountpoint)

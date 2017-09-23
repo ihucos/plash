@@ -39,6 +39,7 @@ SHORTCUTS = [
     ('-F', ['os', 'fedora'], 0),
     ('-D', ['os', 'debian'], 0),
     ('-l', ['layer'], 0),
+    ('-i', ['include'], '+'),
  ]
 
 def add_shortcuts_to_parser(parser):
