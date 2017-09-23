@@ -288,8 +288,9 @@ def host(*lines):
     subprocess.check_call([tmp])
 
 @action(echo=False)
-def device(name, path):
-    return eval([['run', 'mkdir -p /etc/runp && echo {} >> /etc/runp/devices'.format(shlex.quote(name + ' ' + path))]])
+def volume(name, path):
+    return eval([['run', 'mkdir -p {volume_path} && mkdir -p /etc/runp/volumes && ln -s  {volume_path} /etc/runp/volumes/{name}'.format(
+        name=shlex.quote(name), volume_path=shlex.quote(path))]])
 
 eval(script2lsp('''
 

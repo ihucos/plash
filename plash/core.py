@@ -62,7 +62,18 @@ class BaseImageCreator:
             tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
             os.mkdir(join(tmp_image_dir, 'children'))
             os.mkdir(join(tmp_image_dir, 'payload'))
-            self.prepare_image(join(tmp_image_dir, 'payload'))
+            rootfs = join(tmp_image_dir, 'payload')
+            self.prepare_image(rootfs)
+
+            # we want /etc/resolv to not by a symlink or not to not exist - that makes the later mount not work
+            resolvconf = join(rootfs, 'etc/resolv.conf')
+            try:
+                os.unlink(resolvconf)
+            except FileNotFoundError:
+                pass
+            with open(resolvconf, 'w') as f:
+                f.seek(0)
+                f.truncate()
 
             try:
                 os.rename(tmp_image_dir, image_dir)
@@ -249,14 +260,7 @@ class Container:
         # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
         run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
 
-        # run(['mount', '--bind', '/var/lib/runc/mydata', join(mountpoint, '/mnt')])
-
-        # kind of hacky, we create an empty etc/resolv.conf so we can mount over it if it does not exists
-        resolv_file = join(mountpoint, 'etc/resolv.conf')
-        if not os.path.exists(resolv_file):
-            with open(resolv_file, 'w') as _:
-                pass
-        run(['mount', '--bind', '/etc/resolv.conf', resolv_file])
+        run(['mount', '--bind', '/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf')])
 
     def mount_rootfs(self, *, mountpoint, write_dir=None, workdir=None):
         if write_dir == None:

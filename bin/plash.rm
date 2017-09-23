@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import os
 import subprocess
 import sys
@@ -17,7 +16,7 @@ last_layer = c.get_layer_paths()[-1]
 
 print(WARNING)
 
-delme = mkdtemp(suffix=".delme")
+delme = mkdtemp(suffix=".delme", dir='/var/lib/plash/tmp')
 try:
       os.rename(last_layer, delme)
 except FileNotFoundError:

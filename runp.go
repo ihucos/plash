@@ -169,6 +169,30 @@ func main() {
 			check(err)
 		}
 		run("/bin/mount", "--bind", "/run", tempMountpoint + "/run") // we want /var/run but its a symlink, we need to autmotazize following it
+
+		// mount the volumes
+		volumesConfig := tempMountpoint + "/etc/runp/volumes/"
+		files, err := ioutil.ReadDir(volumesConfig)
+		if len(files) != 0 {
+			err := os.Mkdir("/var/lib/runp-volumes", 0755) // have to think about access permissions
+			if ! os.IsExist(err) {
+				panic(err)
+			}
+		}
+		for _, file := range files {
+			mountToRequest, err := os.Readlink(volumesConfig + file.Name())
+			check(err)
+			mountTo := tempMountpoint + mountToRequest // check its not an absolute path?
+			mountFrom := "/var/lib/runp-volumes/" + file.Name()
+			// TODO: check that file is absolute?
+			err = os.Mkdir(mountFrom, 0755) // have to think about access rights
+			if ! os.IsExist(err) {
+				panic(err)
+			}
+			run("/bin/mount", "--bind", mountFrom, mountTo)
+		}
+		check(err)
+
 		// fmt.Println(tempMountpoint)
 
 		// err = os.Mkdir(mountpoint, 0755) // fix permissions later // "short" race codition here

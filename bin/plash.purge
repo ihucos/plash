@@ -3,8 +3,7 @@
 read -r -p "Delete all build data? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
-        rm -rf /var/lib/plash
-        echo "It's gone."
+        exec rm -rf /var/lib/plash/* # don't delete the dir itself because it could be a mount
         ;;
     *)
 esac
