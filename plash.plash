@@ -39,4 +39,12 @@ apt-get purge -y vim vim.tiny vim-common vim-runtime
 
 layer:
 
-device: plash.build-data /var/lib/plash
+# hacky must be different
+run:
+cp {{pwd}}/runp /usr/local/bin/runp
+
+layer:
+
+volume: plash.build-data /var/lib/plash
+volume: plash.vartmp /var/tmp
+volume: plash.myvol /var/lib/runp-volumes
