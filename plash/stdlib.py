@@ -157,7 +157,11 @@ def each_line(*args):
         lsp.append(args + [line])
     return eval(lsp)
 
-
+@action(echo=False)
+def write_file(fname, *lines):
+    lsp = []
+    for line in lines:
+        lsp.append(['run', 'printf {} >> {}'.format(shlex.quote(fname), shlex.quote(line))])
 
 @action(echo=False)
 def all(command, *args):

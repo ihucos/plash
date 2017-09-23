@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 import tarfile
+import tty
 from os.path import join
 from shutil import copytree
 from tempfile import mkdtemp
@@ -16,5 +17,7 @@ container_name = sys.argv[1]
 c = Container(container_name)
 mountpoint = mkdtemp(dir='/var/lib/plash/tmp')
 c.mount_rootfs(mountpoint=mountpoint)
+
+tty.setraw(1)
 with tarfile.open(None, 'w|bz2', fileobj=sys.stdout.buffer) as archive_fd:
     archive_fd.add(mountpoint)
