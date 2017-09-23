@@ -1,0 +1,3 @@
+#!/bin/sh
+volumes='/usr/lib/runp-volumes'
+ls $volumes

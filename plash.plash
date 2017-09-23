@@ -23,7 +23,7 @@ layer:
 
 run:
 cd {{pwd}}
-python3 setup.py develop
+python3 setup.py install
 
 layer:
 
@@ -47,4 +47,4 @@ layer:
 
 volume: plash.build-data /var/lib/plash
 volume: plash.vartmp /var/tmp
-volume: plash.myvol /var/lib/runp-volumes
+volume: plash.volumedata /var/lib/runp-volumes
