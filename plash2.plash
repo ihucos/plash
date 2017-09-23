@@ -15,3 +15,4 @@ bustcache:
 run:
 cd {{pwd}}
 python3 setup.py bdist_wheel
+pip install {{pwd}}/dist/*.whl
