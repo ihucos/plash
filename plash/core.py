@@ -300,6 +300,8 @@ class Container:
             fd = os.open("/dev/null", os.O_WRONLY)
             os.dup2(fd, 0);
             os.close(fd);
+
+            # everything from this build process goes to stderr
             os.dup2(2, 1);
 
             shell = 'sh'
