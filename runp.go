@@ -173,6 +173,9 @@ func main() {
 		// mount the volumes
 		volumesConfig := tempMountpoint + "/etc/runp/volumes/"
 		files, err := ioutil.ReadDir(volumesConfig)
+		if (err != nil && ! os.IsNotExist(err)){
+			panic(err)
+		}
 		if len(files) != 0 {
 			err := os.Mkdir("/var/lib/runp-volumes", 0755) // have to think about access permissions
 			if ! os.IsExist(err) {
@@ -186,12 +189,11 @@ func main() {
 			mountFrom := "/var/lib/runp-volumes/" + file.Name()
 			// TODO: check that file is absolute?
 			err = os.Mkdir(mountFrom, 0755) // have to think about access rights
-			if ! os.IsExist(err) {
+			if (err != nil && ! os.IsExist(err)) {
 				panic(err)
 			}
 			run("/bin/mount", "--bind", mountFrom, mountTo)
 		}
-		check(err)
 
 		// fmt.Println(tempMountpoint)
 
