@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from plash.utils import setup_sigint_handler; setup_sigint_handler()
 
 import argparse
 import os
@@ -13,9 +14,8 @@ from plash import core, dockercore, state
 from plash.core import BuildError
 from plash.dockercore import DockerBuildError, docker_get_image_shell
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
-from plash.utils import (deescalate_sudo_call,
-                         disable_friendly_exception, friendly_exception,
-                         hashstr, rand)
+from plash.utils import (deescalate_sudo_call, disable_friendly_exception,
+                         friendly_exception, hashstr, rand)
 
 HELP = 'my help'
 PROG = 'plash'

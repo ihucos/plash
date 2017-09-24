@@ -6,11 +6,12 @@ from shutil import rmtree
 from tempfile import mkdtemp
 
 from plash.core import Container
-from plash.utils import get_subcommand_path
+from plash.utils import get_subcommand_path, getargs
 
+DESCR = 'Deletes the last layer of the given container'
 WARNING = """WARNING: If you have other plash processes using the last layer of this container its container filesystems will get to an undefined state.""" 
 
-container_id = sys.argv[1]
+container_id, = getargs(['container-id'], DESCR)
 c = Container(container_id)
 last_layer = c.get_layer_paths()[-1]
 

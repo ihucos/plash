@@ -23,17 +23,6 @@ LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.
 class BuildError(Exception):
     pass
 
-
-# HACK HACK NOT HERE
-# this should be in utils and explicitely registered
-# for usability its really nice, we can give the user a message when C-c is hit
-# and it als quits more idmediately
-import signal
-def signal_handler(signal, frame):
-    print('Interrupted by user')
-    sys.exit(0)
-signal.signal(signal.SIGINT, signal_handler)
-
 def umount(mountpoint):
     subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
 
@@ -310,6 +299,7 @@ class Container:
             os.dup2(2, 1);
 
             shell = 'sh'
+
             os.execvpe(shell, [shell, '-cxe', cmd], os.environ) # maybe isolate envs better?
         child_pid, child_exit = os.wait()
 

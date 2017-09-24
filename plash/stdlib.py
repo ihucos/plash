@@ -121,7 +121,7 @@ def mount(from_, to):
 
 
 @action()
-def bustcache():
+def bust_cache():
     return  ': bust cache with {}'.format(uuid.uuid4()) 
 
 

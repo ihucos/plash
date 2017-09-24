@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from plash.utils import setup_sigint_handler; setup_sigint_handler()
 
 import inspect
 import os

@@ -1,9 +1,11 @@
+import argparse
 import grp
 import hashlib
 import json
 import os
 import pwd
 import shlex
+import signal
 import stat
 import subprocess
 import sys
@@ -118,3 +120,31 @@ def deescalate_sudo_call(func, *args, **kwargs):
         print(serlialized, file=w)
         w.close()
         os._exit(0)
+
+def getargs(arglist, descr=None):
+    prog = os.path.basename(sys.argv[0]).replace('.', ' ')
+    parser = argparse.ArgumentParser(
+        description=descr,
+        prog=prog,
+        # epilog=HELP)
+    )
+    for arg in arglist:
+        if arg.endswith('*'):
+            parser.add_argument(arg[:-1], nargs='*')
+        else:
+            parser.add_argument(arg)
+    r = parser.parse_args(sys.argv[1:])
+    ns = parser.parse_args(sys.argv[1:])
+    for arg in arglist:
+        yield getattr(ns, arg.strip('*'))
+
+def red(stri):
+    return "\033[1;31m" + stri + "\033[0;0m"
+
+def setup_sigint_handler():
+    if not os.environ.get('PLASH_TRACEBACK', '').lower() in ('yes', '1', 'true'):
+        def signal_handler(signal, frame):
+            print()
+            print(red('Interrupted by user'))
+            sys.exit(130)
+        signal.signal(signal.SIGINT, signal_handler)
