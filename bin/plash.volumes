@@ -1,3 +1,73 @@
 #!/bin/sh
-volumes='/usr/lib/runp-volumes'
-ls $volumes
+set -eu
+volumes='/var/lib/runp-volumes/'
+
+
+mkdir -p $volumes # check if root os sth, access rights!
+
+if ! [ $# -gt 0 ]; then
+    echo "specify a command or --help"
+    exit 1
+fi
+
+subcommand=$1
+shift
+case $subcommand in
+
+ls|list)
+    exec ls -1 $volumes
+    ;;
+
+mv|move|rename)
+    if ! [ $# -eq 2 ]; then
+        echo "usage: mv from_volume to_volume"
+        exit 1
+    fi
+    exec mv --no-target-directory --interactive "$volumes$1" "$volumes$2"
+    ;;
+
+du|diskusage)
+    if [ $# -eq 1 ]; then
+        exec du -h $volumes"$1"
+    else
+        exec du -hc $volumes*
+    fi
+    ;;
+
+rm|remove|delete)
+    if ! [ $# -eq 1 ]; then
+        echo "usage: rm volume_name"
+        exit 1
+    fi
+    exec rm --recursive --force --interactive=once $volumes"$1"
+    ;;
+
+tree)
+    if ! [ $# -eq 1 ]; then
+        echo "usage: tree volume_name"
+        exit 1
+    fi
+    exec tree $volumes"$1"
+    ;;
+
+path)
+    echo $volumes
+    ;;
+
+purge) # TODO: ask to input 'delete them all' or something
+    exec rm --recursive --force --interactive=once $volumes
+    ;;
+
+--help)
+    echo 'volumes ls                    list volumes'
+    echo 'volumes mv src_vol dst_vol    rename a volume'
+    echo 'volumes rm volume             delete a volume'
+    echo 'volumes du [volume]           show disk usage'
+    echo 'volumes path                  print volumes path'
+    echo 'volumes tree volume           print volume source tree'
+    echo 'volumes purge                 delete all volume data'
+    ;;
+*)
+    echo "$subcommand is not a known subcommand, see list with --help"
+    exit 1
+esac
