@@ -17,7 +17,5 @@ if not cmd:
     print(container_id)
 else:
     c = Container(container_id)
-    if not c.is_builded():
-        print("Container not builded")
-        sys.exit(1)
+    c.die_if_not_builded()
     c.run(cmd)

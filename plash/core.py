@@ -91,7 +91,7 @@ class LXCImageCreator(BaseImageCreator):
         return self.arg # XXX: dot dot attack and so son, escape or so
 
     def prepare_image(self, outdir):
-        print('Fetching image index...')
+        print('Fetching image index...', file=sys.stderr)
         images = self._index_lxc_images()
         try:
             image_url = images[self.arg]
@@ -102,7 +102,7 @@ class LXCImageCreator(BaseImageCreator):
         import tempfile
         _, download_file = tempfile.mkstemp(prefix=self.arg + '.', suffix='.tar.xz') # join(mkdtemp(), self.arg + '.tar.xz')
         run(['wget', '-q', '--show-progress', image_url, '-O', download_file])
-        print('Unpacking...')
+        print('Unpacking...', file=sys.stderr)
         t = tarfile.open(download_file)
         t.extractall(outdir)
 
@@ -246,6 +246,11 @@ class Container:
     def is_builded(self):
         last_layer = self.get_layer_paths()[-1]
         return os.path.exists(last_layer)
+
+    def die_if_not_builded(self):
+        if not self.is_builded():
+            print("Container {} is not builded yet".format(repr(str(self))), file=sys.stderr)
+            sys.exit(1)
 
     def log_access(self):
         for path in reversed(self.get_layer_paths()):

@@ -8,9 +8,6 @@ from plash.core import Container
 from plash.utils import get_subcommand_path
 
 c = Container(sys.argv[1])
+c.die_if_not_builded()
 last_layer = c.get_layer_paths()[-1]
-
-if not os.path.exists(last_layer):
-      print('Container must be builded first')
-      sys.exit(1)
 subprocess.check_call(['tree', os.path.join(last_layer, 'payload')])

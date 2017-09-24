@@ -11,4 +11,5 @@ source_binary = sys.argv[2]
 install_to = sys.argv[3]
 
 c = Container(container_name)
+c.die_if_not_builded()
 c.create_runnable(source_binary, install_to)

@@ -15,9 +15,7 @@ container_name = sys.argv[1]
 
 # yeah, idk the bytes that come out from here are bad
 c = Container(container_name)
-if not c.is_builded():
-    print('not builded yet')
-    sys.exit(1)
+c.die_if_not_builded()
 mountpoint = mkdtemp(dir='/var/lib/plash/tmp')
 c.mount_rootfs(mountpoint=mountpoint)
 
