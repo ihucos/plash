@@ -178,7 +178,7 @@ func main() {
 		}
 		if len(files) != 0 {
 			err := os.Mkdir("/var/lib/runp-volumes", 0755) // have to think about access permissions
-			if ! os.IsExist(err) {
+			if err != nil &&  ! os.IsExist(err) {
 				panic(err)
 			}
 		}
