@@ -5,7 +5,7 @@ import subprocess
 import sys
 import tarfile
 import tty
-from os.path import join
+from os.path import join, dirname
 from shutil import copytree
 from tempfile import mkdtemp
 
@@ -21,6 +21,8 @@ if not c.is_builded():
 mountpoint = mkdtemp(dir='/var/lib/plash/tmp')
 c.mount_rootfs(mountpoint=mountpoint)
 
+# we need to chdir to the mountpoint and add the '.' directory or we get a wrong dirs in front of the actual directory tree
+os.chdir(mountpoint)
 tty.setraw(1)
 with tarfile.open(None, 'w|bz2', fileobj=sys.stdout.buffer) as archive_fd:
-    archive_fd.add(mountpoint)
+    archive_fd.add('.')

@@ -5,21 +5,19 @@ os: zesty
 apt: python3 wget squashfs-tools python3-setuptools tree
 
 layer:
+include: ubuntu-freespace.plash
 
-# rebuild-when-changed ./
-bustcache:
-
-layer:
-
-run:
-cd {{pwd}}
-python3 setup.py install
-
-layer:
-
-# hacky must be different
+#: hacky must be different
 run:
 cp {{pwd}}/runp /usr/local/bin/runp
+
+layer:
+bustcache:
+run:
+cd {{pwd}}
+python3 setup.py develop
+
+layer:
 
 layer:
 
