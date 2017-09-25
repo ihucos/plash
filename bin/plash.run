@@ -17,4 +17,5 @@ if not cmd:
     cmd = ['printf', container_id + '\n']
 c = Container(container_id)
 c.die_if_not_builded()
+
 c.run(cmd)

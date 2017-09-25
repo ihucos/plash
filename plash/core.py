@@ -365,7 +365,7 @@ class Container:
         # SECURITY: fix permissions
         mountpoint_wrapper = mkdtemp(dir='/var/tmp') # don't use /tmp because its mounted on the container, that would cause weird mount recursion
         mountpoint = join(mountpoint_wrapper, 'env.dir')
-        os.mkdir(mountpoint, 0o755)
+        os.mkdir(mountpoint)
         os.symlink('/usr/local/bin/runp', join(mountpoint_wrapper, 'env'))
         self.mount_rootfs(mountpoint=mountpoint)
 
@@ -374,6 +374,10 @@ class Container:
             os.mkdir(etc_runp)
         os.symlink('/usr/bin/env', join(etc_runp, 'exec'))
 
+
+        os.chmod(mountpoint_wrapper, 0o755)
+        os.chmod(mountpoint, 0o755)
+        deescalate_sudo()
         cmd = [join(mountpoint_wrapper, 'env')] + cmd
         os.execvpe(cmd[0], cmd, os.environ)
 
