@@ -6,13 +6,14 @@ from shutil import rmtree
 from tempfile import mkdtemp
 
 from plash.core import Container
-from plash.utils import get_subcommand_path, getargs
+from plash.utils import get_subcommand_path, getargs, die
 
 DESCR = 'Deletes the last layer of the given container'
 WARNING = """WARNING: If you have other plash processes using the last layer of this container its container filesystems will get to an undefined state.""" 
 
 container_id, = getargs(['container-id'], DESCR)
 c = Container(container_id)
+c.die_if_not_builded()
 last_layer = c.get_layer_paths()[-1]
 
 print(WARNING)
@@ -21,6 +22,5 @@ delme = mkdtemp(suffix=".delme", dir='/var/lib/plash/tmp')
 try:
       os.rename(last_layer, delme)
 except FileNotFoundError:
-      print('ERROR: no such container is builded')
-      sys.exit(1)
+      die('Container disappeared while trying to delete it')
 rmtree(delme)

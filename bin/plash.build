@@ -14,7 +14,7 @@ from plash import core, dockercore, state
 from plash.core import BuildError
 from plash.dockercore import DockerBuildError, docker_get_image_shell
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
-from plash.utils import (deescalate_sudo_call, disable_friendly_exception,
+from plash.utils import (deescalate_sudo_call, die, disable_friendly_exception,
                          friendly_exception, hashstr, rand)
 
 HELP = 'my help'
@@ -103,8 +103,7 @@ def get_argument_parser():
 def main():
 
     if os.getuid():
-        print("Need to be root", file=sys.stderr)
-        sys.exit(1)
+        die("Need to be root")
 
     argv = sys.argv[1:]
 

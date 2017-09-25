@@ -13,6 +13,10 @@ from shutil import disk_usage, rmtree
 from tempfile import mkdtemp
 from time import sleep
 
+from plash.utils import die
+
+
+
 BUILDS_DIR = '/var/lib/plash'
 TMP_DIR = '/tmp'
 DELETE_RATIO = 0.43
@@ -31,12 +35,11 @@ This process will self terminate in 19 seconds via signal.settitmeout or so
 """
 
 if not os.access(BUILDS_DIR, os.W_OK):
-    print('No write access to ' + BUILDS_DIR)
-    sys.exit(1)
+    die('No write access to ' + BUILDS_DIR)
 
 continue_ = input(CONFIRM) if not '--yes' in sys.argv[1:] else 'yes'
 if not continue_.lower() == 'yes':
-    sys.exit(1)
+    die('user chickened out')
 
 
 usages = []

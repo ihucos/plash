@@ -7,9 +7,8 @@ import sys
 import tempfile
 import uuid
 
-from plash import utils
 from plash.core import Container
-from plash.utils import get_subcommand_path, getargs
+from plash.utils import get_subcommand_path, getargs, die
 
 container_id, cmd = getargs(['container-id', 'cmd*'])
 if not cmd:

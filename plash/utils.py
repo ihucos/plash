@@ -38,7 +38,7 @@ def friendly_exception(exceptions, debug=None):
             else:
                 msg = 'plash error: {message}'.format(message=str(exc))
 
-            print("\033[91m{}\033[0m".format(msg), file=sys.stderr)
+            die("\033[91m{}\033[0m".format(msg))
             # raise exc # TODO: experiment with nested friendly_exception for example at load
             sys.exit(1)
 
@@ -146,8 +146,7 @@ def setup_sigint_handler(): # TODO: call differently
     if not os.environ.get('PLASH_TRACEBACK', '').lower() in ('yes', '1', 'true'):
         def signal_handler(signal, frame):
             print(file=sys.stderr)
-            print(red('Interrupted by user'), file=sys.stderr)
-            sys.exit(130)
+            die(red('Interrupted by user'), exit=130)
         signal.signal(signal.SIGINT, signal_handler)
 
         import traceback
@@ -161,8 +160,12 @@ def setup_sigint_handler(): # TODO: call differently
                 error_msg = s.read().splitlines()[-1]
                 error_msg = error_msg.split(None, 1)[-1]
                 print(file=sys.stderr)
-                print(red(error_msg), file=sys.stderr)
-                sys.exit(1)
+                die(error_msg)
             else:
                 sys.__excepthook__(exctype, value, traceback)
         sys.excepthook = better_ux_errno_exceptions
+
+
+def die(msg, exit=1):
+    print(red(msg), file=sys.stderr)
+    sys.exit(exit)
