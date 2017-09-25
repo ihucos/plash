@@ -294,8 +294,15 @@ def host(*lines):
 
 @action(echo=False)
 def volume(name, path):
-    return eval([['run', 'mkdir -p {volume_path} && mkdir -p /etc/runp/volumes && ln -s  {volume_path} /etc/runp/volumes/{name}'.format(
-        name=shlex.quote(name), volume_path=shlex.quote(path))]])
+    state.add_volume(name, path)
+
+@action(echo=False)
+def write_volumes():
+    lsp = [['layer']]
+    for name, path in state.pop_volumes():
+        lsp.append(['run', 'mkdir -p {volume_path} && mkdir -p /etc/runp/volumes && ln -s  {volume_path} /etc/runp/volumes/{name}'.format(
+            name=shlex.quote(name), volume_path=shlex.quote(path))])
+    return eval(lsp)
 
 eval(script2lsp('''
 

@@ -76,7 +76,7 @@ def get_argument_parser():
         prog=PROG,
         epilog=HELP)
 
-    # parser.add_argument("subcommand", nargs='?')
+    parser.add_argument("os", nargs="?")
     parser.add_argument("--build-silent", action='store_true')
     parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
     parser.add_argument("--build-only", action='store_true')
@@ -130,6 +130,7 @@ def main():
 
     args = ap.parse_args(argv)
 
+    state.set_os(args.os)
     build_silent = args.build_silent or os.environ.get('PLASH_BUILD_SILENT')
     lsp = getattr(args, 'lsp', [])
 
@@ -146,13 +147,12 @@ def main():
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
 
         def deescalated():
-            state.reset()
             script = eval(init+lsp)
             return state.get_os(), script
         os_image, script = deescalate_sudo_call(deescalated) if not args.all_root else deescalated()
 
     if not os_image:
-        ap.error('Specify an image')
+        ap.error('Specify a base container')
     if script:
         layers = (script + '\n').split(layer() + '\n')
         layers = [l for l in layers if l]
@@ -212,6 +212,8 @@ def main():
         #         docker_image=args.docker_image,
         #         **execute_extra_kws)
         c = core.Container(image)
+        if len(c.layers) > 1:
+            c.die_if_not_builded()
         c.ensure_base()
 
         for cmd in layers:

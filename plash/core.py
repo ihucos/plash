@@ -80,7 +80,7 @@ class LXCImageCreator(BaseImageCreator):
         return self.arg # XXX: dot dot attack and so son, escape or so
 
     def prepare_image(self, outdir):
-        print('Fetching image index...', file=sys.stderr)
+        print('Pulling {} ... '.format(self.arg), file=sys.stderr)
         images = self._index_lxc_images()
         try:
             image_url = images[self.arg]
@@ -91,7 +91,7 @@ class LXCImageCreator(BaseImageCreator):
         import tempfile
         _, download_file = tempfile.mkstemp(prefix=self.arg + '.', suffix='.tar.xz') # join(mkdtemp(), self.arg + '.tar.xz')
         run(['wget', '-q', '--show-progress', image_url, '-O', download_file])
-        print('Unpacking...', file=sys.stderr)
+        print('Extracting ...', file=sys.stderr)
         t = tarfile.open(download_file)
         t.extractall(outdir)
 
@@ -208,14 +208,14 @@ def find_executable(programm, root=None):
 class Container:
 
     def __init__(self, container_id=''):
-        self._layer_ids = container_id.split(':')
+        self.layers = container_id.split(':')
 
     # def _get_last_layer_salt_file(self):
     #     return join(self.get_layer_paths()[-1], 'salt')
 
     def ensure_base(self):
-        assert self._layer_ids
-        bootstrap_base_rootfs(self._layer_ids[0])
+        assert self.layers
+        bootstrap_base_rootfs(self.layers[0])
 
     def _get_child_path(self, cmd):
         layer_hash = self._hash_cmd(cmd.encode())
@@ -227,8 +227,8 @@ class Container:
         return hashstr(cmd)[:12]
 
     def get_layer_paths(self):
-        lp = [join(BUILDS_DIR, self._layer_ids[0])]
-        for ci in self._layer_ids[1:]:
+        lp = [join(BUILDS_DIR, self.layers[0])]
+        for ci in self.layers[1:]:
             lp.append(lp[-1] + '/children/' + ci)
         return lp
 
@@ -328,7 +328,7 @@ class Container:
         self.add_layer(cmd)
     
     def add_layer(self, cmd):
-        self._layer_ids.append(self._hash_cmd(cmd.encode()))
+        self.layers.append(self._hash_cmd(cmd.encode()))
 
     def create_runnable(self, source_binary, runnable):
         # SECURITY: fix permissions
@@ -382,7 +382,7 @@ class Container:
         os.execvpe(cmd[0], cmd, os.environ)
 
     def __repr__(self):
-        return ':'.join(self._layer_ids)
+        return ':'.join(self.layers)
 
 # def execute(
 #         base_name,

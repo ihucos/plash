@@ -13,9 +13,8 @@ from plash.utils import get_subcommand_path, getargs
 
 container_id, cmd = getargs(['container-id', 'cmd*'])
 if not cmd:
-    # yes, thats the default command, which replicates the call of build
+    # yes, thats the default command, which kind of replicates the call of build
     cmd = ['printf', container_id + '\n']
 c = Container(container_id)
 c.die_if_not_builded()
-
 c.run(cmd)

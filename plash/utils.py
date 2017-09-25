@@ -107,7 +107,8 @@ def deescalate_sudo_call(func, *args, **kwargs):
         w.close()
         _, exit = os.waitpid(pid, 0)
         if exit:
-            sys.exit(exit) # map what the child is doing
+            exit = exit // 256
+            sys.exit(exit)
         data = r.readline()
         assert data
         r.close()
