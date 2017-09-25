@@ -80,7 +80,7 @@ class LXCImageCreator(BaseImageCreator):
         return self.arg # XXX: dot dot attack and so son, escape or so
 
     def prepare_image(self, outdir):
-        print('Pulling {} ... '.format(self.arg), file=sys.stderr)
+        print('Pulling image ... ', file=sys.stderr)
         images = self._index_lxc_images()
         try:
             image_url = images[self.arg]
@@ -322,10 +322,11 @@ class Container:
     def add_or_build_layer(self, cmd):
         if not path.exists(self._get_child_path(cmd)):
             self.build_layer(cmd)
+            used_cache = False
         else:
-            pass
-            # print('*** plash: cached layer', file=sys.stderr)
+            used_cache = True
         self.add_layer(cmd)
+        return used_cache
     
     def add_layer(self, cmd):
         self.layers.append(self._hash_cmd(cmd.encode()))

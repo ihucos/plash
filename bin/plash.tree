@@ -10,7 +10,7 @@ from plash.utils import get_subcommand_path, getargs
 
 PROG = 'Prints the tree of the last layer of the given container-id'
 
-container_id = getargs(['container-id'], PROG)
+container_id, = getargs(['container-id'], PROG)
 c = Container(container_id)
 c.die_if_not_builded()
 last_layer = c.get_layer_paths()[-1]
