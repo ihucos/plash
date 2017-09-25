@@ -1,32 +1,26 @@
-#!/usr/bin/env python3
-from plash.utils import setup_sigint_handler; setup_sigint_handler()
+#!/bin/sh
+set -eu
 
-import inspect
-import os
-import sys
+[ $# -eq 0 ] && {
+    echo "Plash is a lean container build system, try --help"
+    exit 1
+}
 
-import plash
-from plash import utils
+cmd=$1
+shift
+case $cmd in
+--help|-h)
+    echo 'TODO: help' ;;
 
-args = sys.argv[1:]
+-*)
+    # "do run" is used as default command, when no other was given
+    exec $0.do run "$cmd" "$@" ;;
 
-# "do run" is used as default command when no other was given
-if not args:
-    # error('Plash is a container build system, try --help')
-    print('Plash is a lean container build system, try --help') # we need some adjective here, maybe not lean?
-    sys.exit(1)
-if args[0].startswith('-'):
-    args = ['do', 'run'] + args
+*)
+    command -v $0.$cmd >/dev/null 2>&1 || {
+        echo >&2 "Subcommand '$cmd' not found, try --help"
+        exit 1
+    }
+    exec $0.$cmd "$@" ;;
 
-subcommand = args[0]
-subcommand_args = args[1:]
-
-subcommand_executable = utils.get_subcommand_path(subcommand)
-try:
-    os.execvpe(
-        subcommand_executable,
-        [subcommand_executable] + subcommand_args,
-        os.environ)
-except FileNotFoundError:
-    print(utils.red('No subcommand {} available, try --help for list'.format(repr(subcommand))), file=sys.stderr)
-    sys.exit(1)
+esac
