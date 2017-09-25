@@ -162,6 +162,7 @@ def write_file(fname, *lines):
     lsp = []
     for line in lines:
         lsp.append(['run', 'printf {} >> {}'.format(shlex.quote(fname), shlex.quote(line))])
+    return eval(lsp)
 
 @action(echo=False)
 def all(command, *args):

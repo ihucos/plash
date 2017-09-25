@@ -12,7 +12,7 @@ run:
 cp {{pwd}}/runp /usr/local/bin/runp
 
 layer:
-bustcache:
+bust-cache:
 run:
 cd {{pwd}}
 python3 setup.py install

@@ -141,10 +141,27 @@ def getargs(arglist, descr=None):
 def red(stri):
     return "\033[1;31m" + stri + "\033[0;0m"
 
-def setup_sigint_handler():
+def setup_sigint_handler(): # TODO: call differently
     if not os.environ.get('PLASH_TRACEBACK', '').lower() in ('yes', '1', 'true'):
         def signal_handler(signal, frame):
-            print()
-            print(red('Interrupted by user'))
+            print(file=sys.stderr)
+            print(red('Interrupted by user'), file=sys.stderr)
             sys.exit(130)
         signal.signal(signal.SIGINT, signal_handler)
+
+        import traceback
+        import io
+
+        def better_ux_errno_exceptions(exctype, value, tb):
+            s = io.StringIO()
+            if getattr(exctype, 'errno', None):
+                traceback.print_exception(exctype, value, tb, file=s, limit=-1)
+                s.seek(0)
+                error_msg = s.read().splitlines()[-1]
+                error_msg = error_msg.split(None, 1)[-1]
+                print(file=sys.stderr)
+                print(red(error_msg), file=sys.stderr)
+                sys.exit(1)
+            else:
+                sys.__excepthook__(exctype, value, traceback)
+        sys.excepthook = better_ux_errno_exceptions

@@ -12,7 +12,7 @@ from os.path import abspath, join
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
-from .utils import hashstr, run, deescalate_sudo
+from .utils import hashstr, run, deescalate_sudo, red
 
 BASE_DIR = '/var/lib/plash'
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -238,7 +238,7 @@ class Container:
 
     def die_if_not_builded(self):
         if not self.is_builded():
-            print("Container {} is not builded yet".format(repr(str(self))), file=sys.stderr)
+            print(red("container {} not found").format(repr(str(self))), file=sys.stderr)
             sys.exit(1)
 
     def log_access(self):

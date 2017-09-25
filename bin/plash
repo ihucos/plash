@@ -11,6 +11,10 @@ from plash import utils
 args = sys.argv[1:]
 
 # "do run" is used as default command when no other was given
+if not args:
+    # error('Plash is a container build system, try --help')
+    print('Plash is a lean container build system, try --help') # we need some adjective here, maybe not lean?
+    sys.exit(1)
 if args[0].startswith('-'):
     args = ['do', 'run'] + args
 
@@ -24,5 +28,5 @@ try:
         [subcommand_executable] + subcommand_args,
         os.environ)
 except FileNotFoundError:
-    raise
-    print('No subcommand {}, available')
+    print(utils.red('No subcommand {} available, try --help for list'.format(repr(subcommand))), file=sys.stderr)
+    sys.exit(1)
