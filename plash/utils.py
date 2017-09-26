@@ -174,7 +174,7 @@ def setup_sigint_handler(): # TODO: call differently
 
 
 def die(msg, exit=1):
-    print(red('plash failed: ') + msg.capitalize(), file=sys.stderr)
+    print(red('ERROR ') + msg.capitalize(), file=sys.stderr)
     sys.exit(exit)
 
 def info(msg):
