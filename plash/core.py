@@ -7,12 +7,15 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import atexit
 from os import path
 from os.path import abspath, join
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
-from .utils import hashstr, run, deescalate_sudo, die
+from plash.utils import red
+
+from .utils import deescalate_sudo, die, hashstr, run
 
 BASE_DIR = '/var/lib/plash'
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -274,7 +277,7 @@ class Container:
         run(cmd)
 
     def build_layer(self, cmd):
-        print('*** plash: building layer', file=sys.stderr)
+        print('new layer', file=sys.stderr)
         new_child = mkdtemp(dir=TMP_DIR)
         mountpoint = mkdtemp(dir=TMP_DIR)
         new_layer = join(new_child, 'payload')
@@ -285,9 +288,79 @@ class Container:
 
         self._prepare_chroot(mountpoint)
 
-        if not os.fork():
+        r_fd, w_fd = os.pipe()
+        r, w = os.fdopen(r_fd,'rb', 0), os.fdopen(w_fd,'wb', 0)
+
+        def preexec_fn():
             os.chroot(mountpoint)
             os.chdir("/")
+
+        p = subprocess.Popen(['sh', '-cxe', cmd], stderr=w, stdout=w, preexec_fn=preexec_fn)
+
+
+        def color(stri):
+            return "\033[38;05;10m" + stri + "\033[0;0m"
+
+        while True:
+            data = r.readline()
+            if not data:
+                break
+            data = data.decode()
+
+
+            import time
+            import shutil
+            s = shutil.get_terminal_size((80, 20))
+            x = s.columns
+            print(data[:-1][:x].ljust(x), end='\r')
+
+            # continue
+            # sys.stdout.write(u"\u001b[1000D")
+            # sys.stdout.flush()
+            # data = data.decode()
+            # print(data, end='')
+            # print(data[0])
+            # sys.stdout.write("\u001b[1000D" + str(data[0]) + "%")
+        sys.stdout.flush()
+
+        print('exiting')
+        sys.exit(0)
+
+
+        # r_fd, w_fd = os.pipe()
+        # r, w = os.fdopen(r_fd,'rb', 0), os.fdopen(w_fd,'wb', 0)
+        # pid = os.fork()
+        # if not pid:
+
+        #     os.chroot(mountpoint)
+        #     os.chdir("/")
+
+        #     r.close()
+        #     os.dup2(w_fd, 1);
+        #     os.dup2(w_fd, 2);
+
+        #     # print('mydata', file=w)
+        #     w.close()
+        #     shell = 'sh'
+        #     os.execvpe(shell, [shell, '-cxe', cmd], os.environ) # maybe isolate envs better?
+        # w.close()
+        # _, exit = os.waitpid(pid, 0)
+        # if exit:
+        #     exit = exit // 256
+        #     sys.exit(exit)
+        # while True:
+        #     data = r.readline()
+        #     if not data:
+        #         break
+        #     print('build: ' + data.decode(), end='')
+
+        print('exiting')
+        sys.exit(0)
+
+
+
+
+        if not os.fork():
 
             # don't allow build processes to read from stdin, since we want as "deterministic as possible" builds
             fd = os.open("/dev/null", os.O_WRONLY)
@@ -305,9 +378,8 @@ class Container:
         umount(mountpoint)
 
         if child_exit != 0:
-            print("*** plash: build failed with exit status: {}".format(child_exit // 256), file=sys.stderr)
-            shutil.rmtree(new_child)
-            sys.exit(1)
+            atexit.register(lambda: shutil.rmtree(new_child))
+            die("build returned exit status {}".format(child_exit // 256))
 
         final_child_dst = self._get_child_path(cmd)
         try:

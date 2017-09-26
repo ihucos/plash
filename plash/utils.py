@@ -100,8 +100,8 @@ def deescalate_sudo_call(func, *args, **kwargs):
     #     return func(*args, **kwargs)
     # else:
     #     os._exit(0)
-    r,w=os.pipe()
-    r,w=os.fdopen(r,'r'), os.fdopen(w,'w')
+    r, w = os.pipe()
+    r, w = os.fdopen(r,'r'), os.fdopen(w,'w')
     pid = os.fork()
     if pid:
         w.close()
@@ -143,6 +143,10 @@ def red(stri):
     return "\033[1;31m" + stri + "\033[0;0m"
 
 def setup_sigint_handler(): # TODO: call differently
+
+    return
+
+
     if not os.environ.get('PLASH_TRACEBACK', '').lower() in ('yes', '1', 'true'):
         def signal_handler(signal, frame):
             print(file=sys.stderr)
@@ -167,5 +171,5 @@ def setup_sigint_handler(): # TODO: call differently
 
 
 def die(msg, exit=1):
-    print(red(msg), file=sys.stderr)
+    print(red('plash failed: ') + msg.capitalize(), file=sys.stderr)
     sys.exit(exit)
