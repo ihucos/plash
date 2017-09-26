@@ -12,6 +12,9 @@ import sys
 import uuid
 from contextlib import contextmanager
 
+ERROR_COLOR = 1
+INFO_COLOR = 4
+
 
 def rand():
     return str(uuid.uuid4()).split('-')[-1]
@@ -137,9 +140,6 @@ def getargs(arglist, descr=None):
     for arg in arglist:
         yield getattr(ns, arg.strip('*'))
 
-def red(stri):
-    return "\033[1;31m" + stri + "\033[0;0m"
-
 def color(stri, color):
     return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
 
@@ -174,8 +174,8 @@ def setup_sigint_handler(): # TODO: call differently
 
 
 def die(msg, exit=1):
-    print(red('ERROR ') + msg.capitalize(), file=sys.stderr)
+    print(color('ERROR ', ERROR_COLOR) + msg, file=sys.stderr)
     sys.exit(exit)
 
 def info(msg):
-    print(color(msg.capitalize(), 4), file=sys.stderr)
+    print(color(msg.capitalize(), INFO_COLOR), file=sys.stderr)
