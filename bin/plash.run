@@ -8,9 +8,15 @@ import tempfile
 import uuid
 
 from plash.core import Container
-from plash.utils import get_subcommand_path, getargs, die
+from plash.utils import get_subcommand_path, getargs
 
-container_id, cmd = getargs(['container-id', 'cmd*'])
+try:
+    container_id = sys.argv[1]
+    cmd = sys.argv[2:]
+except IndexError:
+    print('USAGE: run container_id [cmd [cmd [cmd..]]]')
+    sys.exit(1)
+
 if not cmd:
     # yes, thats the default command, which kind of replicates the call of build
     cmd = ['printf', container_id + '\n']

@@ -76,6 +76,9 @@ class BaseImageCreator:
         return image_dir
 
 
+class ImageNotFound(Exception):
+    pass
+
 class LXCImageCreator(BaseImageCreator):
     def get_id(self):
         return self.arg # XXX: dot dot attack and so son, escape or so
@@ -86,7 +89,7 @@ class LXCImageCreator(BaseImageCreator):
         try:
             image_url = images[self.arg]
         except KeyError:
-            raise ValueError('No such image, available: {}'.format(
+            raise ImageNotFound('No such image, available: {}'.format(
                 ' '.join(sorted(images))))
 
         import tempfile
@@ -274,7 +277,7 @@ class Container:
             mountpoint]
         run(cmd)
 
-    def build_layer(self, cmd):
+    def build_layer(self, cmd, quiet=False):
         new_child = mkdtemp(dir=TMP_DIR)
         mountpoint = mkdtemp(dir=TMP_DIR)
         new_layer = join(new_child, 'payload')
@@ -290,7 +293,11 @@ class Container:
             os.chdir("/")
             os.close(0) # close stdin for more reproducible builds - if that does not work well, there is another way
 
-        p = subprocess.Popen(['sh', '-cxe', cmd], stderr=2, stdout=2, preexec_fn=preexec_fn)
+        if quiet:
+            out = subprocess.DEVNULL
+        else:
+            out = 2 # stderr
+        p = subprocess.Popen(['sh', '-cxe', cmd], stderr=out, stdout=out, preexec_fn=preexec_fn)
         child_exit = p.wait()
 
         umount(mountpoint)
@@ -308,10 +315,10 @@ class Container:
             else:
                 raise
 
-    def add_or_build_layer(self, cmd, on_build=lambda: None):
+    def add_or_build_layer(self, cmd, on_build=lambda: None, quiet=False):
         if not path.exists(self._get_child_path(cmd)):
             on_build()
-            self.build_layer(cmd)
+            self.build_layer(cmd, quiet=quiet)
             used_cache = False
         else:
             used_cache = True
@@ -367,7 +374,7 @@ class Container:
             sys.exit(int(not bool(found)))
         _, exit = os.wait()
         if exit // 256:
-            die('command not found: {}'.format(cmd[0]))
+            die('command not found: {}'.format(repr(cmd[0])))
 
         etc_runp = join(mountpoint, 'etc/runp')
         if not os.path.exists(etc_runp):

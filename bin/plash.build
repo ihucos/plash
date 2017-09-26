@@ -11,7 +11,7 @@ from subprocess import CalledProcessError, list2cmdline
 from urllib.error import URLError
 
 from plash import core, dockercore, state
-from plash.core import BuildError
+from plash.core import BuildError, ImageNotFound
 from plash.dockercore import DockerBuildError, docker_get_image_shell
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from plash.utils import (deescalate_sudo_call, die, disable_friendly_exception,
@@ -76,10 +76,8 @@ def get_argument_parser():
         prog=PROG,
         epilog=HELP)
 
-    parser.add_argument("--build-silent", action='store_true')
-    parser.add_argument("--build-verbose", "--build-loud", action='store_true', dest='verbose')
-    parser.add_argument("--build-only", action='store_true')
-    parser.add_argument("--build-again", "--rebuild", "--again", action='store_true')
+    parser.add_argument("--quiet", action='store_true')
+    parser.add_argument("--mute", action='store_true')
 
     parser.add_argument("--no-stdlib", action='store_true')
     parser.add_argument("--traceback", action='store_true')
@@ -92,7 +90,6 @@ def get_argument_parser():
     parser.add_argument("--docker-image", action='store_true')
 
     parser.add_argument("--docker-save-image") # join with --export
-    parser.add_argument("--install", dest='export')
     parser.add_argument('--envs', '-e', action=CollectEnvsAction, nargs='+')
 
     add_shortcuts_to_parser(parser)
@@ -128,7 +125,9 @@ def main():
 
     args = ap.parse_args(argv)
 
-    build_silent = args.build_silent or os.environ.get('PLASH_BUILD_SILENT')
+    if args.mute:
+        sys.stderr = open('/dev/null', 'w')
+
     lsp = getattr(args, 'lsp', [])
 
     if args.traceback:
@@ -211,12 +210,14 @@ def main():
         c = core.Container(image)
         if len(c.layers) > 1:
             c.die_if_not_builded()
-        c.ensure_base()
+        
+        with friendly_exception([ImageNotFound]):
+            c.ensure_base()
 
         cache_hits = []
         for counter, cmd in enumerate(layers):
             on_build = lambda: info('Layer {}/{}'.format(counter+1, len(layers)))
-            used_cache = c.add_or_build_layer(cmd, on_build=on_build)
+            used_cache = c.add_or_build_layer(cmd, on_build=on_build, quiet=args.quiet or args.mute)
             cache_hits.append(used_cache)
         if not all(cache_hits):
             info('Done')

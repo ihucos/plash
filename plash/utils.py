@@ -32,15 +32,13 @@ def friendly_exception(exceptions, debug=None):
             raise exc
         else:
             if debug:
-                msg = 'plash error at {debug}: {message}'.format(
+                msg = '{debug}: {message}'.format(
                     debug=debug,
                     message=str(exc))
             else:
-                msg = 'plash error: {message}'.format(message=str(exc))
-
-            die("\033[91m{}\033[0m".format(msg))
+                msg = str(exc)
+            die(msg)
             # raise exc # TODO: experiment with nested friendly_exception for example at load
-            sys.exit(1)
 
 class NonZeroExitStatus(Exception):
     pass
