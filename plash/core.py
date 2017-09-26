@@ -84,7 +84,7 @@ class LXCImageCreator(BaseImageCreator):
         return self.arg # XXX: dot dot attack and so son, escape or so
 
     def prepare_image(self, outdir):
-        info('Pulling image ... ')
+        info('Preparing image')
         images = self._index_lxc_images()
         try:
             image_url = images[self.arg]
@@ -95,7 +95,6 @@ class LXCImageCreator(BaseImageCreator):
         import tempfile
         _, download_file = tempfile.mkstemp(prefix=self.arg + '.', suffix='.tar.xz') # join(mkdtemp(), self.arg + '.tar.xz')
         run(['wget', '-q', '--show-progress', image_url, '-O', download_file])
-        info('Extracting ...')
         t = tarfile.open(download_file)
         t.extractall(outdir)
 
