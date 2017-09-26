@@ -18,6 +18,7 @@ from .utils import deescalate_sudo, die, hashstr, run, info
 BASE_DIR = '/var/lib/plash'
 TMP_DIR = join(BASE_DIR, 'tmp')
 BUILDS_DIR = join(BASE_DIR, 'builds')
+LINKS_DIR = join(BASE_DIR, 'links')
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
 
@@ -51,6 +52,10 @@ class BaseImageCreator:
                 os.mkdir(TMP_DIR)
             except FileExistsError:
                 pass
+            try:
+                os.mkdir(LINKS_DIR)
+            except FileExistsError:
+                pass
 
             tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
             os.mkdir(join(tmp_image_dir, 'children'))
@@ -68,6 +73,11 @@ class BaseImageCreator:
                 f.seek(0)
                 f.truncate()
 
+            # create a link so others
+            try:
+                os.symlink('../builds/' + image, '/var/lib/plash/links/'+image)
+            except FileExistsError:
+                pass
             try:
                 os.rename(tmp_image_dir, image_dir)
             except OSError as exc:
@@ -213,15 +223,23 @@ def find_executable(programm, root=None):
 
 class Container:
 
-    def __init__(self, container_id=''):
-        self.layers = container_id.split(':')
+    def __init__(self, container_id):
+        last_layer_path = os.readlink(join(LINKS_DIR, container_id))
+        self.layers = last_layer_path[len('../builds/'):].split('/children/')
 
-    # def _get_last_layer_salt_file(self):
-    #     return join(self.get_layer_paths()[-1], 'salt')
-
-    def ensure_base(self):
-        assert self.layers
-        bootstrap_base_rootfs(self.layers[0])
+    def get_id(self):
+        if len(self.layers) != 1:
+            return hashstr(':'.join(self.layers).encode())
+        else:
+            return self.layers[0]
+    
+    def get_or_create_id(self):
+        id = self.get_id()
+        try:
+            os.symlink('../builds/'+'/children/'.join(self.layers), join(LINKS_DIR, id))
+        except FileExistsError:
+            pass
+        return id
 
     def _get_child_path(self, cmd):
         layer_hash = self._hash_cmd(cmd.encode())
@@ -244,7 +262,7 @@ class Container:
 
     def die_if_not_builded(self):
         if not self.is_builded():
-            die("container {} not found".format(repr(str(self))))
+            die("container {} not found".format(repr(self.get_id())))
 
     def log_access(self):
         for path in reversed(self.get_layer_paths()):
@@ -388,35 +406,3 @@ class Container:
         deescalate_sudo()
         cmd = [join(mountpoint_wrapper, 'env')] + cmd
         os.execvpe(cmd[0], cmd, os.environ)
-
-    def __repr__(self):
-        return ':'.join(self.layers)
-
-# def execute(
-#         base_name,
-#         layer_commands,
-#         command,
-#         *,
-#         # quiet_flag=False,
-#         # verbose_flag=False,
-#         # rebuild_flag=False,
-#         # extra_mounts=[],
-#         # build_only=False,
-#         # skip_if_exists=True,
-#         export_as=False,
-#         # docker_image=False,
-#         # extra_envs={}
-#         **kw):
-
-
-#     c = Container(base_name)
-#     c.ensure_base()
-#     for cmd in layer_commands:
-#         c.add_or_build_layer(cmd)
-#     if export_as:
-#         c.create_runnable(export_as)
-#     else:
-#         if not command:
-#             print('*** plash: build is ready')
-#         else:
-#             c.run(command)
