@@ -360,11 +360,19 @@ class Container:
         os.symlink('/usr/local/bin/runp', join(mountpoint_wrapper, 'env'))
         self.mount_rootfs(mountpoint=mountpoint)
 
+        # just for  a nicer error message for the user -- ahh FIXME: we shouldnt die in a library
+        if not os.fork():
+            os.chroot(mountpoint)
+            found = shutil.which(cmd[0])
+            sys.exit(int(not bool(found)))
+        _, exit = os.wait()
+        if exit // 256:
+            die('command not found: {}'.format(cmd[0]))
+
         etc_runp = join(mountpoint, 'etc/runp')
         if not os.path.exists(etc_runp):
             os.mkdir(etc_runp)
         os.symlink('/usr/bin/env', join(etc_runp, 'exec'))
-
 
         os.chmod(mountpoint_wrapper, 0o755)
         os.chmod(mountpoint, 0o755)
