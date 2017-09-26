@@ -24,6 +24,9 @@ LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.
 class BuildError(Exception):
     pass
 
+class CommandNotFound(Exception):
+    pass
+
 def umount(mountpoint):
     subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
 
@@ -366,14 +369,14 @@ class Container:
         os.symlink('/usr/local/bin/runp', join(mountpoint_wrapper, 'env'))
         self.mount_rootfs(mountpoint=mountpoint)
 
-        # just for  a nicer error message for the user -- ahh FIXME: we shouldnt die in a library
+        # just for  a nicer error message for the user
         if not os.fork():
             os.chroot(mountpoint)
             found = shutil.which(cmd[0])
             sys.exit(int(not bool(found)))
         _, exit = os.wait()
         if exit // 256:
-            die('command not found: {}'.format(repr(cmd[0])))
+            raise CommandNotFound('command not found: {}'.format(repr(cmd[0])))
 
         etc_runp = join(mountpoint, 'etc/runp')
         if not os.path.exists(etc_runp):

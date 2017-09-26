@@ -7,8 +7,8 @@ import sys
 import tempfile
 import uuid
 
-from plash.core import Container
-from plash.utils import get_subcommand_path, getargs
+from plash.core import Container, CommandNotFound
+from plash.utils import get_subcommand_path, getargs, friendly_exception
 
 try:
     container_id = sys.argv[1]
@@ -22,4 +22,5 @@ if not cmd:
     cmd = ['printf', container_id + '\n']
 c = Container(container_id)
 c.die_if_not_builded()
-c.run(cmd)
+with friendly_exception([CommandNotFound]):
+    c.run(cmd)
