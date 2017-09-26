@@ -13,9 +13,7 @@ from os.path import abspath, join
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
-from plash.utils import red
-
-from .utils import deescalate_sudo, die, hashstr, run
+from .utils import deescalate_sudo, die, hashstr, run, info
 
 BASE_DIR = '/var/lib/plash'
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -71,7 +69,7 @@ class BaseImageCreator:
                 os.rename(tmp_image_dir, image_dir)
             except OSError as exc:
                 if exc.errno == errno.ENOTEMPTY:
-                    print('*** plash: another process already pulled that image', file=sys.stderr)
+                    info('another process already pulled that image')
                 else:
                     raise
         
@@ -83,7 +81,7 @@ class LXCImageCreator(BaseImageCreator):
         return self.arg # XXX: dot dot attack and so son, escape or so
 
     def prepare_image(self, outdir):
-        print('Pulling image ... ', file=sys.stderr)
+        info('Pulling image ... ')
         images = self._index_lxc_images()
         try:
             image_url = images[self.arg]
@@ -94,7 +92,7 @@ class LXCImageCreator(BaseImageCreator):
         import tempfile
         _, download_file = tempfile.mkstemp(prefix=self.arg + '.', suffix='.tar.xz') # join(mkdtemp(), self.arg + '.tar.xz')
         run(['wget', '-q', '--show-progress', image_url, '-O', download_file])
-        print('Extracting ...', file=sys.stderr)
+        info('Extracting ...')
         t = tarfile.open(download_file)
         t.extractall(outdir)
 
@@ -277,7 +275,6 @@ class Container:
         run(cmd)
 
     def build_layer(self, cmd):
-        print('new layer', file=sys.stderr)
         new_child = mkdtemp(dir=TMP_DIR)
         mountpoint = mkdtemp(dir=TMP_DIR)
         new_layer = join(new_child, 'payload')
@@ -288,110 +285,32 @@ class Container:
 
         self._prepare_chroot(mountpoint)
 
-        r_fd, w_fd = os.pipe()
-        r, w = os.fdopen(r_fd,'rb', 0), os.fdopen(w_fd,'wb', 0)
-
         def preexec_fn():
             os.chroot(mountpoint)
             os.chdir("/")
+            os.close(0) # close stdin for more reproducible builds - if that does not work well, there is another way
 
-        p = subprocess.Popen(['sh', '-cxe', cmd], stderr=w, stdout=w, preexec_fn=preexec_fn)
-
-
-        def color(stri):
-            return "\033[38;05;10m" + stri + "\033[0;0m"
-
-        while True:
-            data = r.readline()
-            if not data:
-                break
-            data = data.decode()
-
-
-            import time
-            import shutil
-            s = shutil.get_terminal_size((80, 20))
-            x = s.columns
-            print(data[:-1][:x].ljust(x), end='\r')
-
-            # continue
-            # sys.stdout.write(u"\u001b[1000D")
-            # sys.stdout.flush()
-            # data = data.decode()
-            # print(data, end='')
-            # print(data[0])
-            # sys.stdout.write("\u001b[1000D" + str(data[0]) + "%")
-        sys.stdout.flush()
-
-        print('exiting')
-        sys.exit(0)
-
-
-        # r_fd, w_fd = os.pipe()
-        # r, w = os.fdopen(r_fd,'rb', 0), os.fdopen(w_fd,'wb', 0)
-        # pid = os.fork()
-        # if not pid:
-
-        #     os.chroot(mountpoint)
-        #     os.chdir("/")
-
-        #     r.close()
-        #     os.dup2(w_fd, 1);
-        #     os.dup2(w_fd, 2);
-
-        #     # print('mydata', file=w)
-        #     w.close()
-        #     shell = 'sh'
-        #     os.execvpe(shell, [shell, '-cxe', cmd], os.environ) # maybe isolate envs better?
-        # w.close()
-        # _, exit = os.waitpid(pid, 0)
-        # if exit:
-        #     exit = exit // 256
-        #     sys.exit(exit)
-        # while True:
-        #     data = r.readline()
-        #     if not data:
-        #         break
-        #     print('build: ' + data.decode(), end='')
-
-        print('exiting')
-        sys.exit(0)
-
-
-
-
-        if not os.fork():
-
-            # don't allow build processes to read from stdin, since we want as "deterministic as possible" builds
-            fd = os.open("/dev/null", os.O_WRONLY)
-            os.dup2(fd, 0);
-            os.close(fd);
-
-            # everything from this build process goes to stderr
-            os.dup2(2, 1);
-
-            shell = 'sh'
-
-            os.execvpe(shell, [shell, '-cxe', cmd], os.environ) # maybe isolate envs better?
-        child_pid, child_exit = os.wait()
+        p = subprocess.Popen(['sh', '-cxe', cmd], stderr=2, stdout=2, preexec_fn=preexec_fn)
+        child_exit = p.wait()
 
         umount(mountpoint)
 
         if child_exit != 0:
             atexit.register(lambda: shutil.rmtree(new_child))
-            die("build returned exit status {}".format(child_exit // 256))
+            die("build returned exit status {}".format(child_exit))
 
         final_child_dst = self._get_child_path(cmd)
         try:
             os.rename(new_child, final_child_dst)
         except OSError as exc:
             if exc.errno == errno.ENOTEMPTY:
-                print('*** plash: this layer already exists builded and will not be replaced (layer: {})'.format(layer_hash), file=sys.stderr)
+                info('This layer already exists builded and will not be replaced (layer: {})'.format(layer_hash))
             else:
                 raise
 
-    def add_or_build_layer(self, cmd):
+    def add_or_build_layer(self, cmd, on_build=lambda: None):
         if not path.exists(self._get_child_path(cmd)):
+            on_build()
             self.build_layer(cmd)
             used_cache = False
         else:

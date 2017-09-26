@@ -15,7 +15,7 @@ from plash.core import BuildError
 from plash.dockercore import DockerBuildError, docker_get_image_shell
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from plash.utils import (deescalate_sudo_call, die, disable_friendly_exception,
-                         friendly_exception, hashstr, rand)
+                         friendly_exception, hashstr, info, rand)
 
 HELP = 'my help'
 PROG = 'plash'
@@ -214,11 +214,12 @@ def main():
         c.ensure_base()
 
         cache_hits = []
-        for cmd in layers:
-            used_cache = c.add_or_build_layer(cmd)
+        for counter, cmd in enumerate(layers):
+            on_build = lambda: info('Layer {}/{}'.format(counter+1, len(layers)))
+            used_cache = c.add_or_build_layer(cmd, on_build=on_build)
             cache_hits.append(used_cache)
         if not all(cache_hits):
-            print('*** plash: done building', file=sys.stderr)
+            info('Done')
         c.log_access()
 
         print(c)

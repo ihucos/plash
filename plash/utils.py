@@ -142,6 +142,9 @@ def getargs(arglist, descr=None):
 def red(stri):
     return "\033[1;31m" + stri + "\033[0;0m"
 
+def color(stri, color):
+    return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
+
 def setup_sigint_handler(): # TODO: call differently
 
     return
@@ -173,3 +176,6 @@ def setup_sigint_handler(): # TODO: call differently
 def die(msg, exit=1):
     print(red('plash failed: ') + msg.capitalize(), file=sys.stderr)
     sys.exit(exit)
+
+def info(msg):
+    print(color(msg.capitalize(), 4), file=sys.stderr)
