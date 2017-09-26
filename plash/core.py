@@ -303,7 +303,7 @@ class Container:
 
         if child_exit != 0:
             atexit.register(lambda: shutil.rmtree(new_child))
-            die("build returned exit status {}".format(child_exit))
+            raise BuildError("build returned exit status {}".format(child_exit))
 
         final_child_dst = self._get_child_path(cmd)
         try:

@@ -152,7 +152,7 @@ def main():
     else:
         layers = []
 
-    with friendly_exception([PermissionError, URLError]):
+    with friendly_exception([PermissionError, URLError, BuildError]):
         c = core.Container(base_container)
         if len(c.layers) > 1:
             c.die_if_not_builded()
