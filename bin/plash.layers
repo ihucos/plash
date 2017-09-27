@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+from plash.utils import setup_sigint_handler; setup_sigint_handler()
+import os
+
+from plash.core import Container
+from plash.utils import getargs
+
+container_id, = getargs(['container-id'])
+
+c = Container(container_id)
+report = []
+while c.layers:
+      last = os.path.join(c.get_layer_paths()[-1], 'payload') # payload changes only at creation time
+      report.insert(0, str(c))
+      c.layers.pop()
+
+print('\n'.join(report))

@@ -245,7 +245,7 @@ class Container:
         except FileNotFoundError:
             error = True
         else:
-            assert not last_layer_path.startswith('/')
+            # assert not last_layer_path.startswith('/')
             abs_last_layer_path = path.abspath(path.join(LINKS_DIR, last_layer_path))
             if not os.path.exists(abs_last_layer_path):
                 error = True

@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+from plash.utils import setup_sigint_handler; setup_sigint_handler()
+
+import os
+import sys
+from tempfile import mkstemp
+
+from plash.core import Container
+from plash.utils import getargs
+
+DESCR = 'Creates a squashfs file that can be executed with runp'
+
+container_name, = getargs(['container-name'])
+temp = mkstemp(dir='/var/lib/plash/links', prefix='__')
+c = Container(container_name)
+last_layer = c.get_layer_paths()[-1]
+relative_last_layer = '..' + last_layer[len('/var/lib/plash'):]
+name = str(c)
+for i in range(len(name)):
+      short = (name[:i+1])
+      linkname = '/var/lib/plash/links/'+short
+      try:
+            os.symlink(last_layer, linkname)
+      except FileExistsError:
+            if os.readlink(linkname) == last_layer: # we get back in absolute in my setup, hope this is consistent
+                  break
+      else:
+            break
+
+print(short) # as a fallback keep the id (the symlink is still there - should be there, aahhh
