@@ -294,6 +294,18 @@ class Container:
             write_dir = mkdtemp(dir=TMP_DIR)
         if workdir == None:
             workdir = mkdtemp(dir=TMP_DIR)
+
+        # use the symlinks and not the full paths because the arg size is limited
+        # and this is shorter. on my setup i get 58 layers before an error, we could have multiple mount calls to overcome this
+        symlinked_layer_paths = []
+        layers = self.layers.copy()
+        ls = []
+        while layers:
+            ls.insert(0, layers.copy())
+            layers.pop()
+        for l in ls:
+            symlinked_layer_paths.append(join(LINKS_DIR, layers_to_id(l)))
+
         cmd = [
             'mount',
             '-t',
@@ -303,7 +315,7 @@ class Container:
             'upperdir={write_dir},lowerdir={dirs},workdir={workdir}'.format(
                 write_dir=write_dir,
                 workdir=workdir,
-                dirs=':'.join(join(p, 'payload') for p in reversed(self.get_layer_paths()))),
+                dirs=':'.join(join(p, 'payload') for p in reversed(symlinked_layer_paths))),
             mountpoint]
         run(cmd)
 
