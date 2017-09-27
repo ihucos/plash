@@ -10,7 +10,7 @@ container_id, = getargs(['container-id'])
 c = Container(container_id)
 report = []
 while c.layers:
-      last = os.path.join(c.get_layer_paths()[-1], 'payload') # payload changes only at creation time
+      last = os.path.join(c.get_node_path(), 'payload') # payload changes only at creation time
       report.insert(0, str(c))
       c.layers.pop()
 

@@ -12,5 +12,5 @@ PROG = 'Prints the tree of the last layer of the given container-id'
 
 container_id, = getargs(['container-id'], PROG)
 c = Container(container_id)
-last_layer = c.get_layer_paths()[-1]
+last_layer = c.get_node_paths()
 subprocess.check_call(['tree', os.path.join(last_layer, 'payload')])

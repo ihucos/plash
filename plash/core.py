@@ -1,3 +1,4 @@
+import atexit
 import errno
 import hashlib
 import os
@@ -7,13 +8,12 @@ import shutil
 import subprocess
 import sys
 import tarfile
-import atexit
 from os import path
 from os.path import abspath, join
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
-from .utils import deescalate_sudo, die, hashstr, run, info
+from .utils import deescalate_sudo, die, hashstr, info, run
 
 BASE_DIR = '/var/lib/plash'
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -30,22 +30,6 @@ class CommandNotFound(Exception):
 
 def umount(mountpoint):
     subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
-
-def layers_to_id(layers):
-    if len(layers) != 1:
-        return hashstr(':'.join(layers).encode())
-    else:
-        return layers[0]
-
-def register_build(layers):
-    '''
-    creates a symlink bla bla
-    '''
-    id = layers_to_id(layers)
-    try:
-        os.symlink('../builds/'+'/children/'.join(layers), join(LINKS_DIR, id))
-    except FileExistsError:
-        pass
 
 class BaseImageCreator:
     def __call__(self, image):
@@ -89,7 +73,7 @@ class BaseImageCreator:
                 f.seek(0)
                 f.truncate()
 
-            register_build([image_id])
+            Container([image_id]).register_sname()
             try:
                 os.rename(tmp_image_dir, image_dir)
             except OSError as exc:
@@ -238,10 +222,28 @@ class ContainerDoesNotExist(Exception):
 
 class Container:
 
-    def __init__(self, container_id):
+    '''
+    sname = symlinked name
+    lname = layer (path) name
+
+    '''
+
+    def __init__(self, layers):
+        assert isinstance(layers, list), repr(layers)
+        assert layers
+        for layer in layers:
+            assert not layer.endswith('.'), layers
+        self.layers = layers
+    
+    @classmethod
+    def by_lname(cls, lname):
+        return cls(lname.split(':'))
+
+    @classmethod
+    def by_sname(cls, sname):
         error = False
         try:
-            last_layer_path = os.readlink(join(LINKS_DIR, container_id))
+            last_layer_path = os.readlink(join(LINKS_DIR, sname))
         except FileNotFoundError:
             error = True
         else:
@@ -250,32 +252,64 @@ class Container:
             if not os.path.exists(abs_last_layer_path):
                 error = True
         if error:
-            raise ContainerDoesNotExist('no such container: {}'.format(container_id))
-        self.layers = last_layer_path[len('../builds/'):].split('/children/')
+            raise ContainerDoesNotExist('no such container: {}'.format(sname))
+        layers = last_layer_path[len('../builds/'):].split('/children/')
+        return cls(layers)
 
-    def __repr__(self):
-        return layers_to_id(self.layers)
+#     def __repr__(self):
+#         return layers_to_id(self.layers)
 
-    # def _get_last_layer_salt_file(self):
-    #     return join(self.get_layer_paths()[-1], 'salt')
+    @classmethod
+    def by_node_path(cls, node_path):
+        layers = node_path[len(BUILDS_DIR)+1:].split('/children/') # brittle
+        # print('XXXXXXXXXXXXXXXX ' + str(layers))
+        return cls(layers)
 
+    @property
+    def sname(self):
+        if len(self.layers) != 1:
+            r = hashstr(':'.join(self.layers).encode()) + '.'
+        else:
+            r = self.layers[0] + '.'
+        return r
+    
+    @property
+    def lname(self):
+        return ':'.join(self.layers)
+
+    def register_sname(self):
+        sname = self.sname
+        try:
+            os.symlink(self.get_node_path(relative=True), join(LINKS_DIR, sname))
+        except FileExistsError:
+            pass
+        return sname
+
+    def unregister_sname(self):
+        os.unlink(join(LINKS_DIR, self.sname))
+    
     def _get_child_path(self, cmd):
         layer_hash = self._hash_cmd(cmd.encode())
-        last_layer = self.get_layer_paths()[-1]
+        last_layer = self.get_node_path()
         return join(last_layer, 'children', layer_hash)
 
     def _hash_cmd(self, cmd):
-        # self.get_layer_paths()[-1]
         return hashstr(cmd)
 
-    def get_layer_paths(self):
+    def get_node_path(self, relative=False):
+        p = self._get_layer_paths()[-1]
+        if not relative:
+            return p
+        return '../builds/'+'/children/'.join(self.layers) # very brittle
+
+    def _get_layer_paths(self):
         lp = [join(BUILDS_DIR, self.layers[0])]
         for ci in self.layers[1:]:
             lp.append(lp[-1] + '/children/' + ci)
         return lp
 
     def log_access(self):
-        for path in reversed(self.get_layer_paths()):
+        for path in reversed(self._get_layer_paths()):
             os.utime(path, None)
 
     def _prepare_chroot(self, mountpoint):
@@ -304,7 +338,7 @@ class Container:
             ls.insert(0, layers.copy())
             layers.pop()
         for l in ls:
-            symlinked_layer_paths.append(join(LINKS_DIR, layers_to_id(l)))
+            symlinked_layer_paths.append(join(LINKS_DIR, Container(l).sname))
 
         cmd = [
             'mount',
@@ -349,7 +383,7 @@ class Container:
             raise BuildError("build returned exit status {}".format(child_exit))
 
         final_child_dst = self._get_child_path(cmd)
-        register_build(self.layers + [self._hash_cmd(cmd.encode())])
+        Container.by_node_path(final_child_dst).register_sname()
         try:
             os.rename(new_child, final_child_dst)
         except OSError as exc:
@@ -396,11 +430,11 @@ class Container:
             pass
 
         # os.symlink(executable, join(mountpoint, 'entrypoint'))
-        print('Squashing... ', end='', flush=True)
+        print('Squashing... ', end='', flush=True, file=sys.stderr)
         subprocess.check_call(['mksquashfs', mountpoint, runnable + '.squashfs', '-comp', 'xz', '-noappend'], stdout=subprocess.DEVNULL)
 
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
-        print('OK')
+        print('OK', file=sys.stderr)
     
 
     def run(self, cmd):

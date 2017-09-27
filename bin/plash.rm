@@ -13,13 +13,13 @@ WARNING = """WARNING: If you have other plash processes using the last layer of 
 
 container_id, = getargs(['container-id'], DESCR)
 c = Container(container_id)
-last_layer = c.get_layer_paths()[-1]
+node_path = c.get_node_path()
 
 print(WARNING)
 
 delme = mkdtemp(suffix=".delme", dir='/var/lib/plash/tmp')
 try:
-      os.rename(last_layer, delme)
+      os.rename(node_path, delme)
 except FileNotFoundError:
       die('Container disappeared while trying to delete it')
 rmtree(delme)

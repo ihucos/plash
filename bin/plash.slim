@@ -94,7 +94,7 @@ for delete_build, _ in sorted_usages:
     tmpdir = mkdtemp(dir=TMP_DIR, suffix='.{}'.format(os.getpid()))
     # print('Deleting: {}'.format(delete_build))
 
-    if not os.path.exists(delete_build): # a parent may be deleted
+    if not os.path.exists(delete_build): # a parent may have been be deleted
         continue
 
     nice_for_user = sizeof_fmt(getsize(delete_build))

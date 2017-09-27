@@ -20,6 +20,6 @@ except IndexError:
 if not cmd:
     # yes, thats the default command, which kind of replicates the call of build
     cmd = ['printf', container_id + '\n']
-c = Container(container_id)
+c = Container.by_sname(container_id)
 with friendly_exception([CommandNotFound]):
     c.run(cmd)

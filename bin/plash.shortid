@@ -13,7 +13,7 @@ DESCR = 'Creates a squashfs file that can be executed with runp'
 container_name, = getargs(['container-name'])
 temp = mkstemp(dir='/var/lib/plash/links', prefix='__')
 c = Container(container_name)
-last_layer = c.get_layer_paths()[-1]
+last_layer = c.get_node_paths()
 relative_last_layer = '..' + last_layer[len('/var/lib/plash'):]
 name = str(c)
 for i in range(len(name)):
