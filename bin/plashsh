@@ -1,8 +1,0 @@
-#!/bin/sh
-
-set -eu
-
-
-if ! [ $# -eq 1 ]; then
-    echo "Plash is a lean container build system, try --help"
-    exit 1
