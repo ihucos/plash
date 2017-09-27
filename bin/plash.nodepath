@@ -1,11 +1,10 @@
-#!/usr/bin/python3
-import sys
-from plash.utils import get_container_or_die
-if not len(sys.argv) >= 2:
-      # keep error message generic because its reused on scripts calling this
-
-      print('Argument missing: container', file=sys.stderr)
-      sys.exit(1)
-container_id = sys.argv[1]
-c = get_container_or_die(container_id)
-print(c.get_node_path())
+#!/bin/sh
+[ $# -lt 1 ] && {
+#       # keep error message generic because its reused on scripts calling this
+      echo 'missing argument: container' >&2
+      exit 1
+}
+readlink --canonicalize-existing /var/lib/plash/links/$1 || {
+      echo "no such container: $1" >&2 # TODO: add the same colros as in the python script
+      exit 2
+}

@@ -1,0 +1,2 @@
+#!/bin/sh
+node=$(myplash nodepath $1) && stat -c %y $node/payload
