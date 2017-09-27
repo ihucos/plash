@@ -1,25 +1,9 @@
-#!/usr/bin/python3
-import os
-import subprocess
-import sys
-from shutil import rmtree
-from tempfile import mkdtemp
-
-from plash.core import Container
-from plash.utils import get_subcommand_path, getargs, die
-
-DESCR = 'Deletes the last layer of the given container'
-WARNING = """WARNING: If you have other plash processes using the last layer of this container its container filesystems will get to an undefined state.""" 
-
-container_id, = getargs(['container-id'], DESCR)
-c = Container(container_id)
-node_path = c.get_node_path()
-
-print(WARNING)
-
-delme = mkdtemp(suffix=".delme", dir='/var/lib/plash/tmp')
-try:
-      os.rename(node_path, delme)
-except FileNotFoundError:
-      die('Container disappeared while trying to delete it')
-rmtree(delme)
+#!/bin/sh
+set -e
+for container in "$@"
+do
+  node=$(plash.nodepath $container)
+  tmpd=$(mktemp --directory --tmpdir=/var/lib/plash/tmp XXXXXXXXXXXX.delme)
+  mv $node $tmpd
+  rm -rf $tmpd
+done
