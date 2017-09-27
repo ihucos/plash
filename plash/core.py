@@ -252,22 +252,14 @@ class Container:
         layers = last_layer_path[len('../builds/'):].split('/children/')
         return cls(layers)
 
-#     def __repr__(self):
-#         return layers_to_id(self.layers)
-
     @classmethod
     def by_node_path(cls, node_path):
         layers = node_path[len(BUILDS_DIR)+1:].split('/children/') # brittle
-        # print('XXXXXXXXXXXXXXXX ' + str(layers))
         return cls(layers)
 
     @property
     def alias(self):
-        if len(self.layers) != 1:
-            r = hashstr(':'.join(self.layers).encode()) + '.'
-        else:
-            r = self.layers[0] + '.'
-        return r
+        return self.layers[-1]
 
     def register_alias(self):
         alias = self.alias
@@ -286,7 +278,7 @@ class Container:
         return join(last_layer, 'children', layer_hash)
 
     def _hash_cmd(self, cmd):
-        return hashstr(cmd)
+        return hashstr((':'.join(self.layers) + ':' + cmd.decode()).encode())
 
     def get_node_path(self, relative=False):
         p = self._get_layer_paths()[-1]
