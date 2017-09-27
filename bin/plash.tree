@@ -1,16 +1,2 @@
-#!/usr/bin/python3
-from plash.utils import setup_sigint_handler; setup_sigint_handler()
-
-import os
-import subprocess
-import sys
-
-from plash.core import Container
-from plash.utils import get_subcommand_path, getargs
-
-PROG = 'Prints the tree of the last layer of the given container-id'
-
-container_id, = getargs(['container-id'], PROG)
-c = Container(container_id)
-last_layer = c.get_node_paths()
-subprocess.check_call(['tree', os.path.join(last_layer, 'payload')])
+#!/bin/sh
+node=$(plash.nodepath $1) && exec tree $node

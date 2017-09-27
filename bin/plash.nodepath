@@ -1,5 +1,11 @@
 #!/usr/bin/python3
-from plash.utils import getargs, get_container_or_die
-container_id, = getargs(['container-id'])
+import sys
+from plash.utils import get_container_or_die
+if not len(sys.argv) >= 2:
+      # keep error message generic because its reused on scripts calling this
+
+      print('Argument missing: container', file=sys.stderr)
+      sys.exit(1)
+container_id = sys.argv[1]
 c = get_container_or_die(container_id)
 print(c.get_node_path())
