@@ -154,11 +154,11 @@ def main():
 
     with friendly_exception([PermissionError, URLError, BuildError]):
         if base_container.endswith('.'): # its a sname
-            c = core.Container.by_sname(base_container)
+            c = core.Container.by_alias(base_container)
         else:
             with friendly_exception([ImageNotFound]):
                 prepare_image(base_container)
-            c = core.Container.by_lname(base_container)
+            c = core.Container([base_container])
         cache_hits = []
         for counter, cmd in enumerate(layers):
             on_build = lambda: info('Layer {}/{}'.format(counter+1, len(layers)))
@@ -167,7 +167,7 @@ def main():
         if not all(cache_hits):
             info('Done')
         c.log_access()
-        print(c.sname)
+        print(c.alias)
 
 
 if __name__ == '__main__':

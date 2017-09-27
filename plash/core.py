@@ -73,7 +73,7 @@ class BaseImageCreator:
                 f.seek(0)
                 f.truncate()
 
-            Container([image_id]).register_sname()
+            Container([image_id]).register_alias()
             try:
                 os.rename(tmp_image_dir, image_dir)
             except OSError as exc:
@@ -223,7 +223,7 @@ class ContainerDoesNotExist(Exception):
 class Container:
 
     '''
-    sname = symlinked name
+    alias = symlinked name
     lname = layer (path) name
 
     '''
@@ -234,16 +234,12 @@ class Container:
         for layer in layers:
             assert not layer.endswith('.'), layers
         self.layers = layers
-    
-    @classmethod
-    def by_lname(cls, lname):
-        return cls(lname.split(':'))
 
     @classmethod
-    def by_sname(cls, sname):
+    def by_alias(cls, alias):
         error = False
         try:
-            last_layer_path = os.readlink(join(LINKS_DIR, sname))
+            last_layer_path = os.readlink(join(LINKS_DIR, alias))
         except FileNotFoundError:
             error = True
         else:
@@ -252,7 +248,7 @@ class Container:
             if not os.path.exists(abs_last_layer_path):
                 error = True
         if error:
-            raise ContainerDoesNotExist('no such container: {}'.format(sname))
+            raise ContainerDoesNotExist('no such container: {}'.format(alias))
         layers = last_layer_path[len('../builds/'):].split('/children/')
         return cls(layers)
 
@@ -266,27 +262,23 @@ class Container:
         return cls(layers)
 
     @property
-    def sname(self):
+    def alias(self):
         if len(self.layers) != 1:
             r = hashstr(':'.join(self.layers).encode()) + '.'
         else:
             r = self.layers[0] + '.'
         return r
-    
-    @property
-    def lname(self):
-        return ':'.join(self.layers)
 
-    def register_sname(self):
-        sname = self.sname
+    def register_alias(self):
+        alias = self.alias
         try:
-            os.symlink(self.get_node_path(relative=True), join(LINKS_DIR, sname))
+            os.symlink(self.get_node_path(relative=True), join(LINKS_DIR, alias))
         except FileExistsError:
             pass
-        return sname
+        return alias
 
-    def unregister_sname(self):
-        os.unlink(join(LINKS_DIR, self.sname))
+    def unregister_alias(self):
+        os.unlink(join(LINKS_DIR, self.alias))
     
     def _get_child_path(self, cmd):
         layer_hash = self._hash_cmd(cmd.encode())
@@ -338,7 +330,7 @@ class Container:
             ls.insert(0, layers.copy())
             layers.pop()
         for l in ls:
-            symlinked_layer_paths.append(join(LINKS_DIR, Container(l).sname))
+            symlinked_layer_paths.append(join(LINKS_DIR, Container(l).alias))
 
         cmd = [
             'mount',
@@ -383,7 +375,7 @@ class Container:
             raise BuildError("build returned exit status {}".format(child_exit))
 
         final_child_dst = self._get_child_path(cmd)
-        Container.by_node_path(final_child_dst).register_sname()
+        Container.by_node_path(final_child_dst).register_alias()
         try:
             os.rename(new_child, final_child_dst)
         except OSError as exc:
