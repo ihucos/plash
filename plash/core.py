@@ -31,11 +31,17 @@ class CommandNotFound(Exception):
 def umount(mountpoint):
     subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
 
+def layers_to_id(layers):
+    if len(layers) != 1:
+        return hashstr(':'.join(layers).encode())
+    else:
+        return layers[0]
+
 def register_build(layers):
     '''
     creates a symlink bla bla
     '''
-    id = hashstr(':'.join(layers).encode())
+    id = layers_to_id(layers)
     try:
         os.symlink('../builds/'+'/children/'.join(layers), join(LINKS_DIR, id))
     except FileExistsError:
@@ -244,14 +250,11 @@ class Container:
             if not os.path.exists(abs_last_layer_path):
                 error = True
         if error:
-            raise ContainerDoesNotExist('no such container')
+            raise ContainerDoesNotExist('no such container: {}'.format(container_id))
         self.layers = last_layer_path[len('../builds/'):].split('/children/')
 
     def __repr__(self):
-        if len(self.layers) != 1:
-            return hashstr(':'.join(self.layers).encode())
-        else:
-            return self.layers[0]
+        return layers_to_id(self.layers)
 
     # def _get_last_layer_salt_file(self):
     #     return join(self.get_layer_paths()[-1], 'salt')
