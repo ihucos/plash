@@ -21,6 +21,5 @@ if not cmd:
     # yes, thats the default command, which kind of replicates the call of build
     cmd = ['printf', container_id + '\n']
 c = Container(container_id)
-c.die_if_not_builded()
 with friendly_exception([CommandNotFound]):
     c.run(cmd)

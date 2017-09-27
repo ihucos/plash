@@ -13,5 +13,4 @@ DESCR = 'Creates a squashfs file that can be executed with runp'
 container_name, source_binary, install_to = getargs(['container-name', 'executable', 'out'], DESCR)
 
 c = Container(container_name)
-c.die_if_not_builded()
 c.create_runnable(source_binary, install_to)

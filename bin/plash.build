@@ -12,7 +12,7 @@ from subprocess import CalledProcessError, list2cmdline
 from urllib.error import URLError
 
 from plash import core, dockercore, state
-from plash.core import BuildError, ImageNotFound
+from plash.core import BuildError, ImageNotFound, prepare_image
 from plash.dockercore import DockerBuildError, docker_get_image_shell
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from plash.utils import (deescalate_sudo_call, die, disable_friendly_exception,
@@ -152,12 +152,11 @@ def main():
     else:
         layers = []
 
+    if not len(base_container) == 40: # its a container and not an image FIXME: magic number, hack, too dirty?
+        with friendly_exception([ImageNotFound]):
+            prepare_image(base_container)
     with friendly_exception([PermissionError, URLError, BuildError]):
         c = core.Container(base_container)
-        if len(c.layers) > 1:
-            c.die_if_not_builded()
-        with friendly_exception([ImageNotFound]):
-            c.ensure_base()
         cache_hits = []
         for counter, cmd in enumerate(layers):
             on_build = lambda: info('Layer {}/{}'.format(counter+1, len(layers)))

@@ -17,7 +17,6 @@ container_name = getargs(['container-name'])
 
 # yeah, idk the bytes that come out from here are bad
 c = Container(container_name)
-c.die_if_not_builded()
 mountpoint = mkdtemp(dir='/var/lib/plash/tmp')
 c.mount_rootfs(mountpoint=mountpoint)
 

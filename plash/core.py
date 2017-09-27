@@ -18,6 +18,7 @@ from .utils import deescalate_sudo, die, hashstr, run, info
 BASE_DIR = '/var/lib/plash'
 TMP_DIR = join(BASE_DIR, 'tmp')
 BUILDS_DIR = join(BASE_DIR, 'builds')
+LINKS_DIR = join(BASE_DIR, 'links')
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
 
@@ -29,6 +30,16 @@ class CommandNotFound(Exception):
 
 def umount(mountpoint):
     subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
+
+def register_build(layers):
+    '''
+    creates a symlink bla bla
+    '''
+    id = hashstr(':'.join(layers).encode())
+    try:
+        os.symlink('../builds/'+'/children/'.join(layers), join(LINKS_DIR, id))
+    except FileExistsError:
+        pass
 
 class BaseImageCreator:
     def __call__(self, image):
@@ -51,6 +62,10 @@ class BaseImageCreator:
                 os.mkdir(TMP_DIR)
             except FileExistsError:
                 pass
+            try:
+                os.mkdir(LINKS_DIR)
+            except FileExistsError:
+                pass
 
             tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
             os.mkdir(join(tmp_image_dir, 'children'))
@@ -68,6 +83,7 @@ class BaseImageCreator:
                 f.seek(0)
                 f.truncate()
 
+            register_build([image_id])
             try:
                 os.rename(tmp_image_dir, image_dir)
             except OSError as exc:
@@ -186,7 +202,7 @@ squashfs_image_creator = SquashfsImageCreator()
 directory_image_creator = DirectoryImageCreator()
 lxc_image_creator = LXCImageCreator()
 docker_image_creator = DockerImageCreator()
-def bootstrap_base_rootfs(base_name):
+def prepare_image(base_name):
     # return docker_image_creator(base_name)
     if base_name.startswith('/') or base_name.startswith('./'):
         path = abspath(base_name)
@@ -211,17 +227,34 @@ def find_executable(programm, root=None):
         raise ValueError("No such program found: {}".format(programm))
     return found_source_binary
 
+class ContainerDoesNotExist(Exception):
+    pass
+
 class Container:
 
-    def __init__(self, container_id=''):
-        self.layers = container_id.split(':')
+    def __init__(self, container_id):
+        error = False
+        try:
+            last_layer_path = os.readlink(join(LINKS_DIR, container_id))
+        except FileNotFoundError:
+            error = True
+        else:
+            assert not last_layer_path.startswith('/')
+            abs_last_layer_path = path.abspath(path.join(LINKS_DIR, last_layer_path))
+            if not os.path.exists(abs_last_layer_path):
+                error = True
+        if error:
+            raise ContainerDoesNotExist('no such container')
+        self.layers = last_layer_path[len('../builds/'):].split('/children/')
+
+    def __repr__(self):
+        if len(self.layers) != 1:
+            return hashstr(':'.join(self.layers).encode())
+        else:
+            return self.layers[0]
 
     # def _get_last_layer_salt_file(self):
     #     return join(self.get_layer_paths()[-1], 'salt')
-
-    def ensure_base(self):
-        assert self.layers
-        bootstrap_base_rootfs(self.layers[0])
 
     def _get_child_path(self, cmd):
         layer_hash = self._hash_cmd(cmd.encode())
@@ -230,21 +263,13 @@ class Container:
 
     def _hash_cmd(self, cmd):
         # self.get_layer_paths()[-1]
-        return hashstr(cmd)[:12]
+        return hashstr(cmd)
 
     def get_layer_paths(self):
         lp = [join(BUILDS_DIR, self.layers[0])]
         for ci in self.layers[1:]:
             lp.append(lp[-1] + '/children/' + ci)
         return lp
-
-    def is_builded(self):
-        last_layer = self.get_layer_paths()[-1]
-        return os.path.exists(last_layer)
-
-    def die_if_not_builded(self):
-        if not self.is_builded():
-            die("container {} not found".format(repr(str(self))))
 
     def log_access(self):
         for path in reversed(self.get_layer_paths()):
@@ -309,6 +334,7 @@ class Container:
             raise BuildError("build returned exit status {}".format(child_exit))
 
         final_child_dst = self._get_child_path(cmd)
+        register_build(self.layers + [self._hash_cmd(cmd.encode())])
         try:
             os.rename(new_child, final_child_dst)
         except OSError as exc:
@@ -316,6 +342,7 @@ class Container:
                 info('This layer already exists builded and will not be replaced (layer: {})'.format(layer_hash))
             else:
                 raise
+        self.add_layer(cmd)
 
     def add_or_build_layer(self, cmd, on_build=lambda: None, quiet=False):
         if not path.exists(self._get_child_path(cmd)):
@@ -324,7 +351,7 @@ class Container:
             used_cache = False
         else:
             used_cache = True
-        self.add_layer(cmd)
+            self.add_layer(cmd)
         return used_cache
     
     def add_layer(self, cmd):
@@ -360,6 +387,7 @@ class Container:
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
         print('OK')
     
+
     def run(self, cmd):
 
         # SECURITY: fix permissions
@@ -388,35 +416,3 @@ class Container:
         deescalate_sudo()
         cmd = [join(mountpoint_wrapper, 'env')] + cmd
         os.execvpe(cmd[0], cmd, os.environ)
-
-    def __repr__(self):
-        return ':'.join(self.layers)
-
-# def execute(
-#         base_name,
-#         layer_commands,
-#         command,
-#         *,
-#         # quiet_flag=False,
-#         # verbose_flag=False,
-#         # rebuild_flag=False,
-#         # extra_mounts=[],
-#         # build_only=False,
-#         # skip_if_exists=True,
-#         export_as=False,
-#         # docker_image=False,
-#         # extra_envs={}
-#         **kw):
-
-
-#     c = Container(base_name)
-#     c.ensure_base()
-#     for cmd in layer_commands:
-#         c.add_or_build_layer(cmd)
-#     if export_as:
-#         c.create_runnable(export_as)
-#     else:
-#         if not command:
-#             print('*** plash: build is ready')
-#         else:
-#             c.run(command)

@@ -13,7 +13,6 @@ WARNING = """WARNING: If you have other plash processes using the last layer of 
 
 container_id, = getargs(['container-id'], DESCR)
 c = Container(container_id)
-c.die_if_not_builded()
 last_layer = c.get_layer_paths()[-1]
 
 print(WARNING)
