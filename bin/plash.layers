@@ -1,5 +1,7 @@
-#!/usr/bin/python3
-from plash.utils import getargs, get_container_or_die
-container_id, = getargs(['container-id'])
-c = get_container_or_die(container_id)
-print('\n'.join(c.layers))
+#!/bin/sh
+set -e
+BUILD_DIR='/var/lib/plash/builds/'
+cut=$((${#BUILD_DIR} + 1)) # add one to the lenght of BUILD_DIR
+
+# substring from $cut to the end and the split by '/children/', joining with newlines
+plash.nodepath $1 | cut -c$cut- | sed 's/\/children\//\n/g' 
