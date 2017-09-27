@@ -1,14 +1,8 @@
 #!/usr/bin/python3
-import argparse
-import atexit
-import os
-import subprocess
 import sys
-import tempfile
-import uuid
 
-from plash.core import Container, CommandNotFound
-from plash.utils import get_subcommand_path, getargs, friendly_exception
+from plash.core import CommandNotFound
+from plash.utils import friendly_exception, get_container_or_die, getargs
 
 try:
     container_id = sys.argv[1]
@@ -20,7 +14,6 @@ except IndexError:
 if not cmd:
     # yes, thats the default command, which kind of replicates the call of build
     cmd = ['printf', container_id + '\n']
-c = Container.by_alias(container_id)
+c = get_container_or_die(container_id)
 with friendly_exception([CommandNotFound]):
-    assert False, c.layers
     c.run(cmd)

@@ -1,11 +1,5 @@
 #!/usr/bin/python3
-from plash.utils import setup_sigint_handler; setup_sigint_handler()
-import os
-
-from plash.core import Container
-from plash.utils import getargs
-
+from plash.utils import getargs, get_container_or_die
 container_id, = getargs(['container-id'])
-
-c = Container.by_alias(container_id)
+c = get_container_or_die(container_id)
 print('\n'.join(c.layers))

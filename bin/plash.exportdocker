@@ -1,27 +1,21 @@
 #!/usr/bin/python3
-from plash.utils import setup_sigint_handler; setup_sigint_handler()
-
-import os
-import subprocess
+from os import chdir
 import sys
 import tarfile
 import tty
-from os.path import dirname, join
-from shutil import copytree
 from tempfile import mkdtemp
 
-from plash.core import Container
-from plash.utils import getargs
+from plash.utils import getargs, get_container_or_die
 
-container_name = getargs(['container-name'])
+container_name, = getargs(['container-name'])
 
 # yeah, idk the bytes that come out from here are bad
-c = Container(container_name)
+c = get_container_or_die(container_name)
 mountpoint = mkdtemp(dir='/var/lib/plash/tmp')
 c.mount_rootfs(mountpoint=mountpoint)
 
 # we need to chdir to the mountpoint and add the '.' directory or we get a wrong dirs in front of the actual directory tree
-os.chdir(mountpoint)
-tty.setraw(1)
+chdir(mountpoint)
+# tty.setraw(1) # do we need this only on mac or sth??
 with tarfile.open(None, 'w|bz2', fileobj=sys.stdout.buffer) as archive_fd:
     archive_fd.add('.')

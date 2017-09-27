@@ -179,3 +179,8 @@ def die(msg, exit=1):
 
 def info(msg):
     print(color(msg.capitalize(), INFO_COLOR), file=sys.stderr)
+
+def get_container_or_die(cid):
+    from .core import Container, ContainerDoesNotExist
+    with friendly_exception([ContainerDoesNotExist]):
+        return Container.by_alias(cid)
