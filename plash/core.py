@@ -335,6 +335,7 @@ class Container:
                 workdir=workdir,
                 dirs=':'.join(join(p, 'payload') for p in reversed(symlinked_layer_paths))),
             mountpoint]
+        # assert 0, cmd
         run(cmd)
 
     def build_layer(self, cmd, quiet=False):
