@@ -16,7 +16,7 @@ try:
       mountpoint = sys.argv[2]
 except IndexError:
       mountpoint = mkdtemp()
-      print(mountpoint)
+print(mountpoint, flush=True) # no idea why we need that so we can see the output in a script (sth with exec)
 
 lowerdir = []
 while True:
@@ -29,4 +29,4 @@ while True:
 
 cmd = ['/bin/mount', '-t', 'overlay', 'overlay', '-o',
          'lowerdir={}'.format(':'.join(lowerdir)), mountpoint]
-os.execvpe('/bin/mount', cmd, os.environ)
+os.execvpe(cmd[0], cmd, os.environ)

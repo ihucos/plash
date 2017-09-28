@@ -1,21 +1,6 @@
-#!/usr/bin/python3
-from os import chdir
-import sys
-import tarfile
-import tty
-from tempfile import mkdtemp
-
-from plash.utils import getargs, get_container_or_die
-
-container_name, = getargs(['container-name'])
-
-# yeah, idk the bytes that come out from here are bad
-c = get_container_or_die(container_name)
-mountpoint = mkdtemp(dir='/var/lib/plash/tmp')
-c.mount_rootfs(mountpoint=mountpoint)
-
-# we need to chdir to the mountpoint and add the '.' directory or we get a wrong dirs in front of the actual directory tree
-chdir(mountpoint)
-# tty.setraw(1) # do we need this only on mac or sth??
-with tarfile.open(None, 'w|bz2', fileobj=sys.stdout.buffer) as archive_fd:
-    archive_fd.add('.')
+#!/bin/sh
+mountpoint=$(plash.mount $1) || exit $?
+tar -czf - -C $mountpoint .
+tar_exit=$?
+umount $mountpoint || exit $?
+exit $tar_exit

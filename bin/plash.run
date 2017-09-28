@@ -3,10 +3,10 @@ set -eu
 RUNP_BINARY=/usr/local/bin/runp
 container="$1"
 plash.nodepath $container >/dev/null # just to for the error message the container exists (build could do that)
-prepared_container=$(plash.build -o $container --run 'mkdir -p /etc/runp && ln -fs /usr/bin/env /etc/runp/exec' 2> /dev/null)
+runp_container=$(plash.build -o $container --run 'mkdir -p /etc/runp && ln -fs /usr/bin/env /etc/runp/exec' 2> /dev/null)
 mount_wrapper=$(mktemp --directory --tmpdir=/var/lib/plash/tmp/ XXXXXXXXXXXX)
 mkdir $mount_wrapper/env.dir
-plash.mount $prepared_container $mount_wrapper/env.dir
+plash.mount $runp_container $mount_wrapper/env.dir
 ln -s $RUNP_BINARY $mount_wrapper/env
 
 shift

@@ -420,33 +420,3 @@ class Container:
 
         os.symlink('/home/resu/plash/runp', runnable) # fixme: take if from /usr/bin/runp 
         print('OK', file=sys.stderr)
-    
-
-    def run(self, cmd):
-
-        # SECURITY: fix permissions
-        mountpoint_wrapper = mkdtemp(dir='/var/tmp') # don't use /tmp because its mounted on the container, that would cause weird mount recursion
-        mountpoint = join(mountpoint_wrapper, 'env.dir')
-        os.mkdir(mountpoint)
-        os.symlink('/usr/local/bin/runp', join(mountpoint_wrapper, 'env'))
-        self.mount_rootfs(mountpoint=mountpoint)
-
-        # just for  a nicer error message for the user
-        if not os.fork():
-            os.chroot(mountpoint)
-            found = shutil.which(cmd[0])
-            sys.exit(int(not bool(found)))
-        _, exit = os.wait()
-        if exit // 256:
-            raise CommandNotFound('command not found: {}'.format(repr(cmd[0])))
-
-        etc_runp = join(mountpoint, 'etc/runp')
-        if not os.path.exists(etc_runp):
-            os.mkdir(etc_runp)
-        os.symlink('/usr/bin/env', join(etc_runp, 'exec'))
-
-        os.chmod(mountpoint_wrapper, 0o755)
-        os.chmod(mountpoint, 0o755)
-        deescalate_sudo()
-        cmd = [join(mountpoint_wrapper, 'env')] + cmd
-        os.execvpe(cmd[0], cmd, os.environ)
