@@ -1,43 +1,18 @@
 #!/bin/sh
 set -eu
 RUNP_BINARY=/usr/local/bin/runp
-prepared_container=$(myplash build -o "$1" --run 'mkdir -p /etc/runp && ln -s /usr/bin/env /etc/runp/exec')
+container="$1"
+plash.nodepath $container >/dev/null # just to for the error message the container exists (build could do that)
+prepared_container=$(plash.build -o $container --run 'mkdir -p /etc/runp && ln -fs /usr/bin/env /etc/runp/exec' 2> /dev/null)
 mount_wrapper=$(mktemp --directory --tmpdir=/var/lib/plash/tmp/ XXXXXXXXXXXX)
 mkdir $mount_wrapper/env.dir
-myplash mount $prepared_container $mount_wrapper/env.dir
+plash.mount $prepared_container $mount_wrapper/env.dir
 ln -s $RUNP_BINARY $mount_wrapper/env
+
 shift
-exec $mount_wrapper/env "$@"
-
-
-
-
-
-
-
-
-
-
-
-# myplash mount $mount_wrapper
-
-
-# #!/usr/bin/python3
-# import sys
-
-# from plash.core import CommandNotFound
-# from plash.utils import friendly_exception, get_container_or_die, getargs
-
-# try:
-#     container_id = sys.argv[1]
-#     cmd = sys.argv[2:]
-# except IndexError:
-#     print('USAGE: run container_id [cmd [cmd [cmd..]]]')
-#     sys.exit(1)
-
-# if not cmd:
-#     # yes, thats the default command, which kind of replicates the call of build
-#     cmd = ['printf', container_id + '\n']
-# c = get_container_or_die(container_id)
-# with friendly_exception([CommandNotFound]):
-#     c.run(cmd)
+if [ $# -eq 0 ]; then
+  # the default arguemnt is to print the container id
+  exec $mount_wrapper/env printf $container'\n'
+else
+  exec $mount_wrapper/env "$@"
+fi
