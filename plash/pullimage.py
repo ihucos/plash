@@ -10,10 +10,11 @@ import sys
 import tarfile
 from os import path
 from os.path import abspath, join
+from subprocess import check_call
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
-from .utils import info, run
+from .utils import catch_and_die, info
 
 BASE_DIR = os.environ.get('PLASH_DATA', '/var/lib/plash')
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -87,7 +88,8 @@ class LXCImageCreator(BaseImageCreator):
         _, download_file = tempfile.mkstemp(
             prefix=self.arg + '.',
             suffix='.tar.xz')  # join(mkdtemp(), self.arg + '.tar.xz')
-        run(['wget', '-q', '--show-progress', image_url, '-O', download_file])
+        with catch_and_die([CalledProcessError]):
+            check_call(['wget', '-q', '--show-progress', image_url, '-O', download_file])
         t = tarfile.open(download_file)
         t.extractall(outdir)
 

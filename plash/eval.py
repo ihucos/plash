@@ -1,12 +1,11 @@
 import shlex
+import uuid
 from importlib import import_module
-
-from .utils import friendly_exception, rand
 
 # ECHO_DEBUG = "echo \*\*\* plash: running --{action_name} {args}"
 ECHO_DEBUG = "# {action_name}\({args}\)"
 
-layer_marker_rand = rand()
+layer_marker_rand = str(uuid.uuid4()).split('-')[-1]
 state = {'actions': {}}  # put that in state.py ?
 
 
@@ -28,13 +27,11 @@ def action(action_name=None, echo=True):
         action = action_name or func.__name__.replace('_', '-')
 
         def function_wrapper(*args, **kw):
-            with friendly_exception(
-                [ActionNotFoundError, ArgError, EvalError, IOError], action):
-                res = func(*args, **kw)
+            res = func(*args, **kw)
 
-                # allow actions to yield each line
-                if not isinstance(res, str) and res is not None:
-                    res = '\n'.join(res)
+            # allow actions to yield each line
+            if not isinstance(res, str) and res is not None:
+                res = '\n'.join(res)
 
             if not echo:
                 return res
@@ -87,9 +84,7 @@ def eval(lisp):
 def import_planch_actions(*modules):
     output = []
     for module_name in modules:
-        debug = 'importing {}'.format(module_name)
-        with friendly_exception([ImportError], debug):
-            import_module(module_name)
+        import_module(module_name)
 
 
 @action('original-layer', echo=False)

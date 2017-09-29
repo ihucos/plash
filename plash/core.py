@@ -10,10 +10,11 @@ import sys
 import tarfile
 from os import path
 from os.path import abspath, join
+from subprocess import CalledProcessError, check_call
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
-from .utils import deescalate_sudo, die, hashstr, info, run
+from .utils import catch_and_die, deescalate_sudo, die, hashstr, info
 
 BASE_DIR = os.environ.get('PLASH_DATA', '/var/lib/plash')
 TMP_DIR = join(BASE_DIR, 'tmp')
@@ -124,15 +125,16 @@ class Container:
             os.utime(path, None)
 
     def _prepare_chroot(self, mountpoint):
-        run(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
-        run(['mount', '--bind', '/home', join(mountpoint, 'home')])
-        run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
-        run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-        run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')])
-        run([
-            'mount', '--bind', '/etc/resolv.conf',
-            join(mountpoint, 'etc/resolv.conf')
-        ])
+        with catch_and_die([CalledProcessError]):
+            check_call(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
+            check_call(['mount', '--bind', '/home', join(mountpoint, 'home')])
+            check_call(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
+            check_call(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
+            check_call(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')])
+            check_call([
+                'mount', '--bind', '/etc/resolv.conf',
+                join(mountpoint, 'etc/resolv.conf')
+            ])
 
     def mount(self, mountpoint, *, write_dir=None, workdir=None):
         if write_dir == None:
@@ -161,7 +163,8 @@ class Container:
                     for p in reversed(symlinked_layer_paths))), mountpoint
         ]
         # assert 0, cmd
-        run(cmd)
+        with catch_and_die([CalledProcessError]):
+            check_call(cmd)
 
     def build_layer(self, cmd, quiet=False):
         new_child = mkdtemp(dir=TMP_DIR)

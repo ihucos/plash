@@ -16,58 +16,20 @@ ERROR_COLOR = 1
 INFO_COLOR = 4
 
 
-def rand():
-    return str(uuid.uuid4()).split('-')[-1]
-
-
 def hashstr(stri):
     return hashlib.sha1(stri).hexdigest()
 
-
-friendly_exception_sate = {'enabled': True}
-
-
-def disable_friendly_exception():
-    friendly_exception_sate['enabled'] = False
-
-
 @contextmanager
-def friendly_exception(exceptions, debug=None):
+def catch_and_die(exceptions, debug=None):
     try:
         yield
     except tuple(exceptions) as exc:
-        if not friendly_exception_sate['enabled']:
-            raise exc
+        if debug:
+            msg = '{debug}: {message}'.format(
+                debug=debug, message=str(exc))
         else:
-            if debug:
-                msg = '{debug}: {message}'.format(
-                    debug=debug, message=str(exc))
-            else:
-                msg = str(exc)
-            die(msg)
-            # raise exc # TODO: experiment with nested friendly_exception for example at load
-
-
-class NonZeroExitStatus(Exception):
-    pass
-
-
-def run(command):
-    p = subprocess.Popen(command)
-    exit = p.wait()
-    if exit != 0:
-        raise NonZeroExitStatus('Exit status {exit} for: {cmd}'.format(
-            cmd=' '.join(shlex.quote(i) for i in command), exit=exit))
-
-
-# def create_executable_file(fname, script):
-#     if os.path.exists(fname):
-#         raise SystemExit('File {} already exists - deal with this'.format(fname))
-
-#     with open(fname, 'w') as f:
-#         f.write(script)
-#     st = os.stat(fname)
-#     ou.chmod(fname, st.st_mode | stat.S_IEXEC)
+            msg = str(exc)
+        die(msg)
 
 
 def get_subcommand_path(name):
@@ -182,5 +144,5 @@ def info(msg):
 
 def get_container_or_die(cid):
     from .core import Container, ContainerDoesNotExist
-    with friendly_exception([ContainerDoesNotExist]):
+    with catch_and_die([ContainerDoesNotExist]):
         return Container.by_alias(cid)

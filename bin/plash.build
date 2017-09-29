@@ -14,8 +14,8 @@ from urllib.error import URLError
 from plash import core, pullimage, state
 from plash.core import BuildError
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
-from plash.utils import (deescalate_sudo_call, die, disable_friendly_exception,
-                         friendly_exception, hashstr, info, rand)
+from plash.utils import (catch_and_die, deescalate_sudo_call, die, hashstr,
+                         info)
 
 HELP = 'my help'
 
@@ -72,9 +72,6 @@ def get_argument_parser():
     parser.add_argument("--quiet", action='store_true')
     parser.add_argument("--mute", action='store_true')
     parser.add_argument("--no-stdlib", action='store_true')
-    parser.add_argument("--traceback", action='store_true')
-    parser.add_argument("--debug-lsp", action='store_true')
-    parser.add_argument("--debug-script", action='store_true')
     parser.add_argument("--all-root", action='store_true')
 
     add_shortcuts_to_parser(parser)
@@ -120,17 +117,13 @@ def main():
     else:
         init = []
 
-    with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
+    with catch_and_die([ActionNotFoundError, ArgError, EvalError]):
 
         def deescalated():
             script = eval(init+lsp)
             return state.get_os(), script
         base_container, script = deescalate_sudo_call(deescalated) if not args.all_root else deescalated()
     
-    if args.debug_script:
-        print(script, file=sys.stderr)
-        sys.exit(1)
-
     if not base_container:
         ap.error('Specify a base container')
     if script:
@@ -140,11 +133,11 @@ def main():
         layers = []
 
     core.ensure_data_dirs()
-    with friendly_exception([PermissionError, URLError, BuildError]):
+    with catch_and_die([PermissionError, URLError, BuildError]):
         if len(base_container) == 40: # VERY HACKY
             c = core.Container.by_alias(base_container)
         else:
-            with friendly_exception([pullimage.ImageDoesNotExist]):
+            with catch_and_die([pullimage.ImageDoesNotExist]):
                 pullimage.pull_image(base_container)
             c = core.Container([base_container])
         cache_hits = []
