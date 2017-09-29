@@ -6,15 +6,17 @@ from .utils import friendly_exception, rand
 # ECHO_DEBUG = "echo \*\*\* plash: running --{action_name} {args}"
 ECHO_DEBUG = "# {action_name}\({args}\)"
 
-
 layer_marker_rand = rand()
-state = {'actions': {}} # put that in state.py ?
+state = {'actions': {}}  # put that in state.py ?
+
 
 class ArgError(TypeError):
-        pass
+    pass
+
 
 class ActionNotFoundError(Exception):
     pass
+
 
 class EvalError(Exception):
     pass
@@ -27,8 +29,7 @@ def action(action_name=None, echo=True):
 
         def function_wrapper(*args, **kw):
             with friendly_exception(
-                [ActionNotFoundError, ArgError, EvalError, IOError],
-                    action):
+                [ActionNotFoundError, ArgError, EvalError, IOError], action):
                 res = func(*args, **kw)
 
                 # allow actions to yield each line
@@ -45,7 +46,9 @@ def action(action_name=None, echo=True):
 
         state['actions'][action] = function_wrapper
         return function_wrapper
+
     return decorator
+
 
 def eval(lisp):
     '''
@@ -58,22 +61,26 @@ def eval(lisp):
         if not isinstance(item, list):
             raise EvalError('must evaluate list of list')
         if not all(isinstance(i, str) for i in item):
-            raise EvalError('must evaluate list of list of strings. not a list of strings: {}'.format(item))
+            raise EvalError(
+                'must evaluate list of list of strings. not a list of strings: {}'.
+                format(item))
         action_name = item[0]
         args = item[1:]
         actions = state['actions']
         try:
             action = actions[action_name]
         except KeyError:
-            raise ActionNotFoundError('Action "{}" not found'.format(
-                action_name))
+            raise ActionNotFoundError(
+                'Action "{}" not found'.format(action_name))
         res = action(*args)
         if not isinstance(res, str) and res is not None:
-            raise EvalError('eval action must return string or None ({} returned {})'.format(
-                action_name, type(res)))
+            raise EvalError(
+                'eval action must return string or None ({} returned {})'.
+                format(action_name, type(res)))
         if res is not None:
             action_values.append(res)
     return '\n'.join(action_values)
+
 
 @action('original-import', echo=False)
 @action('import', echo=False)
@@ -84,8 +91,8 @@ def import_planch_actions(*modules):
         with friendly_exception([ImportError], debug):
             import_module(module_name)
 
+
 @action('original-layer', echo=False)
 @action('layer', echo=False)
 def layer():
     return ": 'Start new layer marker [{}]'".format(layer_marker_rand)
-

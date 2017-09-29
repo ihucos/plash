@@ -24,11 +24,14 @@ LINKS_DIR = join(BASE_DIR, 'links')
 class BuildError(Exception):
     pass
 
+
 class ContainerDoesNotExist(Exception):
     pass
 
+
 def umount(mountpoint):
     subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
+
 
 def ensure_data_dirs():
     # create the basic directory structure
@@ -42,8 +45,8 @@ def ensure_data_dirs():
         except FileExistsError:
             pass
 
-class Container:
 
+class Container:
     '''
     alias = symlinked name
     lname = layer (path) name
@@ -66,7 +69,8 @@ class Container:
             error = True
         else:
             # assert not last_layer_path.startswith('/')
-            abs_last_layer_path = path.abspath(path.join(LINKS_DIR, last_layer_path))
+            abs_last_layer_path = path.abspath(
+                path.join(LINKS_DIR, last_layer_path))
             if not os.path.exists(abs_last_layer_path):
                 error = True
         if error:
@@ -76,7 +80,7 @@ class Container:
 
     @classmethod
     def by_node_path(cls, node_path):
-        layers = node_path[len(BUILDS_DIR)+1:].split('/children/') # brittle
+        layers = node_path[len(BUILDS_DIR) + 1:].split('/children/')  # brittle
         return cls(layers)
 
     @property
@@ -86,14 +90,15 @@ class Container:
     def register_alias(self):
         alias = self.alias
         try:
-            os.symlink(self.get_node_path(relative=True), join(LINKS_DIR, alias))
+            os.symlink(
+                self.get_node_path(relative=True), join(LINKS_DIR, alias))
         except FileExistsError:
             pass
         return alias
 
     def unregister_alias(self):
         os.unlink(join(LINKS_DIR, self.alias))
-    
+
     def _get_child_path(self, cmd):
         layer_hash = self._hash_cmd(cmd.encode())
         last_layer = self.get_node_path()
@@ -106,7 +111,7 @@ class Container:
         p = self._get_layer_paths()[-1]
         if not relative:
             return p
-        return '../builds/'+'/children/'.join(self.layers) # very brittle
+        return '../builds/' + '/children/'.join(self.layers)  # very brittle
 
     def _get_layer_paths(self):
         lp = [join(BUILDS_DIR, self.layers[0])]
@@ -123,8 +128,11 @@ class Container:
         run(['mount', '--bind', '/home', join(mountpoint, 'home')])
         run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
         run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-        run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
-        run(['mount', '--bind', '/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf')])
+        run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')])
+        run([
+            'mount', '--bind', '/etc/resolv.conf',
+            join(mountpoint, 'etc/resolv.conf')
+        ])
 
     def mount_rootfs(self, *, mountpoint, write_dir=None, workdir=None):
         if write_dir == None:
@@ -144,16 +152,14 @@ class Container:
             symlinked_layer_paths.append(join(LINKS_DIR, Container(l).alias))
 
         cmd = [
-            'mount',
-            '-t',
-            'overlay',
-            'overlay',
-            '-o',
+            'mount', '-t', 'overlay', 'overlay', '-o',
             'upperdir={write_dir},lowerdir={dirs},workdir={workdir}'.format(
                 write_dir=write_dir,
                 workdir=workdir,
-                dirs=':'.join(join(p, 'payload') for p in reversed(symlinked_layer_paths))),
-            mountpoint]
+                dirs=':'.join(
+                    join(p, 'payload')
+                    for p in reversed(symlinked_layer_paths))), mountpoint
+        ]
         # assert 0, cmd
         run(cmd)
 
@@ -171,20 +177,24 @@ class Container:
         def preexec_fn():
             os.chroot(mountpoint)
             os.chdir("/")
-            os.close(0) # close stdin for more reproducible builds - if that does not work well, there is another way
+            os.close(
+                0
+            )  # close stdin for more reproducible builds - if that does not work well, there is another way
 
         if quiet:
             out = subprocess.DEVNULL
         else:
-            out = 2 # stderr
-        p = subprocess.Popen(['sh', '-cxe', cmd], stderr=out, stdout=out, preexec_fn=preexec_fn)
+            out = 2  # stderr
+        p = subprocess.Popen(
+            ['sh', '-cxe', cmd], stderr=out, stdout=out, preexec_fn=preexec_fn)
         child_exit = p.wait()
 
         umount(mountpoint)
 
         if child_exit != 0:
             atexit.register(lambda: shutil.rmtree(new_child))
-            raise BuildError("build returned exit status {}".format(child_exit))
+            raise BuildError(
+                "build returned exit status {}".format(child_exit))
 
         final_child_dst = self._get_child_path(cmd)
         Container.by_node_path(final_child_dst).register_alias()
@@ -192,7 +202,9 @@ class Container:
             os.rename(new_child, final_child_dst)
         except OSError as exc:
             if exc.errno == errno.ENOTEMPTY:
-                info('This layer already exists builded and will not be replaced (layer: {})'.format(layer_hash))
+                info(
+                    'This layer already exists builded and will not be replaced (layer: {})'.
+                    format(layer_hash))
             else:
                 raise
         self.add_layer(cmd)
@@ -206,6 +218,6 @@ class Container:
             used_cache = True
             self.add_layer(cmd)
         return used_cache
-    
+
     def add_layer(self, cmd):
         self.layers.append(self._hash_cmd(cmd.encode()))

@@ -19,10 +19,12 @@ BASE_DIR = os.environ.get('PLASH_DATA', '/var/lib/plash')
 TMP_DIR = join(BASE_DIR, 'tmp')
 BUILDS_DIR = join(BASE_DIR, 'builds')
 LINKS_DIR = join(BASE_DIR, 'links')
-LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
+LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'  # FIXME: use https
+
 
 class ImageDoesNotExist(Exception):
     pass
+
 
 class BaseImageCreator:
     def __call__(self, image):
@@ -33,7 +35,9 @@ class BaseImageCreator:
 
         if not os.path.exists(image_dir):
 
-            tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
+            tmp_image_dir = mkdtemp(
+                dir=TMP_DIR
+            )  # must be on same fs than BASE_DIR for rename to work
             os.mkdir(join(tmp_image_dir, 'children'))
             os.mkdir(join(tmp_image_dir, 'payload'))
             rootfs = join(tmp_image_dir, 'payload')
@@ -62,13 +66,13 @@ class BaseImageCreator:
                     info('another process already pulled that image')
                 else:
                     raise
-        
+
         return image_dir
 
 
 class LXCImageCreator(BaseImageCreator):
     def get_id(self):
-        return self.arg # XXX: dot dot attack and so son, escape or so
+        return self.arg  # XXX: dot dot attack and so son, escape or so
 
     def prepare_image(self, outdir):
         info('Preparing image')
@@ -80,14 +84,19 @@ class LXCImageCreator(BaseImageCreator):
                 ' '.join(sorted(images))))
 
         import tempfile
-        _, download_file = tempfile.mkstemp(prefix=self.arg + '.', suffix='.tar.xz') # join(mkdtemp(), self.arg + '.tar.xz')
+        _, download_file = tempfile.mkstemp(
+            prefix=self.arg + '.',
+            suffix='.tar.xz')  # join(mkdtemp(), self.arg + '.tar.xz')
         run(['wget', '-q', '--show-progress', image_url, '-O', download_file])
         t = tarfile.open(download_file)
         t.extractall(outdir)
 
     def _index_lxc_images(self):
-        content = urlopen('http://images.linuxcontainers.org/').read().decode() # FIXME: use https
-        matches = re.findall('<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>', content)
+        content = urlopen('http://images.linuxcontainers.org/').read().decode(
+        )  # FIXME: use https
+        matches = re.findall(
+            '<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>',
+            content)
 
         names = {}
         for distro, version, arch, variant, date, _, _, _ in matches:
@@ -110,6 +119,9 @@ class LXCImageCreator(BaseImageCreator):
                 names['{}{}'.format(distro, version)] = url
         return names
 
+
 lxc_image_creator = LXCImageCreator()
+
+
 def pull_image(base_name):
     return lxc_image_creator(base_name)
