@@ -13,6 +13,14 @@ from os.path import abspath, join
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
+from .utils import info, run
+
+BASE_DIR = os.environ.get('PLASH_DATA', '/var/lib/plash')
+TMP_DIR = join(BASE_DIR, 'tmp')
+BUILDS_DIR = join(BASE_DIR, 'builds')
+LINKS_DIR = join(BASE_DIR, 'links')
+LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
+
 class ImageDoesNotExist(Exception):
     pass
 
@@ -24,17 +32,6 @@ class BaseImageCreator:
         image_dir = join(BUILDS_DIR, image_id)
 
         if not os.path.exists(image_dir):
-
-            # create the basic directory structure
-            try:
-                os.mkdir(BASE_DIR, 0o0700)
-            except FileExistsError:
-                pass
-            for dir in [BASE_DIR, TMP_DIR, LINKS_DIR]:
-                try:
-                    os.mkdir(dir)
-                except FileExistsError:
-                    pass
 
             tmp_image_dir = mkdtemp(dir=TMP_DIR) # must be on same fs than BASE_DIR for rename to work
             os.mkdir(join(tmp_image_dir, 'children'))
@@ -52,7 +49,12 @@ class BaseImageCreator:
                 f.seek(0)
                 f.truncate()
 
-            Container([image_id]).register_alias()
+            # index the image
+            try:
+                os.symlink(image_dir, join(LINKS_DIR, image_id))
+            except FileExistsError:
+                pass
+
             try:
                 os.rename(tmp_image_dir, image_dir)
             except OSError as exc:
@@ -108,5 +110,6 @@ class LXCImageCreator(BaseImageCreator):
                 names['{}{}'.format(distro, version)] = url
         return names
 
-def prepare_image(base_name):
+lxc_image_creator = LXCImageCreator()
+def pull_image(base_name):
     return lxc_image_creator(base_name)

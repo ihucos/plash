@@ -15,11 +15,10 @@ from urllib.request import urlopen
 
 from .utils import deescalate_sudo, die, hashstr, info, run
 
-BASE_DIR = '/var/lib/plash'
+BASE_DIR = os.environ.get('PLASH_DATA', '/var/lib/plash')
 TMP_DIR = join(BASE_DIR, 'tmp')
 BUILDS_DIR = join(BASE_DIR, 'builds')
 LINKS_DIR = join(BASE_DIR, 'links')
-LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz' # FIXME: use https
 
 
 class BuildError(Exception):
@@ -30,6 +29,18 @@ class ContainerDoesNotExist(Exception):
 
 def umount(mountpoint):
     subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
+
+def ensure_data_dirs():
+    # create the basic directory structure
+    try:
+        os.mkdir(BASE_DIR, 0o0700)
+    except FileExistsError:
+        return
+    for dir in [BUILD_DIR, TMP_DIR, LINKS_DIR]:
+        try:
+            os.mkdir(dir)
+        except FileExistsError:
+            pass
 
 class Container:
 
@@ -112,10 +123,7 @@ class Container:
         run(['mount', '--bind', '/home', join(mountpoint, 'home')])
         run(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
         run(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-        # run(['mount', '--bind', '/dev/pts', join(mountpoint, 'dev', 'pts')]) # apt-get needs that
-        # run(['mount', '--bind', '/dev/shm', join(mountpoint, 'dev', 'shm')])
         run(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')]) 
-
         run(['mount', '--bind', '/etc/resolv.conf', join(mountpoint, 'etc/resolv.conf')])
 
     def mount_rootfs(self, *, mountpoint, write_dir=None, workdir=None):

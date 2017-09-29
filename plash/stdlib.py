@@ -96,33 +96,34 @@ def comment(*args):
 def os_(os):
     state.set_os(os)
 
-eval(script2lsp('''
-
-define-package-manager: apt
-apt-get update
-apt-get install -y {}
-
-define-package-manager: add-apt-repository
-apt-get install software-properties-common
-run add-apt-repository -y {}
-
-define-package-manager: apk
-apk update
-apk add {}
-
-define-package-manager: yum
-yum install -y {}
-
-define-package-manager: dnf
-dnf install -y {}
-
-define-package-manager: pip
-pip install {}
-
-define-package-manager: npm
-npm install -g {}
-
-define-package-manager: emerge
-emerge {}
-
-'''))
+eval(
+[
+    [
+        'define-package-manager', 'apt',
+        'apt-get update',
+        'apt-get install -y {}',
+    ], [
+        'define-package-manager', 'add-apt-repository',
+        'apt-get install software-properties-common',
+        'run add-apt-repository -y {}',
+    ], [
+        'define-package-manager', 'apk',
+        'apk update',
+        'apk add {}',
+    ], [
+        'define-package-manager', 'yum',
+        'yum install -y {}',
+    ], [
+        'define-package-manager', 'dnf',
+        'dnf install -y {}',
+    ], [
+        'define-package-manager', 'pip',
+        'pip install {}',
+    ], [
+        'define-package-manager', 'npm',
+        'npm install -g {}',
+    ], [
+        'define-package-manager', 'emerge',
+        'emerge {}',
+    ]
+])

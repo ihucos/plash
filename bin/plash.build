@@ -11,9 +11,8 @@ from json import dumps
 from subprocess import CalledProcessError, list2cmdline
 from urllib.error import URLError
 
-from plash import core, dockercore, pullimage, state
-from plash.core import BuildError, prepare_image
-from plash.dockercore import DockerBuildError, docker_get_image_shell
+from plash import core, pullimage, state
+from plash.core import BuildError
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from plash.utils import (deescalate_sudo_call, die, disable_friendly_exception,
                          friendly_exception, hashstr, info, rand)
@@ -140,6 +139,7 @@ def main():
     else:
         layers = []
 
+    core.ensure_data_dirs()
     with friendly_exception([PermissionError, URLError, BuildError]):
         if len(base_container) == 40: # VERY HACKY
             c = core.Container.by_alias(base_container)
