@@ -15,8 +15,8 @@ node = out.decode().strip('\n')
 try:
       mountpoint = sys.argv[2]
 except IndexError:
-      mountpoint = mkdtemp()
-print(mountpoint, flush=True) # no idea why we need that so we can see the output in a script (sth with exec)
+      print('missing moutpoint', file=sys.stderr)
+      sys.exit(1)
 
 lowerdir = []
 while True:

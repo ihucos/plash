@@ -1,6 +1,13 @@
 #!/bin/sh
-mountpoint=$(plash.mount $1) || exit $?
-tar -czf - -C $mountpoint .
-tar_exit=$?
-umount $mountpoint || exit $?
-exit $tar_exit
+set -eu
+xxxxxxxxxxxxxxxxxxxx
+mountpoint=$(mktemp -d)
+plash.mount $1 $mountpoint
+echo $mountpoint >&2
+tar -czf - -C $mountpoint . >/tmp/tar &
+umount --lazy $mountpoint
+exit $(wait)
+# tar_exit=$?
+# tar_exit=$?
+# umount $mountpoint || exit $?
+# exit $tar_exit
