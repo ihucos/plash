@@ -1,7 +1,0 @@
-#!/usr/bin/env plashexec
-os: ubuntu
-cmd: krgo
-
-apt: curl
-run:
-curl -sL https://github.com/robinmonjo/krgo/releases/download/v1.5.0/krgo-v1.5.0_x86_64.tgz | tar -C /usr/local/bin -zxf -
