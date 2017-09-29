@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+# vim: set ft=python:
+import argparse
+from sys import exit
+from plash.utils import get_container_or_die
+
+parser = argparse.ArgumentParser()
+parser.add_argument('container')
+parser.add_argument('mountpoint')
+args = parser.parse_args()
+
+cont = get_container_or_die(args.container)
+cont.mount(args.mountpoint)

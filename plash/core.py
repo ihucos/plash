@@ -134,7 +134,7 @@ class Container:
             join(mountpoint, 'etc/resolv.conf')
         ])
 
-    def mount_rootfs(self, *, mountpoint, write_dir=None, workdir=None):
+    def mount(self, mountpoint, *, write_dir=None, workdir=None):
         if write_dir == None:
             write_dir = mkdtemp(dir=TMP_DIR)
         if workdir == None:
@@ -170,7 +170,7 @@ class Container:
         os.mkdir(new_layer)
         os.mkdir(join(new_child, 'children'))
 
-        self.mount_rootfs(mountpoint=mountpoint, write_dir=new_layer)
+        self.mount(mountpoint=mountpoint, write_dir=new_layer)
 
         self._prepare_chroot(mountpoint)
 

@@ -134,24 +134,6 @@ def deescalate_sudo_call(func, *args, **kwargs):
         os._exit(0)
 
 
-def getargs(arglist, descr=None):
-    prog = os.path.basename(sys.argv[0]).replace('.', ' ')
-    parser = argparse.ArgumentParser(
-        description=descr,
-        prog=prog,
-        # epilog=HELP)
-    )
-    for arg in arglist:
-        if arg.endswith('*'):
-            parser.add_argument(arg[:-1], nargs='*')
-        else:
-            parser.add_argument(arg)
-    r = parser.parse_args(sys.argv[1:])
-    ns = parser.parse_args(sys.argv[1:])
-    for arg in arglist:
-        yield getattr(ns, arg.strip('*'))
-
-
 def color(stri, color):
     return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
 
