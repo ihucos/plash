@@ -11,19 +11,14 @@ from json import dumps
 from subprocess import CalledProcessError, list2cmdline
 from urllib.error import URLError
 
-from plash import core, dockercore, state
-from plash.core import BuildError, ImageNotFound, prepare_image
+from plash import core, dockercore, pullimage, state
+from plash.core import BuildError, prepare_image
 from plash.dockercore import DockerBuildError, docker_get_image_shell
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from plash.utils import (deescalate_sudo_call, die, disable_friendly_exception,
                          friendly_exception, hashstr, info, rand)
 
 HELP = 'my help'
-
-NO_TERM_BUILD_ERROR = """plash error: Refusing to build when not connected to a tty(-like) device.
-Set the env PLASH_BUILD_SILENT to enable building without output is such cases.
-Or invoke this call with --build-only from a terminal to build and then run again.
-The argv of this program was: {}""".format(sys.argv)
 
 # shortcuts are specific to the stdlib
 SHORTCUTS = [
@@ -34,7 +29,6 @@ SHORTCUTS = [
     ('-p', ['pip'], '+'),
     ('-b', ['apt', 'ubuntu-server'], 0),
     ('-o', ['os'], 1),
-    ('-r', ['include', '~/.plashrc'], 0),
     ('-U', ['os', 'ubuntu'], 0),
     ('-F', ['os', 'fedora'], 0),
     ('-D', ['os', 'debian'], 0),
@@ -120,9 +114,6 @@ def main():
     if args.mute:
         sys.stderr = open('/dev/null', 'w')
 
-    if args.traceback:
-        disable_friendly_exception()
-
     lsp = getattr(args, 'lsp', [])
 
     if not args.no_stdlib:
@@ -130,9 +121,6 @@ def main():
     else:
         init = []
 
-    if args.debug_lsp:
-        print(dumps(init + lsp), file=sys.stderr)
-        sys.exit(1)
     with friendly_exception([ActionNotFoundError, ArgError, EvalError]):
 
         def deescalated():
@@ -152,13 +140,12 @@ def main():
     else:
         layers = []
 
-
     with friendly_exception([PermissionError, URLError, BuildError]):
         if len(base_container) == 40: # VERY HACKY
             c = core.Container.by_alias(base_container)
         else:
-            with friendly_exception([ImageNotFound]):
-                prepare_image(base_container)
+            with friendly_exception([pullimage.ImageDoesNotExist]):
+                pullimage.pull_image(base_container)
             c = core.Container([base_container])
         cache_hits = []
         for counter, cmd in enumerate(layers):

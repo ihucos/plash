@@ -1,9 +1,0 @@
-#!/usr/bin/python3
-from plash.utils import setup_sigint_handler; setup_sigint_handler()
-
-from plash.utils import getargs, get_container_or_die
-
-DESCR = 'Creates a squashfs file that can be executed with runp'
-container_id, source_binary, install_to = getargs(['container-name', 'executable', 'out'], DESCR)
-c = get_container_or_die(container_id)
-c.create_runnable(source_binary, install_to)
