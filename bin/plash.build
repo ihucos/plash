@@ -35,121 +35,89 @@ SHORTCUTS = [
     ('-i', ['include'], '+'),
  ]
 
-def add_shortcuts_to_parser(parser):
-    group = parser.add_argument_group('shortcuts', 'shortcuts')
-    for shortcut, lsp, nargs in SHORTCUTS:
-        group.add_argument(
-            shortcut,
-            action=create_collect_lsp_action(lsp),
-            nargs=nargs)
-
 def create_collect_lsp_action(lsp_begin):
-    class CollectAction(argparse.Action):
+    class CollectLspAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
             if not 'lsp' in namespace:
                 setattr(namespace, 'lsp', [])
             previous = namespace.lsp
             previous.append(lsp_begin + list(values))
             setattr(namespace, 'lsp', previous) 
-    return CollectAction
+    return CollectLspAction
 
 
-class CollectEnvsAction(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        for value in values:
-            if not getattr(namespace, self.dest):
-                setattr(namespace, self.dest, {})
-            key, value = value.split('=', 1)
-            getattr(namespace, self.dest)[key] = value
+if os.getuid():
+    die("Need to be root")
 
-def get_argument_parser():
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter,
-        description='Plash is a container build system',
-        prog='plash',
-        epilog=HELP)
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawTextHelpFormatter,
+    description='Plash is a container build system',
+    prog='plash',
+    epilog=HELP)
 
-    parser.add_argument("--quiet", action='store_true')
-    parser.add_argument("--mute", action='store_true')
-    parser.add_argument("--no-stdlib", action='store_true')
-    parser.add_argument("--all-root", action='store_true')
+parser.add_argument("--quiet", action='store_true')
+parser.add_argument("--mute", action='store_true')
+parser.add_argument("--no-stdlib", action='store_true')
+parser.add_argument("--all-root", action='store_true')
 
-    add_shortcuts_to_parser(parser)
+# add SHORTCUTS
+group = parser.add_argument_group('shortcuts', 'shortcuts')
+for shortcut, lsp, nargs in SHORTCUTS:
+    group.add_argument(
+        shortcut,
+        action=create_collect_lsp_action(lsp),
+        nargs=nargs)
 
-    return parser
+# add CollectLspAction to unused args
+_, unused_args = parser.parse_known_args()
+for arg in set(unused_args):
+    if arg == '--':
+        break
+    if arg.startswith('--'):
+        ap.add_argument(
+            arg,
+            action=create_collect_lsp_action([arg[2:]]),
+            nargs='*')
 
+args = parser.parse_args()
 
-def main():
+if args.mute:
+    sys.stderr = open('/dev/null', 'w')
 
-    if os.getuid():
-        die("Need to be root")
+if not args.no_stdlib:
+    init = [['import', 'plash.stdlib']]
+else:
+    init = []
 
-    argv = sys.argv[1:]
-
-    try:
-        delimiter = argv.index('--')
-        command = argv[delimiter+1:]
-        argv = argv[:delimiter]
-    except ValueError:
-        command = None
-
-    ap = get_argument_parser()
-    _, unused_args = ap.parse_known_args(argv)
-    # lsp = unused_args_to_lsp(unused_args)
-    for arg in set(unused_args):
-        if arg == '--':
-            break
-        if arg.startswith('--'):
-            ap.add_argument(
-                arg,
-                action=create_collect_lsp_action([arg[2:]]),
-                nargs='*')
-
-    args = ap.parse_args(argv)
-
-    if args.mute:
-        sys.stderr = open('/dev/null', 'w')
-
+def deescalated():
     lsp = getattr(args, 'lsp', [])
-
-    if not args.no_stdlib:
-        init = [['import', 'plash.stdlib']]
-    else:
-        init = []
-
     with catch_and_die([ActionNotFoundError, ArgError, EvalError]):
+        script = eval(init+lsp)
+    return state.get_os(), script
+base_container, script = deescalate_sudo_call(deescalated) if not args.all_root else deescalated()
 
-        def deescalated():
-            script = eval(init+lsp)
-            return state.get_os(), script
-        base_container, script = deescalate_sudo_call(deescalated) if not args.all_root else deescalated()
-    
-    if not base_container:
-        ap.error('Specify a base container')
-    if script:
-        layers = (script + '\n').split(layer() + '\n')
-        layers = [l for l in layers if l]
+if not base_container:
+    ap.error('Specify a base container')
+if script:
+    layers = (script + '\n').split(layer() + '\n')
+    layers = [l for l in layers if l]
+else:
+    layers = []
+
+core.ensure_data_dirs()
+with catch_and_die([PermissionError, URLError, BuildError]):
+    if len(base_container) == 40: # VERY HACKY
+        c = core.Container.by_alias(base_container)
     else:
-        layers = []
-
-    core.ensure_data_dirs()
-    with catch_and_die([PermissionError, URLError, BuildError]):
-        if len(base_container) == 40: # VERY HACKY
-            c = core.Container.by_alias(base_container)
-        else:
-            with catch_and_die([pullimage.ImageDoesNotExist]):
-                pullimage.pull_image(base_container)
-            c = core.Container([base_container])
-        cache_hits = []
-        for counter, cmd in enumerate(layers):
-            on_build = lambda: info('Layer {}/{}'.format(counter+1, len(layers)))
-            used_cache = c.add_or_build_layer(cmd, on_build=on_build, quiet=args.quiet or args.mute)
-            cache_hits.append(used_cache)
-        if not all(cache_hits):
-            info('Done')
-        c.log_access()
-        print(c.alias)
-
-
-if __name__ == '__main__':
-    main()
+        with catch_and_die([pullimage.ImageDoesNotExist]):
+            pullimage.pull_image(base_container)
+        c = core.Container([base_container])
+    cache_hits = []
+    for counter, cmd in enumerate(layers):
+        on_build = lambda: info('Layer {}/{}'.format(counter+1, len(layers)))
+        used_cache = c.add_or_build_layer(cmd, on_build=on_build, quiet=args.quiet or args.mute)
+        cache_hits.append(used_cache)
+    if not all(cache_hits):
+        info('Done')
+    c.log_access()
+    print(c.alias)
