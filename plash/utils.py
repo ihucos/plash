@@ -32,12 +32,6 @@ def catch_and_die(exceptions, debug=None):
         die(msg)
 
 
-def get_subcommand_path(name):
-    dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-    return os.path.abspath(os.path.join(
-        dir, 'plash.{}'.format(name)))  # what if '/' in subcommand
-
-
 def filter_positionals(args):
     positional = []
     filtered_args = []
@@ -69,10 +63,6 @@ def deescalate_sudo():
 
 
 def deescalate_sudo_call(func, *args, **kwargs):
-    # if os.fork():
-    #     return func(*args, **kwargs)
-    # else:
-    #     os._exit(0)
     r, w = os.pipe()
     r, w = os.fdopen(r, 'r'), os.fdopen(w, 'w')
     pid = os.fork()

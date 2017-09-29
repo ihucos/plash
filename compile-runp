@@ -1,2 +1,0 @@
-#!/bin/sh
-plash -o zesty --apt golang -- go build -o ./runp runp.go
