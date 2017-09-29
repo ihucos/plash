@@ -1,7 +1,6 @@
 #!/bin/sh
 set -eu
 mountpoint=$(mktemp -d)
-echo $mountpoint >&2
 plash.mount $1 $mountpoint
 tar -czf - -C $mountpoint .
 tar_exit=$?
