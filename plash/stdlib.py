@@ -35,6 +35,16 @@ def bust_cache():
     return ': bust cache with {}'.format(uuid.uuid4())
 
 
+def include(*files):
+    for file in files:
+        fname = os.path.realpath(os.path.expanduser(file))
+        lsp = []
+        with open(fname) as f:
+            lines = f.readlines()
+
+        dir = os.path.dirname(fname)
+        yield eval(lsp)
+
 def hash_paths(paths):
     collect_files = []
     for path in paths:
