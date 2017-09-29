@@ -5,12 +5,11 @@ import os
 import re
 import shlex
 import shutil
-import subprocess
 import sys
 import tarfile
 from os import path
 from os.path import abspath, join
-from subprocess import CalledProcessError, check_call
+from subprocess import CalledProcessError, check_call, Popen, DEVNULL
 from tempfile import mkdtemp
 from urllib.request import urlopen
 
@@ -28,10 +27,6 @@ class BuildError(Exception):
 
 class ContainerDoesNotExist(Exception):
     pass
-
-
-def umount(mountpoint):
-    subprocess.check_call(['umount', '--lazy', '--recursive', mountpoint])
 
 
 def ensure_data_dirs():
@@ -185,14 +180,15 @@ class Container:
             )  # close stdin for more reproducible builds - if that does not work well, there is another way
 
         if quiet:
-            out = subprocess.DEVNULL
+            out = DEVNULL
         else:
             out = 2  # stderr
-        p = subprocess.Popen(
+        p = Popen(
             ['sh', '-cxe', cmd], stderr=out, stdout=out, preexec_fn=preexec_fn)
         child_exit = p.wait()
 
-        umount(mountpoint)
+        with catch_and_die([CalledProcessError]):
+            check_call(['umount', '--lazy', '--recursive', mountpoint])
 
         if child_exit != 0:
             atexit.register(lambda: shutil.rmtree(new_child))
