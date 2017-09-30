@@ -4,8 +4,11 @@ container="$1"
 runp_container=$(plash.build -o $container --exec /usr/bin/env)
 shift
 if [ $# -eq 0 ]; then
-  # the default arguemnt is to print the container id
-  exec plash.runp $runp_container printf $runp_container'\n'
-else
-  exec plash.runp $runp_container "$@"
+  echo 'usage: run container cmd [cmd [cmd ...]]' >&2
+  exit 1
 fi
+#   # the default arguemnt is to print the container id
+  # exec plash.runp $runp_container printf $runp_container'\n'
+# else
+exec plash.runp $runp_container "$@"
+# fi
