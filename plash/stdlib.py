@@ -13,7 +13,7 @@ from .eval import ArgError, action, eval
 from .utils import hashstr
 
 
-@action(echo=False)
+@action()
 def layer(command=None, *args):
     if not command:
         return eval([['original-layer']])  # fall back to buildin layer action
@@ -25,6 +25,7 @@ def layer(command=None, *args):
         return eval(lst)
 
 
+@action(keep_comments=True)
 @action()
 def run(*args):
     return '\n'.join(args)
@@ -34,15 +35,34 @@ def run(*args):
 def bust_cache():
     return ': bust cache with {}'.format(uuid.uuid4())
 
+@action(keep_comments=True)
+def write_script(fname, *lines):
+    lines = list(lines)
+    lsp = [['run', 'touch '+fname]]
+    for line in lines:
+        lsp.append(['run', "echo {} >> {}".format(shlex.quote(line), shlex.quote(fname))])
+    lsp.append(['run', 'chmod 755 ' + fname])
+    return eval(lsp)
 
+@action()
+def exec(binary):
+    return 'mkdir -p /etc/runp && ln -fs {} /etc/runp/exec'.format(shlex.quote(binary))
+
+
+@action()
 def include(*files):
     for file in files:
         fname = os.path.realpath(os.path.expanduser(file))
-        lsp = []
         with open(fname) as f:
-            lines = f.readlines()
-
-        dir = os.path.dirname(fname)
+            lsp = []
+            tokens = (i[:-1] for i in f.readlines())
+            for line0, token in enumerate(tokens):
+                if line0 == 0 and token.startswith('#!'):
+                    continue
+                if token.startswith('--'):
+                    lsp.append([token[2:]])
+                elif token:
+                    lsp[-1].append(token)
         yield eval(lsp)
 
 def hash_paths(paths):
@@ -89,32 +109,35 @@ def define_package_manager(name, *lines):
         return eval([['run'] + expanded_lines])
 
 
-@action(echo=False)
+@action()
 def pkg(*packages):
     raise ArgError('you need to ":set-pkg <package-manager>" to use pkg')
 
 
-@action(echo=False)
+@action()
 def set_pkg(pm):
-    @action('pkg', echo=False)
+    @action('pkg')
     def pkg(*packages):
         return eval([[pm] + list(packages)])
 
 
-@action(echo=False)
+@action()
 def all(command, *args):
     return eval([[command, arg] for arg in args])
 
 
-@action('#', echo=False)
+@action()
 def comment(*args):
     pass
 
 
-@action('os', echo=False)
+@action('os')
 def os_(os):
     state.set_os(os)
 
+@action()
+def chdir(path):
+    os.chdir(path)
 
 eval([[
     'define-package-manager',

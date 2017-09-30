@@ -22,3 +22,8 @@ Programm this for someone you know, yourself is also fine.
 Still be able to run this in five years without any maintance work.
 high-level goal: user experience and maintability, maybe compability.
 The right guidelines for the right situation.
+
+
+NEW ONES:
+For every functionality there is one path of execution and one unit test.
+Be humble, don't oversell your abstraction layer.

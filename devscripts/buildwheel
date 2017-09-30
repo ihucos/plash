@@ -1,0 +1,18 @@
+#!/usr/bin/env plash.runfile
+--os
+zesty
+
+--apt
+python3
+python3-setuptools
+python3-wheel
+
+--layer
+
+--write-script
+/entrypoint
+#!/bin/sh
+python3 setup.py bdist_wheel
+
+--exec
+/entrypoint

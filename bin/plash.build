@@ -74,7 +74,7 @@ for arg in set(unused_args):
     if arg == '--':
         break
     if arg.startswith('--'):
-        ap.add_argument(
+        parser.add_argument(
             arg,
             action=create_collect_lsp_action([arg[2:]]),
             nargs='*')
@@ -97,7 +97,7 @@ def deescalated():
 base_container, script = deescalate_sudo_call(deescalated) if not args.all_root else deescalated()
 
 if not base_container:
-    ap.error('Specify a base container')
+    parser.error('Specify a base container')
 if script:
     layers = (script + '\n').split(layer() + '\n')
     layers = [l for l in layers if l]

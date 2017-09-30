@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+RUNP_BINARY=/usr/local/bin/runp
+container="$1"
+mount_wrapper=$(mktemp --directory --tmpdir=/var/lib/plash/tmp/ XXXXXXXXXXXX)
+mkdir $mount_wrapper/prog.dir
+plash.mount $container $mount_wrapper/prog.dir
+ln -s $RUNP_BINARY $mount_wrapper/prog
+shift
+exec $mount_wrapper/prog "$@"

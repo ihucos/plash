@@ -1,18 +1,11 @@
 #!/bin/sh
 set -eu
-RUNP_BINARY=/usr/local/bin/runp
 container="$1"
-plash.nodepath $container >/dev/null # just to for the error message the container exists (build could do that)
-runp_container=$(plash.build -o $container --run 'mkdir -p /etc/runp && ln -fs /usr/bin/env /etc/runp/exec' 2> /dev/null)
-mount_wrapper=$(mktemp --directory --tmpdir=/var/lib/plash/tmp/ XXXXXXXXXXXX)
-mkdir $mount_wrapper/env.dir
-plash.mount $runp_container $mount_wrapper/env.dir
-ln -s $RUNP_BINARY $mount_wrapper/env
-
+runp_container=$(plash.build -o $container --exec /usr/bin/env)
 shift
 if [ $# -eq 0 ]; then
   # the default arguemnt is to print the container id
-  exec $mount_wrapper/env printf $container'\n'
+  exec plash.runp $runp_container printf $runp_container'\n'
 else
-  exec $mount_wrapper/env "$@"
+  exec plash.runp $runp_container "$@"
 fi

@@ -1,2 +1,0 @@
-#!/bin/sh
-plash --include $1 -- ${@:2}
