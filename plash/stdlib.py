@@ -102,7 +102,7 @@ def rebuild_when_changed(*paths):
 def define_package_manager(name, *lines):
     @action(name)
     def package_manager(*packages):
-        sh_packages = ' '.join(shlex.quote(pkg) for pkg in packages)
+        sh_packages = ' '.join(pkg for pkg in packages)
         expanded_lines = [line.format(sh_packages) for line in lines]
         return eval([['run'] + expanded_lines])
 
