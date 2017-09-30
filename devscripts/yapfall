@@ -1,4 +1,7 @@
 #!/bin/bash
+set -eu
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-exec plash -o alpine3.6 --apk py-pip --pip yapf -- yapf $DIR/../plash/*.py -i
+yapf=$(plash build -o alpine3.6 --apk py-pip --pip yapf --exec /usr/bin/yapf)
+plash runp $yapf $DIR/../plash/*.py -i
+plash runp $yapf $DIR/../bin/plash.build -i
