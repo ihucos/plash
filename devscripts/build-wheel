@@ -12,7 +12,7 @@ python3-wheel
 --write-script
 /entrypoint
 #!/bin/sh
-python3 setup.py bdist_wheel
+exec python3 setup.py bdist_wheel
 
 --exec
 /entrypoint
