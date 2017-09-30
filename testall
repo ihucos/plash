@@ -2,6 +2,7 @@
 set -e
 
 log=$(mktemp)
+program_exit=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 for config in $DIR/test.d/*.sh ; do
@@ -13,11 +14,14 @@ for config in $DIR/test.d/*.sh ; do
   source "$config"
   ) &
   if wait $!; then
-    echo ' PASS'
+    echo ' OK'
   else
-    echo ' FAIL'
+    echo ' ERROR'
+    program_exit=1
     tail $log
     echo
   fi
 
 done
+
+exit $program_exit

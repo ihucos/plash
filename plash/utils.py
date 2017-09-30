@@ -86,8 +86,10 @@ def deescalate_sudo_call(func, *args, **kwargs):
         os._exit(0)
 
 
-def color(stri, color):
-    return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
+def color(stri, color, isatty_fd_check=2):
+    if os.isatty(isatty_fd_check):
+        return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
+    return stri
 
 
 def setup_sigint_handler():  # TODO: call differently

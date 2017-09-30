@@ -11,4 +11,3 @@ newcont=$(plash.build -o zesty --bust-cache)
 cd /tmp
 out=$(plash.run $newcont pwd)
 test "$out" == "/tmp"
-adf
