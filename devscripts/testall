@@ -5,7 +5,7 @@ log=$(mktemp)
 program_exit=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-for config in $DIR/test.d/*.sh ; do
+for config in $DIR/../test.d/*.sh ; do
   printf $(basename "$config")
   (
   export PS4='+ ${BASH_SOURCE}:${LINENO} '
