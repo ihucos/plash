@@ -32,23 +32,6 @@ def catch_and_die(exceptions, debug=None):
         die(msg)
 
 
-def filter_positionals(args):
-    positional = []
-    filtered_args = []
-    found_first_opt = False
-    while args:
-        arg = args.pop(0)
-        if not arg.startswith('-') and not found_first_opt:
-            positional.append(arg)
-        elif arg == '--':
-            positional += args
-            args = None
-        else:
-            filtered_args.append(arg)
-            found_first_opt = True
-    return positional, filtered_args
-
-
 def deescalate_sudo():
     uid = os.environ.get('SUDO_UID')
     gid = os.environ.get('SUDO_GID')

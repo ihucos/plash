@@ -9,7 +9,7 @@ for config in $DIR/../test.d/*.sh ; do
   printf $(basename "$config")
   (
   export PS4='+ ${BASH_SOURCE}:${LINENO} '
-  [ "$1" == chatty ] || exec > $log 2>&1
+  exec > $log 2>&1
   set -x
   source "$config"
   ) &
@@ -18,10 +18,9 @@ for config in $DIR/../test.d/*.sh ; do
   else
     echo ' ERROR'
     program_exit=1
-    tail $log
+    tail $log >&2
     echo
   fi
-
 done
 
 exit $program_exit

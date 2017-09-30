@@ -6,17 +6,33 @@ set -eu
     exit 1
 }
 
-cmd=$1
-shift
-case $cmd in
+# https://stackoverflow.com/questions/14366390/check-if-an-element-is-present-in-a-bash-array
+array_contains () {
+    local seeking=$1; shift
+    local in=1
+    for element; do
+        if [ "$element" = "$seeking" ]; then
+            in=0
+            break
+        fi
+    done
+    return $in
+}
+
+case $1 in
 --help|-h)
     echo 'TODO: help' ;;
 
 -*)
-    # "do run" is used as default command, when no other was given
-    exec $0.do run "$cmd" "$@" ;;
+    if array_contains '--' "$@"; then
+        exec $0.do run "$@"
+    else
+        $0.build "$@"
+    fi
+    ;;
 
 *)
+    cmd=$1; shift
     command -v $0.$cmd >/dev/null 2>&1 || {
         echo >&2 "Subcommand '$cmd' not found, try --help"
         exit 1
