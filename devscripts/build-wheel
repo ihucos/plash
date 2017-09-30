@@ -2,8 +2,6 @@
 --os
 zesty
 
---bust-cache
-
 --apt
 python3
 python3-setuptools
