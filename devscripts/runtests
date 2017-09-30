@@ -5,13 +5,13 @@ log=$(mktemp)
 program_exit=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-for config in $DIR/../test.d/*.sh ; do
-  printf $(basename "$config")
+for script in $DIR/../test.d/*.sh ; do
+  printf $(basename "$script")
   (
   export PS4='+ ${BASH_SOURCE}:${LINENO} '
   exec > $log 2>&1
   set -x
-  source "$config"
+  source "$script"
   ) &
   if wait $!; then
     echo ' OK'
