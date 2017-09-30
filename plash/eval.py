@@ -18,7 +18,7 @@ class EvalError(Exception):
     pass
 
 
-def action(action_name=None, keep_comments=False):
+def action(action_name=None, keep_comments=False, escape=True):
     def decorator(func):
 
         action = action_name or func.__name__.replace('_', '-')
@@ -27,6 +27,9 @@ def action(action_name=None, keep_comments=False):
 
             if not keep_comments:
                 args = [i for i in args if not i.startswith('#')]
+            
+            if escape:
+                args = [shlex.quote(i) for i in args]
 
             res = func(*args, **kw)
 

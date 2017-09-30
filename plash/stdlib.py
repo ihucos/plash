@@ -13,7 +13,7 @@ from .eval import ArgError, action, eval
 from .utils import hashstr
 
 
-@action()
+@action(escape=False)
 def layer(command=None, *args):
     if not command:
         return eval([['original-layer']])  # fall back to buildin layer action
@@ -26,7 +26,7 @@ def layer(command=None, *args):
 
 
 @action(keep_comments=True)
-@action()
+@action(escape=False)
 def run(*args):
     return '\n'.join(args)
 
@@ -37,19 +37,17 @@ def bust_cache():
 
 @action(keep_comments=True)
 def write_script(fname, *lines):
-    lines = list(lines)
-    lsp = [['run', 'touch '+fname]]
+    yield 'touch {}'.format(fname)
     for line in lines:
-        lsp.append(['run', "echo {} >> {}".format(shlex.quote(line), shlex.quote(fname))])
-    lsp.append(['run', 'chmod 755 ' + fname])
-    return eval(lsp)
+        yield "echo {} >> {}".format(line, fname)
+    yield 'chmod 755 {}'.format(fname)
 
 @action()
 def exec(binary):
-    return 'mkdir -p /etc/runp && ln -fs {} /etc/runp/exec'.format(shlex.quote(binary))
+    return 'mkdir -p /etc/runp && ln -fs {} /etc/runp/exec'.format(binary)
 
 
-@action()
+@action(escape=False)
 def include(*files):
     for file in files:
         fname = os.path.realpath(os.path.expanduser(file))
@@ -94,13 +92,13 @@ def all_files(dir):
             yield fname
 
 
-@action()
+@action(escape=False)
 def rebuild_when_changed(*paths):
     hash = hash_paths(paths)
     return ":rebuild-when-changed hash: {}".format(hash)
 
 
-@action()
+@action(escape=False)
 def define_package_manager(name, *lines):
     @action(name)
     def package_manager(*packages):
@@ -114,14 +112,14 @@ def pkg(*packages):
     raise ArgError('you need to ":set-pkg <package-manager>" to use pkg')
 
 
-@action()
+@action(escape=False)
 def set_pkg(pm):
     @action('pkg')
     def pkg(*packages):
         return eval([[pm] + list(packages)])
 
 
-@action()
+@action(escape=False)
 def all(command, *args):
     return eval([[command, arg] for arg in args])
 
@@ -131,11 +129,11 @@ def comment(*args):
     pass
 
 
-@action('os')
+@action('os', escape=False)
 def os_(os):
     state.set_os(os)
 
-@action()
+@action(escape=False)
 def chdir(path):
     os.chdir(path)
 
