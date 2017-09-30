@@ -25,11 +25,19 @@ def layer(command=None, *args):
         return eval(lst)
 
 
-@action(keep_comments=True)
-@action(escape=False)
+@action(escape=False, keep_comments=True)
 def run(*args):
     return '\n'.join(args)
 
+@action()
+def import_envs(*envs):
+    for env in envs:
+        parts = env.split(':', 1)
+        if len(parts) == 1:
+            export_as = env
+        else:
+            env, export_as = parts
+        yield '{}={}'.format(export_as, shlex.quote(os.environ[env]))
 
 @action()
 def bust_cache():
@@ -45,7 +53,6 @@ def write_script(fname, *lines):
 @action()
 def exec(binary):
     return 'mkdir -p /etc/runp && ln -fs {} /etc/runp/exec'.format(binary)
-
 
 @action(escape=False)
 def include(*files):

@@ -1,0 +1,26 @@
+#!/usr/bin/env plash.runfile
+
+--os
+zesty
+
+--apt
+python3
+python3-setuptools
+squashfs-tools
+tree
+wget
+
+--layer
+--import-envs
+PWD:HOST_PWD
+--run
+cd $HOST_PWD
+python3 setup.py install
+
+--exec
+/usr/local/bin/plash
+
+# volume: plash.build-data /var/lib/plash
+# volume: plash.vartmp /var/tmp
+# volume: plash.volumedata /var/lib/runp-volumes
+

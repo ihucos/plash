@@ -34,8 +34,8 @@ def ensure_data_dirs():
     try:
         os.mkdir(BASE_DIR, 0o0700)
     except FileExistsError:
-        return
-    for dir in [BUILD_DIR, TMP_DIR, LINKS_DIR]:
+        pass
+    for dir in [BUILDS_DIR, TMP_DIR, LINKS_DIR]:
         try:
             os.mkdir(dir)
         except FileExistsError:
