@@ -1,10 +1,14 @@
 #!/bin/sh
 set -eu
-RUNP_BINARY=/usr/local/bin/runp
+runp_binary=$(command -v runp 2>/dev/null) || {
+  echo 'count not find runp in PATH, plash run needs the runp binary to run commands' >&2
+  exit 1
+}
+
 container="$1"
 mount_wrapper=$(mktemp --directory --tmpdir=/var/lib/plash/tmp/ XXXXXXXXXXXX)
 mkdir $mount_wrapper/prog.dir
 plash.mount $container $mount_wrapper/prog.dir
-ln -s $RUNP_BINARY $mount_wrapper/prog
+ln -s $runp_binary $mount_wrapper/prog
 shift
 exec $mount_wrapper/prog "$@"

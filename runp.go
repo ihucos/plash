@@ -3,7 +3,7 @@ package main
 import "fmt"
 import "os"
 import "os/exec"
-import "os/user"
+// import "os/user"
 import "strings"
 import "io/ioutil"
 import "syscall"

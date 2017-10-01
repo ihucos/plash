@@ -10,7 +10,7 @@ import sys
 import tarfile
 from os import path
 from os.path import abspath, join
-from subprocess import check_call
+from subprocess import CalledProcessError, check_call
 from tempfile import mkdtemp
 from urllib.request import urlopen
 

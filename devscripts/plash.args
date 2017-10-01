@@ -11,14 +11,19 @@ tree
 wget
 
 --layer
---import-envs
-PWD:HOST_PWD
---run
-cd $HOST_PWD
-python3 setup.py install
 
 --exec
 /usr/local/bin/plash
+
+--layer
+--bust-cache
+
+--import-envs
+PWD:HOST_PWD
+
+--run
+cd $HOST_PWD
+python3 setup.py install
 
 # volume: plash.build-data /var/lib/plash
 # volume: plash.vartmp /var/tmp
