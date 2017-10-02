@@ -71,8 +71,7 @@ class Container:
                 error = True
         if error:
             raise ContainerDoesNotExist('no such container: {}'.format(alias))
-        layers = last_layer_path[len('../builds/'):].split('/children/')
-        return cls(layers)
+        return cls.by_node_path(last_layer_path)
 
     @classmethod
     def by_node_path(cls, node_path):

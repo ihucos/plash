@@ -27,7 +27,7 @@ case $1 in
     if array_contains '--' "$@"; then
         exec $0.do run "$@"
     else
-        $0.build "$@"
+        exec $0.build "$@"
     fi
     ;;
 
