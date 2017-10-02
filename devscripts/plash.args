@@ -23,6 +23,11 @@ PWD:HOST_PWD
 
 --run
 cd $HOST_PWD
+
+# install runp
+wget 'https://github.com/ihucos/runp/blob/master/runp?raw=true' -O /usr/local/bin/runp
+chmod 4755 /usr/local/bin/runp
+
 python3 setup.py install
 
 # volume: plash.build-data /var/lib/plash
