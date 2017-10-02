@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+url=$1
+image_id=$2
+tmpdir=$(mktemp --directory)
+wget -q --show-progress $url -O $tmpdir/file
+exec plash.import-tar $tmpdir/file $image_id

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+tarfile=$1
+image_id=$2
+tmpdir=$(mktemp --directory --tmpdir=/var/lib/plash/tmp) # use that because import-folder blah blah no copy rename /bin/bbsuid access rights
+tar --exclude ./dev -xf $tarfile -C $tmpdir #/dev  does fail on docker: tar: ./dev/random: Cannot mknod: Function not implemented
+mkdir $tmpdir/dev
+exec plash.import-folder $tmpdir $image_id
