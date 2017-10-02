@@ -11,7 +11,7 @@ from json import dumps
 from subprocess import CalledProcessError, list2cmdline
 from urllib.error import URLError
 
-from plash import core, pullimage, state
+from plash import core, state
 from plash.core import BuildError
 from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
 from plash.utils import (catch_and_die, deescalate_sudo_call, die, hashstr,
@@ -109,9 +109,10 @@ with catch_and_die([PermissionError, URLError, BuildError]):
     if len(base_container) == 40: # VERY HACKY
         c = core.Container.by_alias(base_container)
     else:
-        with catch_and_die([pullimage.ImageDoesNotExist]):
-            pullimage.pull_image(base_container)
         c = core.Container([base_container])
+        exit = subprocess.Popen(['plash.import-linuxcontainers', base_container]).wait()
+        if not exit:
+            sys.exit(exit)
     cache_hits = []
     for counter, cmd in enumerate(layers):
         on_build = lambda: info('Layer {}/{}'.format(counter+1, len(layers)))

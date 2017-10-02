@@ -76,6 +76,7 @@ def color(stri, color, isatty_fd_check=2):
 
 
 def setup_sigint_handler():  # TODO: call differently
+    return
     # return
     # if not os.environ.get('PLASH_TRACEBACK', '').lower() in ('yes', '1', 'true'):
     #     def signal_handler(signal, frame):
