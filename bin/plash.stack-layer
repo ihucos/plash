@@ -1,21 +1,30 @@
+import errno
 import os
-from subprocess import CalledProcessError, check_call
+import sys
+from os.path import join
+from subprocess import CalledProcessError, Popen, check_call, check_output
 from tempfile import mkdtemp
 
-import check_output
-from plash.utils import hashstr
+from plash.utils import catch_and_die, hashstr, die
 
-container = sys.argv[0]
-cmd = sys.argv[1]
+BASE_DIR = '/var/lib/plash'
 
-new_child = mkdtemp(dir=TMP_DIR)
-mountpoint = mkdtemp(dir=TMP_DIR)
+container = sys.argv[1]
+cmd = sys.argv[2]
+quiet = False
+
+with catch_and_die([CalledProcessError]):
+    node_path = check_output(['plash.nodepath', container])
+    node_path = node_path.decode().strip('\n')
+
+new_child = mkdtemp(dir=join(BASE_DIR, 'tmp'))
+mountpoint = mkdtemp(dir=join(BASE_DIR, 'tmp'))
 new_layer = join(new_child, 'payload')
 os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
 
-with catch_and_die(CalledProcessError):
-    check_call('plash.mount', container, mountpoint, '--write-dir', new_layer)
+with catch_and_die([CalledProcessError]):
+    check_call(['plash.mount', container, mountpoint, '--upperdir', new_layer])
 
 with catch_and_die([CalledProcessError]):
     check_call(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
@@ -51,14 +60,11 @@ if child_exit != 0:
     raise BuildError(
         "build returned exit status {}".format(child_exit))
 
-with catch_and_die([CalledProcessError]):
-    raw_this_node_path = check_output('plash.nodepath', container)
-    this_node_path.decode().strip('\n')
-new_container_id = hashstr(':'.join(container, cmd))
-final_child_dst = join(BUILD_DIR, this_node_path, 'children', new_container_id)
+new_container_id = hashstr(b':'.join([container.encode(), cmd.encode()]))
+final_child_dst = join(join(BASE_DIR, 'builds'), node_path, 'children', new_container_id)
 
 try:
-    os.symlink(final_child_dst, join(LINKS_DIR, alias))
+    os.symlink(final_child_dst, join(BASE_DIR, 'links', new_container_id))
 except FileExistsError:
     pass
 
@@ -66,8 +72,8 @@ try:
     os.rename(new_child, final_child_dst)
 except OSError as exc:
     if exc.errno == errno.ENOTEMPTY:
-        info(
-            'This layer already exists builded and will not be replaced (layer: {})'.
-            format(layer_hash))
+        die('container id or layer {} already exists'.format(new_container_id))
     else:
         raise
+
+print(new_container_id)
