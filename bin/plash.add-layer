@@ -5,7 +5,7 @@ import os
 import shutil
 import sys
 from os.path import join
-from subprocess import CalledProcessError, Popen, check_call, check_output
+from subprocess import CalledProcessError, Popen, check_call, check_output, DEVNULL
 from tempfile import mkdtemp
 
 from plash.utils import catch_and_die, die, hashstr, info
@@ -23,7 +23,7 @@ with catch_and_die([CalledProcessError]):
 new_container= hashstr(b':'.join([container.encode(), cmd.encode()]))
 final_child_dst = join(join(BASE_DIR, 'builds'), node_path, 'children', new_container)
 try:
-    check_call(['plash.nodepath', new_container])
+    check_output(['plash.nodepath', new_container], stderr=DEVNULL)
 except CalledProcessError:
     pass
 else:

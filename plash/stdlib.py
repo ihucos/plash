@@ -8,7 +8,6 @@ import tempfile
 import uuid
 from base64 import b64encode
 
-from . import state
 from .eval import ArgError, action, eval
 from .utils import hashstr
 

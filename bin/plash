@@ -27,6 +27,8 @@ os_hint = None
 for line in script_lines:
     if line.startswith(OS_HINT):
         os_hint = line[len(OS_HINT):]
+if os_hint is None:
+    die('No os specified')
 
 current_container = os_hint
 for counter, layer in enumerate(layers):
@@ -38,7 +40,6 @@ for counter, layer in enumerate(layers):
     if exit:
         sys.exit(1)
     current_container = p.stdout.read()
-    print(repr(current_container))
     current_container = current_container.decode().strip('\n')
 
 print(current_container)
