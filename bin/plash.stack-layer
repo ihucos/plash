@@ -1,0 +1,73 @@
+import os
+from subprocess import CalledProcessError, check_call
+from tempfile import mkdtemp
+
+import check_output
+from plash.utils import hashstr
+
+container = sys.argv[0]
+cmd = sys.argv[1]
+
+new_child = mkdtemp(dir=TMP_DIR)
+mountpoint = mkdtemp(dir=TMP_DIR)
+new_layer = join(new_child, 'payload')
+os.mkdir(new_layer)
+os.mkdir(join(new_child, 'children'))
+
+with catch_and_die(CalledProcessError):
+    check_call('plash.mount', container, mountpoint, '--write-dir', new_layer)
+
+with catch_and_die([CalledProcessError]):
+    check_call(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
+    check_call(['mount', '--bind', '/home', join(mountpoint, 'home')])
+    check_call(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
+    check_call(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
+    check_call(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')])
+    check_call([
+        'mount', '--bind', '/etc/resolv.conf',
+        join(mountpoint, 'etc/resolv.conf')
+        ])
+
+def preexec_fn():
+    os.chroot(mountpoint)
+    os.chdir("/")
+    os.close(
+        0
+    )  # close stdin for more reproducible builds - if that does not work well, there is another way
+
+if quiet:
+    out = DEVNULL
+else:
+    out = 2  # stderr
+p = Popen(
+    ['sh', '-cxe', cmd], stderr=out, stdout=out, preexec_fn=preexec_fn)
+child_exit = p.wait()
+
+with catch_and_die([CalledProcessError]):
+    check_call(['umount', '--lazy', '--recursive', mountpoint])
+
+if child_exit != 0:
+    atexit.register(lambda: shutil.rmtree(new_child))
+    raise BuildError(
+        "build returned exit status {}".format(child_exit))
+
+with catch_and_die([CalledProcessError]):
+    raw_this_node_path = check_output('plash.nodepath', container)
+    this_node_path.decode().strip('\n')
+new_container_id = hashstr(':'.join(container, cmd))
+final_child_dst = join(BUILD_DIR, this_node_path, 'children', new_container_id)
+
+try:
+    os.symlink(final_child_dst, join(LINKS_DIR, alias))
+except FileExistsError:
+    pass
+
+try:
+    os.rename(new_child, final_child_dst)
+except OSError as exc:
+    if exc.errno == errno.ENOTEMPTY:
+        info(
+            'This layer already exists builded and will not be replaced (layer: {})'.
+            format(layer_hash))
+    else:
+        raise
