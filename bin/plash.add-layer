@@ -16,9 +16,10 @@ container = sys.argv[1]
 cmd = sys.stdin.read()
 quiet = False
 
-with catch_and_die([CalledProcessError]):
-    node_path = check_output(['plash.nodepath', container])
-    node_path = node_path.decode().strip('\n')
+try:
+    node_path = check_output(['plash.nodepath', container]).decode().strip('\n')
+except CalledProcessError:
+    sys.exit(1)
 
 new_container= hashstr(b':'.join([container.encode(), cmd.encode()]))
 final_child_dst = join(join(BASE_DIR, 'builds'), node_path, 'children', new_container)
@@ -27,7 +28,8 @@ try:
 except CalledProcessError:
     pass
 else:
-    info('already cached')
+    # print('cached', file=sys.stderr)
+    # its already cached
     print(new_container)
     sys.exit(0)
 
@@ -39,9 +41,11 @@ os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
 
 with catch_and_die([CalledProcessError]):
+
+    # mount container
     check_call(['plash.mount', container, mountpoint, '--upperdir', new_layer])
 
-with catch_and_die([CalledProcessError]):
+    # prepare mounts for container
     check_call(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
     check_call(['mount', '--bind', '/home', join(mountpoint, 'home')])
     check_call(['mount', '--bind', '/sys', join(mountpoint, 'sys')])

@@ -10,9 +10,12 @@ LAYER_MARKER = '### start new layer'
 OS_HINT = '### os hint: '
 
 
-with catch_and_die([CalledProcessError]):
+try:
     script = check_output(['plash.debug-lsp'] + sys.argv[1:])
     script = script.decode()[:-1]
+except CalledProcessError:
+    sys.exit(1)
+
 
 if script:
     script_lines = script.split('\n')
@@ -32,7 +35,7 @@ if os_hint is None:
 
 current_container = os_hint
 for counter, layer in enumerate(layers):
-    info('Layer {}/{}'.format(counter+1, len(layers)))
+    info('Building layer {}/{}'.format(counter+1, len(layers)))
     p = Popen(['plash.add-layer', current_container], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     p.stdin.write(layer.encode())
     p.stdin.close()

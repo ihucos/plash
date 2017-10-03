@@ -3,7 +3,10 @@
 import argparse
 
 from plash import eval, stdlib
-from plash.utils import catch_and_die
+from plash.utils import catch_and_die, deescalate_sudo
+
+# try not to be root
+deescalate_sudo()
 
 
 def create_collect_lsp_action(lsp_begin):
@@ -28,21 +31,18 @@ for action, func in eval.state['actions'].items():
         nargs='*'
     )
 
-# also get actions not known yet, maybe because they where added with --import
-_, unused_args = parser.parse_known_args()
-for arg in set(unused_args):
-    if arg == '--':
-        break
-    if arg.startswith('--'):
-        parser.add_argument(
-            arg,
-            action=create_collect_lsp_action([arg[2:]]),
-            nargs='*')
+# add the cli shortucuts
+group = parser.add_argument_group('shortcuts', 'shortcuts')
+for shortcut, lsp, nargs in stdlib.CLI_SHORTCUTS:
+    group.add_argument(
+        shortcut,
+        action=create_collect_lsp_action(lsp),
+        nargs=nargs)
+
 
 args = parser.parse_args()
 
 with catch_and_die([eval.ActionNotFoundError]):
     lsp = getattr(args, 'lsp', [])
     script = eval.eval(lsp)
-# print(stdlib.layer())
 print(script)

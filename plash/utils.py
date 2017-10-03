@@ -29,6 +29,7 @@ def catch_and_die(exceptions, debug=None):
                 debug=debug, message=str(exc))
         else:
             msg = str(exc)
+        assert 0, sys.argv[0]
         die(msg)
 
 
@@ -43,30 +44,6 @@ def deescalate_sudo():
         os.setgroups([])  # for now loose supplementary groups
         os.setregid(int(gid), int(gid))
         os.setreuid(int(uid), int(uid))
-
-
-def deescalate_sudo_call(func, *args, **kwargs):
-    r, w = os.pipe()
-    r, w = os.fdopen(r, 'r'), os.fdopen(w, 'w')
-    pid = os.fork()
-    if pid:
-        w.close()
-        _, exit = os.waitpid(pid, 0)
-        if exit:
-            exit = exit // 256
-            sys.exit(exit)
-        data = r.readline()
-        assert data
-        r.close()
-        return json.loads(data)
-    else:  # child
-        deescalate_sudo()
-        r.close()
-        value = func(*args, **kwargs)
-        serlialized = json.dumps(value)
-        print(serlialized, file=w)
-        w.close()
-        os._exit(0)
 
 
 def color(stri, color, isatty_fd_check=2):

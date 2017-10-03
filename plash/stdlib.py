@@ -11,6 +11,23 @@ from base64 import b64encode
 from .eval import ArgError, action, eval
 from .utils import hashstr
 
+
+CLI_SHORTCUTS = [
+    # shortcut, lsp, nargs
+    ('-x', ['run'], '+'),
+    ('-a', ['apt'], '+'),
+    ('-y', ['yum'], '+'),
+    ('-p', ['pip'], '+'),
+    ('-b', ['apt', 'ubuntu-server'], 0),
+    ('-o', ['os'], 1),
+    ('-U', ['os', 'ubuntu'], 0),
+    ('-F', ['os', 'fedora'], 0),
+    ('-D', ['os', 'debian'], 0),
+    ('-l', ['layer'], 0),
+    ('-i', ['include'], '+'),
+ ]
+
+
 OS_HINT_TEMPL = '### os hint: {}\n'
 
 
