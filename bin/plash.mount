@@ -1,13 +1,48 @@
 #!/usr/bin/env python3
 # vim: set ft=python:
 import argparse
+import os
+from os import path
+from os.path import join
+from subprocess import CalledProcessError, check_output
 from sys import exit
-from plash.utils import get_container_or_die
+from tempfile import mkdtemp
+
+from plash.utils import catch_and_die
+
+BASE_DIR = '/var/lib/plash'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('container')
 parser.add_argument('mountpoint')
+parser.add_argument('--upperdir')
+parser.add_argument('--workdir')
 args = parser.parse_args()
 
-cont = get_container_or_die(args.container)
-cont.mount(args.mountpoint)
+with catch_and_die([CalledProcessError]):
+    node_path = check_output(['plash.nodepath', args.container])
+    node_path = node_path.decode().strip('\n')
+
+# use the symlinks and not the full paths because the arg size is limited
+# and this is shorter. on my setup i get 58 layers before an error, we could have multiple mount calls to overcome this
+symlinked_layer_paths = []
+
+base = node_path
+while True:
+      base, dir = path.split(base)
+      if dir == 'children':
+            continue
+      symlinked_layer_paths.append(join(BASE_DIR, 'links', dir))
+      if path.basename(base) == 'builds':
+            break
+
+cmd = [
+    'mount', '-t', 'overlay', 'overlay', '-o',
+    'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(
+        upperdir=args.upperdir or mkdtemp(dir=join(BASE_DIR, 'tmp')),
+        workdir=args.workdir or mkdtemp(dir=join(BASE_DIR, 'tmp')),
+        lowerdir=':'.join(
+            join(p, 'payload')
+            for p in reversed(symlinked_layer_paths))), args.mountpoint]
+
+os.execvpe(cmd[0], cmd, os.environ)
