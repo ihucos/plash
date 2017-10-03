@@ -2,7 +2,7 @@ import shlex
 import uuid
 from importlib import import_module
 
-layer_marker_rand = str(uuid.uuid4()).split('-')[-1]
+LAYER_MARKER = '### start new layer\n'
 state = {'actions': {}}  # put that in state.py ?
 
 
@@ -88,4 +88,4 @@ def import_planch_actions(*modules):
 @action('original-layer')
 @action('layer')
 def layer():
-    return ": 'Start new layer marker [{}]'".format(layer_marker_rand)
+    return LAYER_MARKER

@@ -1,42 +1,173 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/python3
 
-[ $# -eq 0 ] && {
-    echo "Plash is a lean container build system, try --help"
-    exit 1
-}
+import subprocess
+import sys
+from subprocess import CalledProcessError, Popen, check_output
 
-# https://stackoverflow.com/questions/14366390/check-if-an-element-is-present-in-a-bash-array
-array_contains () {
-    local seeking=$1; shift
-    local in=1
-    for element; do
-        if [ "$element" = "$seeking" ]; then
-            in=0
-            break
-        fi
-    done
-    return $in
-}
+from plash.utils import catch_and_die, info
 
-case $1 in
---help|-h)
-    echo 'TODO: help' ;;
+LAYER_MARKER = '### start new layer'
+OS_HINT = '### os hint: '
 
--*)
-    if array_contains '--' "$@"; then
-        exec $0.do run "$@"
-    else
-        exec $0.build "$@"
-    fi
-    ;;
 
-*)
-    cmd=$1; shift
-    command -v $0.$cmd >/dev/null 2>&1 || {
-        echo >&2 "Subcommand '$cmd' not found, try --help"
-        exit 1
-    }
-    exec $0.$cmd "$@" ;;
+with catch_and_die([CalledProcessError]):
+    script = check_output(['plash.debug-lsp'] + sys.argv[1:])
+    script = script.decode()[:-1]
 
-esac
+if script:
+    script_lines = script.split('\n')
+    layer_maker = script_lines[0]
+    layers = (script + '\n').split(LAYER_MARKER + '\n')
+    layers = [l for l in layers if l]
+else:
+    script_lines = []
+    layers = []
+
+os_hint = None
+for line in script_lines:
+    if line.startswith(OS_HINT):
+        os_hint = line[len(OS_HINT):]
+
+current_container = os_hint
+for counter, layer in enumerate(layers):
+    info('Layer {}/{}'.format(counter+1, len(layers)))
+    p = Popen(['plash.add-layer', current_container], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    p.stdin.write(layer.encode())
+    p.stdin.close()
+    exit = p.wait()
+    if exit:
+        sys.exit(1)
+    current_container = p.stdout.read()
+    print(repr(current_container))
+    current_container = current_container.decode().strip('\n')
+
+print(current_container)
+
+
+
+# from plash.utils import setup_sigint_handler; setup_sigint_handler()
+
+# import argparse
+# import os
+# import platform
+# import shlex
+# import subprocess
+# import sys
+# from json import dumps
+# from subprocess import CalledProcessError, list2cmdline
+# from urllib.error import URLError
+
+# from plash import core, state
+# from plash.core import BuildError
+# from plash.eval import ActionNotFoundError, ArgError, EvalError, eval, layer
+# from plash.utils import (catch_and_die, deescalate_sudo_call, die, hashstr,
+#                          info)
+
+# HELP = 'my help'
+
+# # shortcuts are specific to the stdlib
+# SHORTCUTS = [
+#     # shortcut, lsp, nargs
+#     ('-x', ['run'], '+'),
+#     ('-a', ['apt'], '+'),
+#     ('-y', ['yum'], '+'),
+#     ('-p', ['pip'], '+'),
+#     ('-b', ['apt', 'ubuntu-server'], 0),
+#     ('-o', ['os'], 1),
+#     ('-U', ['os', 'ubuntu'], 0),
+#     ('-F', ['os', 'fedora'], 0),
+#     ('-D', ['os', 'debian'], 0),
+#     ('-l', ['layer'], 0),
+#     ('-i', ['include'], '+'),
+#  ]
+
+# def create_collect_lsp_action(lsp_begin):
+#     class CollectLspAction(argparse.Action):
+#         def __call__(self, parser, namespace, values, option_string=None):
+#             if not 'lsp' in namespace:
+#                 setattr(namespace, 'lsp', [])
+#             previous = namespace.lsp
+#             previous.append(lsp_begin + list(values))
+#             setattr(namespace, 'lsp', previous) 
+#     return CollectLspAction
+
+
+# if os.getuid():
+#     die("Need to be root")
+
+# parser = argparse.ArgumentParser(
+#     formatter_class=argparse.RawTextHelpFormatter,
+#     description='Plash is a container build system',
+#     prog='plash',
+#     epilog=HELP)
+
+# parser.add_argument("--quiet", action='store_true')
+# parser.add_argument("--mute", action='store_true')
+# parser.add_argument("--no-stdlib", action='store_true')
+# parser.add_argument("--all-root", action='store_true')
+
+# # add SHORTCUTS
+# group = parser.add_argument_group('shortcuts', 'shortcuts')
+# for shortcut, lsp, nargs in SHORTCUTS:
+#     group.add_argument(
+#         shortcut,
+#         action=create_collect_lsp_action(lsp),
+#         nargs=nargs)
+
+# # add CollectLspAction to unused args
+# _, unused_args = parser.parse_known_args()
+# for arg in set(unused_args):
+#     if arg == '--':
+#         break
+#     if arg.startswith('--'):
+#         parser.add_argument(
+#             arg,
+#             action=create_collect_lsp_action([arg[2:]]),
+#             nargs='*')
+
+# args = parser.parse_args()
+
+# if args.mute:
+#     sys.stderr = open('/dev/null', 'w')
+
+# if not args.no_stdlib:
+#     init = [['import', 'plash.stdlib']]
+# else:
+#     init = []
+
+# def deescalated():
+#     lsp = getattr(args, 'lsp', [])
+#     with catch_and_die([ActionNotFoundError, ArgError, EvalError]):
+#         script = eval(init+lsp)
+#     return state.get_os(), script
+# base_container, script = deescalate_sudo_call(deescalated) if not args.all_root else deescalated()
+
+# if not base_container:
+#     parser.error('Specify a base container')
+# if script:
+#     layers = (script + '\n').split(layer() + '\n')
+#     layers = [l for l in layers if l]
+# else:
+#     layers = []
+
+# core.ensure_data_dirs()
+# with catch_and_die([PermissionError, URLError, BuildError]):
+#     try:
+#         c = core.Container.by_alias(base_container)
+#     except:
+#         if len(base_container) > 30: # VERY HACKY assume everything with more that 30 chars is a container id
+#             raise
+#         else:
+#             exit = subprocess.Popen(['plash.import-linuxcontainers', base_container]).wait()
+#             if not exit:
+#                 sys.exit(exit)
+#             c = core.Container([base_container])
+#     cache_hits = []
+#     for counter, cmd in enumerate(layers):
+#         on_build = lambda: info('Layer {}/{}'.format(counter+1, len(layers)))
+#         used_cache = c.add_or_build_layer(cmd, on_build=on_build, quiet=args.quiet or args.mute)
+#         cache_hits.append(used_cache)
+#     if not all(cache_hits):
+#         info('Done')
+#     c.log_access()
+#     print(c.alias)

@@ -1,21 +1,36 @@
+#!/usr/bin/env python
+import atexit
 import errno
 import os
+import shutil
 import sys
 from os.path import join
 from subprocess import CalledProcessError, Popen, check_call, check_output
 from tempfile import mkdtemp
 
-from plash.utils import catch_and_die, hashstr, die
+from plash.utils import catch_and_die, die, hashstr, info
 
 BASE_DIR = '/var/lib/plash'
 
 container = sys.argv[1]
-cmd = sys.argv[2]
+cmd = sys.stdin.read()
 quiet = False
 
 with catch_and_die([CalledProcessError]):
     node_path = check_output(['plash.nodepath', container])
     node_path = node_path.decode().strip('\n')
+
+new_container= hashstr(b':'.join([container.encode(), cmd.encode()]))
+final_child_dst = join(join(BASE_DIR, 'builds'), node_path, 'children', new_container)
+try:
+    check_call(['plash.nodepath', new_container])
+except CalledProcessError:
+    pass
+else:
+    info('already cached')
+    print(new_container)
+    sys.exit(0)
+
 
 new_child = mkdtemp(dir=join(BASE_DIR, 'tmp'))
 mountpoint = mkdtemp(dir=join(BASE_DIR, 'tmp'))
@@ -57,14 +72,10 @@ with catch_and_die([CalledProcessError]):
 
 if child_exit != 0:
     atexit.register(lambda: shutil.rmtree(new_child))
-    raise BuildError(
-        "build returned exit status {}".format(child_exit))
-
-new_container_id = hashstr(b':'.join([container.encode(), cmd.encode()]))
-final_child_dst = join(join(BASE_DIR, 'builds'), node_path, 'children', new_container_id)
+    die("build returned exit status {}".format(child_exit))
 
 try:
-    os.symlink(final_child_dst, join(BASE_DIR, 'links', new_container_id))
+    os.symlink(final_child_dst, join(BASE_DIR, 'links', new_container))
 except FileExistsError:
     pass
 
@@ -72,8 +83,8 @@ try:
     os.rename(new_child, final_child_dst)
 except OSError as exc:
     if exc.errno == errno.ENOTEMPTY:
-        die('container id or layer {} already exists'.format(new_container_id))
+        info('container id or layer appeared while building, not replacing it'.format(new_container))
     else:
         raise
 
-print(new_container_id)
+print(new_container)

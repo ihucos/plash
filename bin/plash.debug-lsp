@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+import argparse
+
+from plash import eval, stdlib
+from plash.utils import catch_and_die
+
+
+def create_collect_lsp_action(lsp_begin):
+    class CollectLspAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            if not 'lsp' in namespace:
+                setattr(namespace, 'lsp', [])
+            previous = namespace.lsp
+            previous.append(lsp_begin + list(values))
+            setattr(namespace, 'lsp', previous) 
+    return CollectLspAction
+
+
+parser = argparse.ArgumentParser()
+
+for action, func in eval.state['actions'].items():
+    # TODO: find out how many arguments it takes and pass it
+    parser.add_argument(
+        '--' + action,
+        help=func.__doc__,
+        action=create_collect_lsp_action([action]),
+        nargs='*'
+    )
+
+# also get actions not known yet, maybe because they where added with --import
+_, unused_args = parser.parse_known_args()
+for arg in set(unused_args):
+    if arg == '--':
+        break
+    if arg.startswith('--'):
+        parser.add_argument(
+            arg,
+            action=create_collect_lsp_action([arg[2:]]),
+            nargs='*')
+
+args = parser.parse_args()
+
+with catch_and_die([eval.ActionNotFoundError]):
+    lsp = getattr(args, 'lsp', [])
+    script = eval.eval(lsp)
+# print(stdlib.layer())
+print(script)

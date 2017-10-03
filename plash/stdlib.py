@@ -12,6 +12,8 @@ from . import state
 from .eval import ArgError, action, eval
 from .utils import hashstr
 
+OS_HINT_TEMPL = '### os hint: {}\n'
+
 
 @action(escape=False)
 def layer(command=None, *args):
@@ -138,7 +140,7 @@ def comment(*args):
 
 @action('os', escape=False)
 def os_(os):
-    state.set_os(os)
+    return OS_HINT_TEMPL.format(os)
 
 @action(escape=False)
 def chdir(path):
