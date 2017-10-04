@@ -23,7 +23,7 @@ try:
     node_path = check_output(['plash.nodepath', args.container]
                              ).decode().strip('\n')
 except CalledProcessError:
-    sys.exit(1)
+    exit(1)
 
 # use the symlinks and not the full paths because the arg size is limited
 # and this is shorter. on my setup i get 58 layers before an error, we could have multiple mount calls to overcome this

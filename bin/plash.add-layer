@@ -3,9 +3,11 @@ import atexit
 import errno
 import os
 import shutil
+import subprocess
 import sys
 from os.path import join
-from subprocess import CalledProcessError, Popen, check_call, check_output, DEVNULL
+from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
+                        check_output)
 from tempfile import mkdtemp
 
 from plash.utils import catch_and_die, die, hashstr, info
@@ -40,43 +42,18 @@ new_layer = join(new_child, 'payload')
 os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
 
-with catch_and_die([CalledProcessError]):
-
-    # mount container
-    check_call(['plash.mount', container, mountpoint, '--upperdir', new_layer])
-
-    # prepare mounts for container
-    check_call(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
-    check_call(['mount', '--bind', '/home', join(mountpoint, 'home')])
-    check_call(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
-    check_call(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-    check_call(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')])
-    check_call([
-        'mount', '--bind', '/etc/resolv.conf',
-        join(mountpoint, 'etc/resolv.conf')
-        ])
-
 def preexec_fn():
-    os.chroot(mountpoint)
-    os.chdir("/")
     os.close(
         0
     )  # close stdin for more reproducible builds - if that does not work well, there is another way
 
-if quiet:
-    out = DEVNULL
-else:
-    out = 2  # stderr
-p = Popen(
-    ['sh', '-cxe', cmd], stderr=out, stdout=out, preexec_fn=preexec_fn)
-child_exit = p.wait()
+out = 2
+p = subprocess.Popen(['plash.run', container, '--upperdir', new_layer, 'sh', '-cxe', cmd], stderr=out, stdout=out, preexec_fn=preexec_fn)
+exit = p.wait()
 
-with catch_and_die([CalledProcessError]):
-    check_call(['umount', '--lazy', '--recursive', mountpoint])
-
-if child_exit != 0:
+if exit != 0:
     atexit.register(lambda: shutil.rmtree(new_child))
-    die("build returned exit status {}".format(child_exit))
+    die("build returned exit status {}".format(exit))
 
 try:
     os.symlink(final_child_dst, join(BASE_DIR, 'links', new_container))
