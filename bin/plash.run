@@ -1,14 +1,58 @@
-#!/bin/sh
-set -eu
-container="$1"
-runp_container=$(plash.build -o $container --exec /usr/bin/env)
-shift
-if [ $# -eq 0 ]; then
-  echo 'usage: run container cmd [cmd [cmd ...]]' >&2
-  exit 1
-fi
-#   # the default arguemnt is to print the container id
-  # exec plash.runp $runp_container printf $runp_container'\n'
-# else
-exec plash.runp $runp_container "$@"
-# fi
+#!/usr/bin/env python3
+
+import argparse
+import atexit
+import os
+import sys
+import tempfile
+from os.path import join
+from subprocess import CalledProcessError, call, check_call
+
+from plash.utils import catch_and_die
+
+workdir = None
+upperdir = None
+try:
+  container, *cmd = sys.argv[1:]
+  while True:
+    if cmd[0] == '--workdir':
+      cmd.pop(0)
+      workir = cmd.pop(0)
+    elif cmd[0] == '--upperdir':
+      cmd.pop(0)
+      upperdir = cmd.pop(0)
+    else:
+      break
+except (IndexError, ValueError):
+  print('USAGE: run container [--workdir value] [--upperdir value] cmd1 [cmd2 [cmd3 ...]]', file=sys.stderr)
+  sys.exit(1)
+
+mountpoint = tempfile.mkdtemp(dir='/var/tmp')
+exit = call(
+  ['plash.mount', container, mountpoint] + 
+  (['--workdir', workdir] if workdir else []) +
+  (['--upperdir', upperdir] if upperdir else [])
+)
+if exit:
+  sys.exit(exit)
+
+with catch_and_die([CalledProcessError]):
+    # prepare mounts for container
+    check_call(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
+    check_call(['mount', '--bind', '/home', join(mountpoint, 'home')])
+    check_call(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
+    check_call(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
+    check_call(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')])
+    check_call([
+        'mount', '--bind', '/etc/resolv.conf',
+        join(mountpoint, 'etc/resolv.conf')
+        ])
+
+if not os.fork():
+  os.chroot(mountpoint)
+  os.chdir("/")
+  os.execvpe(cmd[0], cmd, os.environ)
+_, exit = os.wait()
+with catch_and_die([CalledProcessError]):
+    check_call(['umount', '--recursive', '--lazy', mountpoint])
+sys.exit(exit // 256)

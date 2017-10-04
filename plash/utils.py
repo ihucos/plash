@@ -15,7 +15,6 @@ from contextlib import contextmanager
 ERROR_COLOR = 1
 INFO_COLOR = 4
 
-
 def hashstr(stri):
     return hashlib.sha1(stri).hexdigest()
 
@@ -24,13 +23,13 @@ def catch_and_die(exceptions, debug=None):
     try:
         yield
     except tuple(exceptions) as exc:
+        program = os.path.basename(sys.argv[0])
         if debug:
             msg = '{debug}: {message}'.format(
                 debug=debug, message=str(exc))
         else:
             msg = str(exc)
-        assert 0, sys.argv[0]
-        die(msg)
+        die(program + ': ' + msg)
 
 
 def deescalate_sudo():
