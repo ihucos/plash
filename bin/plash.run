@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# vim: set filetype=python:
 
 import argparse
 import atexit

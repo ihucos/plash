@@ -1,4 +1,5 @@
 #!/bin/sh
+# vim: set filetype=sh:
 set -eu
 url=$1
 image_id=$2

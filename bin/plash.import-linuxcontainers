@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+# vim: set filetype=python:
 import os
 import re
 import sys
 from urllib.request import urlopen
+
+from plash.utils import die
 
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'  # FIXME: use https
 
@@ -34,6 +37,9 @@ for distro, version, arch, variant, date, _, _, _ in matches:
     else:
         names['{}{}'.format(distro, version)] = url
 
-url = names[image_name]
+try:
+    url = names[image_name]
+except KeyError:
+    die('Image not found: {}'.format(repr(image_name)))
 cmd = ['plash.import-url', url, image_name]
 os.execvpe(cmd[0], cmd, os.environ)

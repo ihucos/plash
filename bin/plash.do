@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# vim: set filetype=python:
 import os
 import subprocess
 import sys

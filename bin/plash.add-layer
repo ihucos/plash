@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# vim: set filetype=python:
 import atexit
 import errno
 import os
