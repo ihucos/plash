@@ -10,7 +10,7 @@ from tempfile import mkdtemp
 
 from plash.utils import catch_and_die
 
-BASE_DIR = '/var/lib/plash'
+PLAS_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('container')
@@ -34,15 +34,15 @@ while True:
       base, dir = path.split(base)
       if dir == 'children':
             continue
-      symlinked_layer_paths.append(join(BASE_DIR, 'links', dir))
+      symlinked_layer_paths.append(join(PLAS_DATA, 'links', dir))
       if path.basename(base) == 'builds':
             break
 
 cmd = [
     'mount', '-t', 'overlay', 'overlay', '-o',
     'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(
-        upperdir=args.upperdir or mkdtemp(dir=join(BASE_DIR, 'tmp')),
-        workdir=args.workdir or mkdtemp(dir=join(BASE_DIR, 'tmp')),
+        upperdir=args.upperdir or mkdtemp(dir=join(PLAS_DATA, 'tmp')),
+        workdir=args.workdir or mkdtemp(dir=join(PLAS_DATA, 'tmp')),
         lowerdir=':'.join(
             join(p, 'payload')
             for p in reversed(symlinked_layer_paths))), args.mountpoint]

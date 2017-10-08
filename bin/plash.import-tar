@@ -14,19 +14,14 @@ from plash.utils import die, info
 tar_file = sys.argv[1]
 image_id = sys.argv[2]
 
-BASE_DIR = '/var/lib/plash'
-TMP_DIR = join(BASE_DIR, 'tmp')
-BUILDS_DIR = join(BASE_DIR, 'builds')
-LINKS_DIR = join(BASE_DIR, 'links')
+PLASH_DATA = os.environ('PLASH_DATA', '/var/lib/plash')
 
-image_dir = join(BUILDS_DIR, image_id)
+image_dir = join(join(PLASH_DATA, 'builds'), image_id)
 if os.path.exists(image_dir):
       die('An image with that image id already exists')
       sys.exit(1)
 
-tmp_image_dir = mkdtemp(
-    dir=TMP_DIR
-)  # must be on same fs than BASE_DIR for rename to work
+tmp_image_dir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))  # must be on same fs than PLASH_DATA for rename to work
 os.mkdir(join(tmp_image_dir, 'children'))
 # os.mkdir(join(tmp_image_dir, 'payload'))
 rootfs = join(tmp_image_dir, 'payload')
@@ -45,7 +40,7 @@ with open(resolvconf, 'w') as f:
 
 # index the image
 try:
-    os.symlink(image_dir, join(LINKS_DIR, image_id)) # absolute symlink!
+    os.symlink(image_dir, join(join(PLASH_DATA, 'links'), image_id)) # absolute symlink!
 except FileExistsError:
     pass
 

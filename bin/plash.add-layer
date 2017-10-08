@@ -13,7 +13,7 @@ from tempfile import mkdtemp
 
 from plash.utils import catch_and_die, die, hashstr, info
 
-BASE_DIR = '/var/lib/plash'
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 container = sys.argv[1]
 cmd = sys.stdin.read()
@@ -25,7 +25,7 @@ except CalledProcessError:
     sys.exit(1)
 
 new_container= hashstr(b':'.join([container.encode(), cmd.encode()]))
-final_child_dst = join(join(BASE_DIR, 'builds'), node_path, 'children', new_container)
+final_child_dst = join(join(PLASH_DATA, 'builds'), node_path, 'children', new_container)
 try:
     check_output(['plash.nodepath', new_container], stderr=DEVNULL)
 except CalledProcessError:
@@ -37,8 +37,8 @@ else:
     sys.exit(0)
 
 
-new_child = mkdtemp(dir=join(BASE_DIR, 'tmp'))
-mountpoint = mkdtemp(dir=join(BASE_DIR, 'tmp'))
+new_child = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+mountpoint = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 new_layer = join(new_child, 'payload')
 os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
@@ -57,7 +57,7 @@ if exit != 0:
     die("build returned exit status {}".format(exit))
 
 try:
-    os.symlink(final_child_dst, join(BASE_DIR, 'links', new_container))
+    os.symlink(final_child_dst, join(PLASH_DATA, 'links', new_container))
 except FileExistsError:
     pass
 
