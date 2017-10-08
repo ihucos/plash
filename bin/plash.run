@@ -9,7 +9,7 @@ import tempfile
 from os.path import join
 from subprocess import CalledProcessError, call, check_call
 
-from plash.utils import catch_and_die
+from plash.utils import catch_and_die, die
 
 workdir = None
 upperdir = None
@@ -22,6 +22,9 @@ try:
     elif cmd[0] == '--upperdir':
       cmd.pop(0)
       upperdir = cmd.pop(0)
+    elif cmd[0] == '--':
+      cmd.pop(0)
+      break
     else:
       break
 except (IndexError, ValueError):
@@ -52,7 +55,10 @@ with catch_and_die([CalledProcessError]):
 if not os.fork():
   os.chroot(mountpoint)
   os.chdir("/")
-  os.execvpe(cmd[0], cmd, os.environ)
+  try:
+    os.execvpe(cmd[0], cmd, os.environ)
+  except FileNotFoundError:
+    die('Command not found: {}'.format(cmd[0]))
 _, exit = os.wait()
 with catch_and_die([CalledProcessError]):
     check_call(['umount', '--recursive', '--lazy', mountpoint])
