@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 mountpoint=$(mktemp -d)
-plash.mount $1 $mountpoint
-tar -czf - -C $mountpoint .
+plash.mount "$1" $mountpoint
+tar -czf "$2" -C $mountpoint .
 tar_exit=$?
 umount $mountpoint
 exit $tar_exit

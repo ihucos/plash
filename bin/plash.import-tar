@@ -14,7 +14,7 @@ from plash.utils import die, info
 tar_file = sys.argv[1]
 image_id = sys.argv[2]
 
-PLASH_DATA = os.environ('PLASH_DATA', '/var/lib/plash')
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 image_dir = join(join(PLASH_DATA, 'builds'), image_id)
 if os.path.exists(image_dir):
