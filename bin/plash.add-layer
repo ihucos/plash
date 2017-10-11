@@ -42,6 +42,7 @@ new_layer = join(new_child, 'payload')
 os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
 
+info('Building')
 def preexec_fn():
     os.close(
         0

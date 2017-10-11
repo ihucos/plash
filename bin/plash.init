@@ -1,0 +1,3 @@
+#!/bin/sh
+plash_data="${PLASH_DATA:-/var/lib/plash}"
+exec mkdir -p $plash_data $plash_data/links $plash_data/tmp $plash_data/builds
