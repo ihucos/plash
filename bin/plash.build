@@ -5,7 +5,7 @@ import subprocess
 import sys
 from subprocess import CalledProcessError, Popen, check_output, check_call, DEVNULL
 
-from plash.utils import catch_and_die, info
+from plash.utils import catch_and_die, info, die
 
 LAYER_MARKER = '### start new layer'
 OS_HINT = '### os hint: '

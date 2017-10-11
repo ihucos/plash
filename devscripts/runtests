@@ -5,9 +5,10 @@ log=$(mktemp)
 program_exit=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-for script in $DIR/../test.d/*.sh ; do
+for script in $DIR/../tests/* ; do
   printf $(basename "$script")
   (
+  PATH=$DIR/bin:$PATH
   export PS4='+ ${BASH_SOURCE}:${LINENO} '
   exec > $log 2>&1
   set -x
@@ -18,7 +19,7 @@ for script in $DIR/../test.d/*.sh ; do
   else
     echo ' ERROR'
     program_exit=1
-    tail $log >&2
+    tail <(cat -n $log) >&2
     echo
   fi
 done
