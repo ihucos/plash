@@ -15,6 +15,8 @@ workdir = None
 upperdir = None
 try:
   container, *cmd = sys.argv[1:]
+  if not cmd:
+    cmd = ['printf', '{}\\n'.format(container)] # a default command
   while True:
     if cmd[0] == '--workdir':
       cmd.pop(0)

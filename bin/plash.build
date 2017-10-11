@@ -46,7 +46,7 @@ except CalledProcessError:
 
 current_container = os_hint
 for counter, layer in enumerate(layers):
-    info('Building layer {}/{}'.format(counter+1, len(layers)))
+    # info('Building layer {}/{}'.format(counter+1, len(layers)))
     p = Popen(['plash.add-layer', current_container], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     p.stdin.write(layer.encode())
     p.stdin.close()
