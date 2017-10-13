@@ -104,10 +104,6 @@ def usage(stri):
     print('USAGE: {} {}'.format(prog, stri), file=sys.stderr)
     sys.exit(2)
 
-def checkargs(num_args, msg):
-    if num_args != len(sys.argv[1:]):
-        usage(msg)
-
 def init_dirs():
     for dir in [BASE_DIR, LINKS_DIR, BUILDS_DIR, TMP_DIR]:
         try:

@@ -12,12 +12,16 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 from sys import exit
 from tempfile import mkdtemp
 
-from plash.utils import catch_and_die, die, hashstr, info, checkargs
+from plash.utils import catch_and_die, die, hashstr, info
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
-checkargs(1, 'container')
-container = sys.argv[1]
+try:
+    container = sys.argv[1]
+except IndexError:
+    sys.stderr.write('USAGE: plash.add-layer container')
+    sys.exit(2)
+
 cmd = sys.stdin.read()
 quiet = False
 
