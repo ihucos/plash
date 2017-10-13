@@ -20,8 +20,7 @@ except CalledProcessError as exc:
 
 if script:
     script_lines = script.split('\n')
-    layer_maker = script_lines[0]
-    layers = (script + '\n').split(LAYER_MARKER + '\n')
+    layers = script.split(LAYER_MARKER + '\n')
     layers = [l for l in layers if l]
 else:
     script_lines = []
