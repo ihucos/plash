@@ -4,9 +4,6 @@ import os
 import subprocess
 import sys
 
-from plash.utils import usage
-
-
 def filter_positionals(args):
     positional = []
     filtered_args = []
@@ -25,7 +22,8 @@ def filter_positionals(args):
 
 cmd, args = filter_positionals(sys.argv[1:])
 if not cmd:
-    usage('<build args> plash-command [arg [arg [arg...]]]')
+    sys.stderr.write('<build args> plash-command [arg [arg [arg...]]]\n')
+    sys.exit(2)
 
 try:
     out = subprocess.check_output(
