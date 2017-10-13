@@ -1,6 +1,11 @@
 #!/bin/sh
-# vim: set filetype=sh:
 set -eu
+
+test $# -eq 2 || {
+  echo 'USAGE: import-url url image-id' >&2
+  exit 2
+}
+
 url=$1
 image_id=$2
 tmpdir=$(mktemp --directory)

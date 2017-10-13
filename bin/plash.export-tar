@@ -1,5 +1,11 @@
 #!/bin/sh
-set -eu
+set -e
+
+test $# -eq 2 || {
+  echo 'USAGE: export-tar container file' >&2
+  exit 2
+}
+
 mountpoint=$(mktemp -d)
 plash.mount "$1" $mountpoint
 tar -czf "$2" -C $mountpoint .

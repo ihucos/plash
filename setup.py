@@ -6,7 +6,7 @@ bins = listdir(path.join((path.dirname(__file__)), 'bin'))
 
 setup(name='plash',
       version='0.2.0',
-      description='Try new Linux distros',
+      description='A container build system',
       url='http://github.com/ihucos/plash',
       author='Irae Hueck Costa',
       author_email='irae.hueck.costa@gmail.com',

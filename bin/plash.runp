@@ -1,5 +1,11 @@
 #!/bin/sh
 set -eu
+
+test $# -eq 1 || {
+  echo 'USAGE: runp container [arg1 [arg2 [arg4...]]]' >&2
+  exit 2
+}
+
 runp_binary=$(command -v runp 2>/dev/null) || {
   echo 'count not find runp in PATH, plash run needs the runp binary to run commands' >&2
   exit 1

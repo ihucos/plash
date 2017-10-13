@@ -14,8 +14,8 @@ OS_HINT = '### os hint: '
 try:
     script = check_output(['plash.debug-lsp'] + sys.argv[1:])
     script = script.decode()[:-1]
-except CalledProcessError:
-    sys.exit(1)
+except CalledProcessError as exc:
+    sys.exit(exc.returncode)
 
 
 if script:

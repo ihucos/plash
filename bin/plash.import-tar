@@ -11,8 +11,12 @@ from tempfile import mkdtemp
 
 from plash.utils import die, info
 
-tar_file = sys.argv[1]
-image_id = sys.argv[2]
+try:
+    tar_file = sys.argv[1]
+    image_id = sys.argv[2]
+except IndexError:
+    sys.stderr.write('USAGE: import-tar tarfile image-id\n')
+    sys.exit(2)
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 

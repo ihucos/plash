@@ -9,7 +9,11 @@ from plash.utils import die
 
 LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'  # FIXME: use https
 
-image_name = sys.argv[1]
+try:
+    image_name = sys.argv[1]
+except IndexError:
+    sys.stderr.write('USAGE: import-linuxcontainers image-name\n')
+    sys.exit(2)
 
 content = urlopen('http://images.linuxcontainers.org/').read().decode(
 )  # FIXME: use https

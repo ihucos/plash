@@ -1,23 +1,34 @@
 #/bin/bash
-set -eu
+set -u
 
 array=(
 plash
-plash.build
+plash.add-layer
 plash.do
+plash.export-tar
+plash.import-linuxcontainers
+plash.import-tar
+plash.import-url
+plash.init
 plash.mount
 plash.nodepath
-plash.rm
+# plash.purge
+# plash.rm
 plash.run
 plash.runfile
 plash.runp
-plash.tarout
 )
 for prog in "${array[@]}"
 do
-  out=$($prog 2>&1) || true
-  echo "$out" | grep '/bin/plash' && {
-    echo "No arguments seems to crash $prog"
+  $prog 2>&1 1>/dev/null
+  exit=$?
+  [ $exit -eq 2 ] || {
+    echo "Unexpected exit status when calling '$prog' with no arguments (expected 2, got $exit)"
     exit 1
   }
+  # out=$($prog 2>&1) || true
+  # echo "$out" | grep '/bin/plash' && {
+  #   echo "No arguments seems to crash $prog"
+  #   exit 1
+  # }
 done

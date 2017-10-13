@@ -2,8 +2,8 @@
 set -eu
 
 [ $# -eq 0 ] && {
-    echo "Plash is a lean container build system, try --help"
-    exit 1
+    echo "Plash is a lean container build system, try --help" >&2
+    exit 2
 }
 
 cmd=$1

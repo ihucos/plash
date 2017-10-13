@@ -1,4 +1,10 @@
 #!/bin/sh
+
+[ $# -eq 1 ] && {
+    echo "this is meant to be runned as shebang" >&2
+    exit 2
+}
+
 file="$1"
 shift
 plash do runp --include $file -- $@
