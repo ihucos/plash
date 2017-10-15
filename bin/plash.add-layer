@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 import sys
-from os.path import join
+from os.path import basename, join
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 from sys import exit
@@ -30,16 +30,23 @@ try:
 except CalledProcessError:
     sys.exit(1)
 
-new_container= hashstr(b':'.join([container.encode(), cmd.encode()]))
+new_container = hashstr(b':'.join([container.encode(), cmd.encode()]))
 final_child_dst = join(join(PLASH_DATA, 'builds'), node_path, 'children', new_container)
-try:
-    check_output(['plash.nodepath', new_container], stderr=DEVNULL)
-except CalledProcessError:
-    pass
-else:
-    # its already cached
-    print(new_container)
-    sys.exit(0)
+
+for i in range(2, len(new_container)):
+    short = (new_container[:i+1])
+    linkname = '/var/lib/plash/links/'+short
+    try:
+        os.symlink(final_child_dst, linkname)
+    except FileExistsError:
+        if os.readlink(linkname) == final_child_dst: # we get back in absolute in my setup, hope this is consistent
+
+            # already cached
+            print(short)
+            sys.exit(0)
+
+    else:
+        break
 
 
 new_child = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
@@ -53,7 +60,7 @@ def preexec_fn():
         0
     )  # close stdin for more reproducible builds - if that does not work well, there is another way
 
-info('==> {}'.format(new_container))
+# info('==> {}'.format(new_container))
 out = 2
 ps4=color('--> ', 4)
 p = subprocess.Popen(
@@ -68,10 +75,10 @@ if exit != 0:
     atexit.register(lambda: shutil.rmtree(new_child))
     die("build returned exit status {}".format(exit))
 
-try:
-    os.symlink(final_child_dst, join(PLASH_DATA, 'links', new_container))
-except FileExistsError:
-    pass
+# try:
+#     os.symlink(final_child_dst, join(PLASH_DATA, 'links', new_container))
+# except FileExistsError:
+#     pass
 
 try:
     os.rename(new_child, final_child_dst)
@@ -81,4 +88,4 @@ except OSError as exc:
     else:
         raise
 
-print(new_container)
+print(short)

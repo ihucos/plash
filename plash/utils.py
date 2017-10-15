@@ -23,8 +23,7 @@ BUILDS_DIR = join(BASE_DIR, 'builds')
 LINKS_DIR = join(BASE_DIR, 'links')
 
 def hashstr(stri):
-    rawhash = hashlib.sha1(stri).digest()
-    return base64.b64encode(rawhash, altchars=b'ab').strip(b'=').decode()
+    return hashlib.sha1(stri).hexdigest()
 
 @contextmanager
 def catch_and_die(exceptions, debug=None):
@@ -99,4 +98,4 @@ def die(msg, exit=1):
 
 
 def info(msg):
-    print(color(msg.capitalize(), INFO_COLOR), file=sys.stderr)
+    print(color(msg, INFO_COLOR), file=sys.stderr)
