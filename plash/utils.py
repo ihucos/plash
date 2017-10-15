@@ -22,8 +22,10 @@ TMP_DIR = join(BASE_DIR, 'tmp')
 BUILDS_DIR = join(BASE_DIR, 'builds')
 LINKS_DIR = join(BASE_DIR, 'links')
 
+
 def hashstr(stri):
     return hashlib.sha1(stri).hexdigest()
+
 
 @contextmanager
 def catch_and_die(exceptions, debug=None):
@@ -32,8 +34,7 @@ def catch_and_die(exceptions, debug=None):
     except tuple(exceptions) as exc:
         program = os.path.basename(sys.argv[0])
         if debug:
-            msg = '{debug}: {message}'.format(
-                debug=debug, message=str(exc))
+            msg = '{debug}: {message}'.format(debug=debug, message=str(exc))
         else:
             msg = str(exc)
         die(program + ': ' + msg)
@@ -60,6 +61,7 @@ def color(stri, color, isatty_fd_check=2):
 
 def setup_sigint_handler():  # TODO: call differently
     return
+
     # return
     # if not os.environ.get('PLASH_TRACEBACK', '').lower() in ('yes', '1', 'true'):
     #     def signal_handler(signal, frame):

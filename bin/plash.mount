@@ -20,15 +20,16 @@ parser.add_argument('--workdir')
 args = parser.parse_args()
 
 try:
-    node_path = check_output(['plash.nodepath', args.container]
-                             ).decode().strip('\n')
+    node_path = check_output(['plash.nodepath',
+                              args.container]).decode().strip('\n')
 except CalledProcessError:
     exit(1)
 
+
 def vid_to_id(last_component):
     for i in range(1, len(last_component)):
-        container_id = last_component[:i+1]
-        linkname = '/var/lib/plash/links/'+container_id
+        container_id = last_component[:i + 1]
+        linkname = '/var/lib/plash/links/' + container_id
         try:
             nodepath = os.readlink(linkname)
         except FileNotFoundError:
@@ -38,18 +39,19 @@ def vid_to_id(last_component):
                 return container_id
     raise ValueError('no such container')
 
+
 # use the symlinks and not the full paths because the arg size is limited
 # and this is shorter. on my setup i get 58 layers before an error, we could have multiple mount calls to overcome this
 symlinked_layer_paths = []
 
 base = node_path
 while True:
-      base, dir = path.split(base)
-      if dir == 'children':
-            continue
-      symlinked_layer_paths.append(join(PLASH_DATA, 'links', vid_to_id(dir)))
-      if path.basename(base) == 'builds':
-            break
+    base, dir = path.split(base)
+    if dir == 'children':
+        continue
+    symlinked_layer_paths.append(join(PLASH_DATA, 'links', vid_to_id(dir)))
+    if path.basename(base) == 'builds':
+        break
 
 cmd = [
     'mount', '-t', 'overlay', 'overlay', '-o',
@@ -57,7 +59,8 @@ cmd = [
         upperdir=args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp')),
         workdir=args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp')),
         lowerdir=':'.join(
-            join(p, 'payload')
-            for p in reversed(symlinked_layer_paths))), args.mountpoint]
+            join(p, 'payload') for p in reversed(symlinked_layer_paths))),
+    args.mountpoint
+]
 
 os.execvpe(cmd[0], cmd, os.environ)

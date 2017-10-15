@@ -14,33 +14,33 @@ from plash.utils import catch_and_die, die
 workdir = None
 upperdir = None
 try:
-  container, *cmd = sys.argv[1:]
-  if not cmd:
-    cmd = ['printf', '{}\\n'.format(container)] # a default command
-  while True:
-    if cmd[0] == '--workdir':
-      cmd.pop(0)
-      workir = cmd.pop(0)
-    elif cmd[0] == '--upperdir':
-      cmd.pop(0)
-      upperdir = cmd.pop(0)
-    elif cmd[0] == '--':
-      cmd.pop(0)
-      break
-    else:
-      break
+    container, *cmd = sys.argv[1:]
+    if not cmd:
+        cmd = ['printf', '{}\\n'.format(container)]  # a default command
+    while True:
+        if cmd[0] == '--workdir':
+            cmd.pop(0)
+            workir = cmd.pop(0)
+        elif cmd[0] == '--upperdir':
+            cmd.pop(0)
+            upperdir = cmd.pop(0)
+        elif cmd[0] == '--':
+            cmd.pop(0)
+            break
+        else:
+            break
 except (IndexError, ValueError):
-  print('USAGE: run container [--workdir value] [--upperdir value] cmd1 [cmd2 [cmd3 ...]]', file=sys.stderr)
-  sys.exit(1)
+    print(
+        'USAGE: run container [--workdir value] [--upperdir value] cmd1 [cmd2 [cmd3 ...]]',
+        file=sys.stderr)
+    sys.exit(1)
 
 mountpoint = tempfile.mkdtemp(dir='/var/tmp')
-exit = call(
-  ['plash.mount', container, mountpoint] + 
-  (['--workdir', workdir] if workdir else []) +
-  (['--upperdir', upperdir] if upperdir else [])
-)
+exit = call(['plash.mount', container, mountpoint] + ([
+    '--workdir', workdir
+] if workdir else []) + (['--upperdir', upperdir] if upperdir else []))
 if exit:
-  sys.exit(exit)
+    sys.exit(exit)
 
 with catch_and_die([CalledProcessError]):
     # prepare mounts for container
@@ -52,15 +52,15 @@ with catch_and_die([CalledProcessError]):
     check_call([
         'mount', '--bind', '/etc/resolv.conf',
         join(mountpoint, 'etc/resolv.conf')
-        ])
+    ])
 
 if not os.fork():
-  os.chroot(mountpoint)
-  os.chdir("/")
-  try:
-    os.execvpe(cmd[0], cmd, os.environ)
-  except FileNotFoundError:
-    die('Command not found: {}'.format(cmd[0]))
+    os.chroot(mountpoint)
+    os.chdir("/")
+    try:
+        os.execvpe(cmd[0], cmd, os.environ)
+    except FileNotFoundError:
+        die('Command not found: {}'.format(cmd[0]))
 _, exit = os.wait()
 with catch_and_die([CalledProcessError]):
     check_call(['umount', '--recursive', '--lazy', mountpoint])

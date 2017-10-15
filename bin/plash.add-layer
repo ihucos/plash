@@ -26,20 +26,24 @@ cmd = sys.stdin.read()
 quiet = False
 
 try:
-    node_path = check_output(['plash.nodepath', container]).decode().strip('\n')
+    node_path = check_output(['plash.nodepath',
+                              container]).decode().strip('\n')
 except CalledProcessError:
     sys.exit(1)
 
 new_container = hashstr(b':'.join([container.encode(), cmd.encode()]))
-final_child_dst = join(join(PLASH_DATA, 'builds'), node_path, 'children', new_container)
+final_child_dst = join(
+    join(PLASH_DATA, 'builds'), node_path, 'children', new_container)
 
 for i in range(2, len(new_container)):
-    short = (new_container[:i+1])
-    linkname = '/var/lib/plash/links/'+short
+    short = (new_container[:i + 1])
+    linkname = '/var/lib/plash/links/' + short
     try:
         os.symlink(final_child_dst, linkname)
     except FileExistsError:
-        if os.readlink(linkname) == final_child_dst: # we get back in absolute in my setup, hope this is consistent
+        if os.readlink(
+                linkname
+        ) == final_child_dst:  # we get back in absolute in my setup, hope this is consistent
 
             # already cached
             print(short)
@@ -48,21 +52,22 @@ for i in range(2, len(new_container)):
     else:
         break
 
-
 new_child = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 mountpoint = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 new_layer = join(new_child, 'payload')
 os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
 
+
 def preexec_fn():
     os.close(
         0
     )  # close stdin for more reproducible builds - if that does not work well, there is another way
 
+
 # info('==> {}'.format(new_container))
 out = 2
-ps4=color('--> ', 4)
+ps4 = color('--> ', 4)
 p = subprocess.Popen(
     ['plash.run', container, '--upperdir', new_layer, 'sh', '-cxe', cmd],
     stderr=out,
@@ -84,7 +89,8 @@ try:
     os.rename(new_child, final_child_dst)
 except OSError as exc:
     if exc.errno == errno.ENOTEMPTY:
-        info('container id or layer appeared while building, not replacing it'.format(new_container))
+        info('container id or layer appeared while building, not replacing it'.
+             format(new_container))
     else:
         raise
 

@@ -25,7 +25,8 @@ CLI_SHORTCUTS = [
     ('-D', ['os', 'debian'], 0),
     ('-l', ['layer'], 0),
     ('-i', ['include'], '+'),
- ]
+]
+
 
 @action(escape=False)
 def layer(command=None, *args):
@@ -43,6 +44,7 @@ def layer(command=None, *args):
 def run(*args):
     return '\n'.join(args)
 
+
 @action()
 def import_envs(*envs):
     for env in envs:
@@ -53,9 +55,11 @@ def import_envs(*envs):
             env, export_as = parts
         yield '{}={}'.format(export_as, shlex.quote(os.environ[env]))
 
+
 @action()
 def bust_cache():
     return ': bust cache with {}'.format(uuid.uuid4())
+
 
 @action(keep_comments=True)
 def write_script(fname, *lines):
@@ -64,9 +68,11 @@ def write_script(fname, *lines):
         yield "echo {} >> {}".format(line, fname)
     yield 'chmod 755 {}'.format(fname)
 
+
 @action()
-def exec(binary):
+def exec (binary):
     return 'mkdir -p /etc/runp && ln -fs {} /etc/runp/exec'.format(binary)
+
 
 @action(escape=False)
 def include(*files):
@@ -83,6 +89,7 @@ def include(*files):
                 elif token:
                     lsp[-1].append(token)
         yield eval(lsp)
+
 
 def hash_paths(paths):
     collect_files = []
@@ -154,9 +161,11 @@ def comment(*args):
 def os_(os):
     return OS_HINT_TEMPL.format(os)
 
+
 @action(escape=False)
 def chdir(path):
     os.chdir(path)
+
 
 eval([[
     'define-package-manager',

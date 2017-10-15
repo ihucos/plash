@@ -43,7 +43,10 @@ current_container = os_hint
 for counter, layer in enumerate(layers):
     if not counter == 0:
         info('--')
-    p = Popen(['plash.add-layer', current_container], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    p = Popen(
+        ['plash.add-layer', current_container],
+        stdout=subprocess.PIPE,
+        stdin=subprocess.PIPE)
     p.stdin.write(layer.encode())
     p.stdin.close()
     exit = p.wait()

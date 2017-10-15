@@ -15,8 +15,8 @@ except IndexError:
     sys.stderr.write('USAGE: import-linuxcontainers image-name\n')
     sys.exit(2)
 
-content = urlopen('http://images.linuxcontainers.org/').read().decode(
-)  # FIXME: use https
+content = urlopen(
+    'http://images.linuxcontainers.org/').read().decode()  # FIXME: use https
 matches = re.findall(
     '<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>',
     content)

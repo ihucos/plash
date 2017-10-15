@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 
+
 def filter_positionals(args):
     positional = []
     filtered_args = []
@@ -20,6 +21,7 @@ def filter_positionals(args):
             found_first_opt = True
     return positional, filtered_args
 
+
 cmd, args = filter_positionals(sys.argv[1:])
 if not cmd:
     sys.stderr.write('<build args> plash-command [arg [arg [arg...]]]\n')
@@ -32,5 +34,5 @@ try:
 except subprocess.CalledProcessError as exc:
     sys.exit(exc.returncode)
 container_id = out[:-1]
-script = 'plash.{}'.format(cmd[0]) # well, SECURITY CHECK NEEDED)
+script = 'plash.{}'.format(cmd[0])  # well, SECURITY CHECK NEEDED)
 os.execvpe(script, [script, container_id] + cmd[1:], os.environ)
