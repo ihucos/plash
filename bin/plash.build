@@ -7,10 +7,9 @@ import sys
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
+from plash.eval import LAYER_MARKER
+from plash.stdlib import OS_HINT_TEMPL
 from plash.utils import catch_and_die, die, info
-
-LAYER_MARKER = '### start new layer'
-OS_HINT = '### os hint: '
 
 try:
     script = check_output(['plash.debug-lsp'] + sys.argv[1:])
@@ -18,7 +17,7 @@ try:
 except CalledProcessError as exc:
     sys.exit(exc.returncode)
 
-os_re = re.compile(OS_HINT + '(.+)\n')
+os_re = re.compile(OS_HINT_TEMPL.format('(.+)\n'))
 matches = os_re.findall(script)
 script = os_re.sub('', script)
 try:

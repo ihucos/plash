@@ -11,7 +11,7 @@ from base64 import b64encode
 from .eval import ArgError, action, eval
 from .utils import hashstr
 
-
+OS_HINT_TEMPL = '### os hint: {}'
 CLI_SHORTCUTS = [
     # shortcut, lsp, nargs
     ('-x', ['run'], '+'),
@@ -26,10 +26,6 @@ CLI_SHORTCUTS = [
     ('-l', ['layer'], 0),
     ('-i', ['include'], '+'),
  ]
-
-
-OS_HINT_TEMPL = '### os hint: {}'
-
 
 @action(escape=False)
 def layer(command=None, *args):
