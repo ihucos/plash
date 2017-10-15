@@ -2,7 +2,7 @@ import shlex
 import uuid
 from importlib import import_module
 
-LAYER_MARKER = '### start new layer\n'
+LAYER_MARKER = '### start new layer'
 state = {'actions': {}}  # put that in state.py ?
 
 

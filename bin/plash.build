@@ -1,37 +1,34 @@
 #!/usr/bin/python3
 # vim: set filetype=python:
 
+import re
 import subprocess
 import sys
-from subprocess import CalledProcessError, Popen, check_output, check_call, DEVNULL
+from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
+                        check_output)
 
-from plash.utils import catch_and_die, info, die
+from plash.utils import catch_and_die, die, info
 
 LAYER_MARKER = '### start new layer'
 OS_HINT = '### os hint: '
 
-
 try:
     script = check_output(['plash.debug-lsp'] + sys.argv[1:])
-    script = script.decode()[:-1]
+    script = script.decode()
 except CalledProcessError as exc:
     sys.exit(exc.returncode)
 
-
-if script:
-    script_lines = script.split('\n')
-    layers = script.split(LAYER_MARKER + '\n')
-    layers = [l for l in layers if l]
-else:
-    script_lines = []
-    layers = []
-
-os_hint = None
-for line in script_lines:
-    if line.startswith(OS_HINT):
-        os_hint = line[len(OS_HINT):]
-if os_hint is None:
+os_re = re.compile(OS_HINT + '(.+)\n')
+matches = os_re.findall(script)
+script = os_re.sub('', script)
+try:
+    os_hint = matches[0]
+except IndexError:
     die('No os specified')
+
+# split the script in its layers
+layers = script.split(LAYER_MARKER + '\n')
+layers = [l for l in layers if l]
 
 # pull container if it does not exists
 try:

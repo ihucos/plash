@@ -28,7 +28,7 @@ CLI_SHORTCUTS = [
  ]
 
 
-OS_HINT_TEMPL = '### os hint: {}\n'
+OS_HINT_TEMPL = '### os hint: {}'
 
 
 @action(escape=False)
