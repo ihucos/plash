@@ -5,5 +5,6 @@ do
   node=$(plash.nodepath $container)
   tmpd=$(mktemp --directory --tmpdir=/var/lib/plash/tmp/ XXXXXXXXXXXX.delme)
   mv $node $tmpd
+  rm "/var/lib/plash/links/$container"
   rm -rf $tmpd
 done

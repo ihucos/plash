@@ -9,7 +9,7 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 
 from plash.eval import LAYER_MARKER
 from plash.stdlib import OS_HINT_TEMPL
-from plash.utils import catch_and_die, die, info
+from plash.utils import catch_and_die, die, info, color
 
 try:
     script = check_output(['plash.debug-lsp'] + sys.argv[1:])
@@ -41,7 +41,6 @@ except CalledProcessError:
 
 current_container = os_hint
 for counter, layer in enumerate(layers):
-    # info('Building layer {}/{}'.format(counter+1, len(layers)))
     p = Popen(['plash.add-layer', current_container], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     p.stdin.write(layer.encode())
     p.stdin.close()

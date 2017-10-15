@@ -12,7 +12,7 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 from sys import exit
 from tempfile import mkdtemp
 
-from plash.utils import catch_and_die, die, hashstr, info
+from plash.utils import catch_and_die, color, die, hashstr, info
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -37,7 +37,6 @@ try:
 except CalledProcessError:
     pass
 else:
-    info('From cache')
     # its already cached
     print(new_container)
     sys.exit(0)
@@ -49,14 +48,20 @@ new_layer = join(new_child, 'payload')
 os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
 
-info('Building')
 def preexec_fn():
     os.close(
         0
     )  # close stdin for more reproducible builds - if that does not work well, there is another way
 
+info('==> {}'.format(new_container))
 out = 2
-p = subprocess.Popen(['plash.run', container, '--upperdir', new_layer, 'sh', '-cxe', cmd], stderr=out, stdout=out, preexec_fn=preexec_fn)
+ps4=color('--> ', 4)
+p = subprocess.Popen(
+    ['plash.run', container, '--upperdir', new_layer, 'sh', '-cxe', cmd],
+    stderr=out,
+    stdout=out,
+    preexec_fn=preexec_fn,
+    env=dict(os.environ, PS4=ps4))
 exit = p.wait()
 
 if exit != 0:

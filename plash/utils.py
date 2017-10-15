@@ -1,4 +1,5 @@
 import argparse
+import base64
 import grp
 import hashlib
 import json
@@ -22,7 +23,8 @@ BUILDS_DIR = join(BASE_DIR, 'builds')
 LINKS_DIR = join(BASE_DIR, 'links')
 
 def hashstr(stri):
-    return hashlib.sha1(stri).hexdigest()
+    rawhash = hashlib.sha1(stri).digest()
+    return base64.b64encode(rawhash, altchars=b'ab').strip(b'=').decode()
 
 @contextmanager
 def catch_and_die(exceptions, debug=None):
