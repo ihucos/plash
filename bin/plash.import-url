@@ -6,8 +6,9 @@ test $# -eq 2 || {
   exit 2
 }
 
-url=$1
-image_id=$2
+url="$1"
+image_id="$2"
 tmpdir=$(mktemp --directory)
-wget -q --show-progress $url -O $tmpdir/file
-exec plash.import-tar $tmpdir/file $image_id
+cd $tmpdir
+wget -q --show-progress $url -O $image_id
+exec plash.import-tar $image_id $image_id

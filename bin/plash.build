@@ -39,10 +39,9 @@ except CalledProcessError:
     except CalledProcessError:
         sys.exit(1)
 
+building_happened = False
 current_container = os_hint
 for counter, layer in enumerate(layers):
-    if not counter == 0:
-        info('--')
     p = Popen(
         ['plash.add-layer', current_container],
         stdout=subprocess.PIPE,
@@ -50,9 +49,14 @@ for counter, layer in enumerate(layers):
     p.stdin.write(layer.encode())
     p.stdin.close()
     exit = p.wait()
-    if exit:
+    if exit != 3:
+        building_happened = True
+    elif exit == 3:
+        break
+    else:
         sys.exit(1)
     current_container = p.stdout.read()
     current_container = current_container.decode().strip('\n')
+    info('--:')
 
 print(current_container)
