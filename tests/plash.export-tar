@@ -1,0 +1,10 @@
+#!/bin/bash
+plash.build alpine3.6
+
+tmp=$(mktemp)
+plash.export-tar alpine3.6 - > $tmp
+tar --list -f $tmp >/dev/null
+
+tmp=$(mktemp)
+plash.export-tar alpine3.6  $tmp
+tar --list -f $tmp >/dev/null

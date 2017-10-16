@@ -43,7 +43,7 @@ for i in range(2, len(new_container)):
     except FileExistsError:
         if os.readlink(
                 linkname
-        ) == final_child_dst:  # we get back in absolute in my setup, hope this is consistent
+        ) == final_child_dst and os.path.exists(final_child_dst):
 
             # already cached
             print(short)
@@ -60,12 +60,11 @@ os.mkdir(join(new_child, 'children'))
 
 
 def preexec_fn():
-    os.close(
-        0
-    )  # close stdin for more reproducible builds - if that does not work well, there is another way
+    # close stdin for more reproducible builds
+    # - if that does not work well, there is another way
+    os.close(0)
 
 
-# info('==> {}'.format(new_container))
 out = 2
 ps4 = color('--> ', 4)
 p = subprocess.Popen(
@@ -79,11 +78,6 @@ exit = p.wait()
 if exit != 0:
     atexit.register(lambda: shutil.rmtree(new_child))
     die("build returned exit status {}".format(exit))
-
-# try:
-#     os.symlink(final_child_dst, join(PLASH_DATA, 'links', new_container))
-# except FileExistsError:
-#     pass
 
 try:
     os.rename(new_child, final_child_dst)

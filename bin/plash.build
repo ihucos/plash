@@ -11,8 +11,13 @@ from plash.eval import LAYER_MARKER
 from plash.stdlib import OS_HINT_TEMPL
 from plash.utils import catch_and_die, die, info, color
 
+args = sys.argv[1:]
+if len(args) >= 1 and not args[0].startswith('-'):
+    os_hint = args.pop(0)
+else:
+    os_hint = None
 try:
-    script = check_output(['plash.debug-lsp'] + sys.argv[1:])
+    script = check_output(['plash.debug-lsp'] + args)
     script = script.decode()
 except CalledProcessError as exc:
     sys.exit(exc.returncode)
@@ -20,9 +25,10 @@ except CalledProcessError as exc:
 os_re = re.compile(OS_HINT_TEMPL.format('(.+)\n'))
 matches = os_re.findall(script)
 script = os_re.sub('', script)
-try:
+if matches:
     os_hint = matches[0]
-except IndexError:
+
+if os_hint is None:
     die('No os specified')
 
 # split the script in its layers
@@ -49,11 +55,9 @@ for counter, layer in enumerate(layers):
     p.stdin.write(layer.encode())
     p.stdin.close()
     exit = p.wait()
-    if exit != 3:
+    if not exit:
         building_happened = True
-    elif exit == 3:
-        break
-    else:
+    elif exit != 3:
         sys.exit(1)
     current_container = p.stdout.read()
     current_container = current_container.decode().strip('\n')

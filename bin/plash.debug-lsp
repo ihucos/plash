@@ -42,5 +42,7 @@ args = parser.parse_args()
 
 with catch_and_die([eval.ActionNotFoundError]):
     lsp = getattr(args, 'lsp', [])
-    script = eval.eval(lsp) + '\n'  # that '\n' is right
+    script = eval.eval(lsp)
+    if script:
+        script += '\n'  # that '\n' is right
 print(script, end='')

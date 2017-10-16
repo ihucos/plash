@@ -29,13 +29,16 @@ try:
             break
         else:
             break
+    if container.startswith('-') or cmd[0].startswith('-'):
+        raise ValueError()
 except (IndexError, ValueError):
     print(
         'USAGE: run container [--workdir value] [--upperdir value] cmd1 [cmd2 [cmd3 ...]]',
         file=sys.stderr)
-    sys.exit(1)
+    sys.exit(2)
 
 mountpoint = tempfile.mkdtemp(dir='/var/tmp')
+print(container, mountpoint, file=sys.stderr)
 exit = call(['plash.mount', container, mountpoint] + ([
     '--workdir', workdir
 ] if workdir else []) + (['--upperdir', upperdir] if upperdir else []))
@@ -55,8 +58,12 @@ with catch_and_die([CalledProcessError]):
     ])
 
 if not os.fork():
+    pwd = os.getcwd()
     os.chroot(mountpoint)
-    os.chdir("/")
+    try:
+        os.chdir(pwd)
+    except ValueError:
+        os.chdir("/")
     try:
         os.execvpe(cmd[0], cmd, os.environ)
     except FileNotFoundError:

@@ -1,5 +1,6 @@
 set -eu
-newcont=$(plash.build -o zesty --bust-cache)
+# vim: set filetype=sh:
+newcont=$(plash.build zesty --bust-cache)
 plash.nodepath $newcont
 plash.rm $newcont
 ! plash.nodepath $newcont

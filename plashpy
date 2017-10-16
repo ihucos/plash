@@ -1,0 +1,16 @@
+# #!/usr/bin/env python3
+# # vim: set filetype=python:
+
+# import sys
+
+# try:
+#       plash_cmd = sys.argv[1]
+# except IndexError:
+#       blah
+
+
+# if plash_cmd == '--help':
+#       print('TODO: help')
+# elif plash_cmd.startswith('-'):
+#       plash_run('run', sys.argv[1:])
+# elif plash_cmd ==V
