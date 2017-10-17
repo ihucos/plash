@@ -1,4 +1,5 @@
 language: python
+sudo: enabled
 python:
   - "3.5"
   - "3.6"
@@ -8,4 +9,4 @@ python:
 #   - pip install -r requirements.txt
 # # command to run tests
 script:
-  - devscripts/runtests # or py.test for Python versions 3.5 and below
+  - sudo devscripts/runtests # or py.test for Python versions 3.5 and below
