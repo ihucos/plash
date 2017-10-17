@@ -7,8 +7,8 @@ mkdir -p /var/lib/plash/tmp
 tmp=$(mktemp --directory --tmpdir=/var/lib/plash/tmp) # we can't use /tmp or /var/tmp
 export PLASH_DATA=$tmp
 
-export PATH=$DIR/../bin:$PATH
-export PYTHONPATH=$DIR/../plash:$PYTHONPATH
+export PATH=$(realpath $DIR/../bin):$PATH
+export PYTHONPATH=$(realpath $DIR/..):$PYTHONPATH
 
 plash.init
 plash.import-tar $DIR/busybox.tar busybox

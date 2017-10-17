@@ -67,9 +67,7 @@ p = subprocess.Popen(
     stdin=subprocess.PIPE,
     env=dict(os.environ, PS4=ps4))
 
-for line in cmd.encode().splitlines():
-    p.stdin.write(line + b'\n')
-    p.stdin.flush()
+p.stdin.write(cmd.encode())
 p.stdin.close()
 
 exit = p.wait()
