@@ -10,5 +10,11 @@ url="$1"
 image_id="$2"
 tmpdir=$(mktemp --directory)
 cd $tmpdir
-wget -q --show-progress $url -O $image_id
+
+if wget --help | grep -- --show-progress; then
+  wget -q --show-progress $url -O $image_id
+else
+  wget $url -O $image_id
+fi
+
 exec plash.import-tar $image_id $image_id
