@@ -75,6 +75,6 @@ _, exit = os.wait()
 with catch_and_die([CalledProcessError]):
     for mp in mounts_map.values():
         check_call(['umount', '--lazy', mp])
-    check_call(['umount', '--lazy', mountpoint])
+    check_call(['umount', '-l', mountpoint])
 
 sys.exit(exit // 256)
