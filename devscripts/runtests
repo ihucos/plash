@@ -5,26 +5,34 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 tmp=$(mktemp --directory --tmpdir=/var/lib/plash/tmp) # we can't use /tmp or /var/tmp
 export PLASH_DATA=$tmp
+
+export PATH=$DIR/../bin:$PATH
+export PYTHONPATH=$DIR/../plash:$PYTHONPATH
+
 plash.init
 plash.import-tar $DIR/busybox.tar busybox
 
 
 log=$(mktemp)
 program_exit=0
-for script in $DIR/../tests/* ; do
+for script in $DIR/../tests/$1* ; do
   test $(basename $script) == $(basename ${BASH_SOURCE[0]}) && continue
   printf $(basename "$script")
   (
-  PATH=$DIR/bin:$PATH
   export PS4='+ ${BASH_SOURCE}:${LINENO} '
   exec > $log 2>&1
   exec "$script"
   ) &
   if wait $!; then
+    test -t 1 && tput setaf 2
     echo ' OK'
+    test -t 1 && tput sgr0
   else
+    test -t 1 && tput setaf 1
     echo ' ERROR'
+    test -t 1 && tput sgr0
     program_exit=1
+    echo "logs: $log" >&2
     tail -n3 <(cat -n $log) >&2
     echo
   fi

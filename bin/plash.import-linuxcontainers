@@ -8,7 +8,7 @@ from urllib.request import urlopen
 
 from plash.utils import die, catch_and_die
 
-LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'  # FIXME: use https
+LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'
 
 try:
     image_name = sys.argv[1]
@@ -18,7 +18,7 @@ except IndexError:
 
 with catch_and_die([URLError]):
     content = urlopen(
-        'http://images.linuxcontainers.org/').read().decode()  # FIXME: use https
+        'https://images.linuxcontainers.org/').read().decode()
 matches = re.findall(
     '<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>',
     content)
