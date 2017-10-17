@@ -1,3 +1,10 @@
+Table of contents
+=================
+
+  > * [Subcommands](#subcomamnds)
+  >   * [add-layer](#add-layer)
+  >   * [build](#build)
+
 ## Exit status codes
 
 | Exit code | Description |
@@ -7,6 +14,10 @@
 | 3 | Container does not exist |
 
 ## Subcommands
+
+  * [Subcommands](#subcomamnds)
+    * [add-layer](#add-layer)
+    * [build](#build)
 
 ### add-layer
 ```
