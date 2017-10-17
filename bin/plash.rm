@@ -1,10 +1,12 @@
 #!/bin/sh
 set -e
+
+plash_data="${PLASH_DATA:-/var/lib/plash}"
 for container in "$@"
 do
   node=$(plash.nodepath $container)
-  tmpd=$(mktemp --directory --tmpdir=/var/lib/plash/tmp/ XXXXXXXXXXXX.delme)
+  tmpd=$(mktemp --directory --tmpdir=$plash_data/tmp/ XXXXXXXXXXXX.delme)
   mv $node $tmpd
-  rm "/var/lib/plash/links/$container"
+  rm "$plash_data/links/$container"
   rm -rf $tmpd
 done

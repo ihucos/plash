@@ -1,5 +1,5 @@
 #/bin/bash
-set -u
+set -xu
 
 array=(
 plash
@@ -9,7 +9,7 @@ plash.export-tar
 plash.import-linuxcontainers
 plash.import-tar
 plash.import-url
-plash.init
+# plash.init
 plash.mount
 plash.nodepath
 # plash.purge

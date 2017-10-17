@@ -1,0 +1,13 @@
+#!/bin/bash
+set -xeu
+
+tmp=$(mktemp -d)
+plash.build -o zesty
+plash.mount zesty $tmp
+grep  $tmp' '  /proc/mounts >/dev/null || {
+  echo 'Could not find mountpoint in /proc/mounts '
+  exit 1
+}
+test -d $tmp/usr
+test -d $tmp/bin
+test -d $tmp/var

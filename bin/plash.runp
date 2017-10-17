@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+plash_data="${PLASH_DATA:-/var/lib/plash}"
+
 test $# -eq 1 || {
   echo 'USAGE: runp container [arg1 [arg2 [arg4...]]]' >&2
   exit 2
@@ -12,7 +14,7 @@ runp_binary=$(command -v runp 2>/dev/null) || {
 }
 
 container="$1"
-mount_wrapper=$(mktemp --directory --tmpdir=/var/lib/plash/tmp/ XXXXXXXXXXXX)
+mount_wrapper=$(mktemp --directory --tmpdir=$plash_data/tmp/ XXXXXXXXXXXX)
 mkdir $mount_wrapper/prog.dir
 plash.mount $container $mount_wrapper/prog.dir
 ln -s $runp_binary $mount_wrapper/prog

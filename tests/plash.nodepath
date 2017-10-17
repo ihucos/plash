@@ -4,8 +4,9 @@ set -exu
 
 newcont=$(plash.build -o zesty --bust-cache)
 nodepath=$(plash.nodepath $newcont)
-echo $nodepath | grep /var/lib/plash/builds/zesty/children/$newcont
+echo $nodepath | grep $newcont
 
 layerup=$(plash.build -o $newcont --layer --bust-cache)
 nodepath=$(plash.nodepath $layerup)
-echo $nodepath | grep /var/lib/plash/builds/zesty/children/$newcont/children/$layerup
+echo $nodepath | grep $newcont
+echo $nodepath | grep $layerup

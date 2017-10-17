@@ -1,4 +1,5 @@
 #!/bin/bash
+set -xeu
 plash.build alpine3.6
 
 tmp=$(mktemp)

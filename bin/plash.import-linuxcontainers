@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 from plash.utils import die
 
-LXC_URL_TEMPL = 'http://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'  # FIXME: use https
+LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'  # FIXME: use https
 
 try:
     image_name = sys.argv[1]

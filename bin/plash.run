@@ -38,7 +38,6 @@ except (IndexError, ValueError):
     sys.exit(2)
 
 mountpoint = tempfile.mkdtemp(dir='/var/tmp')
-print(container, mountpoint, file=sys.stderr)
 exit = call(['plash.mount', container, mountpoint] + ([
     '--workdir', workdir
 ] if workdir else []) + (['--upperdir', upperdir] if upperdir else []))

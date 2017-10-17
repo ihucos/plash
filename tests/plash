@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -xeu
 test "$(plash -o zesty)" == zesty
 out=$(plash -o zesty -- printf hello)
 test $out == hello

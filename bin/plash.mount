@@ -29,7 +29,7 @@ except CalledProcessError:
 def vid_to_id(last_component):
     for i in range(1, len(last_component)):
         container_id = last_component[:i + 1]
-        linkname = '/var/lib/plash/links/' + container_id
+        linkname = join(PLASH_DATA, 'links', container_id)
         try:
             nodepath = os.readlink(linkname)
         except FileNotFoundError:

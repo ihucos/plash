@@ -37,7 +37,7 @@ final_child_dst = join(
 
 for i in range(2, len(new_container)):
     short = (new_container[:i + 1])
-    linkname = '/var/lib/plash/links/' + short
+    linkname = join(PLASH_DATA, 'links', short)
     try:
         os.symlink(final_child_dst, linkname)
     except FileExistsError:
