@@ -6,6 +6,8 @@
 | 2 | Unrecognized arguments |
 | 3 | Container does not exist |
 
+## Available subcommands
+
 ### add-layer
 ```
 plash add-layer CONTAINER
