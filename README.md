@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=stable1)](https://travis-ci.org/ihucos/plash)
+
+
 Table of contents
 =================
 
