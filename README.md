@@ -1,8 +1,10 @@
-## exit status codes
-exit status:
-1: Generic error code
-2: Unrecognized arguments
-3: Container does not exist
+## Exit status codes
+
+| Exit code | Description |
+| --- | --- |
+| 1 | Generic error code |
+| 2 | Unrecognized arguments |
+| 3 | Container does not exist |
 
 #### `plash add-layer CONTAINER`
 Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
@@ -28,6 +30,12 @@ exit status:
 2: Unrecognized arguments
 3: Returning container from cache, not building
 4: Build error - building returned non-zero exit status
+
+##### Additional exit codes
+| Exit code | Description |
+| --- | --- |
+| 4 | Returning container from cache, not building |
+| 5 | Build error - building returned non-zero exit statust |
 
 
 #### `plash getscript <ACTIONS>`
@@ -71,6 +79,6 @@ Deletes the given containers.
 Run a command inside the container. If no command is specified, the container id is printed. 
 The workdir and upperdir parameters can be used to save file system changes made inside the container.
 
-#### runp CONTAINER [ARG1 [ARG2 [ARG3...]]
+#### `plash runp CONTAINER [ARG1 [ARG2 [ARG3...]]`
 Run a container with runp.
 See the runp project page: https://github.com/ihucos/runp
