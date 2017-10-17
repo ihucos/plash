@@ -62,7 +62,10 @@ plash export-tar CONTAINER [FILE]
 ```
 Export the file system of a container to the given file as a compressed tar archive. If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
 
-#### `plash import-linuxcontainers IMAGE-NAME`
+### import-linuxcontainers
+```
+plash import-linuxcontainers IMAGE-NAME
+```
 Pull an image from linuxcontainers.org
 
 ### import-tar
