@@ -65,7 +65,8 @@ p = subprocess.Popen(
     stderr=out,
     stdout=out,
     stdin=subprocess.PIPE,
-    env=dict(os.environ, PS4=ps4))
+    env=dict(os.environ, PS4=ps4),
+    preexec_fn=lambda: os.chdir('/'))
 
 p.stdin.write(cmd.encode())
 p.stdin.close()
