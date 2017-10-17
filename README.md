@@ -6,7 +6,7 @@
 | 2 | Unrecognized arguments |
 | 3 | Container does not exist |
 
-## Available subcommands
+## Subcommands
 
 ### add-layer
 ```
