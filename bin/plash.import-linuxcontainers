@@ -13,7 +13,7 @@ LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs
 try:
     image_name = sys.argv[1]
 except IndexError:
-    sys.stderr.write('USAGE: import-linuxcontainers image-name\n')
+    sys.stderr.write('USAGE: plash import-linuxcontainers IMAGE-NAME\n')
     sys.exit(2)
 
 with catch_and_die([URLError]):

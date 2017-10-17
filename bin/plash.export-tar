@@ -1,14 +1,17 @@
 #!/bin/sh
 set -e
 
-test $# -eq 2 || {
-  echo 'USAGE: export-tar container file' >&2
+test $# -ge 1 || {
+  echo 'USAGE: plash export-tar CONTAINER [FILE]' >&2
   exit 2
 }
 
 mountpoint=$(mktemp -d)
 plash.mount "$1" $mountpoint
-tar -czf "$2" -C $mountpoint .
+tar -czf "${2:--}" -C $mountpoint .
 tar_exit=$?
 umount $mountpoint
-exit $tar_exit
+test $tar_exit -eq 0 || {
+  echo "plash export-tar: tar returned exit code: $?"
+  exit 3
+}

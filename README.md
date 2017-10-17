@@ -30,22 +30,26 @@ exit status:
 Prints the shell script generated from actions passed as command line parameters.
 See insertdoclinkhere for available actions
 
-exit status:
-1: error
-
-
 ### do
 
 
-### `export-tar export-tar CONTAINER [FILE]`
-Export 
+### `plash export-tar CONTAINER [FILE]`
+Export the file system of a container to the given file as a compressed tar archive. If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
+
+### `plash import-linuxcontainers IMAGE-NAME`
+Pull an image from linuxcontainers.org
+
+### `plash import-tar TARFILE IMAGE-ID`
+Create a container from a tar file.
+
+### `plash import-url URL IMAGE_ID`
+Create a container from a url pointing to a tar file.
 
 
-### import-linuxcontainers
-### import-tar
-### import-url
 ### init
+
 ### mount
+
 ### nodepath
 ### purge
 ### rm

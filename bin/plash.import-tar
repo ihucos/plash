@@ -23,7 +23,6 @@ PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 image_dir = join(join(PLASH_DATA, 'builds'), image_id)
 if os.path.exists(image_dir):
     die('An image with that image id already exists')
-    sys.exit(1)
 
 tmp_image_dir = mkdtemp(
     dir=join(PLASH_DATA,
@@ -55,6 +54,6 @@ try:
     os.rename(tmp_image_dir, image_dir)
 except OSError as exc:
     if exc.errno == errno.ENOTEMPTY:
-        info('that image id is already taken bla bla')
+        die('Image id already taken')
     else:
         raise
