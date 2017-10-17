@@ -34,7 +34,7 @@ for script in $DIR/../tests/$1* ; do
     test -t 1 && tput sgr0
     program_exit=1
     echo "logs: $log" >&2
-    tail -n3 <(cat -n $log) >&2
+    tail -n7 <(cat -n $log) >&2
     echo
   fi
 done
