@@ -13,6 +13,20 @@ Table of contents
 
 * [add-layer](#add-layer)
 * [build](#build)
+* [getscript](#getscript)
+* [do](#do)
+* [export-tar](#export-tar)
+* [import-linuxcontainers](#import-linuxcontainers)
+* [import-tar](#import-tar)
+* [import-url](#import-url)
+* [init](#init)
+* [mount](#mount)
+* [nodepath](#nodepath)
+* [purge](#purge)
+* [rm](#rm)
+* [run](#run)
+* [runp](#runp)
+
 
 ### add-layer
 ```
