@@ -1,9 +1,9 @@
 #!/usr/bin/env plash.runfile
 
 --os
-zesty
+alpine3.6
 
---apt
+--apk
 python3
 python3-setuptools
 squashfs-tools

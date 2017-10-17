@@ -17,7 +17,7 @@ if len(args) >= 1 and not args[0].startswith('-'):
 else:
     os_hint = None
 try:
-    script = check_output(['plash.debug-lsp'] + args)
+    script = check_output(['plash.getscript'] + args)
     script = script.decode()
 except CalledProcessError as exc:
     sys.exit(exc.returncode)

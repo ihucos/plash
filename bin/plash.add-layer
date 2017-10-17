@@ -75,7 +75,7 @@ exit = p.wait()
 
 if exit != 0:
     atexit.register(lambda: shutil.rmtree(new_child))
-    die("build returned exit status {}".format(exit))
+    die("build returned exit status {}".format(exit), exit=4)
 
 try:
     os.rename(new_child, final_child_dst)
