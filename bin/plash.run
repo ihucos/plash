@@ -44,16 +44,19 @@ exit = call(['plash.mount', container, mountpoint] + ([
 if exit:
     sys.exit(exit)
 
+mounts = ['proc', 'home', 'sys', 'dev', 'tmp', 'etc/resolv.conf']
+mounts_map = dict((m, join(mountpoint, m)) for m in mounts)
+
 with catch_and_die([CalledProcessError]):
     # prepare mounts for container
-    check_call(['mount', '-t', 'proc', 'proc', join(mountpoint, 'proc')])
-    check_call(['mount', '--bind', '/home', join(mountpoint, 'home')])
-    check_call(['mount', '--bind', '/sys', join(mountpoint, 'sys')])
-    check_call(['mount', '--bind', '/dev', join(mountpoint, 'dev')])
-    check_call(['mount', '-t', 'tmpfs', 'tmpfs', join(mountpoint, 'tmp')])
+    check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
+    check_call(['mount', '--bind', '/home', mounts_map['home']])
+    check_call(['mount', '--bind', '/sys', mounts_map['sys']])
+    check_call(['mount', '--bind', '/dev', mounts_map['dev']])
+    check_call(['mount', '-t', 'tmpfs', 'tmpfs', mounts_map['tmp']])
     check_call([
         'mount', '--bind', '/etc/resolv.conf',
-        join(mountpoint, 'etc/resolv.conf')
+        mounts_map['etc/resolv.conf']
     ])
 
 if not os.fork():
@@ -68,6 +71,10 @@ if not os.fork():
     except FileNotFoundError:
         die('Command not found: {}'.format(cmd[0]))
 _, exit = os.wait()
+
 with catch_and_die([CalledProcessError]):
-    check_call(['umount', '--recursive', '--lazy', mountpoint])
+    for mp in mounts_map.values():
+        check_call(['umount', '--lazy', mp])
+    check_call(['umount', '--lazy', mountpoint])
+
 sys.exit(exit // 256)
