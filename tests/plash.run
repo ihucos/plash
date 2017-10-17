@@ -1,22 +1,20 @@
 set -xeu
 # vim: set filetype=sh:
-busybox=$(plash.build busybox --bust-cache)
 
 echo 'TEST: run a program on the base layer of a container'
-plash.build $busybox
-out=$(plash.run $busybox -- echo hellow)
+plash.build busybox
+out=$(plash.run busybox -- echo hellow)
 test "$out" == hellow
 
 echo 'TEST: create a new layer and check that for programs' \
 ' the current working directory is mapped'
-newcont=$(plash.build $busybox --bust-cache)
+newcont=$(plash.build busybox --bust-cache)
 cd /tmp
 out=$(plash.run $newcont pwd)
 test "$out" == "/tmp"
 
 echo 'TEST: check that exit status get propagaded to the outside'
-(
 set +e
-plash run $busybox sh -c 'exit 42'
+plash run busybox sh -c 'exit 42'
 test $? -eq 42 || exit 1
-)
+set -e
