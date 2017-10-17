@@ -1,15 +1,15 @@
 set -xeu
 # vim: set filetype=sh:
-alpine=$(plash.build alpine3.6 --bust-cache)
+busybox=$(plash.build busybox --bust-cache)
 
 echo 'TEST: run a program on the base layer of a container'
-plash.build $alpine
-out=$(plash.run $alpine -- echo hellow)
+plash.build $busybox
+out=$(plash.run $busybox -- echo hellow)
 test "$out" == hellow
 
 echo 'TEST: create a new layer and check that for programs' \
 ' the current working directory is mapped'
-newcont=$(plash.build $alpine --bust-cache)
+newcont=$(plash.build $busybox --bust-cache)
 cd /tmp
 out=$(plash.run $newcont pwd)
 test "$out" == "/tmp"
@@ -17,6 +17,6 @@ test "$out" == "/tmp"
 echo 'TEST: check that exit status get propagaded to the outside'
 (
 set +e
-plash run $alpine sh -c 'exit 42'
+plash run $busybox sh -c 'exit 42'
 test $? -eq 42 || exit 1
 )

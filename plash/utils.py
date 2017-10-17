@@ -33,10 +33,11 @@ def catch_and_die(exceptions, debug=None):
         yield
     except tuple(exceptions) as exc:
         program = os.path.basename(sys.argv[0])
+        msg = str(exc)
+        if msg.startswith('<') and msg.endswith('>'):
+            msg = msg[1:-1]
         if debug:
-            msg = '{debug}: {message}'.format(debug=debug, message=str(exc))
-        else:
-            msg = str(exc)
+            msg = '{debug}: {message}'.format(debug=debug, message=msg)
         die(program + ': ' + msg)
 
 

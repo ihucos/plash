@@ -1,14 +1,16 @@
 #!/bin/bash
 set -e
 
-log=$(mktemp)
-program_exit=0
-tmp=$(mktemp --directory --tmpdir=/var/lib/plash/tmp)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+tmp=$(mktemp --directory --tmpdir=/var/lib/plash/tmp) # we can't use /tmp or /var/tmp
 export PLASH_DATA=$tmp
 plash.init
-plash -o alpine3.6
+plash.import-tar $DIR/busybox.tar busybox
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+log=$(mktemp)
+program_exit=0
 for script in $DIR/../tests/* ; do
   test $(basename $script) == $(basename ${BASH_SOURCE[0]}) && continue
   printf $(basename "$script")

@@ -1,11 +1,11 @@
 #!/bin/bash
 set -xeu
-plash.build alpine3.6
+plash.build busybox
 
 tmp=$(mktemp)
-plash.export-tar alpine3.6 - > $tmp
+plash.export-tar busybox - > $tmp
 tar --list -f $tmp >/dev/null
 
 tmp=$(mktemp)
-plash.export-tar alpine3.6  $tmp
+plash.export-tar busybox  $tmp
 tar --list -f $tmp >/dev/null

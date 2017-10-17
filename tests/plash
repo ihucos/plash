@@ -1,6 +1,6 @@
 #!/bin/bash
 set -xeu
-test "$(plash -o alpine3.6)" == alpine3.6
-out=$(plash -o alpine3.6 -- printf hello)
+test "$(plash -o busybox)" == busybox
+out=$(plash -o busybox -- printf hello)
 test $out == hello
-test $(plash nodepath alpine3.6) == $(plash.nodepath alpine3.6)
+test $(plash nodepath busybox) == $(plash.nodepath busybox)

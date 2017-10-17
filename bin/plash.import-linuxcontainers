@@ -3,9 +3,10 @@
 import os
 import re
 import sys
+from urllib.error import URLError
 from urllib.request import urlopen
 
-from plash.utils import die
+from plash.utils import die, catch_and_die
 
 LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'  # FIXME: use https
 
@@ -15,8 +16,9 @@ except IndexError:
     sys.stderr.write('USAGE: import-linuxcontainers image-name\n')
     sys.exit(2)
 
-content = urlopen(
-    'http://images.linuxcontainers.org/').read().decode()  # FIXME: use https
+with catch_and_die([URLError]):
+    content = urlopen(
+        'http://images.linuxcontainers.org/').read().decode()  # FIXME: use https
 matches = re.findall(
     '<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>',
     content)
