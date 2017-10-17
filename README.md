@@ -1,10 +1,6 @@
 Table of contents
 =================
 
-  > * [Subcommands](#subcomamnds)
-  >   * [add-layer](#add-layer)
-  >   * [build](#build)
-
 ## Exit status codes
 
 | Exit code | Description |
@@ -15,9 +11,8 @@ Table of contents
 
 ## Subcommands
 
-  * [Subcommands](#subcomamnds)
-    * [add-layer](#add-layer)
-    * [build](#build)
+* [add-layer](#add-layer)
+* [build](#build)
 
 ### add-layer
 ```
