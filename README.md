@@ -4,7 +4,7 @@ exit status:
 2: Unrecognized arguments
 3: Container does not exist
 
-### `plash add-layer CONTAINER`
+#### `plash add-layer CONTAINER`
 Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
 
 The new container is the only thing printed to stdout, building information and status messages are printed to stderr.
@@ -15,7 +15,7 @@ exit status:
 same as `plash build`
 
 
-### `plash build <ACTIONS>`
+#### `plash build <ACTIONS>`
 Builds a container. All command line options are interpreted as action calls from the `stdlib`. See insertdoclinkhere for available actions
 
 Some short examples:
@@ -30,47 +30,47 @@ exit status:
 4: Build error - building returned non-zero exit status
 
 
-### `plash getscript <ACTIONS>`
+#### `plash getscript <ACTIONS>`
 Prints the shell script generated from actions passed as command line parameters.
 See insertdoclinkhere for available actions
 
-### do
+#### do
 
 
-### `plash export-tar CONTAINER [FILE]`
+#### `plash export-tar CONTAINER [FILE]`
 Export the file system of a container to the given file as a compressed tar archive. If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
 
-### `plash import-linuxcontainers IMAGE-NAME`
+#### `plash import-linuxcontainers IMAGE-NAME`
 Pull an image from linuxcontainers.org
 
-### `plash import-tar TARFILE CONTAINER-ID`
+#### `plash import-tar TARFILE CONTAINER-ID`
 Create a container from a tar file named by the `container-id` parameter.
 
-### `plash import-url URL IMAGE-ID`
+#### `plash import-url URL IMAGE-ID`
 Create a container from an url pointing to a tar file. The container id is specified by the `container-id` parameter.
 
 
-### init
+#### init
 
-### `plash mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT`
+#### `plash mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT`
 Mounts the filsystem of a container. To cleanup, unmout it with `umount` later.
 The optional arguments are options passed to the overlay filesystem program. `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the `overlay` programm and must be located in the same file system device than `upperdir`.
 
 
-### `plash nodepath CONTAINER`
+#### `plash nodepath CONTAINER`
 Prints the location of the last layer of container. Useful to for example debug what changes some layer does to the filesystem:
 plash.nodepath $container | xargs tree
 
-### `plash purge`
+#### `plash purge`
 Prompts to delete all build data.
 
-### `plash rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]`
+#### `plash rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]`
 Deletes the given containers.
 
-### `plash run container [--workdir VALUE] [--upperdir VALUE] [CMD] [ARG1 [ARG2 ...]]`
+#### `plash run container [--workdir VALUE] [--upperdir VALUE] [CMD] [ARG1 [ARG2 ...]]`
 Run a command inside the container. If no command is specified, the container id is printed. 
 The workdir and upperdir parameters can be used to save file system changes made inside the container.
 
-### runp CONTAINER [ARG1 [ARG2 [ARG3...]]
+#### runp CONTAINER [ARG1 [ARG2 [ARG3...]]
 Run a container with runp.
 See the runp project page: https://github.com/ihucos/runp
