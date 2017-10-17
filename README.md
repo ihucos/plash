@@ -1,4 +1,8 @@
-plash
+## exit status codes
+exit status:
+1: Generic error code
+2: Unrecognized arguments
+3: Container does not exist
 
 ### `plash add-layer CONTAINER`
 Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
@@ -39,20 +43,34 @@ Export the file system of a container to the given file as a compressed tar arch
 ### `plash import-linuxcontainers IMAGE-NAME`
 Pull an image from linuxcontainers.org
 
-### `plash import-tar TARFILE IMAGE-ID`
-Create a container from a tar file.
+### `plash import-tar TARFILE CONTAINER-ID`
+Create a container from a tar file named by the `container-id` parameter.
 
-### `plash import-url URL IMAGE_ID`
-Create a container from a url pointing to a tar file.
+### `plash import-url URL IMAGE-ID`
+Create a container from an url pointing to a tar file. The container id is specified by the `container-id` parameter.
 
 
 ### init
 
-### mount
+### `plash mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT`
+Mounts the filsystem of a container. To cleanup, unmout it with `umount` later.
+The optional arguments are options passed to the overlay filesystem program. `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the `overlay` programm and must be located in the same file system device than `upperdir`.
 
-### nodepath
-### purge
-### rm
-### run
-### runfile
-### runp
+
+### `plash nodepath CONTAINER`
+Prints the location of the last layer of container. Useful to for example debug what changes some layer does to the filesystem:
+plash.nodepath $container | xargs tree
+
+### `plash purge`
+Prompts to delete all build data.
+
+### `plash rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]`
+Deletes the given containers.
+
+### `plash run container [--workdir VALUE] [--upperdir VALUE] [CMD] [ARG1 [ARG2 ...]]`
+Run a command inside the container. If no command is specified, the container id is printed. 
+The workdir and upperdir parameters can be used to save file system changes made inside the container.
+
+### runp CONTAINER [ARG1 [ARG2 [ARG3...]]
+Run a container with runp.
+See the runp project page: https://github.com/ihucos/runp

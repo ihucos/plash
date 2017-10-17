@@ -4,7 +4,7 @@ set -eu
 plash_data="${PLASH_DATA:-/var/lib/plash}"
 
 test $# -eq 1 || {
-  echo 'USAGE: runp container [arg1 [arg2 [arg4...]]]' >&2
+  echo 'USAGE: runp container [arg1 [arg2 [arg3...]]]' >&2
   exit 2
 }
 
