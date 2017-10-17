@@ -2,8 +2,8 @@
 set -xeu
 
 tmp=$(mktemp -d)
-plash.build -o zesty
-plash.mount zesty $tmp
+plash.build -o alpine3.6
+plash.mount alpine3.6 $tmp
 grep  $tmp' '  /proc/mounts >/dev/null || {
   echo 'Could not find mountpoint in /proc/mounts '
   exit 1

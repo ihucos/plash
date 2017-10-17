@@ -2,7 +2,7 @@
 set -exu
 ! plash.nodepath mynoexistentcontainer
 
-newcont=$(plash.build -o zesty --bust-cache)
+newcont=$(plash.build -o alpine3.6 --bust-cache)
 nodepath=$(plash.nodepath $newcont)
 echo $nodepath | grep $newcont
 

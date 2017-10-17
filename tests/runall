@@ -6,7 +6,7 @@ program_exit=0
 tmp=$(mktemp --directory --tmpdir=/var/lib/plash/tmp)
 export PLASH_DATA=$tmp
 plash.init
-plash -o zesty
+plash -o alpine3.6
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 for script in $DIR/../tests/* ; do

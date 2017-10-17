@@ -1,17 +1,17 @@
 set -xeu
 # vim: set filetype=sh:
-zesty=$(plash.build zesty --bust-cache)
+alpine=$(plash.build alpine3.6 --bust-cache)
 
 echo 'TEST: build a layer and check it changes'
-newcont=$(plash.build $zesty -x 'touch /hellow')
+newcont=$(plash.build $alpine -x 'touch /hellow')
 plash.run $newcont stat /hellow
 
 echo 'TEST: test that a build error returns a bad exit code'
 set +e
-plash.build $zesty -x 'exit 42'
+plash.build $alpine -x 'exit 42'
 test 1 -eq $? || exit 1
 set -e
 
 echo 'TEST: base container specified as first argument and via the os hint comment'
-test $(plash.build zesty) == zesty
-test $(plash.build -o zesty) == zesty
+test $(plash.build alpine3.6) == alpine3.6
+test $(plash.build -o alpine3.6) == alpine3.6

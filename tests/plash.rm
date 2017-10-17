@@ -1,6 +1,6 @@
 set -xeu
 # vim: set filetype=sh:
-newcont=$(plash.build zesty --bust-cache)
+newcont=$(plash.build alpine3.6 --bust-cache)
 plash.nodepath $newcont
 plash.rm $newcont
 ! plash.nodepath $newcont
