@@ -6,6 +6,10 @@ echo 'TEST: build a layer and check it changes'
 newcont=$(plash.build $busybox -x 'touch /hellow')
 plash.run $newcont stat /hellow
 
+
+echo 'TEST: working directory is is /'
+plash.build $busybox --bust-cache -x 'test $(pwd) == /'
+
 echo 'TEST: test that a build error returns a bad exit code'
 set +e
 plash.build $busybox -x 'exit 42'
