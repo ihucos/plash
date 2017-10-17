@@ -19,7 +19,7 @@ PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 try:
     container = sys.argv[1]
 except IndexError:
-    sys.stderr.write('USAGE: plash.add-layer container')
+    print('USAGE: plash.add-layer container', file=sys.stderr)
     sys.exit(2)
 
 cmd = sys.stdin.read()
@@ -58,21 +58,20 @@ new_layer = join(new_child, 'payload')
 os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
 
-
-def preexec_fn():
-    # close stdin for more reproducible builds
-    # - if that does not work well, there is another way
-    os.close(0)
-
-
 out = 2
 ps4 = color('--> ', 4)
 p = subprocess.Popen(
-    ['plash.run', container, '--upperdir', new_layer, 'sh', '-cxe', cmd],
+    ['plash.run', container, '--upperdir', new_layer, 'sh', '-xe'],
     stderr=out,
     stdout=out,
-    preexec_fn=preexec_fn,
+    stdin=subprocess.PIPE,
     env=dict(os.environ, PS4=ps4))
+
+for line in cmd.encode().splitlines():
+    p.stdin.write(line + b'\n')
+    p.stdin.flush()
+p.stdin.close()
+
 exit = p.wait()
 
 if exit != 0:

@@ -61,6 +61,7 @@ for counter, layer in enumerate(layers):
         sys.exit(1)
     current_container = p.stdout.read()
     current_container = current_container.decode().strip('\n')
-    info('--:')
+    if building_happened:
+        info('--:')
 
 print(current_container)
