@@ -43,5 +43,5 @@ bundle['hooks']['poststop'].append({
 with open(join(tmp, 'config.json'), 'w') as f:
     f.write(json.dumps(bundle))
 
-cmd = ['runc', '--debug',  '--log=/tmp/runc.log', 'run', str(uuid4())]
+cmd = ['runc', 'run', str(uuid4())]
 os.execvpe(cmd[0], cmd, os.environ)
