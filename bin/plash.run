@@ -7,9 +7,19 @@ import os
 import sys
 import tempfile
 from os.path import join
+from pwd import getpwuid
 from subprocess import CalledProcessError, call, check_call
 
-from plash.utils import catch_and_die, die
+from plash.utils import catch_and_die, deescalate_sudo, die
+
+
+def delete_line(f, func):
+    lines = f.readlines()
+    f.seek(0)
+    for line in lines:
+        if not func(line):
+            f.write(line)
+    f.truncate()
 
 workdir = None
 upperdir = None
@@ -44,6 +54,21 @@ exit = call(['plash.mount', container, mountpoint] + ([
 if exit:
     sys.exit(exit)
 
+uid = int(os.environ.get('SUDO_UID') or os.getuid())
+
+
+passwd = open(join(mountpoint, 'etc/passwd'), 'r+')
+delete_line(
+    passwd,
+    lambda line: int(line.split(':')[2]) == uid)
+
+pw = getpwuid(uid)
+username = pw.pw_name
+passwd_entry = '{pw_name};x;{pw_uid};{pw_gid};{pw_gecos};{pw_dir};/bin/sh'.format(**dict(
+    (i, getattr(pw, i)) for i in dir(pw)))
+passwd.write(passwd_entry + '\n')
+passwd.close()
+
 mounts = ['proc', 'home', 'sys', 'dev', 'tmp', 'etc/resolv.conf']
 mounts_map = dict((m, join(mountpoint, m)) for m in mounts)
 
@@ -62,9 +87,11 @@ with catch_and_die([CalledProcessError]):
 if not os.fork():
     pwd = os.getcwd()
     os.chroot(mountpoint)
+    os.chmod('/', 0o755) # not so sure if this here or more to the top
+    deescalate_sudo()
     try:
         os.chdir(pwd)
-    except ValueError:
+    except (ValueError, PermissionError):
         os.chdir("/")
     try:
         os.execvpe(cmd[0], cmd, os.environ)

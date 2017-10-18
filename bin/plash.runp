@@ -14,7 +14,7 @@ runp_binary=$(command -v runp 2>/dev/null) || {
 }
 
 container="$1"
-mount_wrapper=$(mktemp --directory --tmpdir=$plash_data/tmp/ XXXXXXXXXXXX)
+mount_wrapper=$(mktemp -d $plash_data/tmp/XXXXXXXXXXXX)
 mkdir $mount_wrapper/prog.dir
 plash.mount $container $mount_wrapper/prog.dir
 ln -s $runp_binary $mount_wrapper/prog

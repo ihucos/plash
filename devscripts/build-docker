@@ -1,5 +1,7 @@
 #!/bin/bash
+set -eu
 # https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-plash do export-tar - --include $DIR/plash.args | docker import -
+cont=$(plash --include $DIR/plash.args)
+plash export-tar | docker import -

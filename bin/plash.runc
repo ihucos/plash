@@ -30,15 +30,14 @@ with catch_and_die([CalledProcessError]):
 
 with open(join(tmp, 'config.json')) as f:
     bundle = json.loads(f.read())
+
 bundle['hostname'] = container
 bundle['process']['args'] = cmd
-
 bundle.setdefault('hooks', {})
 bundle['hooks'].setdefault('poststop', [])
 bundle['hooks']['poststop'].append({
     "path": "/bin/umount",
-    "args": ['umount', join(tmp, 'rootfs')],
-})
+    "args": ['umount', join(tmp, 'rootfs')]})
 
 with open(join(tmp, 'config.json'), 'w') as f:
     f.write(json.dumps(bundle))

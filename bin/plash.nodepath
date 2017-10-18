@@ -5,7 +5,9 @@ test $# -eq 1 || {
       exit 2
 }
 
-readlink --canonicalize-existing ${PLASH_DATA:-/var/lib/plash}/links/$1 || {
+nodepath=$(readlink ${PLASH_DATA:-/var/lib/plash}/links/$1)
+if ! [ $? -eq 0 ] || ! [ -d "$nodepath" ]; then
       echo "No such container: $1" >&2
       exit 1
-}
+fi
+echo $nodepath

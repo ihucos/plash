@@ -8,10 +8,10 @@ test $# -eq 2 || {
 
 url="$1"
 image_id="$2"
-tmpdir=$(mktemp --directory)
+tmpdir=$(mktemp -d)
 cd $tmpdir
 
-if wget --help | grep -- --show-progress; then
+if wget --help 2>&1 | grep -- --show-progress; then
   wget -q --show-progress $url -O $image_id
 else
   wget $url -O $image_id
