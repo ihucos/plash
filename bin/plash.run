@@ -64,7 +64,7 @@ delete_line(
 
 pw = getpwuid(uid)
 username = pw.pw_name
-passwd_entry = '{pw_name};x;{pw_uid};{pw_gid};{pw_gecos};{pw_dir};/bin/sh'.format(**dict(
+passwd_entry = '{pw_name}:x:{pw_uid}:{pw_gid}:{pw_gecos}:{pw_dir}:/bin/sh'.format(**dict(
     (i, getattr(pw, i)) for i in dir(pw)))
 passwd.write(passwd_entry + '\n')
 passwd.close()
