@@ -10,101 +10,30 @@ from uuid import uuid4
 
 from plash.utils import catch_and_die
 
-BASE_BUNDLE = {
-    'ociVersion': '1.0.0-rc2-dev',
-    'platform': {'arch': 'amd64', 'os': 'linux'},
-    'process': {'args': ['sh'],
-                'capabilities': ['CAP_AUDIT_WRITE',
-                                 'CAP_KILL',
-                                 'CAP_NET_BIND_SERVICE'],
-                'consoleSize': {'height': 0, 'width': 0},
-                'cwd': '/',
-                'env': ['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-                        'TERM=xterm'],
-                'noNewPrivileges': True,
-                'rlimits': [{'hard': 1024, 'soft': 1024, 'type': 'RLIMIT_NOFILE'}],
-                'terminal': True,
-                'user': {'gid': 0, 'uid': 0}},
-    'root': {'path': 'rootfs', 'readonly': True},
-    'hostname': 'runc',
-    'mounts': [{'destination': '/proc', 'source': 'proc', 'type': 'proc'},
-               {'destination': '/dev',
-                'options': ['nosuid', 'strictatime', 'mode=755', 'size=65536k'],
-                'source': 'tmpfs',
-                'type': 'tmpfs'},
-               {'destination': '/dev/pts',
-                'options': ['nosuid',
-                            'noexec',
-                            'newinstance',
-                            'ptmxmode=0666',
-                            'mode=0620',
-                            'gid=5'],
-                'source': 'devpts',
-                'type': 'devpts'},
-               {'destination': '/dev/shm',
-                'options': ['nosuid',
-                            'noexec',
-                            'nodev',
-                            'mode=1777',
-                            'size=65536k'],
-                'source': 'shm',
-                'type': 'tmpfs'},
-               {'destination': '/dev/mqueue',
-                'options': ['nosuid', 'noexec', 'nodev'],
-                'source': 'mqueue',
-                'type': 'mqueue'},
-               {'destination': '/sys',
-                'options': ['nosuid', 'noexec', 'nodev', 'ro'],
-                'source': 'sysfs',
-                'type': 'sysfs'},
-               {'destination': '/sys/fs/cgroup',
-                'options': ['nosuid', 'noexec', 'nodev', 'relatime', 'ro'],
-                'source': 'cgroup',
-                'type': 'cgroup'}],
-    'hooks': {},
-    'linux': {'maskedPaths': ['/proc/kcore',
-                              '/proc/latency_stats',
-                              '/proc/timer_list',
-                              '/proc/timer_stats',
-                              '/proc/sched_debug',
-                              '/sys/firmware'],
-              'namespaces': [{'type': 'pid'},
-                             {'type': 'network'},
-                             {'type': 'ipc'},
-                             {'type': 'uts'},
-                             {'type': 'mount'}],
-              'readonlyPaths': ['/proc/asound',
-                                '/proc/bus',
-                                '/proc/fs',
-                                '/proc/irq',
-                                '/proc/sys',
-                                '/proc/sysrq-trigger'],
-              'resources': {'devices': [{'access': 'rwm', 'allow': False}]}},
-}
-
 palsh_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
-bundle = None
-# try:
-container, *cmd = sys.argv[1:]
-if cmd and cmd[0] == '--bundle':
-    cmd.pop(0)
-    bundle = cmd.pop(0)
-
+try:
+    container, *cmd = sys.argv[1:]
+    cmd[0]
+except (IndexError, ValueError):
+    print(
+        'USAGE: plash runc container cmd [arg1 [arg2 [arg3 ...]]]',
+        file=sys.stderr)
+    sys.exit(2)
 
 tmp = tempfile.mkdtemp()
-rootfs = join(tmp, 'rootfs')
-os.mkdir(rootfs)
-with catch_and_die([CalledProcessError]):
-    check_call(['plash.mount', container, rootfs])
-
-if not bundle:
-    bundle = BASE_BUNDLE.copy()
-    bundle['hostname'] = container
-    bundle['process']['args'] = cmd
-    with open(join(tmp, 'config.json'), 'w') as f:
-        f.write(json.dumps(bundle))
-
 os.chdir(tmp)
+os.mkdir('./rootfs')
+with catch_and_die([CalledProcessError]):
+    check_call(['plash.mount', container, './rootfs'])
+    check_call(['runc', 'spec'])
+
+with open(join(tmp, 'config.json')) as f:
+    bundle = json.loads(f.read())
+bundle['hostname'] = container
+bundle['process']['args'] = cmd
+with open(join(tmp, 'config.json'), 'w') as f:
+    f.write(json.dumps(bundle))
+
 cmd = ['runc', 'run', str(uuid4())]
 os.execvpe(cmd[0], cmd, os.environ)
