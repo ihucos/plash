@@ -32,8 +32,16 @@ with open(join(tmp, 'config.json')) as f:
     bundle = json.loads(f.read())
 bundle['hostname'] = container
 bundle['process']['args'] = cmd
+
+bundle.setdefault('hooks', {})
+bundle['hooks'].setdefault('poststop', [])
+bundle['hooks']['poststop'].append({
+    "path": "/bin/umount",
+    "args": ['umount', join(tmp, 'rootfs')],
+})
+
 with open(join(tmp, 'config.json'), 'w') as f:
     f.write(json.dumps(bundle))
 
-cmd = ['runc', 'run', str(uuid4())]
+cmd = ['runc', '--debug',  '--log=/tmp/runc.log', 'run', str(uuid4())]
 os.execvpe(cmd[0], cmd, os.environ)
