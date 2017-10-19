@@ -11,6 +11,7 @@ tree
 wget
 openssl
 ca-certificates
+git
 
 --layer
 
@@ -30,7 +31,12 @@ cd $HOST_PWD
 wget 'https://github.com/ihucos/runp/blob/master/runp?raw=true' -O /usr/local/bin/runp
 chmod 4755 /usr/local/bin/runp
 
-python3 setup.py install
+--bust-cache
+
+--run
+git clone git@github.com:ihucos/plash.git /opt/plash
+
+
 
 # volume: plash.build-data /var/lib/plash
 # volume: plash.vartmp /var/tmp
