@@ -21,12 +21,7 @@ git
 --layer
 --bust-cache
 
---import-envs
-PWD:HOST_PWD
-
 --run
-cd $HOST_PWD
-
 # install runp
 wget 'https://github.com/ihucos/runp/blob/master/runp?raw=true' -O /usr/local/bin/runp
 chmod 4755 /usr/local/bin/runp
@@ -34,7 +29,7 @@ chmod 4755 /usr/local/bin/runp
 --bust-cache
 
 --run
-git clone git@github.com:ihucos/plash.git /opt/plash
+git clone https://github.com/ihucos/plash.git /opt/plash
 
 
 
