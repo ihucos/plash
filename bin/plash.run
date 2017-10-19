@@ -21,8 +21,20 @@ def delete_line(f, func):
             f.write(line)
     f.truncate()
 
+def add_user(passwd_file, pw_entry):
+    passwd = open(join(mountpoint, 'etc/passwd'), 'r+')
+    delete_line(
+        passwd,
+        lambda line: int(line.split(':')[2]) == uid)
+    passwd_entry = '{pw_name}:x:{pw_uid}:{pw_gid}:{pw_gecos}:{pw_dir}:/bin/sh'.format(**dict(
+        (i, getattr(pw, i)) for i in dir(pw)))
+    passwd.write(passwd_entry + '\n')
+    passwd.close()
+
+
 workdir = None
 upperdir = None
+deescalate = True
 try:
     container, *cmd = sys.argv[1:]
     if not cmd:
@@ -34,6 +46,9 @@ try:
         elif cmd[0] == '--upperdir':
             cmd.pop(0)
             upperdir = cmd.pop(0)
+        elif cmd[0] == '--dont-deescalate':
+            cmd.pop(0)
+            deescalate = False
         elif cmd[0] == '--':
             cmd.pop(0)
             break
@@ -54,28 +69,29 @@ exit = call(['plash.mount', container, mountpoint] + ([
 if exit:
     sys.exit(exit)
 
-uid = int(os.environ.get('SUDO_UID') or os.getuid())
+if deescalate:
+    uid = int(os.environ.get('SUDO_UID') or os.getuid())
+else:
+    uid = os.getuid()
 
 
-passwd = open(join(mountpoint, 'etc/passwd'), 'r+')
-delete_line(
-    passwd,
-    lambda line: int(line.split(':')[2]) == uid)
+pw_entry = getpwuid(uid)
+home = pw_entry.pw_dir
+add_user(join(mountpoint, '/etc/passwd'), pw_entry)
 
-pw = getpwuid(uid)
-username = pw.pw_name
-passwd_entry = '{pw_name}:x:{pw_uid}:{pw_gid}:{pw_gecos}:{pw_dir}:/bin/sh'.format(**dict(
-    (i, getattr(pw, i)) for i in dir(pw)))
-passwd.write(passwd_entry + '\n')
-passwd.close()
 
-mounts = ['proc', 'home', 'sys', 'dev', 'tmp', 'etc/resolv.conf']
-mounts_map = dict((m, join(mountpoint, m)) for m in mounts)
+mounts = ['proc', home, 'sys', 'dev', 'tmp', 'etc/resolv.conf']
+mounts_map = dict((m, join(mountpoint, m.lstrip('/'))) for m in mounts)
+
+try:
+    os.makedirs(mounts_map[home]) # FIXME: directory access rights, maybe
+except FileExistsError:
+    pass
 
 with catch_and_die([CalledProcessError]):
     # prepare mounts for container
+    check_call(['mount', '--bind', home, mounts_map[home]])
     check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
-    check_call(['mount', '--bind', '/home', mounts_map['home']])
     check_call(['mount', '--bind', '/sys', mounts_map['sys']])
     check_call(['mount', '--bind', '/dev', mounts_map['dev']])
     check_call(['mount', '-t', 'tmpfs', 'tmpfs', mounts_map['tmp']])
@@ -88,10 +104,11 @@ if not os.fork():
     pwd = os.getcwd()
     os.chroot(mountpoint)
     os.chmod('/', 0o755) # not so sure if this here or more to the top
-    deescalate_sudo()
+    if deescalate:
+        deescalate_sudo()
     try:
         os.chdir(pwd)
-    except (ValueError, PermissionError):
+    except (ValueError, PermissionError, FileNotFoundError): # TODO: put more exceptions here
         os.chdir("/")
     try:
         os.execvpe(cmd[0], cmd, os.environ)
