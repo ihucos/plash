@@ -59,42 +59,6 @@ def color(stri, color, isatty_fd_check=2):
         return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
     return stri
 
-
-def setup_sigint_handler():  # TODO: call differently
-    return
-
-    # return
-    # if not os.environ.get('PLASH_TRACEBACK', '').lower() in ('yes', '1', 'true'):
-    #     def signal_handler(signal, frame):
-    #         print(file=sys.stderr)
-    #         die('Interrupted by user', exit=130)
-    #     signal.signal(signal.SIGINT, signal_handler)
-
-    #     import traceback
-    #     import io
-
-    def better_ux_errno_exceptions(exctype, value, tb):
-        if exctype is KeyboardInterrupt:
-            if os.environ.get(
-                    'PLASH_DO_CALLED'
-            ):  # so we don't see the interrupted by message two times, the plash do is already handling that
-                sys.exit(130)
-            print(file=sys.stderr)
-            die('Interrupted by user', exit=130)
-        if getattr(exctype, 'errno', None):
-            s = io.StringIO()
-            traceback.print_exception(exctype, value, tb, file=s, limit=-1)
-            s.seek(0)
-            error_msg = s.read().splitlines()[-1]
-            error_msg = error_msg.split(None, 1)[-1]
-            print(file=sys.stderr)
-            die(error_msg)
-        else:
-            sys.__excepthook__(exctype, value, traceback)
-
-    sys.excepthook = better_ux_errno_exceptions
-
-
 def die(msg, exit=1):
     print(color('ERROR ', ERROR_COLOR) + msg, file=sys.stderr)
     sys.exit(exit)
