@@ -8,7 +8,7 @@ from subprocess import CalledProcessError, check_output
 from sys import exit
 from tempfile import mkdtemp
 
-from pyplash.utils import catch_and_die
+from plashlib.utils import catch_and_die
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 

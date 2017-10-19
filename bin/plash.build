@@ -7,9 +7,9 @@ import sys
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
-from pyplash.eval import LAYER_MARKER
-from pyplash.stdlib import OS_HINT_TEMPL
-from pyplash.utils import catch_and_die, die, info, color
+from plashlib.eval import LAYER_MARKER
+from plashlib.stdlib import OS_HINT_TEMPL
+from plashlib.utils import catch_and_die, die, info, color
 
 args = sys.argv[1:]
 if len(args) >= 1 and not args[0].startswith('-'):

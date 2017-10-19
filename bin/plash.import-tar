@@ -9,7 +9,7 @@ import tarfile
 from os.path import join
 from tempfile import mkdtemp
 
-from pyplash.utils import die, info
+from plashlib.utils import die, info
 
 try:
     tar_file = sys.argv[1]
@@ -30,7 +30,10 @@ tmp_image_dir = mkdtemp(
 os.mkdir(join(tmp_image_dir, 'children'))
 # os.mkdir(join(tmp_image_dir, 'payload'))
 rootfs = join(tmp_image_dir, 'payload')
-t = tarfile.open(tar_file)
+if tar_file == '-':
+    t = tarfile.open(fileobj=sys.stdin, mode='r|')
+else:
+    t = tarfile.open(tar_file)
 t.extractall(rootfs)
 
 # we want /etc/resolv to not by a symlink or not to not exist - that makes the later mount not work #FIXME: add a layer for that

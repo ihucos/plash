@@ -3,8 +3,8 @@
 
 import argparse
 
-from pyplash import eval, stdlib
-from pyplash.utils import catch_and_die, deescalate_sudo
+from plashlib import eval, stdlib
+from plashlib.utils import catch_and_die, deescalate_sudo
 
 # try not to be root
 deescalate_sudo()
