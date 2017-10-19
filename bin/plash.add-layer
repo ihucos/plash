@@ -12,7 +12,7 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 from sys import exit
 from tempfile import mkdtemp
 
-from plash.utils import catch_and_die, color, die, hashstr, info
+from pyplash.utils import catch_and_die, color, die, hashstr, info
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 

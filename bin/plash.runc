@@ -8,7 +8,7 @@ from subprocess import CalledProcessError, check_call
 from tempfile import mkdtemp
 from uuid import uuid4
 
-from plash.utils import catch_and_die
+from pyplash.utils import catch_and_die
 
 palsh_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
 

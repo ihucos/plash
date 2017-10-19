@@ -6,7 +6,7 @@ import sys
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from plash.utils import die, catch_and_die
+from pyplash.utils import die, catch_and_die
 
 LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'
 

@@ -9,7 +9,7 @@ from os.path import join
 from pwd import getpwuid
 from subprocess import CalledProcessError, call, check_call
 
-from plash.utils import catch_and_die, deescalate_sudo, die
+from pyplash.utils import catch_and_die, deescalate_sudo, die
 
 MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
 

@@ -9,7 +9,7 @@ import tarfile
 from os.path import join
 from tempfile import mkdtemp
 
-from plash.utils import die, info
+from pyplash.utils import die, info
 
 try:
     tar_file = sys.argv[1]
