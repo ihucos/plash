@@ -12,24 +12,26 @@ from subprocess import CalledProcessError, call, check_call
 
 from plash.utils import catch_and_die, deescalate_sudo, die
 
+MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
 
-def delete_line(f, func):
-    lines = f.readlines()
-    f.seek(0)
-    for line in lines:
-        if not func(line):
-            f.write(line)
-    f.truncate()
 
-def add_user(passwd_file, pw_entry):
-    passwd = open(join(mountpoint, 'etc/passwd'), 'r+')
-    delete_line(
-        passwd,
-        lambda line: int(line.split(':')[2]) == uid)
-    passwd_entry = '{pw_name}:x:{pw_uid}:{pw_gid}:{pw_gecos}:{pw_dir}:/bin/sh'.format(**dict(
-        (i, getattr(pw, i)) for i in dir(pw)))
-    passwd.write(passwd_entry + '\n')
-    passwd.close()
+# def delete_line(f, func):
+#     lines = f.readlines()
+#     f.seek(0)
+#     for line in lines:
+#         if not func(line):
+#             f.write(line)
+#     f.truncate()
+
+# def add_user(passwd_file, pw_entry):
+#     passwd = open(join(mountpoint, 'etc/passwd'), 'r+')
+#     delete_line(
+#         passwd,
+#         lambda line: int(line.split(':')[2]) == uid)
+#     passwd_entry = '{pw_name}:x:{pw_uid}:{pw_gid}:{pw_gecos}:{pw_dir}:/bin/sh'.format(**dict(
+#         (i, getattr(pw_entry, i)) for i in dir(pw_entry)))
+#     passwd.write(passwd_entry + '\n')
+#     passwd.close()
 
 
 workdir = None
@@ -69,28 +71,34 @@ exit = call(['plash.mount', container, mountpoint] + ([
 if exit:
     sys.exit(exit)
 
-if deescalate:
-    uid = int(os.environ.get('SUDO_UID') or os.getuid())
-else:
-    uid = os.getuid()
+uid = int(os.environ.get('SUDO_UID') or os.getuid())
+
+# pw_entry = getpwuid(uid)
+# home = pw_entry.pw_dir
+# add_user(join(mountpoint, '/etc/passwd'), pw_entry)
 
 
-pw_entry = getpwuid(uid)
-home = pw_entry.pw_dir
-add_user(join(mountpoint, '/etc/passwd'), pw_entry)
-
-
-mounts = ['proc', home, 'sys', 'dev', 'tmp', 'etc/resolv.conf']
+mounts = ['proc', 'sys', 'dev', 'tmp', 'etc/resolv.conf']
 mounts_map = dict((m, join(mountpoint, m.lstrip('/'))) for m in mounts)
 
-try:
-    os.makedirs(mounts_map[home]) # FIXME: directory access rights, maybe
-except FileExistsError:
-    pass
+for m in MOUNT_IF_EXISTS_IN_HOST:
+    if os.path.exists(m):
+        mounts_map[m] = join(mountpoint, m.lstrip('/'))
+        try:
+            os.makedirs(mounts_map[m]) # FIXME: directory access rights, maybe
+        except FileExistsError:
+            pass
+        with catch_and_die([CalledProcessError]):
+            check_call(['mount', '--bind', m, mounts_map[m]])
 
 with catch_and_die([CalledProcessError]):
+
+    # for m in EXTRA_MOUNTS_IF_EXISTS:
+    #     if os.path.exists(join(mountpoint, m.lstrip('/'))):
+    #         mounts.append(m)
+
     # prepare mounts for container
-    check_call(['mount', '--bind', home, mounts_map[home]])
+    # check_call(['mount', '--bind', home, mounts_map[home]])
     check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
     check_call(['mount', '--bind', '/sys', mounts_map['sys']])
     check_call(['mount', '--bind', '/dev', mounts_map['dev']])
