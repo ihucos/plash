@@ -13,6 +13,7 @@ openssl
 ca-certificates
 git
 bash
+ncurses
 
 # shell scripts suppose GNU coreutils
 coreutils
