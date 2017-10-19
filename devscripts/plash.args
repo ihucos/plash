@@ -13,10 +13,9 @@ openssl
 ca-certificates
 git
 bash
-ncurses
 
-# shell scripts suppose GNU coreutils
-coreutils
+ # tput is there
+ncurses
 
 --layer
 
