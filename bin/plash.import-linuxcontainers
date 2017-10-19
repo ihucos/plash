@@ -9,6 +9,16 @@ from urllib.request import urlopen
 from plashlib.utils import die, catch_and_die
 
 LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'
+UBUNTU_ABC = 'pqrstuvwxyzabcdefghijklmno' # rotate manually every 10 years or so
+
+DEBIAN_RELESES = [
+    # well, some constant in some file to keep updated... That here should only be fine until 2022 or something
+    'bullseye',
+    'buster',
+    'stretch',
+    'jessie',
+    'wheezy'
+]
 
 try:
     image_name = sys.argv[1]
@@ -23,6 +33,7 @@ matches = re.findall(
     '<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>',
     content)
 
+distros = {}
 names = {}
 for distro, version, arch, variant, date, _, _, _ in matches:
     if not variant == 'default':
@@ -33,19 +44,49 @@ for distro, version, arch, variant, date, _, _, _ in matches:
 
     url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
 
-    if version == 'current':
-        names[distro] = url
+    names['{}:{}'.format(distro, version)] = url
 
-    elif version[0].isalpha():
+    # if distro == 'archlinux':
+    #     distro = 'arch'
+
+    # if version == 'current':
+    #     names[distro] = url
+
+    if version[0].isalpha() and not version == 'current':
         # path parts with older upload_version also come later
         # (ignore possibel alphanumeric sort for dates on this right now)
         names[version] = url
+    # else:
+    #     names['{}{}'.format(distro, version)] = url
+
+    distros.setdefault(distro, [])
+    distros[distro].append(version)
+
+for distro, versions in distros.items():
+
+    if versions == ['current']:
+        continue
+
+    if distro == 'alpine':
+        versions.remove('edge')
+
+    if distro == 'ubuntu':
+        newest = sorted(versions, key=lambda v: UBUNTU_ABC.index(v[0]))[-1]
+    elif distro == 'debian':
+        versions.remove('sid')
+        newest = sorted(versions, key=lambda v: -1 * DEBIAN_RELESES.index(v))[-1]
+
     else:
-        names['{}{}'.format(distro, version)] = url
+        newest = sorted(versions, key=lambda v: float(v.replace('x', '0')))[-1]
+    # names[distro] = names['{}:{}'.format(distro, newest)]
+    # print(distro, newest, file=sys.stderr)
+    names[distro] = names['{}:{}'.format(distro, newest)]
 
 try:
     url = names[image_name]
 except KeyError:
-    die('Image not found: {}'.format(repr(image_name)))
+    die('Image not found: {}\nAvailable: {}'.format(
+        repr(image_name), ' '.join(sorted(names))
+    ))
 cmd = ['plash.import-url', url, image_name]
 os.execvpe(cmd[0], cmd, os.environ)

@@ -53,13 +53,16 @@ while True:
     if path.basename(base) == 'builds':
         break
 
+#FIXME: escape ':' ?, escape ','
+lowerdir = ':'.join(
+            join(p, 'payload') for p in reversed(symlinked_layer_paths)
+).replace(':', '\:')
 cmd = [
     'mount', '-t', 'overlay', 'overlay', '-o',
     'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(
         upperdir=args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp')),
         workdir=args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp')),
-        lowerdir=':'.join(
-            join(p, 'payload') for p in reversed(symlinked_layer_paths))),
+        lowerdir=lowerdir),
     args.mountpoint
 ]
 
