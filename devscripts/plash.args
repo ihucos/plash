@@ -28,8 +28,8 @@ chmod 4755 /usr/local/bin/runp
 
 --bust-cache
 
---run
-git clone https://github.com/ihucos/plash.git /opt/plash
+# --run
+# git clone https://github.com/ihucos/plash.git /opt/plash
 
 
 
