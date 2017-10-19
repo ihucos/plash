@@ -12,6 +12,10 @@ wget
 openssl
 ca-certificates
 git
+bash
+
+# shell scripts suppose GNU coreutils
+coreutils
 
 --layer
 

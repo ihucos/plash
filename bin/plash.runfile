@@ -1,7 +1,7 @@
 #!/bin/sh
 
-[ $# -eq 1 ] && {
-    echo "this is meant to be runned as shebang" >&2
+[ $# -eq 0 ] && {
+    echo "USAGE: plash runfile container [arg1 [arg2 [arg3 ...]]]" >&2
     exit 2
 }
 

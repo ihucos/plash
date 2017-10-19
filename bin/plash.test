@@ -7,11 +7,11 @@ mkdir -p /var/lib/plash/tmp
 tmp=$(mktemp -d /var/lib/plash/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp
 export PLASH_DATA=$tmp
 
-export PATH=$DIR/../bin:$PATH
-export PYTHONPATH=$DIR/..:$PYTHONPATH
+# export PATH=$DIR/../bin:$PATH
+# export PYTHONPATH=$DIR/..:$PYTHONPATH
 
 plash.init
-plash.import-tar $DIR/busybox.tar busybox
+plash.import-tar $DIR/../devscripts/busybox.tar busybox
 
 
 log=$(mktemp)
@@ -25,16 +25,17 @@ for script in $DIR/../tests/$1* ; do
   exec "$script"
   ) &
   if wait $!; then
-    test -t 1 && tput setaf 2
+    # test -t 1 && tput setaf 2
     echo ' OK'
-    test -t 1 && tput sgr0
+    # test -t 1 && tput sgr0
   else
-    test -t 1 && tput setaf 1
+    # test -t 1 && tput setaf 1
     echo ' ERROR'
-    test -t 1 && tput sgr0
+    # test -t 1 && tput sgr0
     program_exit=1
     echo "logs: $log" >&2
-    tail -n7 <(cat -n $log) >&2
+    # tail -n7 <(cat -n $log) >&2
+    tail -n7 $log >&2
     echo
   fi
 done
