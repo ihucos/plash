@@ -1,0 +1,13 @@
+#!/usr/bin/env plash.runfile
+
+--os
+alpine
+
+--apk
+squashfs-tools
+wget
+openssl
+ca-certificates
+
+# tput is there
+ncurses

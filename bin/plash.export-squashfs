@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+test $# -eq 2 || {
+  echo 'USAGE: plash export-squashfs CONTAINER FILE' >&2
+  exit 2
+}
+
+exec plash.with-mount "$1" mksquashfs . "$2"

@@ -5,13 +5,13 @@ devscripts/plash_base_os.args
 --layer
 
 --run
-git checkout https://github.com/ihucos/plash.git /opt/plash
+git clone https://github.com/ihucos/plash.git /opt/plash
 
 --layer
 
 --write-script
 /usr/local/bin/plash
 #!/bin/sh
-export PATH=$PATH:/opt/plash/bin
-export PYTHONPATH=$PYTHONPATH:/opt/plash
+export PATH=/opt/plash/bin:$PATH
+export PYTHONPATH=/opt/plash:PYTHONPATH
 exec plash "$@"

@@ -6,4 +6,4 @@ test $# -ge 1 || {
   exit 2
 }
 
-exec plash.export-with $1 tar -czf "${2:--}" .
+exec plash.with-mount $1 tar -czf "${2:--}" .

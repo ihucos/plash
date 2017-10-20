@@ -3,13 +3,13 @@ set -eu
 
 plash_data="${PLASH_DATA:-/var/lib/plash}"
 
-test $# -eq 1 || {
+test $# -eq 0 && {
   echo 'USAGE: runp container [arg1 [arg2 [arg3...]]]' >&2
   exit 2
 }
 
 runp_binary=$(command -v runp 2>/dev/null) || {
-  echo 'count not find runp in PATH, plash run needs the runp binary to run commands' >&2
+  echo 'Could not find runp in PATH, plash runp need the runp binary to run commands' >&2
   exit 1
 }
 
