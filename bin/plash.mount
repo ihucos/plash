@@ -55,8 +55,8 @@ while True:
 
 #FIXME: escape ':' ?, escape ','
 lowerdir = ':'.join(
-            join(p, 'payload') for p in reversed(symlinked_layer_paths)
-).replace(':', '\:')
+    join(p, 'payload').replace(':', r'\:')
+    for p in reversed(symlinked_layer_paths))
 cmd = [
     'mount', '-t', 'overlay', 'overlay', '-o',
     'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(

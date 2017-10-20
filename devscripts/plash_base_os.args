@@ -1,0 +1,45 @@
+#!/usr/bin/env plash.runfile
+
+--os
+alpine
+
+--apk
+python3
+squashfs-tools
+tree
+wget
+openssl
+ca-certificates
+git
+bash
+
+# tput is there
+ncurses
+
+--layer
+
+# --exec
+# /usr/local/bin/plash
+
+--layer
+--bust-cache
+
+--run
+# install runp
+wget 'https://github.com/ihucos/runp/blob/master/runp?raw=true' -O /usr/local/bin/runp
+chmod 4755 /usr/local/bin/runp
+
+wget 'https://github.com/opencontainers/runc/releases/download/v1.0.0-rc4/runc.amd64' -O /usr/local/bin/runc
+chmod 755 /usr/local/bin/runc
+
+--bust-cache
+
+# --run
+# git clone https://github.com/ihucos/plash.git /opt/plash
+
+
+
+# volume: plash.build-data /var/lib/plash
+# volume: plash.vartmp /var/tmp
+# volume: plash.volumedata /var/lib/runp-volumes
+

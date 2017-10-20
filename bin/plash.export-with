@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+test $# -ge 2 || {
+  echo 'USAGE: plash export-with container eval' >&2
+  exit 2
+}
+
+mountpoint=$(mktemp -d)
+plash.mount "$1" $mountpoint
+cd $mountpoint
+shift
+set +e
+(eval "$@"); exit=$?
+set -e
+cd - > /dev/null
+umount $mountpoint
+test $exit -eq 0 || {
+  echo "plash export-with: bad exit status with eval parameter: $?"
+  exit 3
+}
