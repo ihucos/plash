@@ -1,0 +1,107 @@
+#!/bin/sh
+
+PREFIX=
+VERSION=3.6.0-r0
+
+. $PREFIX/lib/libalpine.sh
+
+# set up temp dir
+init_tmpdir TMPD
+
+LBUCACHE="$TMPD/lbucache"
+
+usage() {
+	cat >&2 <<-__EOF__
+		$PROGRAM $VERSION
+		Usage: $PROGRAM [-a|--all] [-i|--initd] [-l|--list] [-h|--help]
+		Options:
+		  -a, --all    Select all updated files
+		  -i, --initd  Use all new init.d scripts
+		  -l, --list   List updated files
+		  -h, --help   Show this help
+
+	__EOF__
+}
+
+
+is_modified() {
+	[ -f "$LBUCACHE" ] || lbu status -a | awk '{print $2}' > "$LBUCACHE"
+	test -n "$( ( echo "$1" ; cat "$LBUCACHE" ) | sort | uniq -d)"
+}
+
+
+is_initd() {
+	echo "$1" | grep etc/init.d/ > /dev/null
+}
+
+args=$(getopt -o ailh --long all,initd,list,help -n "$PROGRAM" -- "$@")
+if [ $? -ne 0 ]; then
+	usage
+	exit 2
+fi
+eval set -- "$args"
+while true; do
+	case $1 in
+		-a|--all) aflag="-a";;
+		-i|--initd) iflag="-i";;
+		-l|--list) lflag="-l";;
+		-h|--help) usage; exit;;
+		--) shift; break;;
+		*) exit 1;; # getopt error
+	esac
+	shift
+done
+
+if which vimdiff >/dev/null; then
+	vflag=", Vimdiff old new"
+	vflag2="/v"
+fi
+
+for apknew in $(find "$ROOT/etc" -name '*.apk-new') ; do
+	p="${apknew%.apk-new}"
+	f="${p#${ROOT}/}"
+	unset choice
+
+	if [ "$lflag" ] ; then
+
+		# just list the file
+		if [ "$aflag" ] || is_modified "$f" ; then
+			echo "$p"
+		fi
+
+	elif [ "$aflag" ] || is_modified "$f" ; then
+		if [ "$iflag" ] && is_initd "$f" ; then
+			echo "Autoupdating $p"
+			mv "$apknew" "$p"
+			continue
+		fi
+
+		diff -u "$p" "$apknew"
+
+		# ask user what to do with the file
+		while [ -z "$choice" ] ; do
+			echo "New $p available:"
+			echon "Quit, Next, Show diff, Edit new${vflag}, Zap new, Use new (q/n/s/e${vflag2}/z/u) [s]: "
+			default_read choice "s" </dev/tty
+			case "$choice" in
+				q) exit;;
+				n) continue;;
+				s) diff -u "$p" "$apknew" | ${PAGER:-less}
+				   unset choice
+				   ;;
+				e) ${EDITOR:-vi} "$apknew" ; unset choice;;
+				v) if [ "$vflag" ]; then
+					vimdiff "$p" "$apknew"
+				   fi
+				   unset choice;;
+				z) rm "$apknew";;
+				u) mv "$apknew" "$p";;
+				*) unset choice;;
+			esac
+		done
+	else
+		# auto update
+		echo "Autoupdating unchanged $p"
+		mv "$apknew" "$p"
+	fi
+done

@@ -1,0 +1,28 @@
+#!/sbin/openrc-run
+
+start() {
+	local start_tag='# begin generated'
+	local end_tag='# end generated'
+
+	local content=$(
+		cat <<-EOF
+			$start_tag by /etc/init.d/hosts
+			127.0.0.1  $(hostname).local $(hostname) localhost
+			::1        $(hostname).local $(hostname) localhost
+			$end_tag
+		EOF
+	)
+
+	if grep -q "^${start_tag}" /etc/hosts; then
+		# escape \n, busybox sed doesn't like them
+		content=${content//$'\n'/\\$'\n'}
+
+		sed -ni "/^${start_tag}/ {
+				a\\${content}
+				# read and discard next line and repeat until $end_tag or EOF
+				:a; n; /^${end_tag}/!ba; n
+			}; p" /etc/hosts
+	else
+		printf "$content" >> /etc/hosts
+	fi
+}

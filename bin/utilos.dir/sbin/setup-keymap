@@ -1,0 +1,120 @@
+#!/bin/sh
+
+PREFIX=
+. $PREFIX/lib/libalpine.sh
+
+MAPDIR="$ROOT/usr/share/bkeymaps"
+
+if [ -f "$ROOT/etc/conf.d/keymaps" ]; then
+	. "$ROOT/etc/conf.d/keymaps"
+	variant=$(basename "KEYMAP")
+	variant="${variant%%.*}"
+fi
+
+
+show_layouts() {
+	local owpd; owpd="$PWD"
+	cd "$MAPDIR"
+	ls --color=never
+	cd "$owpd"
+}
+
+show_variants() {
+	local i; for i in "$MAPDIR/$1"/* ; do
+		i="$(basename "$i")"
+		printf "%s " "${i%%.*}"
+	done
+	echo
+}
+
+select_layout() {
+	while true; do
+		if [ -z "$layout" ]; then
+			layout=none
+		fi
+		echo "Available keyboard layouts:"
+		show_layouts
+		echon "Select keyboard layout [$layout]: "
+		default_read layout "$layout"
+		if [ "$layout" = "abort" ] || [ "$layout" = "none" ] ; then
+			goodbye 0
+		fi
+		set -- $layout
+		if [ $# -eq 2 ]; then
+			layout="$1"
+			variant="$2"
+		fi
+		if [ -d "$MAPDIR/$layout" ] ; then
+			return 0
+		fi
+	done
+}
+
+setup_mapfile() {
+	local name=$(basename "$1")
+	local conf="$ROOT/etc/conf.d/keymaps"
+	mkdir -p "$ROOT/etc/keymap"
+	mkdir -p "$ROOT/etc/conf.d/"
+	if cp "$1" "$ROOT/etc/keymap/$name" ; then
+		[ -f "$conf" ] && sed -i '/^KEYMAP=/d' "$conf"
+		echo "KEYMAP=/etc/keymap/$name" >> "$conf"
+		# we actually load the keymap now
+		rc-service keymaps restart
+		rc-update -q add keymaps boot
+		goodbye 0
+	fi
+}
+
+select_variant() {
+	while true; do
+		echon "Available variants: "
+		show_variants "$layout"
+		if [ ! -f "$MAPDIR/$layout/$variant.bmap" ] ; then
+			variant=""
+		fi
+		echon "Select variant [$variant]: "
+		default_read variant "$variant"
+		if [ "$variant" = "abort" ] || [ "$variant" = "none" ]; then
+			break;
+		fi
+		if [ -f "$MAPDIR/$layout/$variant.bmap"* ]; then
+			setup_mapfile "$MAPDIR/$layout/$variant.bmap"*
+		fi
+	done
+}
+
+goodbye() {
+	apk del --quiet --no-progress .setup-keymap-deps
+	exit $1
+}
+
+trap 'goodbye 1' INT
+apk add --quiet --virtual .setup-keymap-deps kbd-bkeymaps
+
+deflayout="$1"
+defvariant="$2"
+while true; do
+	if [ -n "$deflayout" ]; then
+		layout="$deflayout"
+		unset deflayout
+	else
+		select_layout
+	fi
+
+	if [ -n "$defvariant" ]; then
+		variant="$defvariant"
+	fi
+
+	# if variant is defined, this could match, otherwise we'll have to choose a variant
+	if [ -f "$MAPDIR/$layout/$variant.bmap"* ]; then
+		setup_mapfile "$MAPDIR/$layout/$variant.bmap"*
+	else
+		# if there is only one variant, just pick it
+		count=$(ls "$MAPDIR"/"$layout" | wc -l)
+		if [ $count -eq 1 ]; then
+			setup_mapfile "$MAPDIR/$layout/"*
+			continue
+		fi
+		select_variant
+	fi
+done

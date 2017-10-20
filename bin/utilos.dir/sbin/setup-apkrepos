@@ -1,0 +1,244 @@
+#!/bin/sh
+
+PROGRAM=setup-apkrepos
+PREFIX=
+
+. $PREFIX/lib/libalpine.sh
+
+if [ "$ROOT" != "/" ]; then
+	apk_root_opt="--root $ROOT"
+fi
+
+get_hostname_from_url() {
+	local n=${1#*://}
+	echo ${n%%/*}
+}
+
+prompt_setup_method() {
+	cat <<-__EOF__
+		r) Add random from the above list
+		f) Detect and add fastest mirror from above list
+		e) Edit "${ROOT}"etc/apk/repositores with text editor
+
+	__EOF__
+	echo -n "Enter mirror number (1-$mirror_count) or URL to add (or r/f/e/done) [$1]: "
+}
+
+add_random_mirror() {
+	local i=0
+	local random_mirror_index=$(( $RANDOM % $mirror_count ))
+
+	echo -n "Picking random mirror... "
+	for mirror in $MIRRORS; do
+		if [ $i -eq $random_mirror_index ]; then
+			break
+		fi
+		i=$(( $i + 1 ))
+	done
+	add_mirror $mirror
+}
+
+time_cmd() {
+	local start=$(cut -d ' ' -f1 /proc/uptime)
+	$@ >&2 || return
+	awk -v start=$start -v end=$(cut -d ' ' -f1 /proc/uptime) \
+		'BEGIN {print end - start; exit}'
+}
+
+find_fastest_mirror() {
+	local url=
+	local arch=$(apk --print-arch)
+	for url in $MIRRORS; do
+		# warm up the dns cache
+		nslookup $(get_hostname_from_url $url) >/dev/null 2>&1
+		local time=$(time_cmd wget --spider -q -T 5 \
+			${url%/}/edge/main/$arch/APKINDEX.tar.gz)
+		if [ -n "$time" ]; then
+			echo "$time $url"
+		fi
+	done | awk ' {
+		if (!current) {
+			current=$1
+			url=$2
+		} else {
+			if ($1 < current) {
+				current=$1
+				url=$2
+			}
+		}
+		printf("%6.2f %s\n", $1, $2) > "/dev/stderr"
+	}
+	END { print url }'
+}
+
+add_fastest_mirror() {
+	echo "Finding fastest mirror... "
+	local fastest=$(find_fastest_mirror)
+	add_mirror "$fastest"
+}
+
+# show mirrors and store how many in global mirror_count
+show_mirror_list() {
+	local mirror i=0
+	mirror_count=0
+	[ -z "$MIRRORS" ] && return
+	echo ""
+	echo "Available mirrors:"
+	for mirror in $MIRRORS; do
+		i=$(($i + 1))
+		echo "$i) $(get_hostname_from_url $mirror)"
+	done
+	echo ""
+	mirror_count=$i
+}
+
+add_from_list() {
+	local mirror_index=$1
+	if [ $mirror_index -lt 1 ] || [ $mirror_index -gt $mirror_count ]; then
+		return 1
+	fi
+	set $MIRRORS
+	eval "mirror=\$$mirror_index"
+	add_mirror "$mirror"
+}
+
+get_alpine_release() {
+	local version=$(cat "${ROOT}"etc/alpine-release 2>/dev/null)
+	case "$version" in
+		*_git*|*_alpha*) release="edge";;
+		[0-9]*.[0-9]*.[0-9]*)
+			# release in x.y.z format, cut last digit
+			release=v${version%.[0-9]*};;
+		*)	# fallback to edge
+			release="edge";;
+	esac
+}
+
+add_mirror() {
+	local mirror="$1"
+	mkdir -p "${APKREPOS_PATH%/*}"
+	echo "${mirror%/}/${release}/main" >> $APKREPOS_PATH
+	echo "#${mirror%/}/${release}/community" >> $APKREPOS_PATH
+	case "$release" in
+	v[0-9]*)
+		echo "#${mirror%/}/edge/main" >> $APKREPOS_PATH;
+		echo "#${mirror%/}/edge/community" >> $APKREPOS_PATH;;
+	esac
+	echo "#${mirror%/}/edge/testing" >> $APKREPOS_PATH
+	echo "" >> $APKREPOS_PATH
+	echo "Added mirror $(get_hostname_from_url $mirror)"
+}
+
+add_from_url() {
+	mkdir -p "${APKREPOS_PATH%/*}"
+	echo "$1" >> $APKREPOS_PATH
+	echo "" >> $APKREPOS_PATH
+}
+
+edit_repositories() {
+	local md5=$(md5sum $APKREPOS_PATH 2>/dev/null)
+	mkdir -p "${APKREPOS_PATH%/*}"
+	${EDITOR:-vi} "$APKREPOS_PATH"
+	# return true if file changed
+	test "$(md5sum $APKREPOS_PATH 2>/dev/null)" != "$md5"
+}
+
+usage() {
+	cat <<-__EOF__
+		usage: setup-apkrepos [-fhr] [REPO...]
+
+		Setup apk repositories
+
+		options:
+		 -f  Detect and add fastest mirror
+		 -h  Show this help
+		 -r  Add a random mirror and do not prompt
+		 -1  Add first mirror on the list (normally a CDN)
+	__EOF__
+	exit 1
+
+}
+
+add_fastest=false
+add_first=false
+add_random=false
+while getopts "1fhr" opt; do
+	case $opt in
+		f) add_fastest=true;;
+		1) add_first=true;;
+		h) usage;;
+		r) add_random=true;;
+	esac
+done
+shift $(($OPTIND - 1))
+
+# main
+# install alpine-mirrors if its not already there
+to_uninstall=
+if ! apk info --quiet --installed alpine-mirrors; then
+	apk add --force --quiet --virtual .setup-apkrepos alpine-mirrors
+	to_uninstall=.setup-apkrepos
+fi
+
+MIRRORS_PATH=/usr/share/alpine-mirrors/MIRRORS.txt
+if [ -z "$MIRRORS" ] && [ -r "$MIRRORS_PATH" ]; then
+	MIRRORS=$(cat $MIRRORS_PATH)
+fi
+
+APKREPOS_PATH="${ROOT}"etc/apk/repositories
+if [ -r "$APKREPOS_PATH" ]; then
+	APKREPOS=$(cat "$APKREPOS_PATH")
+fi
+
+get_alpine_release
+default_answer=f
+changed=false
+
+if [ $# -gt 0 ]; then
+	# replace the apk repos with the specified ones
+	rm -f "$APKREPOS_PATH"
+	for i; do
+		echo "$i" >> "$APKREPOS_PATH" && changed=true
+	done
+fi
+
+if $add_first; then
+	set -- $MIRRORS
+	add_mirror "$1" && changed=true
+fi
+
+if $add_random; then
+	show_mirror_list > /dev/null
+	add_random_mirror && changed=true
+fi
+
+if $add_fastest; then
+	show_mirror_list > /dev/null
+	add_fastest_mirror && changed=true
+fi
+
+while ! $changed; do
+	show_mirror_list
+	prompt_setup_method $default_answer
+
+	default_read answer $default_answer
+	case "$answer" in
+		"done") break;;
+		[0-9]*) add_from_list $answer && changed=true;;
+		/*|http://*|ftp://*|https://*) add_from_url "$answer" \
+			&& changed=true;;
+		r) add_random_mirror && changed=true;;
+		f) add_fastest_mirror && changed=true;;
+		e) edit_repositories && changed=true;;
+	esac
+done
+
+if $changed; then
+	echo -n "Updating repository indexes... "
+	apk update --quiet $apk_root_opt && echo "done."
+fi
+
+# clean up
+if [ -n "$to_uninstall" ]; then
+	apk del --quiet $to_uninstall
+fi

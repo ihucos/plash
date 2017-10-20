@@ -1,0 +1,50 @@
+#!/bin/sh
+
+PREFIX=
+. "$PREFIX/lib/libalpine.sh"
+
+conf="$ROOT/etc/ssmtp/ssmtp.conf"
+
+cfgval() {
+	awk -F= "/^$1/ {print \$2}" $conf 2>/dev/null
+}
+
+setcfg() {
+	local key=$1
+	local value=$2
+	sed -i "s/^\\(\\#\\)*$key=.*/$key=$value/" "$conf"
+	if ! grep "^$key=" "$conf" >/dev/null ; then
+		echo "$key=$value" >> "$conf"
+	fi
+}
+
+if [ -f "$conf" ] ; then
+	mailhub=$(cfgval mailhub)
+fi
+domain=$(hostname -d $hostname 2>/dev/null)
+if [ -z "$mailhub" ] ;then
+	if [ -n "$domain" ] ; then
+		mailhub="smtp.$domain"
+	else
+		mailhub=smtp
+	fi
+fi
+
+res=
+
+while [ "$res" != "221" ]; do
+	echon "Outgoing mail server? (e.g 'smtp.isp.com') [$mailhub] "
+	default_read mailhub $mailhub
+	echon "Test connection? (y/n) [y] "
+	default_read testconn "y"
+	case "$testconn" in
+		[Nn]*) break;;
+	esac
+	res=$(echo -e "quit\r\n" | nc $mailhub 25 | awk '/^221/ {print $1}')
+	[ "x$res" = "x221" ] && echo "Connection to $mailhub is ok."
+done
+
+apk add ssmtp
+
+setcfg mailhub $mailhub
+setcfg FromLineOverride YES

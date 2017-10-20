@@ -1,0 +1,3 @@
+-etc/ssl/certs/ca-certificates.crt
+-etc/ssl/certs/ca-cert-*.pem
+-etc/ssl/certs/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].[r0-9]*
