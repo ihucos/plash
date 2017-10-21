@@ -1,3 +1,0 @@
-# enable loadable module support when running from RAM
-# when unionfs support is available in the kernel
-unionfs_size="32M"

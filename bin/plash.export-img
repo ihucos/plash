@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+test $# -ge 1 || {
+  echo 'USAGE: plash export-img CONTAINER FILE' >&2
+  exit 2
+}
+
+tmp=$(mktemp /var/lib/plash/tmp/XXXXXXXX)
+# exec plash.with-mount $1 fallocate -l 5G $tmp\; mkfs.vfat $tmp\; mount $tmp /mnt\; cp -r . /mnt\; umount /mnt\; mv $tmp $2
+fallocate -l 5G $tmp
+mkfs.vfat $tmp
+mount $tmp /mnt
+plash.with-mount bash
+# plash.with-mount $1 cp -r * /mnt
+umount /mnt
+mv $tmp $2

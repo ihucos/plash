@@ -12,6 +12,8 @@ openssl
 ca-certificates
 git
 bash
+util-linux
+e2fsprogs
 
 # tput is there
 ncurses

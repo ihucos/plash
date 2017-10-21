@@ -1,2 +1,0 @@
-#!/bin/sh
-exec /usr/bin/c_rehash /etc/ssl/certs

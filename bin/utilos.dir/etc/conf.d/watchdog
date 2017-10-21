@@ -1,3 +1,0 @@
-#WATCHDOG_OPTS="-t 30"
-WATCHDOG_DEV=""
-

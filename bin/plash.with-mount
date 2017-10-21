@@ -11,7 +11,7 @@ plash.mount "$1" $mountpoint
 cd $mountpoint
 shift
 set +e
-(eval "$@"); exit=$?
+(set -e; eval "$@"); exit=$?
 set -e
 cd - > /dev/null # cd somewhere else to unmount
 umount $mountpoint

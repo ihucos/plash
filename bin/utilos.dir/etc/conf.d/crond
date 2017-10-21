@@ -1,2 +1,0 @@
-# enter the cron options
-CRON_OPTS="-c /etc/crontabs"
