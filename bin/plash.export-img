@@ -6,12 +6,24 @@ test $# -ge 1 || {
   exit 2
 }
 
+check(){
+  # for programs that don't have a quiet option
+  out=$("$@" 2>&1) || {
+    echo "Bad exit status $? for: $@" >&2
+    echo "$out" >&2
+    exit 3
+  }
+
+}
+
 tmp=$(mktemp /var/lib/plash/tmp/XXXXXXXX)
 # exec plash.with-mount $1 fallocate -l 5G $tmp\; mkfs.vfat $tmp\; mount $tmp /mnt\; cp -r . /mnt\; umount /mnt\; mv $tmp $2
-fallocate -l 5G $tmp
-mkfs.vfat $tmp
+fallocate -l 1G $tmp
+mkfs.ext4 -q $tmp
 mount $tmp /mnt
-plash.with-mount bash
-# plash.with-mount $1 cp -r * /mnt
+# plash.with-mount bash
+plash.with-mount $1 cp -r . /mnt
 umount /mnt
-mv $tmp $2
+check e2fsck -p $tmp
+check resize2fs -M $tmp
+mv $tmp "$2"
