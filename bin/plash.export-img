@@ -17,13 +17,14 @@ check(){
 }
 
 tmp=$(mktemp /var/lib/plash/tmp/XXXXXXXX)
-# exec plash.with-mount $1 fallocate -l 5G $tmp\; mkfs.vfat $tmp\; mount $tmp /mnt\; cp -r . /mnt\; umount /mnt\; mv $tmp $2
-fallocate -l 1G $tmp
+mnt=$(mktemp -d)
+ksize=$(plash.with-mount $1 du -s . | cut -f1) # that aditional mount could be avoided
+image_size=$((ksize + ksize/5))
+fallocate -l ${image_size}K $tmp #
 mkfs.ext4 -q $tmp
-mount $tmp /mnt
-# plash.with-mount bash
-plash.with-mount $1 cp -r . /mnt
-umount /mnt
+mount $tmp $mnt
+plash.with-mount $1 cp -r . $mnt
+umount $mnt
 check e2fsck -p $tmp
 check resize2fs -M $tmp
 mv $tmp "$2"

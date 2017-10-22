@@ -3,5 +3,10 @@ set -eu
 # https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cont=$(plash --include $DIR/plash.args)
-plash export-tar | docker import -
+
+exec 4>&2
+cont=$(plash --include $DIR/plash.args | tee >(cat - >&4))
+cont="${cont##*$'\n'}"
+cont="${cont/$'\r'/}"
+
+plash export-tar "$cont" | docker import -

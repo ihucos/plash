@@ -28,9 +28,7 @@ if not cmd:
     sys.exit(2)
 
 try:
-    out = subprocess.check_output(
-        ['plash.build'] + args,
-        preexec_fn=lambda: os.putenv('PLASH_DO_CALLED', '1'))
+    out = subprocess.check_output(['plash.build'] + args)
 except subprocess.CalledProcessError as exc:
     sys.exit(exc.returncode)
 container_id = out[:-1]

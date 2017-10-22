@@ -101,7 +101,7 @@ with catch_and_die([CalledProcessError]):
     check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
     check_call(['mount', '--bind', '/sys', mounts_map['sys']])
     check_call(['mount', '--bind', '/dev', mounts_map['dev']])
-    check_call(['mount', '-t', 'tmpfs', 'tmpfs', mounts_map['tmp']])
+    check_call(['mount', '--bind', '/tmp', mounts_map['tmp']])
     check_call([
         'mount', '--bind', '/etc/resolv.conf',
         mounts_map['etc/resolv.conf']
