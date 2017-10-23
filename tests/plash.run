@@ -2,13 +2,13 @@ set -xeu
 # vim: set filetype=sh:
 
 echo 'TEST: run a program on the base layer of a container'
-plash.build busybox
+plash.build -o busybox
 out=$(plash.run busybox -- echo hellow)
 test "$out" == hellow
 
 echo 'TEST: create a new layer and check that for programs' \
 ' the current working directory is mapped'
-newcont=$(plash.build busybox --bust-cache)
+newcont=$(plash.build -o busybox --bust-cache)
 cd /tmp
 out=$(plash.run $newcont pwd)
 test "$out" == "/tmp"

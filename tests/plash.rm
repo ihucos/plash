@@ -1,6 +1,6 @@
 set -xeu
 # vim: set filetype=sh:
-newcont=$(plash.build busybox --bust-cache)
+newcont=$(plash.build -o busybox --bust-cache)
 plash.nodepath $newcont
 plash.rm $newcont
 ! plash.nodepath $newcont
