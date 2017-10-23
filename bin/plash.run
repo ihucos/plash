@@ -38,24 +38,25 @@ upperdir = None
 deescalate = True
 try:
     container, *cmd = sys.argv[1:]
-    if cmd:
-        while True:
-            if cmd[0] == '--workdir':
-                cmd.pop(0)
-                workir = cmd.pop(0)
-            elif cmd[0] == '--upperdir':
-                cmd.pop(0)
-                upperdir = cmd.pop(0)
-            elif cmd[0] == '--dont-deescalate':
-                cmd.pop(0)
-                deescalate = False
-            elif cmd[0] == '--':
-                cmd.pop(0)
-                break
-            else:
-                break
-        if container.startswith('-') or cmd[0].startswith('-'):
-            raise ValueError()
+    while True:
+        if not cmd:
+            break
+        if cmd[0] == '--workdir':
+            cmd.pop(0)
+            workir = cmd.pop(0)
+        elif cmd[0] == '--upperdir':
+            cmd.pop(0)
+            upperdir = cmd.pop(0)
+        elif cmd[0] == '--dont-deescalate':
+            cmd.pop(0)
+            deescalate = False
+        elif cmd[0] == '--':
+            cmd.pop(0)
+            break
+        else:
+            break
+    if container.startswith('-') or cmd and cmd[0].startswith('-'):
+        raise ValueError()
 except (IndexError, ValueError):
     print(
         'USAGE: run container [--workdir value] [--upperdir value] cmd1 [cmd2 [cmd3 ...]]',
