@@ -24,7 +24,7 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, color, die, hashstr, info
+from plashlib.utils import catch_and_die, color, die, hashstr, info, call_plash_nodepath
 
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
@@ -35,14 +35,10 @@ except IndexError:
     print('USAGE: plash.add-layer container', file=sys.stderr)
     sys.exit(2)
 
+node_path = call_plash_nodepath(container)
+
 cmd = sys.stdin.read()
 quiet = False
-
-try:
-    node_path = check_output(['plash.nodepath',
-                              container]).decode().strip('\n')
-except CalledProcessError:
-    sys.exit(1)
 
 new_container = hashstr(b':'.join([container.encode(), cmd.encode()]))
 final_child_dst = join(

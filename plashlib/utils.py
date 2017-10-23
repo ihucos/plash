@@ -13,6 +13,7 @@ import sys
 import uuid
 from contextlib import contextmanager
 from os.path import join
+from subprocess import CalledProcessError, check_output
 
 ERROR_COLOR = 1
 INFO_COLOR = 4
@@ -66,3 +67,13 @@ def die(msg, exit=1):
 
 def info(msg):
     print(color(msg, INFO_COLOR), file=sys.stderr)
+
+def call_plash_nodepath(container):
+    try:
+        return check_output(['plash.nodepath',
+                                  container]).decode().strip('\n')
+    except CalledProcessError as exc:
+        if exc.returncode == 3:
+            sys.exit(exc.returncode)
+        with catch_and_die([CalledProcessError]):
+            raise

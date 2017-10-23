@@ -8,7 +8,7 @@ from subprocess import CalledProcessError, check_output
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die
+from plashlib.utils import catch_and_die, call_plash_nodepath
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -19,11 +19,7 @@ parser.add_argument('--upperdir')
 parser.add_argument('--workdir')
 args = parser.parse_args()
 
-try:
-    node_path = check_output(['plash.nodepath',
-                              args.container]).decode().strip('\n')
-except CalledProcessError:
-    exit(1)
+node_path = call_plash_nodepath(args.container)
 
 
 def vid_to_id(last_component):
