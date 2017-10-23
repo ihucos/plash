@@ -5,6 +5,7 @@ alpine
 
 --apk
 python3
+python3-dev
 squashfs-tools
 tree
 wget
@@ -42,4 +43,3 @@ chmod 4755 /usr/local/bin/runp
 # volume: plash.build-data /var/lib/plash
 # volume: plash.vartmp /var/tmp
 # volume: plash.volumedata /var/lib/runp-volumes
-

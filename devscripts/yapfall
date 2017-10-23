@@ -2,6 +2,6 @@
 set -eu
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-yapf=$(plash build -o alpine3.6 --apk py-pip --pip yapf --exec /usr/bin/yapf)
+yapf=$(plash build -o alpine --apk py-pip --pip yapf)
 binpythonfiles=$(find $DIR/../bin | xargs file | grep -E [Pp]ython | cut -d: -f1 | tr '\n' ' ')
 plash run $yapf yapf $DIR/../plash/*.py $binpythonfiles -i

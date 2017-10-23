@@ -1,6 +1,5 @@
 #!/bin/bash
 set -xeu
-test "$(plash -o busybox)" == busybox
 out=$(plash -o busybox -- printf hello)
 test $out == hello
 test $(plash nodepath busybox) == $(plash.nodepath busybox)

@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
 exec 4>&2
-cont=$(plash --include $DIR/plash.args | tee >(cat - >&4))
+cont=$(plash build --include $DIR/plash.args | tee >(cat - >&4))
 cont="${cont##*$'\n'}"
 cont="${cont/$'\r'/}"
 

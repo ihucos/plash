@@ -38,25 +38,24 @@ upperdir = None
 deescalate = True
 try:
     container, *cmd = sys.argv[1:]
-    if not cmd:
-        cmd = ['printf', '{}\\n'.format(container)]  # a default command
-    while True:
-        if cmd[0] == '--workdir':
-            cmd.pop(0)
-            workir = cmd.pop(0)
-        elif cmd[0] == '--upperdir':
-            cmd.pop(0)
-            upperdir = cmd.pop(0)
-        elif cmd[0] == '--dont-deescalate':
-            cmd.pop(0)
-            deescalate = False
-        elif cmd[0] == '--':
-            cmd.pop(0)
-            break
-        else:
-            break
-    if container.startswith('-') or cmd[0].startswith('-'):
-        raise ValueError()
+    if cmd:
+        while True:
+            if cmd[0] == '--workdir':
+                cmd.pop(0)
+                workir = cmd.pop(0)
+            elif cmd[0] == '--upperdir':
+                cmd.pop(0)
+                upperdir = cmd.pop(0)
+            elif cmd[0] == '--dont-deescalate':
+                cmd.pop(0)
+                deescalate = False
+            elif cmd[0] == '--':
+                cmd.pop(0)
+                break
+            else:
+                break
+        if container.startswith('-') or cmd[0].startswith('-'):
+            raise ValueError()
 except (IndexError, ValueError):
     print(
         'USAGE: run container [--workdir value] [--upperdir value] cmd1 [cmd2 [cmd3 ...]]',
@@ -110,6 +109,12 @@ with catch_and_die([CalledProcessError]):
 if not os.fork():
     pwd = os.getcwd()
     os.chroot(mountpoint)
+
+    pwnetry = getpwuid(0)
+    default_root_shell = pwnetry.pw_shell
+    if not cmd:
+        cmd = [default_root_shell]
+
     os.chmod('/', 0o755) # not so sure if this here or more to the top
     if deescalate:
         deescalate_sudo()
