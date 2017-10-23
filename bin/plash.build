@@ -24,11 +24,6 @@ from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import OS_HINT_TEMPL
 from plashlib.utils import catch_and_die, die, info, color
 
-args = sys.argv[1:]
-if len(args) >= 1 and not args[0].startswith('-'):
-    os_hint = args.pop(0)
-else:
-    os_hint = None
 try:
     script = check_output(['plash.getscript'] + args)
     script = script.decode()
@@ -39,9 +34,8 @@ os_re = re.compile(OS_HINT_TEMPL.format('(.+)\n'))
 matches = os_re.findall(script)
 script = os_re.sub('', script)
 if matches:
-    os_hint = matches[0]
-
-if os_hint is None:
+    os_hint = matches[-1]
+else:
     die('No os specified')
 
 # split the script in its layers
