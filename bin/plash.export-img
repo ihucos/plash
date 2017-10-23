@@ -9,7 +9,7 @@ test $# -ge 1 || {
 check(){
   # for programs that don't have a quiet option
   out=$("$@" 2>&1) || {
-    echo "Bad exit status $? for: $@" >&2
+    echo "plash export-img: Bad exit status $? for: $@" >&2
     echo "$out" >&2
     exit 3
   }
@@ -25,6 +25,6 @@ mkfs.ext4 -q $tmp
 mount $tmp $mnt
 plash.with-mount $1 cp -r . $mnt
 umount $mnt
-check e2fsck -p $tmp
+check e2fsck -fp $tmp
 check resize2fs -M $tmp
 mv $tmp "$2"

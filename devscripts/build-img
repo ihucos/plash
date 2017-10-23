@@ -1,0 +1,11 @@
+#!/bin/bash
+# https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+
+exec 4>&2
+cont=$(plash --include $DIR/plash.args --exec /usr/local/bin/plash | tee >(cat - >&4))
+cont="${cont##*$'\n'}"
+cont="${cont/$'\r'/}"
+
+plash export-img "$cont" $DIR/../plash.squashfs
