@@ -25,7 +25,7 @@ from plashlib.stdlib import OS_HINT_TEMPL
 from plashlib.utils import catch_and_die, die, info, color
 
 try:
-    script = check_output(['plash.getscript'] + args)
+    script = check_output(['plash.getscript'] + sys.argv[1:])
     script = script.decode()
 except CalledProcessError as exc:
     sys.exit(exc.returncode)
