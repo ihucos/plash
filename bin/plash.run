@@ -69,6 +69,10 @@ exit = call(['plash.mount', container, mountpoint] + ([
 if exit:
     sys.exit(exit)
 
+# write a /plashenv file
+with open(join(mountpoint, 'plashenv'), 'w') as f:
+    f.write(container + '\n')
+
 uid = int(os.environ.get('SUDO_UID') or os.getuid())
 
 # pw_entry = getpwuid(uid)

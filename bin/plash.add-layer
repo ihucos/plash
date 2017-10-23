@@ -83,7 +83,6 @@ p = subprocess.Popen(
 
 p.stdin.write(cmd.encode())
 p.stdin.close()
-
 exit = p.wait()
 
 if exit != 0:
