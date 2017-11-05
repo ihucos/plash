@@ -2,9 +2,10 @@
 # vim: set filetype=python:
 
 
-###
-# Builds a container. All command line options are interpreted as action calls
-# from the `stdlib`. See insertdoclinkhere for available actions
+# USAGE: plash build <ACTIONS>
+#
+# Builds a container. All command line options are interpreted as action calls from the `stdlib`.
+# See insertdoclinkhere for available actions
 #
 # Some short examples:
 # ```
@@ -12,7 +13,12 @@
 # plash build -o zesty --run 'touch a' --layer --run 'touch b'
 # plash build -o zesty --apt nmap
 # ```
-###
+#
+# exit status:
+# 1: Generic error code
+# 2: Unrecognized arguments
+# 3: Returning container from cache, not building
+# 4: Build error - building returned non-zero exit status
 
 import re
 import subprocess

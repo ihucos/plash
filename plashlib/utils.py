@@ -77,3 +77,16 @@ def call_plash_nodepath(container):
             sys.exit(exc.returncode)
         with catch_and_die([CalledProcessError]):
             raise
+
+def _get_subcommand():
+    return sys.argv[0].split('.')[-1]
+
+def handle_help_flag():
+    subcommand = _get_subcommand()
+    if sys.argv[1:2] == ['--help']:
+        os.execvp('plash.help', ['plash.help', subcommand])
+
+def die_with_usage():
+    subcommand = _get_subcommand()
+    os.execvp('plash.help', ['plash.help', '--usage', subcommand])
+

@@ -1,5 +1,11 @@
 #!/bin/sh
+
+# USAGE: plash rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
+# Deletes the given containers.
+
 set -e
+
+test "$*" == --help && exec plash.help rm
 
 plash_data="${PLASH_DATA:-/var/lib/plash}"
 for container in "$@"

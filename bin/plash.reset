@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# USAGE: plash purge
+# Prompts to delete all build data.
+
 read -r -p "Delete all build data? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 

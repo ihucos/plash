@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import sys
+from os.path import join
+
+args = sys.argv[1:]
+arg = args.pop(0)
+usage_flag = '--usage'
+if arg == '--usage':
+      usage_flag = True
+      arg = args.pop(0)
+else:
+      usage_flag = False
+
+script = sys.argv[0]
+script_dir = os.path.dirname(script)
+
+#SECURITY: escape arg somehow
+doc = []
+with open(join(script_dir, 'plash.{}'.format(arg))) as f:
+      lines = f.readlines()
+      for line in lines:
+            if not line or line.startswith('#!'):
+                  continue
+            if line.startswith('#'):
+                  doc.append(line)
+
+if not usage_flag:
+      print(''.join(i[2:] for i in doc), end='')
+else:
+      for line in doc:
+            if line.startswith('# USAGE: '):
+                  print(line[2:], end='')
+                  break

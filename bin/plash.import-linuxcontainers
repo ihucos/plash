@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # vim: set filetype=python:
+
+# USAGE: plash export-tar CONTAINER [FILE]
+#
+# Export the file system of a container to the given file as a compressed tar archive. If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
+
 import os
 import re
 import sys

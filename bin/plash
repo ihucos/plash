@@ -1,9 +1,6 @@
 #!/bin/sh
 set -eu
 
-# export PATH=/opt/plash/bin:$PATH
-# export PYTHONPATH=/opt/plash:$PYTHONPATH
-
 [ $# -eq 0 ] && {
     echo "Plash is a lean container build system, try --help" >&2
     exit 2
@@ -12,16 +9,11 @@ set -eu
 cmd=$1
 shift
 case $cmd in
---help|-h)
-    echo 'TODO: help' ;;
-
 -*)
     # "do run" is used as default command, when no other was given
-    plash.init
     exec $0.do run "$cmd" "$@" ;;
 
 *)
-    plash.init
     command -v $0.$cmd >/dev/null 2>&1 || {
         echo >&2 "Subcommand '$cmd' not found, try --help"
         exit 1

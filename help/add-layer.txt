@@ -1,0 +1,7 @@
+USAGE: plash add-layer CONTAINER
+
+Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
+The new container is the only thing printed to stdout, building information and status messages are printed to stderr.
+For most cases you would, use `plash build` for a higher level interface.
+exit status:
+same as `plash build`

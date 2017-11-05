@@ -1,9 +1,17 @@
 #!/bin/sh
+
+# USAGE: plash export-tar CONTAINER [FILE]
+#
+# Exports the file system of a container to the given file as a compressed tar archive.
+# If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
+
 set -eu
 
-test $# -ge 1 || {
-  echo 'USAGE: plash export-tar CONTAINER [FILE]' >&2
+if [ "$*" == --help ]; then
+  exec plash.help export-tar
+elif ! [ $# -ge 1 ]; then
+  plash.help --usage export-tar
   exit 2
-}
+fi
 
 exec plash.with-mount $1 tar -czf "${2:--}" .

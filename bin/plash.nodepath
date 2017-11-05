@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 
+
+# USAGE: plash nodepath CONTAINER
+# Prints the location of the last layer of container.
+# Useful to for example debug what changes some layer does to the filesystem:
+# plash.nodepath $container | xargs tree
+
+
 import os
 import sys
 from json import dumps
 
-from plashlib.utils import die
+from plashlib.utils import die, handle_help_flag, die_with_usage
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+handle_help_flag()
 
 try:
     container = sys.argv[1]
 except IndexError:
-    sys.stderr.write('USAGE: plash nodepath container\n')
-    sys.exit(2)
+    die_with_usage()
 
 try:
     # security check that container does not contain bad chars

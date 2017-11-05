@@ -1,10 +1,16 @@
 #!/bin/sh
+
+# USAGE: plash runp CONTAINER [ARG1 [ARG2 [ARG3...]]
+# Run a container with runp.
+# See the runp project page: https://github.com/ihucos/runp
+
 set -eu
 
 plash_data="${PLASH_DATA:-/var/lib/plash}"
 
+test "$*" == --help && exec plash.help "$0"
 test $# -eq 0 && {
-  echo 'USAGE: runp container [arg1 [arg2 [arg3...]]]' >&2
+  plash.help --usage "$0"
   exit 2
 }
 
