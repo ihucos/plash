@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+from os import path
 from os.path import join
 
 args = sys.argv[1:]
@@ -19,13 +20,18 @@ script_dir = os.path.dirname(script)
 
 #SECURITY: escape arg somehow
 doc = []
-with open(join(script_dir, 'plash.{}'.format(arg))) as f:
+arg = os.path.basename(arg)
+if not '.' in arg and not arg == 'plash':
+      arg = 'plash.{}'.format(arg)
+with open(join(script_dir, arg)) as f:
       lines = f.readlines()
       for line in lines:
-            if not line or line.startswith('#!'):
+            if line == '\n' or line.startswith('#!') or line.startswith('# vim:'):
                   continue
             if line.startswith('#'):
                   doc.append(line)
+            else:
+                  break
 
 if not usage_flag:
       print(''.join(i[2:] for i in doc), end='')

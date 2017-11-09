@@ -1,10 +1,16 @@
 #!/bin/sh
+
+# USAGE: PLASH SUBCOMMAND <ARGS>
+# Plash is a lean container build system
+
 set -eu
 
-[ $# -eq 0 ] && {
-    echo "Plash is a lean container build system, try --help" >&2
-    exit 2
-}
+if [ "$*" == --help ]; then
+  exec plash.help $0
+elif [ $# -eq 0 ]; then
+  plash.help --usage $0
+  exit 2
+fi
 
 cmd=$1
 shift

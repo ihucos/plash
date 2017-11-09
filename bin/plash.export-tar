@@ -8,9 +8,9 @@
 set -eu
 
 if [ "$*" == --help ]; then
-  exec plash.help export-tar
+  exec plash.help $0
 elif ! [ $# -ge 1 ]; then
-  plash.help --usage export-tar
+  plash.help --usage $0
   exit 2
 fi
 

@@ -20,10 +20,18 @@ plash.runp
 )
 for prog in "${array[@]}"
 do
-  $prog 2>&1 1>/dev/null
+  $prog 2>/dev/null >/dev/null
   exit=$?
   [ $exit -eq 2 ] || {
-    echo "Unexpected exit status when calling '$prog' with no arguments (expected 2, got $exit)"
+    echo "Unexpected exit status when calling '$prog' with no arguments (expected exit status 2, got $exit)"
+    exit 1
+  }
+
+  out=$($prog --help)
+  substr='USAGE: '
+  echo $out
+  [ "${out:0:${#substr}}" == "$substr" ] || {
+    echo "Calling \"$prog --help\" seems not to print usage"
     exit 1
   }
   # out=$($prog 2>&1) || true

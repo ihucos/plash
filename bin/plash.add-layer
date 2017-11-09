@@ -2,6 +2,7 @@
 # vim: set filetype=python:
 
 # USAGE: plash add-layer CONTAINER
+#
 # Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
 # The new container is the only thing printed to stdout, building information and status messages are printed to stderr.
 # For most cases you would, use `plash build` for a higher level interface.
@@ -22,16 +23,17 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, color, die, hashstr, info, call_plash_nodepath
+from plashlib.utils import catch_and_die, color, die, hashstr, info, call_plash_nodepath, die_with_usage, handle_help_flag
 
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
+handle_help_flag()
+
 try:
     container = sys.argv[1]
 except IndexError:
-    print('USAGE: plash.add-layer container', file=sys.stderr)
-    sys.exit(2)
+    die_with_usage()
 
 node_path = call_plash_nodepath(container)
 

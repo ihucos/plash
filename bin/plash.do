@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 # vim: set filetype=python:
+
+# USAGE: plash do <BUILD ARGS> -- SUBCOMMAND [SUBARG1 [SUBARG2 [SUBARG3...]]]
+# Build and pass container to subcommand
+
+
 import os
 import subprocess
 import sys
+
+from plashlib.utils import die_with_usage, handle_help_flag
+
+handle_help_flag()
 
 
 def filter_positionals(args):
@@ -24,8 +33,7 @@ def filter_positionals(args):
 
 cmd, args = filter_positionals(sys.argv[1:])
 if not cmd:
-    sys.stderr.write('<build args> plash-command [arg [arg [arg...]]]\n')
-    sys.exit(2)
+    die_with_usage()
 
 try:
     out = subprocess.check_output(['plash.build'] + args)

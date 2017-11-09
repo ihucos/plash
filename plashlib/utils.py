@@ -88,5 +88,6 @@ def handle_help_flag():
 
 def die_with_usage():
     subcommand = _get_subcommand()
-    os.execvp('plash.help', ['plash.help', '--usage', subcommand])
+    subprocess.check_call(['plash.help', '--usage', subcommand])
+    sys.exit(2)
 
