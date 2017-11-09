@@ -1,8 +1,14 @@
 #!/bin/sh
+
+# usage: plash with-mount CONTAINER EVAL1 [EVAL2 [EVAL3 ...]]
+# mount the container to a temporary mountpoint, eval, then unmount
+
 set -eu
 
+
+test "$*" == --help && exec plash.help "$0"
 test $# -ge 2 || {
-  echo 'usage: plash with-mount container eval' >&2
+  plash.help --usage "$0"
   exit 2
 }
 

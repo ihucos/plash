@@ -1,8 +1,13 @@
 #!/bin/sh
+
+# usage: plash export-img CONTAINER FILE
+# Export an image as ext4 file system
+
 set -eu
 
-test $# -ge 1 || {
-  echo 'usage: plash export-img CONTAINER FILE' >&2
+test "$*" == --help && exec plash.help "$0"
+test $# -eq 1 || {
+  plash.help --usage "$0"
   exit 2
 }
 

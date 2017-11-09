@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# usage: plash test [TEST-PREFIX]
+# run unit tests
+
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

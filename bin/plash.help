@@ -1,19 +1,61 @@
 #!/usr/bin/env python3
 
+# usage: plash help [ SUBCOMMAND | --usage SUBCOMMAND | --list | --reference ]
+# Show help
+
 import os
 import re
+import subprocess
 import sys
 from os import path
 from os.path import join
 
+from plashlib.utils import die_with_usage, handle_help_flag
+
+handle_help_flag()
+
+
+def print_reference():
+      script_dir = os.path.dirname(sys.argv[0])
+      for cmd in sorted(os.listdir(script_dir)):
+            print()
+            print()
+            print(cmd)
+            print(len(cmd) * '=')
+            print()
+            subprocess.check_call(['plash.help', cmd])
+
+def print_list():
+      script_dir = os.path.dirname(sys.argv[0])
+      for cmd in sorted(os.listdir(script_dir)):
+            if cmd == 'plash':
+                  continue
+            out = subprocess.check_output(['plash.help', cmd])
+            if not out:
+                  usage = '{} ?'.format(cmd.replace('.', ' '))
+            else:
+                  usage = out.splitlines()[0][7:].decode()
+            print(usage.split(' ', 1)[1])
+
 args = sys.argv[1:]
-arg = args.pop(0)
-usage_flag = '--usage'
-if arg == '--usage':
-      usage_flag = True
+
+if args == ['--reference']:
+      print_reference()
+      sys.exit(0)
+elif args == ['--list']:
+      print_list()
+      sys.exit(0)
+
+try:
       arg = args.pop(0)
-else:
-      usage_flag = False
+      usage_flag = '--usage'
+      if arg == '--usage':
+            usage_flag = True
+            arg = args.pop(0)
+      else:
+            usage_flag = False
+except IndexError:
+      die_with_usage()
 
 script = sys.argv[0]
 script_dir = os.path.dirname(script)

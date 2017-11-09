@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: set filetype=python:
 
-# usage: plash do <BUILD ARGS> -- SUBCOMMAND [SUBARG1 [SUBARG2 [SUBARG3...]]]
+# usage: plash do <BUILD-ARGS> -- SUBCOMMAND [SUBARG1 [SUBARG2 [SUBARG3...]]]
 # Build and pass container to subcommand
 
 
@@ -11,8 +11,8 @@ import sys
 
 from plashlib.utils import die_with_usage, handle_help_flag
 
-handle_help_flag()
 
+handle_help_flag()
 
 def filter_positionals(args):
     positional = []

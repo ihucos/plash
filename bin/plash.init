@@ -1,3 +1,13 @@
 #!/bin/sh
+
+# usage: plash init
+# Initialize build data  - run this on a new system before anything else - sory
+
+test "$*" == --help && exec plash.help "$0"
+test $# == 0 || {
+  plash.help --usage "$0"
+  exit 2
+}
+
 plash_data="${PLASH_DATA:-/var/lib/plash}"
 exec mkdir -p $plash_data $plash_data/links $plash_data/tmp $plash_data/builds
