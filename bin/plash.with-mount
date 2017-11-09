@@ -2,7 +2,7 @@
 set -eu
 
 test $# -ge 2 || {
-  echo 'USAGE: plash with-mount container eval' >&2
+  echo 'usage: plash with-mount container eval' >&2
   exit 2
 }
 

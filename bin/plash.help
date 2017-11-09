@@ -37,6 +37,6 @@ if not usage_flag:
       print(''.join(i[2:] for i in doc), end='')
 else:
       for line in doc:
-            if line.startswith('# USAGE: '):
+            if line.startswith('# usage: '):
                   print(line[2:], end='')
                   break

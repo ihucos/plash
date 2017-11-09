@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: set filetype=python:
 
-# USAGE: plash do <BUILD ARGS> -- SUBCOMMAND [SUBARG1 [SUBARG2 [SUBARG3...]]]
+# usage: plash do <BUILD ARGS> -- SUBCOMMAND [SUBARG1 [SUBARG2 [SUBARG3...]]]
 # Build and pass container to subcommand
 
 

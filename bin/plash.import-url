@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# USAGE: import-url url new-image-id
+# usage: import-url url new-image-id
 # Import an url as container
 
 set -eu

@@ -2,7 +2,7 @@
 # vim: set filetype=python:
 
 
-# USAGE: plash build <ACTIONS>
+# usage: plash build <ACTIONS>
 #
 # Builds a container. All command line options are interpreted as action calls from the `stdlib`.
 # See insertdoclinkhere for available actions

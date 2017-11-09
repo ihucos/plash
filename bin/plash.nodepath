@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-# USAGE: plash nodepath CONTAINER
+# usage: plash nodepath CONTAINER
 # Prints the location of the last layer of container.
 # Useful to for example debug what changes some layer does to the filesystem:
 # plash.nodepath $container | xargs tree

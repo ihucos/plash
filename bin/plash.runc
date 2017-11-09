@@ -17,7 +17,7 @@ try:
     cmd[0]
 except (IndexError, ValueError):
     print(
-        'USAGE: plash runc container cmd [arg1 [arg2 [arg3 ...]]]',
+        'usage: plash runc container cmd [arg1 [arg2 [arg3 ...]]]',
         file=sys.stderr)
     sys.exit(2)
 

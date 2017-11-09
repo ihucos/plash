@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# USAGE: PLASH SUBCOMMAND <ARGS>
+# usage: PLASH SUBCOMMAND <ARGS>
 # Plash is a lean container build system
 
 set -eu

@@ -15,7 +15,7 @@ plash.nodepath
 # plash.purge
 # plash.rm
 plash.run
-plash.runfile
+# plash.runfile
 plash.runp
 )
 for prog in "${array[@]}"
@@ -28,7 +28,7 @@ do
   }
 
   out=$($prog --help)
-  substr='USAGE: '
+  substr='usage: '
   echo $out
   [ "${out:0:${#substr}}" == "$substr" ] || {
     echo "Calling \"$prog --help\" seems not to print usage"

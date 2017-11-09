@@ -2,7 +2,7 @@
 set -eu
 
 test $# -eq 2 || {
-  echo 'USAGE: plash export-squashfs CONTAINER FILE' >&2
+  echo 'usage: plash export-squashfs CONTAINER FILE' >&2
   exit 2
 }
 

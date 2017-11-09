@@ -2,7 +2,7 @@
 set -eu
 
 test $# -ge 1 || {
-  echo 'USAGE: plash export-img CONTAINER FILE' >&2
+  echo 'usage: plash export-img CONTAINER FILE' >&2
   exit 2
 }
 

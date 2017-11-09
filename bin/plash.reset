@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# USAGE: plash purge
+# usage: plash purge
 # Prompts to delete all build data.
 
 read -r -p "Delete all build data? [y/N] " response
