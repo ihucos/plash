@@ -1,8 +1,13 @@
 #!/bin/sh
+
+# USAGE: import-url url new-image-id
+# Import an url as container
+
 set -eu
 
+test "$*" == --help && exec plash.help "$0"
 test $# -eq 2 || {
-  echo 'USAGE: import-url url image-id' >&2
+  plash.help --usage "$0"
   exit 2
 }
 
