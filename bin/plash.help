@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# usage: plash help [ SUBCOMMAND | --usage SUBCOMMAND | --list | --reference ]
+# usage: plash help ( SUBCOMMAND | --usage SUBCOMMAND | --list | -l | --reference | -r )
 # Show help
 
 import os
@@ -39,10 +39,10 @@ def print_list():
 
 args = sys.argv[1:]
 
-if args == ['--reference']:
+if args == ['--reference'] or args == ['-r']:
       print_reference()
       sys.exit(0)
-elif args == ['--list']:
+elif args == ['--list'] or args == ['-l']:
       print_list()
       sys.exit(0)
 

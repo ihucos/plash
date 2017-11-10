@@ -2,7 +2,7 @@
 # vim: set filetype=python:
 
 # usage: plash do <BUILD-ARGS> -- SUBCOMMAND [SUBARG1 [SUBARG2 [SUBARG3...]]]
-# Build and pass container to subcommand
+# Build and pass the builded container to subcommand
 
 
 import os

@@ -5,7 +5,7 @@
 #
 # Mounts the filsystem of a container. To cleanup, unmout it with `umount` later.
 # The optional arguments are options passed to the overlay filesystem program.
-# `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the `overlay` programm and must be located in the same file system device than `upperdir`.
+# `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
 
 import argparse
 import os

@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # usage: plash with-mount CONTAINER EVAL1 [EVAL2 [EVAL3 ...]]
-# mount the container to a temporary mountpoint, eval, then unmount
+# Mount the container to a temporary mountpoint, eval, then unmount.
+# Example: plash with-mount alpine mv . /tmp/rootfs
 
 set -eu
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # usage: plash init
-# Initialize build data  - run this on a new system before anything else - sory
+# Initialize build data - run this on a new system before anything else - sory
 
 test "$*" == --help && exec plash.help "$0"
 test $# == 0 || {

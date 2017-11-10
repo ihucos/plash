@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# usage: plash runc container cmd [arg1 [arg2 [arg3 ...]]]
+# Run a container with runc.
+# See the runc project page: https://github.com/opencontainers/runc
+
 import json
 import os
 import sys
@@ -8,7 +13,10 @@ from subprocess import CalledProcessError, check_call
 from tempfile import mkdtemp
 from uuid import uuid4
 
-from plashlib.utils import catch_and_die
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag
+
+handle_help_flag()
+
 
 palsh_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -16,10 +24,7 @@ try:
     container, *cmd = sys.argv[1:]
     cmd[0]
 except (IndexError, ValueError):
-    print(
-        'usage: plash runc container cmd [arg1 [arg2 [arg3 ...]]]',
-        file=sys.stderr)
-    sys.exit(2)
+    die_with_usage()
 
 tmp = tempfile.mkdtemp()
 os.chdir(tmp)

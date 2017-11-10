@@ -2,8 +2,7 @@
 # vim: set filetype=python:
 
 # usage: plash import-linuxcontainers IMAGE-NAME
-#
-# Export the file system of a container to the given file as a compressed tar archive. If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
+# Import an image from linuxcontainers.org
 
 import os
 import re

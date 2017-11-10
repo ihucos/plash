@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# usage: plash import-url url new-image-id
+# usage: plash import-url URL NEW-IMAGE-ID
 # Import an url as container
 
 set -eu

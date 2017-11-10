@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # usage: plash SUBCOMMAND <ARGS>
-# Plash is a lean container build system
+# Try `plash help -l` for a list of all commands.
+# Plash is a lean container build system.
 
 set -eu
 
