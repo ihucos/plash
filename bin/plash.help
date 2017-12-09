@@ -25,6 +25,22 @@ def print_reference():
             print()
             subprocess.check_call(['plash.help', cmd])
 
+def print_short():
+      script_dir = os.path.dirname(sys.argv[0])
+      for cmd in sorted(os.listdir(script_dir)):
+            try:
+                  cmd_name = cmd.split('.')[1]
+            except IndexError:
+                  cmd_name = cmd
+            out = subprocess.check_output(['plash.help', cmd])
+            if out:
+                  first_doc_line = out.decode().splitlines()[1]
+                  first_sentence = first_doc_line.split('.')[0]
+            else:
+                  first_sentence = '?'
+            print('{:<22} {}'.format(cmd_name, first_sentence))
+
+
 def print_list():
       script_dir = os.path.dirname(sys.argv[0])
       for cmd in sorted(os.listdir(script_dir)):
@@ -44,6 +60,10 @@ if args == ['--reference'] or args == ['-r']:
       sys.exit(0)
 elif args == ['--list'] or args == ['-l']:
       print_list()
+      sys.exit(0)
+
+elif args == ['--short'] or args == ['-s']:
+      print_short()
       sys.exit(0)
 
 try:
