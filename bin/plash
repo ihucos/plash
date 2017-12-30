@@ -6,7 +6,7 @@
 
 set -eu
 
-if [ "$*" == --help ]; then
+if [ "$*" = --help ]; then
   exec plash.help $0
 elif [ $# -eq 0 ]; then
   plash.help --usage $0
