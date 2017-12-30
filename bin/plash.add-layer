@@ -70,7 +70,7 @@ os.mkdir(join(new_child, 'children'))
 out = 2
 ps4 = color('--> ', 4)
 p = subprocess.Popen(
-    ['plash.run', container, '--upperdir', new_layer, 'sh', '-xe'],
+    ['plash.run', container, '--dont-deescalate', '--upperdir', new_layer, 'sh', '-xe'],
     stderr=out,
     stdout=out,
     stdin=subprocess.PIPE,

@@ -12,7 +12,6 @@ import os
 import sys
 import tempfile
 from os.path import join
-from pwd import getpwuid
 from subprocess import CalledProcessError, call, check_call
 
 from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag
@@ -118,9 +117,13 @@ with catch_and_die([CalledProcessError]):
 if not os.fork():
     pwd = os.getcwd()
     os.chroot(mountpoint)
+    os.chdir('/')  # not sure we need this
 
-    pwnetry = getpwuid(0)
-    default_root_shell = pwnetry.pw_shell
+    with open('/etc/passwd') as f:
+        #  the first entry is the root entry
+        #  https://security.stackexchange.com/questions/96241/why-require-root-to-be-the-first-entry-in-etc-passwd
+        root_entry = f.readline().rstrip('\n')
+        default_root_shell = root_entry.split(":")[6]
     if not cmd:
         cmd = [default_root_shell]
 
