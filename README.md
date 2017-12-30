@@ -1,10 +1,10 @@
-[![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=stable1)](https://travis-ci.org/ihucos/plash)
+[![Build Status](https://travis-ci.org/ihucos/plash-svg?branch=stable1)](https://travis-ci.org/ihucos/plash)
 
 Install
 
 ```
 # TODO: check that
-$ git clone https://github.com/ihucos/plash.git /opt/plash
+$ git clone https://github.com/ihucos/plash-git /opt/plash
 $ echo 'PYTHONPATH=/opt/plash:$PYTHONPATH PATH=/opt/plash/bin:$PATH plash "$@"' > /usr/local/bin/plash
 $ chmod +x /usr/local/bin/plash
 ```
@@ -131,7 +131,7 @@ The optional arguments are options passed to the overlay filesystem program. `up
 plash nodepath CONTAINER
 ```
 Prints the location of the last layer of container. Useful to for example debug what changes some layer does to the filesystem:
-plash.nodepath $container | xargs tree
+plash-nodepath $container | xargs tree
 
 ### purge
 ```

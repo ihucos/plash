@@ -1,4 +1,4 @@
 set -xeu
-plash.import-linuxcontainers edge
-! plash.import-linuxcontainers unknownos
-plash.run edge ls
+plash-import-linuxcontainers edge
+! plash-import-linuxcontainers unknownos
+plash-run edge ls

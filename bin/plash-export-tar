@@ -8,10 +8,10 @@
 set -eu
 
 if [ "$*" == --help ]; then
-  exec plash.help $0
+  exec plash-help $0
 elif ! [ $# -ge 1 ]; then
-  plash.help --usage $0
+  plash-help --usage $0
   exit 2
 fi
 
-exec plash.with-mount $1 tar -czf "${2:--}" .
+exec plash-with-mount $1 tar -czf "${2:--}" .

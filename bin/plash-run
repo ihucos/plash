@@ -67,7 +67,7 @@ except (IndexError, ValueError):
     die_with_usage()
 
 mountpoint = tempfile.mkdtemp(dir='/var/tmp')
-exit = call(['plash.mount', container, mountpoint] + ([
+exit = call(['plash-mount', container, mountpoint] + ([
     '--workdir', workdir
 ] if workdir else []) + (['--upperdir', upperdir] if upperdir else []))
 if exit:

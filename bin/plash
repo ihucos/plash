@@ -7,9 +7,9 @@
 set -eu
 
 if [ "$*" = --help ]; then
-  exec plash.help $0
+  exec plash-help $0
 elif [ $# -eq 0 ]; then
-  plash.help --usage $0
+  plash-help --usage $0
   exit 2
 fi
 
@@ -18,13 +18,13 @@ shift
 case $cmd in
 -*)
     # "do run" is used as default command, when no other was given
-    exec $0.do run "$cmd" "$@" ;;
+    exec $0-do run "$cmd" "$@" ;;
 
 *)
-    command -v $0.$cmd >/dev/null 2>&1 || {
+    command -v $0-$cmd >/dev/null 2>&1 || {
         echo >&2 "Subcommand '$cmd' not found, try --help"
         exit 1
     }
-    exec $0.$cmd "$@" ;;
+    exec $0-$cmd "$@" ;;
 
 esac

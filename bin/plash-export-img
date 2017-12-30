@@ -5,9 +5,9 @@
 
 set -eu
 
-test "$*" == --help && exec plash.help "$0"
+test "$*" == --help && exec plash-help "$0"
 test $# -eq 1 || {
-  plash.help --usage "$0"
+  plash-help --usage "$0"
   exit 2
 }
 
@@ -23,12 +23,12 @@ check(){
 
 tmp=$(mktemp /var/lib/plash/tmp/XXXXXXXX)
 mnt=$(mktemp -d)
-ksize=$(plash.with-mount $1 du -s . | cut -f1) # that aditional mount could be avoided
+ksize=$(plash-with-mount $1 du -s . | cut -f1) # that aditional mount could be avoided
 image_size=$((ksize + ksize/5))
 fallocate -l ${image_size}K $tmp #
 mkfs.ext4 -q $tmp
 mount $tmp $mnt
-plash.with-mount $1 cp -r . $mnt
+plash-with-mount $1 cp -r . $mnt
 umount $mnt
 check e2fsck -fp $tmp
 check resize2fs -M $tmp

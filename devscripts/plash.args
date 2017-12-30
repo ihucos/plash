@@ -5,7 +5,7 @@ devscripts/plash_base_os.args
 --layer
 
 --run
-git clone https://github.com/ihucos/plash.git /opt/plash
+git clone https://github.com/ihucos/plash-git /opt/plash
 
 --layer
 

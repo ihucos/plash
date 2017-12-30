@@ -94,5 +94,5 @@ except KeyError:
         repr(image_name), ' '.join(sorted(names))
     ))
 
-cmd = ['plash.import-url', url, image_name]
+cmd = ['plash-import-url', url, image_name]
 os.execvpe(cmd[0], cmd, os.environ)

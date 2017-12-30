@@ -5,12 +5,12 @@
 
 set -e
 
-test "$*" == --help && exec plash.help rm
+test "$*" == --help && exec plash-help rm
 
 plash_data="${PLASH_DATA:-/var/lib/plash}"
 for container in "$@"
 do
-  node=$(plash.nodepath $container)
+  node=$(plash-nodepath $container)
   tmpd=$(mktemp -d $plash_data/tmp/XXXXXXXXXXXX)
   mv $node $tmpd
   rm "$plash_data/links/$container"

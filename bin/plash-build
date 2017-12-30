@@ -31,7 +31,7 @@ from plashlib.stdlib import OS_HINT_TEMPL
 from plashlib.utils import catch_and_die, die, info, color
 
 try:
-    script = check_output(['plash.getscript'] + sys.argv[1:])
+    script = check_output(['plash-getscript'] + sys.argv[1:])
     script = script.decode()
 except CalledProcessError as exc:
     sys.exit(exc.returncode)
@@ -50,11 +50,11 @@ layers = [l for l in layers if l]
 
 # pull container if it does not exists
 try:
-    check_call(['plash.nodepath', os_hint], stderr=DEVNULL, stdout=DEVNULL)
+    check_call(['plash-nodepath', os_hint], stderr=DEVNULL, stdout=DEVNULL)
 except CalledProcessError:
     print('Container not found, trying to pull it', file=sys.stderr)
     try:
-        check_call(['plash.import-linuxcontainers', os_hint])
+        check_call(['plash-import-linuxcontainers', os_hint])
     except CalledProcessError:
         sys.exit(1)
 
@@ -62,7 +62,7 @@ building_happened = False
 current_container = os_hint
 for counter, layer in enumerate(layers):
     p = Popen(
-        ['plash.add-layer', current_container],
+        ['plash-add-layer', current_container],
         stdout=subprocess.PIPE,
         stdin=subprocess.PIPE)
     p.stdin.write(layer.encode())

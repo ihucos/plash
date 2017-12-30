@@ -23,7 +23,7 @@ def print_reference():
             print(cmd)
             print(len(cmd) * '=')
             print()
-            subprocess.check_call(['plash.help', cmd])
+            subprocess.check_call(['plash-help', cmd])
 
 def print_short():
       script_dir = os.path.dirname(sys.argv[0])
@@ -32,7 +32,7 @@ def print_short():
                   cmd_name = cmd.split('.')[1]
             except IndexError:
                   cmd_name = cmd
-            out = subprocess.check_output(['plash.help', cmd])
+            out = subprocess.check_output(['plash-help', cmd])
             if out:
                   first_doc_line = out.decode().splitlines()[1]
                   first_sentence = first_doc_line.split('.')[0]
@@ -46,7 +46,7 @@ def print_list():
       for cmd in sorted(os.listdir(script_dir)):
             if cmd == 'plash':
                   continue
-            out = subprocess.check_output(['plash.help', cmd])
+            out = subprocess.check_output(['plash-help', cmd])
             if not out:
                   usage = '{} ?'.format(cmd.replace('.', ' '))
             else:
@@ -84,7 +84,7 @@ script_dir = os.path.dirname(script)
 doc = []
 arg = os.path.basename(arg)
 if not '.' in arg and not arg == 'plash':
-      arg = 'plash.{}'.format(arg)
+      arg = 'plash-{}'.format(arg)
 with open(join(script_dir, arg)) as f:
       lines = f.readlines()
       for line in lines:

@@ -14,8 +14,8 @@ export PLASH_DATA=$tmp
 # export PATH=$DIR/../bin:$PATH
 # export PYTHONPATH=$DIR/..:$PYTHONPATH
 
-plash.init
-plash.import-tar $DIR/../devscripts/busybox.tar busybox
+plash-init
+plash-import-tar $DIR/../devscripts/busybox.tar busybox
 
 
 log=$(mktemp)

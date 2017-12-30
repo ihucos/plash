@@ -1,18 +1,18 @@
 #!/bin/bash
 set -xeu
-plash.build -o busybox
+plash-build -o busybox
 
 echo 'TEST: specifying "-" as a file'
 tmp=$(mktemp)
-plash.export-tar busybox - > $tmp
+plash-export-tar busybox - > $tmp
 tar --list -f $tmp >/dev/null
 
 echo 'TEST: only one argument'
 tmp=$(mktemp)
-plash.export-tar busybox > $tmp
+plash-export-tar busybox > $tmp
 tar --list -f $tmp >/dev/null
 
 echo 'TEST: specifying a real file'
 tmp=$(mktemp)
-plash.export-tar busybox $tmp
+plash-export-tar busybox $tmp
 tar --list -f $tmp >/dev/null

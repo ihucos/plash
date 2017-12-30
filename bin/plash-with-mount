@@ -7,14 +7,14 @@
 set -eu
 
 
-test "$*" == --help && exec plash.help "$0"
+test "$*" == --help && exec plash-help "$0"
 test $# -ge 2 || {
-  plash.help --usage "$0"
+  plash-help --usage "$0"
   exit 2
 }
 
 mountpoint=$(mktemp -d)
-plash.mount "$1" $mountpoint
+plash-mount "$1" $mountpoint
 cd $mountpoint
 shift
 set +e

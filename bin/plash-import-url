@@ -5,9 +5,9 @@
 
 set -eu
 
-test "$*" == --help && exec plash.help "$0"
+test "$*" == --help && exec plash-help "$0"
 test $# -eq 2 || {
-  plash.help --usage "$0"
+  plash-help --usage "$0"
   exit 2
 }
 
@@ -22,4 +22,4 @@ else
   wget $url -O $image_id
 fi
 
-exec plash.import-tar $image_id $image_id
+exec plash-import-tar $image_id $image_id

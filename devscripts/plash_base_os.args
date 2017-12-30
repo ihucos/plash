@@ -1,4 +1,4 @@
-#!/usr/bin/env plash.runfile
+#!/usr/bin/env plash-runfile
 
 --os
 alpine
@@ -40,6 +40,6 @@ wget 'https://github.com/ihucos/runp/blob/master/runp?raw=true' -O /usr/local/bi
 chmod 4755 /usr/local/bin/runp
 
 
-# volume: plash.build-data /var/lib/plash
-# volume: plash.vartmp /var/tmp
-# volume: plash.volumedata /var/lib/runp-volumes
+# volume: plash-build-data /var/lib/plash
+# volume: plash-vartmp /var/tmp
+# volume: plash-volumedata /var/lib/runp-volumes

@@ -36,9 +36,9 @@ if not cmd:
     die_with_usage()
 
 try:
-    out = subprocess.check_output(['plash.build'] + args)
+    out = subprocess.check_output(['plash-build'] + args)
 except subprocess.CalledProcessError as exc:
     sys.exit(exc.returncode)
 container_id = out[:-1]
-script = 'plash.{}'.format(cmd[0])  # well, SECURITY CHECK NEEDED)
+script = 'plash-{}'.format(cmd[0])  # well, SECURITY CHECK NEEDED)
 os.execvpe(script, [script, container_id] + cmd[1:], os.environ)

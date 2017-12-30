@@ -30,7 +30,7 @@ tmp = tempfile.mkdtemp()
 os.chdir(tmp)
 os.mkdir('./rootfs')
 with catch_and_die([CalledProcessError]):
-    check_call(['plash.mount', container, './rootfs'])
+    check_call(['plash-mount', container, './rootfs'])
     check_call(['runc', 'spec'])
 
 with open(join(tmp, 'config.json')) as f:

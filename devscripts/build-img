@@ -4,8 +4,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
 exec 4>&2
-cont=$(plash build --include $DIR/plash.args --exec /usr/local/bin/plash | tee >(cat - >&4))
+cont=$(plash build --include $DIR/plash-args --exec /usr/local/bin/plash | tee >(cat - >&4))
 cont="${cont##*$'\n'}"
 cont="${cont/$'\r'/}"
 
-plash export-img "$cont" $DIR/../plash.squashfs
+plash export-img "$cont" $DIR/../plash-squashfs

@@ -3,9 +3,9 @@
 # usage: plash init
 # Initialize build data - run this on a new system before anything else - sory
 
-test "$*" = --help && exec plash.help "$0"
+test "$*" = --help && exec plash-help "$0"
 test $# = 0 || {
-  plash.help --usage "$0"
+  plash-help --usage "$0"
   exit 2
 }
 

@@ -70,7 +70,7 @@ def info(msg):
 
 def call_plash_nodepath(container):
     try:
-        return check_output(['plash.nodepath',
+        return check_output(['plash-nodepath',
                                   container]).decode().strip('\n')
     except CalledProcessError as exc:
         if exc.returncode == 3:
@@ -84,10 +84,10 @@ def _get_subcommand():
 def handle_help_flag():
     subcommand = _get_subcommand()
     if sys.argv[1:2] == ['--help']:
-        os.execvp('plash.help', ['plash.help', subcommand])
+        os.execvp('plash-help', ['plash-help', subcommand])
 
 def die_with_usage():
     subcommand = _get_subcommand()
-    subprocess.check_call(['plash.help', '--usage', subcommand])
+    subprocess.check_call(['plash-help', '--usage', subcommand])
     sys.exit(2)
 
