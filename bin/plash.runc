@@ -42,7 +42,8 @@ bundle.setdefault('hooks', {})
 bundle['hooks'].setdefault('poststop', [])
 bundle['hooks']['poststop'].append({
     "path": "/bin/umount",
-    "args": ['umount', join(tmp, 'rootfs')]})
+    "args": ['umount', join(tmp, 'rootfs')]
+})
 
 with open(join(tmp, 'config.json'), 'w') as f:
     f.write(json.dumps(bundle))

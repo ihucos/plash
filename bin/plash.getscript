@@ -23,9 +23,7 @@ def create_collect_lsp_action(lsp_begin):
             previous = namespace.lsp
             previous.append(lsp_begin + list(values))
             setattr(namespace, 'lsp', previous)
-
     return CollectLspAction
-
 
 parser = argparse.ArgumentParser()
 
