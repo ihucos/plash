@@ -29,13 +29,13 @@ def print_short():
       script_dir = os.path.dirname(sys.argv[0])
       for cmd in sorted(os.listdir(script_dir)):
             try:
-                  cmd_name = cmd.split('.')[1]
+                  cmd_name = cmd.split('-')[1]
             except IndexError:
                   cmd_name = cmd
             out = subprocess.check_output(['plash-help', cmd])
             if out:
                   first_doc_line = out.decode().splitlines()[1]
-                  first_sentence = first_doc_line.split('.')[0]
+                  first_sentence = first_doc_line.split('-')[0]
             else:
                   first_sentence = '?'
             print('{:<22} {}'.format(cmd_name, first_sentence))
@@ -48,7 +48,7 @@ def print_list():
                   continue
             out = subprocess.check_output(['plash-help', cmd])
             if not out:
-                  usage = '{} ?'.format(cmd.replace('.', ' '))
+                  usage = '{} ?'.format(cmd.replace('-', ' '))
             else:
                   usage = out.splitlines()[0][7:].decode()
             print(usage.split(' ', 1)[1])
@@ -83,7 +83,7 @@ script_dir = os.path.dirname(script)
 #SECURITY: escape arg somehow
 doc = []
 arg = os.path.basename(arg)
-if not '.' in arg and not arg == 'plash':
+if not '-' in arg and not arg == 'plash':
       arg = 'plash-{}'.format(arg)
 with open(join(script_dir, arg)) as f:
       lines = f.readlines()
