@@ -25,13 +25,9 @@ for script in $DIR/../tests/$1* ; do
   exec "$script"
   ) &
   if wait $!; then
-    test -t 1 && tput setaf 2
     echo ' OK'
-    test -t 1 && tput sgr0
   else
-    test -t 1 && tput setaf 1
     echo ' ERROR'
-    test -t 1 && tput sgr0
     program_exit=1
     echo "logs: $log" >&2
     # tail -n7 <(cat -n $log) >&2
