@@ -11,11 +11,11 @@ mkdir -p /var/lib/plash/tmp
 tmp=$(mktemp -d /var/lib/plash/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp
 export PLASH_DATA=$tmp
 
-# export PATH=$DIR/../bin:$PATH
-# export PYTHONPATH=$DIR/..:$PYTHONPATH
+export PATH=$DIR/../bin:$PATH
+export PYTHONPATH=$DIR/..:$PYTHONPATH
 
 plash-init
-plash-import-tar $DIR/../devscripts/busybox.tar busybox
+plash-import-tar $DIR/../misc/busybox.tar busybox
 
 
 log=$(mktemp)
