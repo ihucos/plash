@@ -18,7 +18,6 @@ check(){
     echo "$out" >&2
     exit 3
   }
-
 }
 
 tmp=$(mktemp /var/lib/plash/tmp/XXXXXXXX)

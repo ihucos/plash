@@ -39,7 +39,7 @@ def catch_and_die(exceptions, debug=None):
             msg = msg[1:-1]
         if debug:
             msg = '{debug}: {message}'.format(debug=debug, message=msg)
-        die(program + ': ' + msg)
+        die('at ' + program + ': ' + msg)
 
 
 def deescalate_sudo():

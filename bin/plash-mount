@@ -56,17 +56,24 @@ while True:
     if path.basename(base) == 'builds':
         break
 
-#FIXME: escape ':' ?, escape ','
+# FIXME: escape ':' ?, escape ','
 lowerdir = ':'.join(
-    join(p, 'payload').replace(':', r'\:')
-    for p in reversed(symlinked_layer_paths))
-cmd = [
-    'mount', '-t', 'overlay', 'overlay', '-o',
-    'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(
-        upperdir=args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp')),
-        workdir=args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp')),
-        lowerdir=lowerdir),
-    args.mountpoint
-]
+        join(p, 'payload').replace(':', r'\:')
+        for p in reversed(symlinked_layer_paths))
 
-os.execvpe(cmd[0], cmd, os.environ)
+with catch_and_die([OSError]):
+    upperdir = args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
+    workdir = args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
+
+os.execvpe(
+    'mount',
+    [
+        'mount', '-t', 'overlay', 'overlay', '-o',
+        'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(
+            upperdir=upperdir,
+            workdir=workdir,
+            lowerdir=lowerdir),
+        args.mountpoint,
+    ],
+    os.environ
+) 
