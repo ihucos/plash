@@ -1,17 +1,22 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # usage: plash export-tar CONTAINER [FILE | - ]
 #
 # Exports the file system of a container to the given file as a compressed tar archive.
 # If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
 
-set -eu
+from plashlib.utils import handle_help_flag, catch_and_die
+from os import execlp
+import sys
 
-if [ "$*" == --help ]; then
-  exec plash-help $0
-elif ! [ $# -ge 1 ]; then
-  plash-help --usage $0
-  exit 2
-fi
+handle_help_flag()
 
-exec plash-with-mount $1 tar -czf "${2:--}" .
+execlp(
+    'plash-with-mount',
+    'plash-with-mount',
+    sys.argv[1],
+    'tar',
+    '-czf',
+    sys.argv[2] if len(sys.argv) > 2 else '-',
+    '.'
+)

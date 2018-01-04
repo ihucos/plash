@@ -9,7 +9,7 @@ import os
 import sys
 from json import dumps
 
-from plashlib.utils import die, handle_help_flag, die_with_usage
+from plashlib.utils import die, handle_help_flag, die_with_usage, catch_and_die
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -22,8 +22,10 @@ except IndexError:
 
 try:
     # security check that container does not contain bad chars
-    link = os.readlink(os.path.join(PLASH_DATA, 'links', container))
-    os.stat(link)
+    with catch_and_die([OSError], ignore=FileNotFoundError, debug='readlink'):
+        link = os.readlink(os.path.join(PLASH_DATA, 'links', container))
+    with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
+        os.stat(link)
 except FileNotFoundError:
     die('No container {}'.format(dumps(container)), exit=3)
 print(link)

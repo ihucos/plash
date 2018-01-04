@@ -48,7 +48,8 @@ for i in range(2, len(new_container)):
     short = (new_container[:i + 1])
     linkname = join(PLASH_DATA, 'links', short)
     try:
-        os.symlink(final_child_dst, linkname)
+        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
+            os.symlink(final_child_dst, linkname)
     except FileExistsError:
         if os.readlink(
                 linkname

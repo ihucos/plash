@@ -29,10 +29,12 @@ def hashstr(stri):
 
 
 @contextmanager
-def catch_and_die(exceptions, debug=None):
+def catch_and_die(exceptions, debug=None, ignore=None):
     try:
         yield
     except tuple(exceptions) as exc:
+        if ignore and isinstance(exc, ignore):
+            raise
         program = os.path.basename(sys.argv[0])
         msg = str(exc)
         if msg.startswith('<') and msg.endswith('>'):

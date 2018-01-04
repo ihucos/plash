@@ -61,7 +61,7 @@ lowerdir = ':'.join(
         join(p, 'payload').replace(':', r'\:')
         for p in reversed(symlinked_layer_paths))
 
-with catch_and_die([OSError]):
+with catch_and_die([OSError], 'mkdtemp'):
     upperdir = args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
     workdir = args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
 

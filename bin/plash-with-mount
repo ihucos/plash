@@ -1,25 +1,30 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # usage: plash with-mount CONTAINER EVAL1 [EVAL2 [EVAL3 ...]]
 # Mount the container to a temporary mountpoint, eval, then unmount.
 # Example: plash with-mount alpine mv . /tmp/rootfs
 
-set -eu
+import os
+import shlex
+import sys
+import subprocess
+from tempfile import mkdtemp
+from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage
+from subprocess import check_call, CalledProcessError
 
+# parse args
+handle_help_flag()
+try:
+    user_sh = ' '.join(shlex.quote(i) for i in sys.argv[2:])
+    container = sys.argv[1]
+except IndexError:
+    die_with_usage()
 
-test "$*" == --help && exec plash-help "$0"
-test $# -ge 2 || {
-  plash-help --usage "$0"
-  exit 2
-}
-
-mountpoint=$(mktemp -d)
-plash-mount "$1" $mountpoint
-cd $mountpoint
-shift
-set +e
-(set -e; eval "$@"); exit=$?
-set -e
-cd - > /dev/null # cd somewhere else to unmount
-umount $mountpoint
-exit $exit
+mountpoint = mkdtemp()
+with catch_and_die([CalledProcessError]):
+    check_call(['plash-mount', container, mountpoint])
+p = subprocess.Popen(['sh', '-c', user_sh])
+user_exit = p.wait()
+with catch_and_die([CalledProcessError]):
+    check_call(['umount', mountpoint])
+sys.exit(user_exit)
