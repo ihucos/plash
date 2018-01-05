@@ -63,7 +63,7 @@ def color(stri, color, isatty_fd_check=2):
     return stri
 
 def die(msg, exit=1):
-    print(color('ERROR ', ERROR_COLOR) + msg, file=sys.stderr)
+    print(color('plash: error: ', ERROR_COLOR) + msg, file=sys.stderr)
     sys.exit(exit)
 
 

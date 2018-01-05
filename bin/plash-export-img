@@ -1,34 +1,40 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # usage: plash export-img CONTAINER FILE
 # Export an image as ext4 file system
 
-set -eu
+import sys
+from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
+from subprocess import check_call, CalledProcessError, check_output, DEVNULL
+from tempfile import mkdtemp, mktemp
+from os.path import join
+import os
+from shutil import move
 
-test "$*" == --help && exec plash-help "$0"
-test $# -eq 1 || {
-  plash-help --usage "$0"
-  exit 2
-}
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
-check(){
-  # for programs that don't have a quiet option
-  out=$("$@" 2>&1) || {
-    echo "plash export-img: Bad exit status $? for: $@" >&2
-    echo "$out" >&2
-    exit 3
-  }
-}
+handle_help_flag()
 
-tmp=$(mktemp /var/lib/plash/tmp/XXXXXXXX)
-mnt=$(mktemp -d)
-ksize=$(plash-with-mount $1 du -s . | cut -f1) # that aditional mount could be avoided
-image_size=$((ksize + ksize/5))
-fallocate -l ${image_size}K $tmp #
-mkfs.ext4 -q $tmp
-mount $tmp $mnt
-plash-with-mount $1 cp -r . $mnt
-umount $mnt
-check e2fsck -fp $tmp
-check resize2fs -M $tmp
-mv $tmp "$2"
+try:
+    container, out = sys.argv[1:3]
+except ValueError:
+    die_with_usage()
+
+with catch_and_die([OSError]):
+    tmp = mktemp()
+    mnt = mkdtemp()
+
+with catch_and_die([CalledProcessError, FileNotFoundError]):
+    image_size = int(check_output(
+        ['plash-with-mount', container, 'du', '-s']
+	).decode().split()[0]) * 1.2
+    check_call(['fallocate', '-l', '{}K'.format(image_size), tmp])
+    check_call(['mkfs.ext4', '-q', tmp])
+    check_call(['mount', tmp, mnt])
+    check_call(['plash-with-mount', container, 'cp', '-r', '.', mnt])
+    check_call(['umount', mnt])
+    check_call(['e2fsck', '-fp', tmp], stdout=DEVNULL)
+    check_call(['resize2fs', '-M', tmp], stderr=DEVNULL)
+
+with catch_and_die([OSError]):
+    move(tmp, out)

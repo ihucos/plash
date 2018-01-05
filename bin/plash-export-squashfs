@@ -1,14 +1,21 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # usage: plash export-squashfs CONTAINER FILE
 # Export a container as squashfs
 
-set -eu
-  
-test "$*" == --help && exec plash-help "$0"
-test $# -eq 2 || {
-  plash-help --usage "$0"
-  exit 2
-}
+from plashlib.utils import handle_help_flag, die_with_usage
+import os
+import sys
 
-exec plash-with-mount "$1" mksquashfs . "$2"
+try:
+    container, out = sys.argv[1:3]
+except IndexError:
+    die_with_usage()
+
+os.execlp(
+     'plash-with-mount',
+     'plash-with-mount',
+     container,
+     'mksquashfs',
+     '.',
+     out)
