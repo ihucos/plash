@@ -1,13 +1,14 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # usage: plash init
 # Initialize build data - run this on a new system before anything else - sory
 
-test "$*" = --help && exec plash-help "$0"
-test $# = 0 || {
-  plash-help --usage "$0"
-  exit 2
-}
+from plashlib.utils import handle_help_flag
+import os
+from os.path import join
 
-plash_data="${PLASH_DATA:-/var/lib/plash}"
-exec mkdir -p $plash_data $plash_data/links $plash_data/tmp $plash_data/builds
+handle_help_flag()
+plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
+os.makedirs(join(plash_data, 'links'), exist_ok=True)
+os.makedirs(join(plash_data, 'tmp'), exist_ok=True)
+os.makedirs(join(plash_data, 'builds'), exist_ok=True)

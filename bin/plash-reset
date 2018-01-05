@@ -1,13 +1,13 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
-# usage: plash purge
+# usage: plash reset
 # Prompts to delete all build data.
 
-read -r -p "Delete all build data? [y/N] " response
-case "$response" in
-    [yY][eE][sS]|[yY]) 
-        # don't delete the dir itself because it could be a mount
-        exec rm -rf ${PLASH_DATA:-/var/lib/plash}/*
-        ;;
-    *)
-esac
+import os
+from shutil import rmtree
+
+plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
+if input('Delete all build data? [y/N] ') == 'y':
+    # TODO: don't delete the dir itself because it could be a mount
+    for dir in os.listdir(plash_data):
+        rmtree(os.path.join(plash_data, dir))

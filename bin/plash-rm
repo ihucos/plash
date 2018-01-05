@@ -1,18 +1,21 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # usage: plash rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
 # Deletes the given containers.
 
-set -e
+from subprocess import check_output, CalledProcessError
+import os
+import sys
+from shutil import rmtree
+from tempfile import mkdtemp
+from plashlib.utils import handle_help_flag, catch_and_die, call_plash_nodepath
 
-test "$*" == --help && exec plash-help rm
+handle_help_flag()
 
-plash_data="${PLASH_DATA:-/var/lib/plash}"
-for container in "$@"
-do
-  node=$(plash-nodepath $container)
-  tmpd=$(mktemp -d $plash_data/tmp/XXXXXXXXXXXX)
-  mv $node $tmpd
-  rm "$plash_data/links/$container"
-  rm -rf $tmpd
-done
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+for container in sys.argv[1:]:
+    node = call_plash_nodepath(container)
+    tmp = mkdtemp(dir=PLASH_DATA)
+    os.rename(node, tmp)
+    rmtree(tmp)

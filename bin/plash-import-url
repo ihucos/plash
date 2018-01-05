@@ -1,25 +1,25 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # usage: plash import-url URL NEW-IMAGE-ID
 # Import an url as container
 
-set -eu
+import sys
+from os import execlp
+from subprocess import check_call, check_output
+from plashlib.utils import handle_help_flag, die_with_usage, CalledProcessError, catch_and_die
 
-test "$*" == --help && exec plash-help "$0"
-test $# -eq 2 || {
-  plash-help --usage "$0"
-  exit 2
-}
+handle_help_flag()
 
-url="$1"
-image_id="$2"
-tmpdir=$(mktemp -d)
-cd $tmpdir
+try:
+    url = sys.argv[1]
+    image_id = sys.argv[2]
+except IndexError:
+    die_with_usage()
 
-if wget --help 2>&1 | grep -- --show-progress; then
-  wget -q --show-progress $url -O $image_id
-else
-  wget $url -O $image_id
-fi
+with catch_and_die([CalledProcessError]):
+    if '--show-progress' in check_output(['wget', '--help']).decode():
+        check_call(['wget', '-q', '--show-progress', url, '-O', image_id])
+    else:
+        check_call(['wget', url, '-O', image_id])
 
-exec plash-import-tar $image_id $image_id
+execlp('plash-import-tar', 'plash-import-tar', image_id, image_id)
