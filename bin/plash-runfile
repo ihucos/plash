@@ -1,10 +1,15 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
-[ $# -eq 0 ] && {
-    echo "usage: plash runfile container [arg1 [arg2 [arg3 ...]]]" >&2
-    exit 2
-}
+# usage: plash runfile container [arg1 [arg2 [arg3 ...]]]
 
-file="$1"
-shift
-plash do runp --include $file -- $@
+import os, sys
+from plashlib.utils import handle_help_flag
+handle_help_flag()
+os.execlp(
+    'plash-do',
+    'plash-do',
+    'runp',
+    '--include',
+    sys.argv[1],
+    '--',
+    *sys.argv[1:])

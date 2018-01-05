@@ -1,28 +1,30 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # usage: plash runp CONTAINER [ARG1 [ARG2 [ARG3...]]
 # Run a container with runp.
 # See the runp project page: https://github.com/ihucos/runp
 
-set -eu
+import sys
+from shutil import which
+from os import mkdir, execlp, symlink
+from plashlib.utils import die_with_usage, handle_help_flag, die
 
-plash_data="${PLASH_DATA:-/var/lib/plash}"
+handle_help_flag()
 
-test "$*" = --help && exec plash-help "$0"
-test $# -eq 0 && {
-  plash-help --usage "$0"
-  exit 2
-}
+try:
+    container, *cmd = sys.argv[1:]
+except ValueError:
+    die_with_usage()
 
-runp_binary=$(command -v runp 2>/dev/null) || {
-  echo 'Could not find runp in PATH, `plash runp` needs the runp binary to run commands' >&2
-  exit 1
-}
+runp_binary = which('runp')
+if not runp_binary:
+    die('Could not find runp in PATH, `plash runp` needs the runp binary to run commands')
 
-container="$1"
-mount_wrapper=$(mktemp -d $plash_data/tmp/XXXXXXXXXXXX)
-mkdir $mount_wrapper/prog.dir
-plash-mount $container $mount_wrapper/prog.dir
-ln -s $runp_binary $mount_wrapper/prog
-shift
-exec $mount_wrapper/prog "$@"
+mount_wrapper = mkdtemp(join(PLASH_DATA, 'tmp'))
+prog_dir = join(mount_wrapper, 'prog.dir')
+prog = join(mount_wrapper, 'prog')
+
+mkdir(prog_dir)
+check_call(['plash-mount', container, prog_dir])
+symlink(runp_binary, prog)
+execlp(prog, prog, sys.argv[1:])
