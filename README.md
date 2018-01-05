@@ -1,12 +1,10 @@
 [![Build Status](https://travis-ci.org/ihucos/plash-svg?branch=stable1)](https://travis-ci.org/ihucos/plash)
 
 Install
+=======
 
 ```
-# TODO: check that
-$ git clone https://github.com/ihucos/plash-git /opt/plash
-$ echo 'PYTHONPATH=/opt/plash:$PYTHONPATH PATH=/opt/plash/bin:$PATH plash "$@"' > /usr/local/bin/plash
-$ chmod +x /usr/local/bin/plash
+python3 -m pip install git+https://github.com/ihucos/plash.git
 ```
 
 
