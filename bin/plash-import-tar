@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: set filetype=python:
 
-# usage: plash import-tar TARFILE NEW-CONTAINER-ID
+# usage: plash-import-tar TARFILE NEW-CONTAINER-ID
 # Create a container from a tar file named by the `new-container-id` parameter.
 
 import errno

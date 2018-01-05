@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# usage: plash import-url URL NEW-IMAGE-ID
+# usage: plash-import-url URL NEW-IMAGE-ID
 # Import an url as container
 
 import sys

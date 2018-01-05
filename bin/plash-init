@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# usage: plash init
+# usage: plash-init
 # Initialize build data - run this on a new system before anything else - sory
 
 from plashlib.utils import handle_help_flag

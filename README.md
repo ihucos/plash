@@ -4,7 +4,7 @@ Install
 =======
 
 ```
-python3 -m pip install git+https://github.com/ihucos/plash.git
+pip3 install git+https://github.com/ihucos/plash.git
 ```
 
 

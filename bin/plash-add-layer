@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: set filetype=python:
 
-# usage: plash add-layer CONTAINER
+# usage: plash-add-layer CONTAINER
 #
 # Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
 # The new container is the only thing printed to stdout, building information and status messages are printed to stderr.
