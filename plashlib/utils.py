@@ -92,4 +92,3 @@ def die_with_usage():
     subcommand = _get_subcommand()
     subprocess.check_call(['plash-help', '--usage', subcommand])
     sys.exit(2)
-
