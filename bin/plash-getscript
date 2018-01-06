@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-
-# usage: plash-getscript <ACTIONS>
 #
+# usage: plash-getscript <ACTIONS>
 # Prints the shell script generated from actions passed as command line parameters.
 # See insertdoclinkhere for available actions
 

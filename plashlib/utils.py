@@ -1,4 +1,5 @@
 import argparse
+import re
 import base64
 import grp
 import hashlib
@@ -80,15 +81,25 @@ def call_plash_nodepath(container):
         with catch_and_die([CalledProcessError]):
             raise
 
-def _get_subcommand():
-    return sys.argv[0].split('.')[-1]
+def  die_with_usage():
+    printed_usage = False
+    with open(sys.argv[0]) as f:
+        for line in f.readlines():
+            if line.startswith('# usage:'):
+                print(line[2:], end='')
+                printed_usage = True
+    assert printed_usage
+    sys.exit(1)
 
 def handle_help_flag():
-    subcommand = _get_subcommand()
     if sys.argv[1:2] == ['--help']:
-        os.execvp('plash-help', ['plash-help', subcommand])
-
-def die_with_usage():
-    subcommand = _get_subcommand()
-    subprocess.check_call(['plash-help', '--usage', subcommand])
-    sys.exit(2)
+        with open(sys.argv[0]) as f:
+            do_print = False
+            for line in f.readlines():
+                if line.startswith('# usage:'):
+                    do_print = True
+                elif line and not line.startswith('#'):
+                    break
+                if do_print:
+                    print(line[2:], end='')
+        sys.exit(0)

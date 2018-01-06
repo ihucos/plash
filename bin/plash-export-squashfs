@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+#
 # usage: plash-export-squashfs CONTAINER FILE
 # Export a container as squashfs
 
