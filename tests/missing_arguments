@@ -5,7 +5,7 @@ array=(
 plash-add-layer
 plash-do
 plash-export-tar
-plash-import-linuxcontainers
+plash-import-cloud
 plash-import-tar
 plash-import-url
 # plash-init
