@@ -1,0 +1,4 @@
+set -xeu
+plash-import-cloud edge
+! plash-import-cloud unknownos
+plash-run edge ls
