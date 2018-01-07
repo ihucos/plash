@@ -92,7 +92,7 @@ def die_with_usage():
     sys.exit(1)
 
 def handle_help_flag():
-    if sys.argv[1:2] == ['--help']:
+    if len(sys.argv) >= 2 and sys.argv[1] in ('--help', '-h'):
         with open(sys.argv[0]) as f:
             do_print = False
             for line in f.readlines():
