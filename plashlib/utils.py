@@ -81,14 +81,14 @@ def call_plash_nodepath(container):
         with catch_and_die([CalledProcessError]):
             raise
 
-def  die_with_usage():
+def die_with_usage():
     printed_usage = False
     with open(sys.argv[0]) as f:
         for line in f.readlines():
             if line.startswith('# usage:'):
                 print(line[2:], end='')
                 printed_usage = True
-    assert printed_usage
+    assert printed_usage, 'could not find usage comment'
     sys.exit(1)
 
 def handle_help_flag():
