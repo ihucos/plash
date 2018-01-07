@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # usage: plash-runfile container [arg1 [arg2 [arg3 ...]]]
+# Used as shebang
 
 import os, sys
 from plashlib.utils import handle_help_flag
