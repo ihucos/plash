@@ -89,7 +89,7 @@ def die_with_usage():
                 print(line[2:], end='')
                 printed_usage = True
     assert printed_usage, 'could not find usage comment'
-    sys.exit(1)
+    sys.exit(2)
 
 def handle_help_flag():
     if len(sys.argv) >= 2 and sys.argv[1] in ('--help', '-h'):

@@ -1,5 +1,0 @@
-#!/bin/bash
-set -xeu
-out=$(plash -o busybox -- printf hello)
-test $out == hello
-test $(plash nodepath busybox) == $(plash-nodepath busybox)

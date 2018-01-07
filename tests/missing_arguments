@@ -2,7 +2,6 @@
 set -xu
 
 array=(
-plash
 plash-add-layer
 plash-do
 plash-export-tar

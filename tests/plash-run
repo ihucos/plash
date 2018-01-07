@@ -15,6 +15,6 @@ test "$out" == "/tmp"
 
 echo 'TEST: check that exit status get propagaded to the outside'
 set +e
-plash run busybox sh -c 'exit 42'
+plash-run busybox sh -c 'exit 42'
 test $? -eq 42 || exit 1
 set -e
