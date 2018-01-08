@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+#
+# usage: plash-alias CONTAINER ALIAS
+# Create an alias for a container
+
+import sys
+import os
+from os import symlink
+from os.path import join
+from plashlib.utils import handle_help_flag, die_with_usage, call_plash_nodepath, catch_and_die
+
+plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+handle_help_flag()
+
+try:
+    container, alias = sys.argv[1:]
+except (IndexError, ValueError):
+    die_with_usage()
+nodepath = call_plash_nodepath(container)
+with catch_and_die([OSError]):
+    symlink(nodepath, join(plash_data, 'links', alias))

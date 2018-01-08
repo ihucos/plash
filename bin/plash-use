@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+#
+# usage: plash-use program
+
+from plashlib.utils import handle_help_flag, die, die_with_usage, catch_and_die
+from subprocess import check_output, check_call, CalledProcessError, DEVNULL
+import sys
+import shlex
+import os
+
+handle_help_flag()
+
+try:
+    query = sys.argv[1]
+except IndexError:
+    die_with_usage()
+
+run_container = 'plash-use-{}'.format(query)
+
+try:
+    check_call(['plash-nodepath', run_container], stdout=DEVNULL, stderr=DEVNULL)
+except CalledProcessError as exc:
+    if not exc.returncode == 3:
+        raise
+    print('plash-use: caching {}...'.format(query), file=sys.stderr)
+else:
+    # short reace condition, it could get deleted in between
+    os.execlp('plash-run', 'plash-run', run_container, *sys.argv[1:])
+
+
+query_container = check_output(['plash-build', '--os', 'archlinux:current', '--run', 'pacman -Fy']) # --rebuild-every xdays!!
+
+
+query_container = query_container.decode().strip('\n')
+
+out = check_output(['plash-run', query_container, 'pacman', '-Fs', query])
+
+package = None
+install_package = None
+for line in out.decode().splitlines():
+    #print(line)
+    if not line.startswith(' '):
+        package = line.split()[0]
+    elif line.endswith('bin/{}'.format(query)) and package:
+        install_package = package
+        break
+
+if not install_package:
+    die('programm {} not found'.format(query))
+
+final_container = check_output([
+'plash-build',
+'--os',
+'archlinux:current',
+'--run',
+'pacman -S --noconfirm {}'.format(shlex.quote(install_package)),
+])
+final_container = final_container.decode().strip('\n')
+with catch_and_die([OSError]):
+    check_call(['plash-alias', final_container, run_container])
+os.execlp('plash-run', 'plash-run', run_container, '--dont-deescalate', *sys.argv[1:])
