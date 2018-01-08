@@ -51,7 +51,7 @@ try:
 except CalledProcessError:
     print('Container not found, trying to pull it', file=sys.stderr)
     try:
-        check_call(['plash-import-linuxcontainers', os_hint])
+        check_call(['plash-import-cloud', os_hint])
     except CalledProcessError:
         sys.exit(1)
 

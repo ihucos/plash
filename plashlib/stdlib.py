@@ -69,11 +69,6 @@ def write_script(fname, *lines):
     yield 'chmod 755 {}'.format(fname)
 
 
-@action()
-def exec (binary):
-    return 'mkdir -p /etc/runp && ln -fs {} /etc/runp/exec'.format(binary)
-
-
 @action(escape=False)
 def include(*files):
     for file in files:

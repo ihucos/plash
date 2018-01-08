@@ -7,7 +7,6 @@
 
 import os
 import sys
-from json import dumps
 
 from plashlib.utils import die, handle_help_flag, die_with_usage, catch_and_die
 
@@ -27,5 +26,5 @@ try:
     with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
         os.stat(link)
 except FileNotFoundError:
-    die('No container {}'.format(dumps(container)), exit=3)
+    die('No container: {}'.format(container), exit=3)
 print(link)

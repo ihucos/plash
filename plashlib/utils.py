@@ -1,20 +1,8 @@
-import argparse
-import re
-import base64
-import grp
-import hashlib
-import json
+# import where needed to make startup faster
 import os
-import pwd
-import shlex
-import signal
-import stat
-import subprocess
 import sys
-import uuid
 from contextlib import contextmanager
 from os.path import join
-from subprocess import CalledProcessError, check_output
 
 ERROR_COLOR = 1
 INFO_COLOR = 4
@@ -26,6 +14,7 @@ LINKS_DIR = join(BASE_DIR, 'links')
 
 
 def hashstr(stri):
+    import hashlib
     return hashlib.sha1(stri).hexdigest()
 
 
@@ -46,6 +35,8 @@ def catch_and_die(exceptions, debug=None, ignore=None):
 
 
 def deescalate_sudo():
+    import pwd
+    import grp
     uid = os.environ.get('SUDO_UID')
     gid = os.environ.get('SUDO_GID')
     if uid and gid:
@@ -72,6 +63,7 @@ def info(msg):
     print(color(msg, INFO_COLOR), file=sys.stderr)
 
 def call_plash_nodepath(container):
+    from subprocess import CalledProcessError, check_output
     try:
         return check_output(['plash-nodepath',
                                   container]).decode().strip('\n')

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-import-linuxcontainers IMAGE-NAME
+# usage: plash-import-cloud IMAGE-NAME
 # Import an image from linuxcontainers.org
 
 import os
