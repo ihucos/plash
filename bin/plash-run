@@ -7,11 +7,12 @@
 
 
 import argparse
+from time import sleep
 import atexit
 import os
 import sys
 import tempfile
-from os.path import join
+from os.path import join, isdir
 from subprocess import CalledProcessError, call, check_call
 
 from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag
@@ -20,37 +21,21 @@ MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
 
 handle_help_flag()
 
-# def delete_line(f, func):
-#     lines = f.readlines()
-#     f.seek(0)
-#     for line in lines:
-#         if not func(line):
-#             f.write(line)
-#     f.truncate()
-
-# def add_user(passwd_file, pw_entry):
-#     passwd = open(join(mountpoint, 'etc/passwd'), 'r+')
-#     delete_line(
-#         passwd,
-#         lambda line: int(line.split(':')[2]) == uid)
-#     passwd_entry = '{pw_name}:x:{pw_uid}:{pw_gid}:{pw_gecos}:{pw_dir}:/bin/sh'.format(**dict(
-#         (i, getattr(pw_entry, i)) for i in dir(pw_entry)))
-#     passwd.write(passwd_entry + '\n')
-#     passwd.close()
-
+#  list running/mounted processes if desired
 if sys.argv[1:3] == ['--list']:
     import re
     with open('/proc/mounts') as f:
-        for entry in re.finditer('^overlay /var/tmp/plash-run/(.*?) ', f.read(), flags=re.MULTILINE):
+        for entry in re.finditer(
+	        '^overlay /var/tmp/plash-run/(.*?) ',
+	        f.read(),
+	        flags=re.MULTILINE):
             pid = entry.group(1)
             try:
                 with open('/proc/{}/cmdline'.format(pid)) as p:
-                    #container_name = p.read().split('/plash-run\0')[1].split('\0')[0]
                     container_name = p.read().replace('\0', ' ')
             except FileNotFoundError:
-                container_name = '<bad cleanup>'
+                container_name = '<no cleanup>'
             print('{} {}'.format(pid, container_name))
-
     sys.exit(0)
 
 workdir = None
@@ -79,85 +64,82 @@ try:
         raise ValueError()
 except (IndexError, ValueError):
     die_with_usage()
-    
-child = os.fork()
-mountpoint = join('/var/tmp/plash-run', str(child or os.getpid()))
+
+
+
+main_pid = os.getpid()
+mountpoint = join('/var/tmp/plash-run', str(main_pid))
 os.makedirs(mountpoint, 0x007, exist_ok=True)
-mounts = ['proc', 'dev', 'tmp', 'etc/resolv.conf']
+
+exit = call(['plash-mount', container, mountpoint] + ([
+    '--workdir', workdir
+] if workdir else []) + (['--upperdir', upperdir] if upperdir else []))
+if exit:
+    sys.exit(exit)
+
+# write a /plashenv file
+with open(join(mountpoint, 'plashenv'), 'w') as f:
+    f.write(container + '\n')
+
+uid = int(os.environ.get('SUDO_UID') or os.getuid())
+
+mounts = ['proc', 'sys', 'dev', 'tmp', 'etc/resolv.conf']
 mounts_map = dict((m, join(mountpoint, m.lstrip('/'))) for m in mounts)
-
-if not child:
-    exit = call(['plash-mount', container, mountpoint] + ([
-        '--workdir', workdir
-    ] if workdir else []) + (['--upperdir', upperdir] if upperdir else []))
-    if exit:
-        sys.exit(exit)
-    
-    # write a /plashenv file
-    with open(join(mountpoint, 'plashenv'), 'w') as f:
-        f.write(container + '\n')
-    
-    uid = int(os.environ.get('SUDO_UID') or os.getuid())
-    
-    # pw_entry = getpwuid(uid)
-    # home = pw_entry.pw_dir
-    # add_user(join(mountpoint, '/etc/passwd'), pw_entry)
-    
-    for m in MOUNT_IF_EXISTS_IN_HOST:
-        if os.path.exists(m):
-            mounts_map[m] = join(mountpoint, m.lstrip('/'))
-            try:
-                os.makedirs(mounts_map[m]) # FIXME: directory access rights, maybe
-            except FileExistsError:
-                pass
-            with catch_and_die([CalledProcessError]):
-                check_call(['mount', '--bind', m, mounts_map[m]])
-    
-    with catch_and_die([CalledProcessError]):
-    
-        # for m in EXTRA_MOUNTS_IF_EXISTS:
-        #     if os.path.exists(join(mountpoint, m.lstrip('/'))):
-        #         mounts.append(m)
-    
-        # prepare mounts for container
-        # check_call(['mount', '--bind', home, mounts_map[home]])
-        check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
-        check_call(['mount', '--bind', '/dev', mounts_map['dev']])
-        check_call(['mount', '--bind', '/tmp', mounts_map['tmp']])
-        check_call([
-            'mount', '--bind', '/etc/resolv.conf',
-            mounts_map['etc/resolv.conf']
-        ])
-
-    pwd = os.getcwd()
-    os.chroot(mountpoint)
-    os.chdir('/')  # not sure we need this
-
-    with open('/etc/passwd') as f:
-        #  the first entry is the root entry
-        #  https://security.stackexchange.com/questions/96241/why-require-root-to-be-the-first-entry-in-etc-passwd
-        root_entry = f.readline().rstrip('\n')
-        default_root_shell = root_entry.split(":")[6]
-    if not cmd:
-        cmd = [default_root_shell]
-
-    os.chmod('/', 0o755) # not so sure if this here or more to the top
-    if deescalate:
-        deescalate_sudo()
-    try:
-        os.chdir(pwd)
-    except (ValueError, PermissionError, FileNotFoundError): # TODO: put more exceptions here
-        os.chdir("/")
-    try:
-        os.execvpe(cmd[0], cmd, os.environ)
-    except FileNotFoundError:
-        die('Command not found: {}'.format(cmd[0]))
-
-_, exit = os.wait()
+for m in MOUNT_IF_EXISTS_IN_HOST:
+    if os.path.exists(m):
+        mounts_map[m] = join(mountpoint, m.lstrip('/'))
+        try:
+            os.makedirs(mounts_map[m]) # FIXME: directory access rights, maybe
+        except FileExistsError:
+            pass
+        with catch_and_die([CalledProcessError]):
+            check_call(['mount', '--bind', m, mounts_map[m]])
 
 with catch_and_die([CalledProcessError]):
-    for mp in mounts_map.values():
-        check_call(['umount', '-l', mp])
-    check_call(['umount', '-l', mountpoint])
+    check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
+    check_call(['mount', '--rbind', '/sys', mounts_map['sys']])
+    check_call(['mount', '--bind', '/dev', mounts_map['dev']])
+    check_call(['mount', '--bind', '/tmp', mounts_map['tmp']])
+    check_call([
+        'mount', '--bind', '/etc/resolv.conf',
+        mounts_map['etc/resolv.conf']
+    ])
 
-sys.exit(exit // 256)
+#
+# start a child process to cleanup when its parent dies
+#
+if not os.fork():
+    os.setsid()  # makes this is kind of a standalone "daemon" process
+    while True:
+        sleep(5)
+        parent_dead =  not isdir(join('/proc', str(main_pid)))
+        if parent_dead:
+            with catch_and_die([CalledProcessError]):
+                for mp in mounts_map.values():
+                    check_call(['umount', '-l', mp])
+                check_call(['umount', '-l', mountpoint])
+            sys.exit(0)
+
+pwd = os.getcwd()
+os.chroot(mountpoint)
+os.chdir('/')
+
+with open('/etc/passwd') as f:
+    #  the first entry is the root entry
+    #  https://security.stackexchange.com/questions/96241/why-require-root-to-be-the-first-entry-in-etc-passwd
+    root_entry = f.readline().rstrip('\n')
+    default_root_shell = root_entry.split(":")[6]
+if not cmd:
+    cmd = [default_root_shell]
+
+os.chmod('/', 0o755) # not so sure if this here or more to the top
+if deescalate:
+    deescalate_sudo()
+try:
+    os.chdir(pwd)
+except (ValueError, PermissionError, FileNotFoundError): # TODO: put more exceptions here
+    os.chdir("/")
+try:
+    os.execvpe(cmd[0], cmd, os.environ)
+except FileNotFoundError:
+    die('Command not found: {}'.format(cmd[0]))
