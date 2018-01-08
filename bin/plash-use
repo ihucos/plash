@@ -29,8 +29,6 @@ else:
 
 
 query_container = check_output(['plash-build', '--os', 'archlinux:current', '--run', 'pacman -Fy']) # --rebuild-every xdays!!
-
-
 query_container = query_container.decode().strip('\n')
 
 out = check_output(['plash-run', query_container, 'pacman', '-Fs', query])
