@@ -4,18 +4,30 @@
 
 from plashlib.utils import handle_help_flag, die, die_with_usage, catch_and_die
 from subprocess import check_output, check_call, CalledProcessError, DEVNULL
+import signal
 import sys
 import shlex
 import os
+import tempfile
 
 handle_help_flag()
 
-try:
-    query = sys.argv[1]
-except IndexError:
-    die_with_usage()
+#
+# find out the program to run
+# if we are symliked take the name of the link file
+#
+basename =  os.path.basename(sys.argv[0])
+if basename == 'plash-use':
+    try:
+        prog = sys.argv[1]
+    except IndexError:
+        die_with_usage()
+    prog_args = sys.argv[2:]
+else:
+    prog = basename
+    prog_args = sys.argv[1:]
 
-run_container = 'plash-use-{}'.format(query)
+run_container = 'plash-use-{}'.format(prog)
 
 #
 # see if we already have the container to run this
@@ -25,10 +37,23 @@ try:
 except CalledProcessError as exc:
     if not exc.returncode == 3:
         raise
-    print('plash-use: caching {}...'.format(query), file=sys.stderr)
 else:
     # short reace condition, it could get deleted in between
-    os.execlp('plash-run', 'plash-run', run_container, *sys.argv[1:])
+    os.execlp('plash-run', 'plash-run', run_container, prog, *prog_args)
+
+log = open(tempfile.mktemp(), 'w')
+
+# print('da log file:', log)
+child = os.fork()
+if not child:
+    print('plash-use: caching... (hit Ctrl-d for logs)', file=sys.stderr)
+    while True:
+        try:
+            input('')
+        except KeyboardInterrupt:
+            sys.exit(0)
+        except EOFError:
+            os.execlp('tail', 'tail', '-f', log.name)
 
 #
 # find out the package name for this binary
@@ -41,12 +66,12 @@ query_container = check_output([
     'pkgfile',
     '--run',
     'pkgfile --update',
-]) # --rebuild-every xdays with a system upgrade!!
+], stderr=log) # --rebuild-every xdays with a system upgrade!!
 query_container = query_container.decode().strip('\n')
 try:
-    install_package = check_output(['plash-run', query_container, 'pkgfile', '-bs', query]).decode().splitlines()[0]
-except ChildProcessError:
-    die('programm {} not found'.format(query))
+    install_package = check_output(['plash-run', query_container, 'pkgfile', '-bs', prog], stderr=log).decode().splitlines()[0]
+except CalledProcessError:
+    die('programm {} not found'.format(prog))
 
 #
 # "install" the package
@@ -57,20 +82,21 @@ final_container = check_output([
 'archlinux:current',
 '--pacman',
 install_package
-])
+], stderr=log)
 final_container = final_container.decode().strip('\n')
 
 #
 # create a alias for every binary in that package
 #
-out = check_output(['plash-run', query_container, 'pkgfile', '-bl', install_package])
+out = check_output(['plash-run', query_container, 'pkgfile', '-bl', install_package], stderr=log)
 call_names = [os.path.basename(entry.split('\t')[-1]) for entry in out.decode().splitlines()]
-print('{} provides {}'.format(install_package, ' '.join(call_names)))
+#print('{} provides {}'.format(install_package, ' '.join(call_names)))
 for call_name in call_names:
     with catch_and_die([OSError]):
-        check_call(['plash-alias', final_container, 'plash-use-{}'.format(call_name)])
+        check_call(['plash-alias', final_container, 'plash-use-{}'.format(call_name)], stderr=log)
 
 #
 # finally run the program again
 #
-os.execlp('plash-run', 'plash-run', run_container, '--dont-deescalate', *sys.argv[1:])
+os.kill(child, signal.SIGINT)
+os.execlp('plash-run', 'plash-run', run_container, '--dont-deescalate', prog, *prog_args)
