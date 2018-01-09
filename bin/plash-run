@@ -59,6 +59,11 @@ def start_cleanup_daemon(mounts_map, clean_dirs):
                        rmtree(i)
                    sys.exit(0)
 
+# if the first argument is not a container (starts with '-')
+# build and then run via plash-do
+if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
+    os.execlp('plash-do', 'plash-do', 'run', *sys.argv[1:])
+
 workdir = None
 upperdir = None
 deescalate = True
