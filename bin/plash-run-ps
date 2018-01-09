@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+#
+# usage: plash-run-ps
+# List processes started with plash-run
+
+from plashlib.utils import handle_help_flag
+import re
+import sys
+
+handle_help_flag()
+
+import re
+with open('/proc/mounts') as f:
+    for entry in re.finditer(
+            '^overlay /var/tmp/plash-run/(.*?) ',
+            f.read(),
+            flags=re.MULTILINE):
+        pid = entry.group(1)
+        try:
+            with open('/proc/{}/cmdline'.format(pid)) as p:
+                container_name = p.read().replace('\0', ' ')
+        except FileNotFoundError:
+            container_name = '<no cleanup>'
+        print('{} {}'.format(pid, container_name))
+sys.exit(0)
