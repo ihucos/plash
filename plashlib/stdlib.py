@@ -195,6 +195,10 @@ eval([[
     'npm install -g {}',
 ], [
     'define-package-manager',
+    'pacman',
+    'pacman -S --noconfirm {}',
+], [
+    'define-package-manager',
     'emerge',
     'emerge {}',
 ]])

@@ -110,17 +110,23 @@ with catch_and_die([CalledProcessError]):
 # start a child process to cleanup when its parent dies
 #
 if not os.fork():
+    os.setsid()  # makes this is kind of a standalone "daemon" process, not more inherit the signal processing
     os.close(1)  # really weird, we need to close stdout or another process calling this via check_output will block forever
-    os.setsid()  # makes this is kind of a standalone "daemon" process
-    while True:
-        sleep(5)
-        parent_dead =  not isdir(join('/proc', str(main_pid)))
-        if parent_dead:
-            with catch_and_die([CalledProcessError]):
-                for mp in mounts_map.values():
-                    check_call(['umount', '-l', mp])
-                check_call(['umount', '-l', mountpoint])
-            sys.exit(0)
+    #os.setpgrp()  # that fixes that the called process waits for all its childs to finish
+    # fork and exit so the child gets 1 as the parent id, which solves blocking if the main process exec waits for its children.
+    if os.fork():
+       sys.exit(0)
+    else:
+       while True:
+           sleep(5)
+           parent_dead =  not isdir(join('/proc', str(main_pid)))
+           if parent_dead:
+               print('die die die', file=sys.stderr)
+               with catch_and_die([CalledProcessError]):
+                   for mp in mounts_map.values():
+                          check_call(['umount', '-l', mp])
+                   check_call(['umount', '-l', mountpoint])
+               sys.exit(0)
 
 pwd = os.getcwd()
 os.chroot(mountpoint)
