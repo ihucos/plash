@@ -17,6 +17,9 @@ except IndexError:
 
 run_container = 'plash-use-{}'.format(query)
 
+#
+# see if we already have the container to run this
+#
 try:
     check_call(['plash-nodepath', run_container], stdout=DEVNULL, stderr=DEVNULL)
 except CalledProcessError as exc:
@@ -27,33 +30,47 @@ else:
     # short reace condition, it could get deleted in between
     os.execlp('plash-run', 'plash-run', run_container, *sys.argv[1:])
 
-
-query_container = check_output(['plash-build', '--os', 'archlinux:current', '--run', 'pacman -Fy']) # --rebuild-every xdays!!
+#
+# find out the package name for this binary
+#
+query_container = check_output([
+    'plash-build',
+    '--os',
+    'archlinux:current',
+    '--pacman',
+    'pkgfile',
+    '--run',
+    'pkgfile --update',
+]) # --rebuild-every xdays with a system upgrade!!
 query_container = query_container.decode().strip('\n')
-
-out = check_output(['plash-run', query_container, 'pacman', '-Fs', query])
-
-package = None
-install_package = None
-for line in out.decode().splitlines():
-    #print(line)
-    if not line.startswith(' '):
-        package = line.split()[0]
-    elif line.endswith('bin/{}'.format(query)) and package:
-        install_package = package
-        break
-
-if not install_package:
+try:
+    install_package = check_output(['plash-run', query_container, 'pkgfile', '-bs', query]).decode().splitlines()[0]
+except ChildProcessError:
     die('programm {} not found'.format(query))
 
+#
+# "install" the package
+#
 final_container = check_output([
 'plash-build',
 '--os',
 'archlinux:current',
-'--run',
-'pacman -S --noconfirm {}'.format(shlex.quote(install_package)),
+'--pacman',
+install_package
 ])
 final_container = final_container.decode().strip('\n')
-with catch_and_die([OSError]):
-    check_call(['plash-alias', final_container, run_container])
+
+#
+# create a alias for every binary in that package
+#
+out = check_output(['plash-run', query_container, 'pkgfile', '-bl', install_package])
+call_names = [os.path.basename(entry.split('\t')[-1]) for entry in out.decode().splitlines()]
+print('{} provides {}'.format(install_package, ' '.join(call_names)))
+for call_name in call_names:
+    with catch_and_die([OSError]):
+        check_call(['plash-alias', final_container, 'plash-use-{}'.format(call_name)])
+
+#
+# finally run the program again
+#
 os.execlp('plash-run', 'plash-run', run_container, '--dont-deescalate', *sys.argv[1:])

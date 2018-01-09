@@ -196,7 +196,7 @@ eval([[
 ], [
     'define-package-manager',
     'pacman',
-    'pacman -S --noconfirm {}',
+    'pacman -Sy --noconfirm {}',
 ], [
     'define-package-manager',
     'emerge',
