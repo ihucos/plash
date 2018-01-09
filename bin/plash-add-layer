@@ -62,6 +62,7 @@ for i in range(2, len(new_container)):
 
 new_child = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 mountpoint = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='workdir-')
 new_layer = join(new_child, 'payload')
 os.mkdir(new_layer)
 os.mkdir(join(new_child, 'children'))
@@ -69,7 +70,17 @@ os.mkdir(join(new_child, 'children'))
 out = 2
 ps4 = color('--> ', 4)
 p = subprocess.Popen(
-    ['plash-run', container, '--dont-deescalate', '--upperdir', new_layer, 'sh', '-xe'],
+    [
+        'plash-run',
+         container,
+         '--dont-deescalate',
+         '--upperdir',
+         new_layer,
+	 '--workdir',
+	 workdir,
+         'sh',
+         '-xe'
+     ],
     stderr=out,
     stdout=out,
     stdin=subprocess.PIPE,

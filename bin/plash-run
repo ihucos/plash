@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-run CONTAINER [--dont-deescalate] [CMD1 [CMD2 [CMD3 ...]]
+# usage: plash-run CONTAINER [--upperdir UPPERDIR --workdir WORKDIR] [--dont-deescalate] [CMD1 [CMD2 [CMD3 ...]]
 # Run a command inside the container. If no command is specified a shell is started.
 # The workdir and upperdir parameters can be used to save file system changes made inside the container.
 
@@ -19,12 +19,12 @@ from subprocess import CalledProcessError, call, check_call
 from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag
 
 MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
 
 handle_help_flag()
 
 
-def start_cleanup_daemon(mounts_map, container_state):
+def start_cleanup_daemon(mounts_map, clean_dirs):
     '''
     Start a child process to cleanup when its parent dies
     '''
@@ -54,7 +54,8 @@ def start_cleanup_daemon(mounts_map, container_state):
                        for mp in mounts_map.values():
                               check_call(['umount', '-l', mp])
                        check_call(['umount', '-l', mountpoint])
-                   rmtree(container_state)
+                   for i in clean_dirs:
+                       rmtree(i)
                    sys.exit(0)
 
 workdir = None
@@ -67,7 +68,7 @@ try:
             break
         if cmd[0] == '--workdir':
             cmd.pop(0)
-            workir = cmd.pop(0)
+            workdir = cmd.pop(0)
         elif cmd[0] == '--upperdir':
             cmd.pop(0)
             upperdir = cmd.pop(0)
@@ -81,27 +82,29 @@ try:
             break
     if container.startswith('-') or cmd and cmd[0].startswith('-'):
         raise ValueError()
+    if (not workdir and upperdir) or (workdir and not upperdir):
+        raise ValueError()
 except (IndexError, ValueError):
     die_with_usage()
 
-
-
 main_pid = os.getpid()
-mountpoint = join('/var/tmp/plash-run', str(main_pid))
-os.makedirs(mountpoint, 0x007, exist_ok=True)
-container_state = join(PLASH_DATA, 'tmp', 'plash-run-{}'.format(os.getpid()))
-os.makedirs(container_state, exist_ok=True)
-container_upperdir = tempfile.mkdtemp(dir=container_state, prefix='upperdir-')
-container_workdir = tempfile.mkdtemp(dir=container_state, prefix='workdir-')
+clean_dirs = []
+if not upperdir or not workdir:
+    upperdir = tempfile.mkdtemp(dir=PLASH_TMP, prefix='upperdir-{}-'.format(main_pid))
+    workdir = tempfile.mkdtemp(dir=PLASH_TMP, prefix='workdir-{}-'.format(main_pid))
+    clean_dirs.extend([upperdir, workdir])
+
+mountpoint = tempfile.mkdtemp(dir='/var/tmp/', prefix='plash-run-{}-'.format(main_pid))
+clean_dirs.append(mountpoint)
 
 exit = call([
     'plash-mount',
     container,
     mountpoint,
     '--upperdir',
-    container_upperdir,
+    upperdir,
     '--workdir',
-    container_workdir
+    workdir
 ])
 if exit:
     sys.exit(exit)
@@ -134,7 +137,7 @@ with catch_and_die([CalledProcessError]):
         mounts_map['etc/resolv.conf']
     ])
 
-start_cleanup_daemon(mounts_map, container_state)
+start_cleanup_daemon(mounts_map, clean_dirs)
 
 pwd = os.getcwd()
 os.chroot(mountpoint)
