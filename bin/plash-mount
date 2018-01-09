@@ -59,19 +59,27 @@ lowerdir = ':'.join(
         join(p, 'payload').replace(':', r'\:')
         for p in reversed(symlinked_layer_paths))
 
-with catch_and_die([OSError], 'mkdtemp'):
-    upperdir = args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
-    workdir = args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
+if args.workdir and args.workdir:
+    os.execvpe(
+        'mount',
+        [
+            'mount', '-t', 'overlay', 'overlay', '-o',
+            'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(
+                upperdir=args.upperdir,
+                workdir=args.workdir,
+                lowerdir=lowerdir),
+            args.mountpoint,
+        ],
+        os.environ
+    ) 
 
-os.execvpe(
-    'mount',
-    [
-        'mount', '-t', 'overlay', 'overlay', '-o',
-        'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(
-            upperdir=upperdir,
-            workdir=workdir,
-            lowerdir=lowerdir),
-        args.mountpoint,
-    ],
-    os.environ
-) 
+else:
+    os.execvpe(
+        'mount',
+        [
+            'mount', '-t', 'overlay', 'overlay', '-o',
+            'lowerdir={}'.format(lowerdir),
+            args.mountpoint,
+        ],
+	os.environ
+    )
