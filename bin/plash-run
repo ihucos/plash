@@ -20,6 +20,7 @@ from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, 
 
 MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
 PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
+MOUNTPOINT_DIR = '/var/tmp/'
 
 handle_help_flag()
 
@@ -94,7 +95,7 @@ if not upperdir or not workdir:
     workdir = tempfile.mkdtemp(dir=PLASH_TMP, prefix='workdir-{}-'.format(main_pid))
     clean_dirs.extend([upperdir, workdir])
 
-mountpoint = tempfile.mkdtemp(dir='/var/tmp/', prefix='plash-run-{}-'.format(main_pid))
+mountpoint = tempfile.mkdtemp(dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
 clean_dirs.append(mountpoint)
 
 exit = call([

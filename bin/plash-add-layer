@@ -60,12 +60,11 @@ for i in range(2, len(new_container)):
     else:
         break
 
-new_child = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-mountpoint = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='workdir-')
-new_layer = join(new_child, 'payload')
+new_layer = join(new_node, 'payload')
 os.mkdir(new_layer)
-os.mkdir(join(new_child, 'children'))
+os.mkdir(join(new_node, 'children'))
 
 out = 2
 ps4 = color('--> ', 4)
@@ -92,11 +91,11 @@ p.stdin.close()
 exit = p.wait()
 
 if exit != 0:
-    atexit.register(lambda: shutil.rmtree(new_child))
+    atexit.register(lambda: shutil.rmtree(new_node))
     die("build returned exit status {}".format(exit), exit=4)
 
 try:
-    os.rename(new_child, final_child_dst)
+    os.rename(new_node, final_child_dst)
 except OSError as exc:
     if exc.errno == errno.ENOTEMPTY:
         info('container id or layer appeared while building, not replacing it'.
