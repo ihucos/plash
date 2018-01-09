@@ -14,17 +14,20 @@ from .utils import hashstr
 OS_HINT_TEMPL = '### os hint: {}'
 CLI_SHORTCUTS = [
     # shortcut, lsp, nargs
-    ('-x', ['run'], '+'),
-    ('-a', ['apt'], '+'),
-    ('-y', ['yum'], '+'),
-    ('-p', ['pip'], '+'),
-    ('-b', ['apt', 'ubuntu-server'], 0),
-    ('-o', ['os'], 1),
-    ('-U', ['os', 'ubuntu'], 0),
-    ('-F', ['os', 'fedora'], 0),
-    ('-D', ['os', 'debian'], 0),
-    ('-l', ['layer'], 0),
-    ('-i', ['include'], '+'),
+    (('-x',), [['run']], '+'),
+    (('-a',), [['apt']], '+'),
+    (('-y',), [['yum']], '+'),
+    (('-p',), [['pip']], '+'),
+    (('-o',), [['os']], 1),
+    (('--alpine', '-A',), [['os', 'alpine'], ['apk']], '*'),
+    (('--ubuntu', '-U',), [['os', 'ubuntu'], ['apt']], '*'),
+    (('--fedora', '-F',), [['os', 'fedora'], ['dnf']], '*'),
+    (('--debian', '-D',), [['os', 'debian'], ['apt']], '*'),
+    (('--centos', '-C',), [['os', 'centos'], ['yum']], '*'),
+    (('--arch', '-R',), [['os', 'archlinux:current'], ['pacman']], '*'),
+    (('--gentoo', '-G',), [['os', 'gentoo:current'], ['emerge']], '*'),
+    (('-l',), [['layer']], 0),
+    (('-i',), [['include']], '+'),
 ]
 
 
@@ -125,6 +128,8 @@ def rebuild_when_changed(*paths):
 def define_package_manager(name, *lines):
     @action(name)
     def package_manager(*packages):
+        if not packages:
+            return eval([])
         sh_packages = ' '.join(pkg for pkg in packages)
         expanded_lines = [line.format(sh_packages) for line in lines]
         return eval([['run'] + expanded_lines])

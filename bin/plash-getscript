@@ -19,7 +19,9 @@ def create_collect_lsp_action(lsp_begin):
             if not 'lsp' in namespace:
                 setattr(namespace, 'lsp', [])
             previous = namespace.lsp
-            previous.append(lsp_begin + list(values))
+            x = lsp_begin[:]
+            x[-1].extend(list(values))
+            previous.extend(x)
             setattr(namespace, 'lsp', previous)
     return CollectLspAction
 
@@ -30,14 +32,14 @@ for action, func in eval.state['actions'].items():
     parser.add_argument(
         '--' + action,
         help=func.__doc__,
-        action=create_collect_lsp_action([action]),
+        action=create_collect_lsp_action([[action]]),
         nargs='*')
 
 # add the cli shortucuts
 group = parser.add_argument_group('shortcuts', 'shortcuts')
 for shortcut, lsp, nargs in stdlib.CLI_SHORTCUTS:
     group.add_argument(
-        shortcut, action=create_collect_lsp_action(lsp), nargs=nargs)
+        *shortcut, action=create_collect_lsp_action(lsp), nargs=nargs)
 
 args = parser.parse_args()
 
