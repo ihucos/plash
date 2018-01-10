@@ -77,7 +77,7 @@ plash-use: caching... (hit Ctrl-d for logs)
 ag version 2.1.0
 
 # to "install" it a symlink is enough
-$ ln -s /usr/local/bin/plash /usr/local/bin/ag
+$ ln -s /usr/local/bin/plash-use /usr/local/bin/ag
 
 # plash-run isolates only certain parts of the filesystem.
 # if you want runc (https://github.com/opencontainers/runc) use plash-runc
