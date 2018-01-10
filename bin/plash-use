@@ -60,8 +60,9 @@ if not child:
 #
 query_container = check_output([
     'plash-build',
-    '--os',
-    'archlinux:current',
+    '--arch',
+    '--namespace',
+    'plash-use',
     '--pacman',
     'pkgfile',
     '--run',
@@ -78,8 +79,9 @@ except CalledProcessError:
 #
 final_container = check_output([
 'plash-build',
-'--os',
-'archlinux:current',
+'--arch',
+'--namespace',
+'plash-use',
 '--pacman',
 install_package
 ], stderr=log)

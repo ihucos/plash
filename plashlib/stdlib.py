@@ -23,8 +23,8 @@ CLI_SHORTCUTS = [
     (('--fedora', '-F',), [['os', 'fedora'], ['dnf']], '*'),
     (('--debian', '-D',), [['os', 'debian'], ['apt']], '*'),
     (('--centos', '-C',), [['os', 'centos'], ['yum']], '*'),
-    (('--arch', '-R',), [['os', 'archlinux:current'], ['pacman']], '*'),
-    (('--gentoo', '-G',), [['os', 'gentoo:current'], ['emerge']], '*'),
+    (('--arch', '-R',), [['os', 'arch'], ['pacman']], '*'),
+    (('--gentoo', '-G',), [['os', 'gentoo'], ['emerge']], '*'),
     (('-l',), [['layer']], 0),
     (('-i',), [['include']], '+'),
 ]
@@ -179,6 +179,15 @@ def os_(os):
 def chdir(path):
     'change directory at host'
     os.chdir(path)
+
+
+@action()
+def namespace(ns):
+    'start a new build namespace'
+    return eval([
+         ['layer'],
+         ['run', ': new namespace {}'.format(ns)],
+         ['layer']])
 
 
 eval([[

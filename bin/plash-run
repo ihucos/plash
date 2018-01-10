@@ -99,17 +99,16 @@ if not upperdir or not workdir:
 mountpoint = tempfile.mkdtemp(dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
 clean_dirs.append(mountpoint)
 
-exit = call([
-    'plash-mount',
-    container,
-    mountpoint,
-    '--upperdir',
-    upperdir,
-    '--workdir',
-    workdir
-])
-if exit:
-    sys.exit(exit)
+with catch_and_die([CalledProcessError]):
+    check_call([
+        'plash-mount',
+        container,
+        mountpoint,
+        '--upperdir',
+        upperdir,
+        '--workdir',
+        workdir
+    ])
 
 # write a /plashenv file
 with open(join(mountpoint, 'plashenv'), 'w') as f:

@@ -25,13 +25,12 @@ def catch_and_die(exceptions, debug=None, ignore=None):
     except tuple(exceptions) as exc:
         if ignore and isinstance(exc, ignore):
             raise
-        program = os.path.basename(sys.argv[0])
         msg = str(exc)
         if msg.startswith('<') and msg.endswith('>'):
             msg = msg[1:-1]
         if debug:
             msg = '{debug}: {message}'.format(debug=debug, message=msg)
-        die('at ' + program + ': ' + msg)
+        die(msg)
 
 
 def deescalate_sudo():
@@ -56,7 +55,7 @@ def color(stri, color, isatty_fd_check=2):
 
 def die(msg, exit=1):
     prog = os.path.basename(sys.argv[0])
-    print(color('{} exit: '.format(prog), ERROR_COLOR) + msg, file=sys.stderr)
+    print(color('error: {}: '.format(prog), ERROR_COLOR) + msg, file=sys.stderr)
     sys.exit(exit)
 
 
@@ -109,7 +108,7 @@ def handle_build_args():
         try:
             out = subprocess.check_output(['plash-build'] + args)
         except subprocess.CalledProcessError as exc:
-            sys.exit(exc.returncode)
+            die('build failed')
         container_id = out[:-1]
         os.execvpe(sys.argv[0], [sys.argv[0], container_id] + cmd, os.environ)
 

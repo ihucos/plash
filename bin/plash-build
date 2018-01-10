@@ -41,7 +41,7 @@ script = os_re.sub('', script)
 if matches:
     os_hint = matches[-1]
 else:
-    die('No os specified')
+    die('no OS specified')
 
 # split the script in its layers
 layers = script.split(LAYER_MARKER + '\n')
