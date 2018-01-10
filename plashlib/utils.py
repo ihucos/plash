@@ -121,7 +121,7 @@ def nodepath_or_die(container):
             os.stat(nodepath)
         return nodepath
     except FileNotFoundError:
-        die('no container {}'.format(repr(container)))
+        die('no container {}'.format(repr(container)), exit=3)
 
 
 def get_default_shell(passwd_file):
