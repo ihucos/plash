@@ -1,6 +1,7 @@
 import shlex
 import uuid
 from importlib import import_module
+from functools import wraps
 
 LAYER_MARKER = '### start new layer'
 state = {'actions': {}}  # put that in state.py ?
@@ -23,6 +24,7 @@ def action(action_name=None, keep_comments=False, escape=True):
 
         action = action_name or func.__name__.replace('_', '-')
 
+        @wraps(func)
         def function_wrapper(*args, **kw):
 
             if not keep_comments:
@@ -79,7 +81,7 @@ def eval(lisp):
 
 @action('original-import')
 @action('import')
-def import_planch_actions(*modules):
+def import_plash_actions(*modules):
     output = []
     for module_name in modules:
         import_module(module_name)
@@ -88,4 +90,5 @@ def import_planch_actions(*modules):
 @action('original-layer')
 @action('layer')
 def layer():
+    'start a new layer'
     return LAYER_MARKER

@@ -27,19 +27,39 @@ def create_collect_lsp_action(lsp_begin):
 
 parser = argparse.ArgumentParser()
 
+from inspect import signature
 for action, func in eval.state['actions'].items():
     # TODO: find out how many arguments it takes and pass it
+
+    # find out how many arguments the function takes
+    sig = signature(func)
+    arg_kinds = ([i.kind.name for i in sig.parameters.values()])
+    if 'KEYWORD_ONLY' in arg_kinds and 'VAR_KEYWORD' in arg_kinds:
+        die('action may not accept keyword arguments: {}'.format(func))
+    if 'VAR_POSITIONAL' in arg_kinds:
+        num = '*'
+    else:
+        num = len(arg_kinds)
+
     parser.add_argument(
         '--' + action,
+	dest='a',
         help=func.__doc__,
         action=create_collect_lsp_action([[action]]),
-        nargs='*')
+        nargs=num)
 
 # add the cli shortucuts
 group = parser.add_argument_group('shortcuts', 'shortcuts')
 for shortcut, lsp, nargs in stdlib.CLI_SHORTCUTS:
+    help = 'macro for: `{} <ARGS>`'.format(
+        ' '.join('--{}'.format(' '.join(i)) for i in lsp))
+
     group.add_argument(
-        *shortcut, action=create_collect_lsp_action(lsp), nargs=nargs)
+        *shortcut,
+	action=create_collect_lsp_action(lsp),
+	nargs=nargs,
+	help=help
+	)
 
 args = parser.parse_args()
 

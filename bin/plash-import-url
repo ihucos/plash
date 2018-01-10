@@ -6,6 +6,7 @@
 import sys
 from os import execlp
 from urllib.request import urlretrieve
+from urllib.error import URLError
 from subprocess import check_call, check_output, CalledProcessError
 from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
 from tempfile import mkstemp
@@ -18,7 +19,6 @@ try:
     image_id = sys.argv[2]
 except IndexError:
     die_with_usage()
-
 
 tmpfile = mkstemp()[1]
 
@@ -34,7 +34,15 @@ def reporthook(count, block_size, total_size):
 
 sys.stderr.write('[0%|')
 sys.stderr.flush()
-urlretrieve(url, tmpfile, reporthook=reporthook)
+with catch_and_die([URLError], debug=url):
+    try:
+        urlretrieve(url, tmpfile, reporthook=reporthook)
+    except:
+        sys.stderr.write('\n')
+        sys.stderr.flush()
+        raise
+    
 sys.stderr.write('100%]\n')
+sys.stderr.flush()
 
 execlp('plash-import-tar', 'plash-import-tar', tmpfile, image_id)

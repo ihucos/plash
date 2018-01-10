@@ -48,10 +48,14 @@ for distro, version, arch, variant, date, _, _, _ in matches:
 
     url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
 
-    names['{}:{}'.format(distro, version)] = url
+    # rename that
+    if distro == 'archlinux' :
+        distro = 'arch'
 
-    # if distro == 'archlinux':
-    #     distro = 'arch'
+    if not version == 'current':
+        names['{}:{}'.format(distro, version)] = url
+    else:
+        names[distro] = url
 
     # if version == 'current':
     #     names[distro] = url
@@ -66,6 +70,9 @@ for distro, version, arch, variant, date, _, _, _ in matches:
     distros.setdefault(distro, [])
     distros[distro].append(version)
 
+#
+# also add entries where we call the version name e.g. "jessie"
+#
 for distro, versions in distros.items():
 
     if versions == ['current']:
