@@ -2,7 +2,7 @@
 #
 # usage: plash-build <ACTIONS>
 # Builds a container. All command line options are interpreted as action calls from the `stdlib`.
-# See insertdoclinkhere for available actions
+# Consult `plash-getscript --help` for available actions.
 #
 # Some short examples:
 # ```
@@ -25,7 +25,9 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 
 from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import OS_HINT_TEMPL
-from plashlib.utils import catch_and_die, die, info, color
+from plashlib.utils import catch_and_die, die, info, color, handle_help_flag
+
+handle_help_flag()
 
 try:
     script = check_output(['plash-getscript'] + sys.argv[1:])

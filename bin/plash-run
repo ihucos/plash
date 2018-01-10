@@ -16,13 +16,14 @@ from os.path import join, isdir
 from shutil import rmtree
 from subprocess import CalledProcessError, call, check_call
 
-from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag
+from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag, handle_build_args
 
 MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
 PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
 MOUNTPOINT_DIR = '/var/tmp/'
 
 handle_help_flag()
+handle_build_args()
 
 
 def start_cleanup_daemon(mounts_map, clean_dirs):
@@ -58,11 +59,6 @@ def start_cleanup_daemon(mounts_map, clean_dirs):
                    for i in clean_dirs:
                        rmtree(i)
                    sys.exit(0)
-
-# if the first argument is not a container (starts with '-')
-# build and then run via plash-do
-if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
-    os.execlp('plash-do', 'plash-do', 'run', *sys.argv[1:])
 
 workdir = None
 upperdir = None
@@ -121,7 +117,7 @@ with open(join(mountpoint, 'plashenv'), 'w') as f:
 
 uid = int(os.environ.get('SUDO_UID') or os.getuid())
 
-mounts = ['proc', 'sys', 'dev', 'tmp', 'etc/resolv.conf']
+mounts = ['proc', 'dev', 'tmp', 'etc/resolv.conf']
 mounts_map = dict((m, join(mountpoint, m.lstrip('/'))) for m in mounts)
 for m in MOUNT_IF_EXISTS_IN_HOST:
     if os.path.exists(m):
@@ -135,7 +131,6 @@ for m in MOUNT_IF_EXISTS_IN_HOST:
 
 with catch_and_die([CalledProcessError]):
     check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
-    check_call(['mount', '--rbind', '/sys', mounts_map['sys']])
     check_call(['mount', '--bind', '/dev', mounts_map['dev']])
     check_call(['mount', '--bind', '/tmp', mounts_map['tmp']])
     check_call([

@@ -9,11 +9,12 @@ import shlex
 import sys
 import subprocess
 from tempfile import mkdtemp
-from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage, die
+from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage, die, handle_build_args
 from subprocess import check_call, CalledProcessError
 
-# parse args
 handle_help_flag()
+handle_build_args()
+
 try:
     user_sh = ' '.join(shlex.quote(i) for i in sys.argv[2:])
     container = sys.argv[1]
@@ -23,7 +24,7 @@ except IndexError:
 mountpoint = mkdtemp()
 with catch_and_die([CalledProcessError]):
     check_call(['plash-mount', container, mountpoint])
-p = subprocess.Popen(['sh', '-c', user_sh])
+p = subprocess.Popen(['sh', '-c', user_sh], cwd=mountpoint)
 user_exit = p.wait()
 with catch_and_die([CalledProcessError]):
     check_call(['umount', mountpoint])

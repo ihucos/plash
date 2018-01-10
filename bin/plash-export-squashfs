@@ -3,9 +3,12 @@
 # usage: plash-export-squashfs CONTAINER FILE
 # Export a container as squashfs
 
-from plashlib.utils import handle_help_flag, die_with_usage
+from plashlib.utils import handle_help_flag, die_with_usage, handle_build_args
 import os
 import sys
+
+handle_help_flag()
+handle_build_args()
 
 try:
     container, out = sys.argv[1:3]

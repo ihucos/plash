@@ -7,9 +7,10 @@
 import sys
 from shutil import which
 from os import mkdir, execlp, symlink
-from plashlib.utils import die_with_usage, handle_help_flag, die
+from plashlib.utils import die_with_usage, handle_help_flag, die, handle_build_args
 
 handle_help_flag()
+handle_build_args()
 
 try:
     container, *cmd = sys.argv[1:]

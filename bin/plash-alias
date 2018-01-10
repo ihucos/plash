@@ -7,11 +7,12 @@ import sys
 import os
 from os import symlink
 from os.path import join
-from plashlib.utils import handle_help_flag, die_with_usage, call_plash_nodepath, catch_and_die
+from plashlib.utils import handle_help_flag, die_with_usage, call_plash_nodepath, catch_and_die, handle_build_args
 
 plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 handle_help_flag()
+handle_build_args()
 
 try:
     container, alias = sys.argv[1:]

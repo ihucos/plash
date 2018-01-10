@@ -21,12 +21,13 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, color, die, hashstr, info, call_plash_nodepath, die_with_usage, handle_help_flag
+from plashlib.utils import catch_and_die, color, die, hashstr, info, call_plash_nodepath, die_with_usage, handle_help_flag, handle_build_args
 
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 handle_help_flag()
+handle_build_args()
 
 try:
     container = sys.argv[1]

@@ -13,9 +13,10 @@ from subprocess import CalledProcessError, check_call
 from tempfile import mkdtemp
 from uuid import uuid4
 
-from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, handle_build_args
 
 handle_help_flag()
+handle_build_args()
 
 
 palsh_data = os.environ.get('PLASH_DATA', '/var/lib/plash')

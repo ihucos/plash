@@ -4,11 +4,12 @@
 # Exports the file system of a container to the given file as a compressed tar archive.
 # If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
 
-from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage
+from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage, handle_build_args
 from os import execlp
 import sys
 
 handle_help_flag()
+handle_build_args()
 
 try:
     container = sys.argv[1]

@@ -13,9 +13,11 @@ from subprocess import CalledProcessError, check_output
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, call_plash_nodepath
+from plashlib.utils import catch_and_die, call_plash_nodepath, handle_build_args
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+handle_build_args()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('container')
