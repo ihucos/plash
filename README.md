@@ -79,7 +79,7 @@ ag version 2.1.0
 Features:
   +jit +lzma +zlib
 
-# plash-run is integrated into the host system.
+# plash-run isolates only certain parts of the filesystem.
 # if you want runc (https://github.com/opencontainers/runc) use plash-runc
 $ plash-runc --os arch
 [root@arch /]# exit
@@ -87,6 +87,4 @@ $ plash-runc --os arch
 # or shorter
 $ plash-runc -R
 $ [root@arch /]# exit
-
-
 ```
