@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import uuid
 from base64 import b64encode
+from itertools import dropwhile
 
 from .eval import ArgError, action, eval
 from .utils import hashstr
@@ -83,7 +84,9 @@ def include(*files):
         fname = os.path.realpath(os.path.expanduser(file))
         with open(fname) as f:
             lsp = []
-            tokens = (i[:-1] for i in f.readlines())
+            tokens = dropwhile(
+	        lambda l: l.startswith('#'),
+	        (i[:-1] for i in f.readlines()))
             for line0, token in enumerate(tokens):
                 if line0 == 0 and token.startswith('#!'):
                     continue

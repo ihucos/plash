@@ -97,5 +97,21 @@ still building...
 --:
 f4f
 
+# something stilll experimental: we can have our buildfiles executable
+$ cat -n /usr/local/bin/fzf
+     1  #!/usr/bin/env plash-exec
+     2  # plash: cmd=fzf
+     3  --os
+     4  ubuntu
+     5  --apt
+     6  wget
+     7  --run
+     8  cd $(mktemp -d)
+     9  wget https://github.com/junegunn/fzf-bin/releases/download/0.17.3/fzf-0.17.3-linux_amd64.tgz
+    10  tar xvzf *.tgz
+    11  cp fzf /usr/local/bin/fzf
+$ chmod +x /tmp/e
+$ /tmp/e --version
+0.17.3 (390b496)
 
 ```
