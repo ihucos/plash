@@ -16,7 +16,7 @@ from os.path import join, isdir
 from shutil import rmtree
 from subprocess import CalledProcessError, call, check_call
 
-from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag, handle_build_args
+from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell
 
 MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
 PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
@@ -144,11 +144,8 @@ pwd = os.getcwd()
 os.chroot(mountpoint)
 os.chdir('/')
 
-with open('/etc/passwd') as f:
-    #  the first entry is the root entry
-    #  https://security.stackexchange.com/questions/96241/why-require-root-to-be-the-first-entry-in-etc-passwd
-    root_entry = f.readline().rstrip('\n')
-    default_root_shell = root_entry.split(":")[6]
+# alway calculate it for robustness
+default_root_shell = get_default_shell('/etc/passwd')
 if not cmd:
     cmd = [default_root_shell]
 

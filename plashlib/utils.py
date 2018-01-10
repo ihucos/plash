@@ -123,3 +123,12 @@ def nodepath_or_die(container):
         return nodepath
     except FileNotFoundError:
         die('no container {}'.format(repr(container)))
+
+
+def get_default_shell(passwd_file):
+    with open(passwd_file) as f:
+        #  the first entry is the root entry
+        #  https://security.stackexchange.com/questions/96241/why-require-root-to-be-the-first-entry-in-etc-passwd
+        root_entry = f.readline().rstrip('\n')
+        default_root_shell = root_entry.split(":")[6]
+        return default_root_shell
