@@ -55,23 +55,13 @@ def color(stri, color, isatty_fd_check=2):
     return stri
 
 def die(msg, exit=1):
-    print(color('plash: error: ', ERROR_COLOR) + msg, file=sys.stderr)
+    prog = os.path.basename(sys.argv[0])
+    print(color('{} exit: '.format(prog), ERROR_COLOR) + msg, file=sys.stderr)
     sys.exit(exit)
 
 
 def info(msg):
     print(color(msg, INFO_COLOR), file=sys.stderr)
-
-def call_plash_nodepath(container):
-    from subprocess import CalledProcessError, check_output
-    try:
-        return check_output(['plash-nodepath',
-                                  container]).decode().strip('\n')
-    except CalledProcessError as exc:
-        if exc.returncode == 3:
-            sys.exit(exc.returncode)
-        with catch_and_die([CalledProcessError]):
-            raise
 
 def die_with_usage():
     printed_usage = False
@@ -122,3 +112,14 @@ def handle_build_args():
             sys.exit(exc.returncode)
         container_id = out[:-1]
         os.execvpe(sys.argv[0], [sys.argv[0], container_id] + cmd, os.environ)
+
+def nodepath_or_die(container):
+    try:
+        # FIXME: security check that container does not contain bad chars
+        with catch_and_die([OSError], ignore=FileNotFoundError, debug='readlink'):
+            nodepath = os.readlink(os.path.join(LINKS_DIR, container))
+        with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
+            os.stat(nodepath)
+        return nodepath
+    except FileNotFoundError:
+        die('no container {}'.format(repr(container)))

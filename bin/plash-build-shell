@@ -21,7 +21,7 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, color, die, hashstr, info, call_plash_nodepath, die_with_usage, handle_help_flag, handle_build_args
+from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
 
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
@@ -34,11 +34,11 @@ try:
 except IndexError:
     die_with_usage()
 
-node_path = call_plash_nodepath(container)
+nodepath = nodepath_or_die(container)
 
 new_container = hashstr(os.urandom(100))[:12]
 final_child_dst = join(
-    join(PLASH_DATA, 'builds'), node_path, 'children', new_container)
+    join(PLASH_DATA, 'builds'), nodepath, 'children', new_container)
 
 linkname = join(PLASH_DATA, 'links', new_container)
 with catch_and_die([OSError], debug='symlink'):

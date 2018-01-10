@@ -13,7 +13,7 @@ from subprocess import CalledProcessError, check_output
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, call_plash_nodepath, handle_build_args
+from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -26,7 +26,7 @@ parser.add_argument('--upperdir')
 parser.add_argument('--workdir')
 args = parser.parse_args()
 
-node_path = call_plash_nodepath(args.container)
+nodepath = nodepath_or_die(args.container)
 
 
 def vid_to_id(last_component):
@@ -47,7 +47,7 @@ def vid_to_id(last_component):
 # and this is shorter. on my setup i get 58 layers before an error, we could have multiple mount calls to overcome this
 symlinked_layer_paths = []
 
-base = node_path
+base = nodepath
 while True:
     base, dir = path.split(base)
     if dir == 'children':
