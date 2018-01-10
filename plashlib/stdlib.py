@@ -136,7 +136,7 @@ def define_package_manager(name, *lines):
     @action(name)
     def package_manager(*packages):
         if not packages:
-            return eval([])
+            return
         sh_packages = ' '.join(pkg for pkg in packages)
         expanded_lines = [line.format(sh_packages) for line in lines]
         return eval([['run'] + expanded_lines])
