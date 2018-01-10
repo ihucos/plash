@@ -3,19 +3,22 @@ set -xu
 
 array=(
 plash-add-layer
-plash-do
+plash-alias
+# plash-build
+plash-build-shell
+plash-export-img
+plash-export-squashfs
 plash-export-tar
 plash-import-cloud
 plash-import-tar
 plash-import-url
-# plash-init
 plash-mount
 plash-nodepath
-# plash-purge
-# plash-rm
 plash-run
-# plash-runfile
+plash-runc
 plash-runp
+plash-use
+plash-with-mount
 )
 for prog in "${array[@]}"
 do

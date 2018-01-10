@@ -12,7 +12,7 @@ handle_build_args()
 
 try:
     container, out = sys.argv[1:3]
-except IndexError:
+except ValueError:
     die_with_usage()
 
 os.execlp(

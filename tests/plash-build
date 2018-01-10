@@ -1,18 +1,18 @@
 set -xeu
 # vim: set filetype=sh:
-busybox=$(plash-build -o busybox --bust-cache)
+busybox=$(plash-build --os busybox --bust-cache)
 
 echo 'TEST: build a layer and check it changes'
-newcont=$(plash-build -o $busybox -x 'touch /hellow')
+newcont=$(plash-build --os $busybox -x 'touch /hellow')
 plash-run $newcont stat /hellow
 
 
 echo 'TEST: working directory is is /'
-plash-build -o $busybox --bust-cache -x 'test $(pwd) == /'
+plash-build --os $busybox --bust-cache -x 'test $(pwd) == /'
 
 echo 'TEST: test that a build error returns a bad exit code'
 set +e
-plash-build -o $busybox -x 'exit 42'
+plash-build --os $busybox -x 'exit 42'
 test 1 -eq $? || exit 1
 set -e
 

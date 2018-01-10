@@ -13,13 +13,14 @@ from subprocess import CalledProcessError, check_output
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args
+from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
+handle_help_flag()
 handle_build_args()
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('container')
 parser.add_argument('mountpoint')
 parser.add_argument('--upperdir')
