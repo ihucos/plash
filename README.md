@@ -97,8 +97,9 @@ still building...
 --:
 f4f
 
-# something stilll experimental: we can have our buildfiles executable
-$ cat -n /usr/local/bin/fzf
+# something stilll experimental: we can have our build files executable
+# E.g: instead of using virtualenv you could have your custom "./python" executable build file
+$ cat -n ~/bin/fzf
      1  #!/usr/bin/env plash-exec
      2  # plash: cmd=fzf
      3  --os
@@ -110,8 +111,8 @@ $ cat -n /usr/local/bin/fzf
      9  wget https://github.com/junegunn/fzf-bin/releases/download/0.17.3/fzf-0.17.3-linux_amd64.tgz
     10  tar xvzf *.tgz
     11  cp fzf /usr/local/bin/fzf
-$ chmod +x /tmp/e
-$ /tmp/e --version
+$ chmod +x ~/bin/fzf
+$ ~/bin/fzf --version
 0.17.3 (390b496)
 
 ```
