@@ -76,8 +76,8 @@ $ plash-use ag --version
 plash-use: caching... (hit Ctrl-d for logs)
 ag version 2.1.0
 
-Features:
-  +jit +lzma +zlib
+# to "install" it a symlink is enough
+$ ln -s /usr/local/bin/plash /usr/local/bin/ag
 
 # plash-run isolates only certain parts of the filesystem.
 # if you want runc (https://github.com/opencontainers/runc) use plash-runc
@@ -87,4 +87,15 @@ $ plash-runc --os arch
 # or shorter
 $ plash-runc -R
 $ [root@arch /]# exit
+
+# you can build from a file (Yes, like a Dockerfile)
+$ plash-build -i /tmp/buildscript.args
+--> echo building...
+building...
+--> echo still building...
+still building...
+--:
+f4f
+
+
 ```
