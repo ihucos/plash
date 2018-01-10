@@ -67,7 +67,7 @@ def bust_cache():
     return ': bust cache with {}'.format(uuid.uuid4())
 
 
-@action(keep_comments=True, **kw)
+@action(keep_comments=True)
 def write_script(fname, *lines):
     'write an executable file'
     yield 'touch {}'.format(fname)
