@@ -26,7 +26,7 @@ dots = [0]
 def reporthook(count, block_size, total_size):
     percent = int(count * block_size * 100 / total_size)
     #percent = min(int(count*block_size*100/total_size),100)
-    if percent // 10 > dots[0] and not dots[0] >= 10:
+    if percent // 10 > dots[0] and not dots[0] >= 9:
         dots[0] += 1
         if dots[0]:
            sys.stderr.write('{}%|'.format(dots[0] * 10))

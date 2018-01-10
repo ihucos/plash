@@ -8,7 +8,7 @@
 import os
 import sys
 
-from plashlib.utils import die, handle_help_flag, die_with_usage, catch_and_die, handle_build_args
+from plashlib.utils import die, handle_help_flag, die_with_usage, catch_and_die, handle_build_args, nodepath_or_die
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -20,12 +20,5 @@ try:
 except IndexError:
     die_with_usage()
 
-try:
-    # security check that container does not contain bad chars
-    with catch_and_die([OSError], ignore=FileNotFoundError, debug='readlink'):
-        link = os.readlink(os.path.join(PLASH_DATA, 'links', container))
-    with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
-        os.stat(link)
-except FileNotFoundError:
-    die('No container: {}'.format(container), exit=3)
-print(link)
+nodepath = nodepath_or_die(container)
+print(nodepath)

@@ -19,9 +19,10 @@ def create_collect_lsp_action(lsp_begin):
             if not 'lsp' in namespace:
                 setattr(namespace, 'lsp', [])
             previous = namespace.lsp
-            x = lsp_begin[:]
-            x[-1].extend(list(values))
-            previous.extend(x)
+            previous.extend(
+                [i if not c+1 == len(lsp_begin)
+                else (i+list(values))
+                for c, i in enumerate(lsp_begin)])
             setattr(namespace, 'lsp', previous)
     return CollectLspAction
 

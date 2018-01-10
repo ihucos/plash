@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-rm CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
+# usage: plash-rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
 # Deletes the given containers.
 
 from subprocess import check_output, CalledProcessError
