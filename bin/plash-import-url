@@ -5,8 +5,11 @@
 
 import sys
 from os import execlp
+from urllib.request import urlretrieve
 from subprocess import check_call, check_output, CalledProcessError
 from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
+from tempfile import mkstemp
+import time
 
 handle_help_flag()
 
@@ -16,10 +19,22 @@ try:
 except IndexError:
     die_with_usage()
 
-with catch_and_die([CalledProcessError]):
-    if '--show-progress' in check_output(['wget', '--help']).decode():
-        check_call(['wget', '-q', '--show-progress', url, '-O', image_id])
-    else:
-        check_call(['wget', url, '-O', image_id])
 
-execlp('plash-import-tar', 'plash-import-tar', image_id, image_id)
+tmpfile = mkstemp()[1]
+
+dots = [0]
+def reporthook(count, block_size, total_size):
+    percent = int(count * block_size * 100 / total_size)
+    #percent = min(int(count*block_size*100/total_size),100)
+    if percent // 10 > dots[0] and not dots[0] >= 10:
+        dots[0] += 1
+        if dots[0]:
+           sys.stderr.write('{}%|'.format(dots[0] * 10))
+           sys.stderr.flush()
+
+sys.stderr.write('[0%|')
+sys.stderr.flush()
+urlretrieve(url, tmpfile, reporthook=reporthook)
+sys.stderr.write('100%]\n')
+
+execlp('plash-import-tar', 'plash-import-tar', tmpfile, image_id)
