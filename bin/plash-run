@@ -131,15 +131,34 @@ for m in MOUNT_IF_EXISTS_IN_HOST:
 
 # SECURITY: do we need flags like noexex and so on?
 with catch_and_die([CalledProcessError]):
-    check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
-    check_call(['mount', '-t', 'devtmpfs', 'devtmpfs', mounts_map['dev']])
-    check_call(['mount', '-t', 'devpts', 'devpts', mounts_map['dev/pts']])
-    check_call(['mount', '-t', 'sysfs', 'sysfs', mounts_map['sys']])
     check_call(['mount', '--bind', '/tmp', mounts_map['tmp']])
     check_call([
         'mount', '--bind', '/etc/resolv.conf',
         mounts_map['etc/resolv.conf']
     ])
+    check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
+    check_call(['mount', '-t', 'devtmpfs', 'devtmpfs', mounts_map['dev']])
+    check_call(['mount', '-t', 'devpts', 'devpts', mounts_map['dev/pts']])
+    check_call(['mount', '-t', 'sysfs', 'sysfs', mounts_map['sys']])
+
+# mount cgroupts (after sysfs is mounted)
+# a port of https://github.com/tianon/cgroupfs-mount/blob/master/cgroupfs-mount
+with catch_and_die([CalledProcessError]):
+    check_call(['mount', '-t', 'tmpfs', '-o', 'uid=0,gid=0,mode=0755', 'cgroup', join(mountpoint, 'sys/fs/cgroup')])
+
+with open('/proc/cgroups') as f:
+    lines = f.readlines()
+groups = []
+for line in lines:
+    if line.lstrip().startswith('#'):
+        continue
+    group = line.split()[0]
+    groups.append(group)
+with catch_and_die([CalledProcessError]):
+    for group in groups:
+        group_dir = join(mountpoint, 'sys/fs/cgroup',group)
+        os.mkdir(group_dir)
+        call(['mount', '-n', '-t', 'cgroup', '-o', group, 'cgroup', group_dir])
 
 start_cleanup_daemon(mounts_map, clean_dirs)
 
