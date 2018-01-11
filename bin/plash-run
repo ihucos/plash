@@ -116,7 +116,8 @@ with open(join(mountpoint, 'plashenv'), 'w') as f:
 
 uid = int(os.environ.get('SUDO_UID') or os.getuid())
 
-mounts = ['proc', 'dev', 'tmp', 'etc/resolv.conf']
+# also the order how it will be unmounted
+mounts = ['proc', 'dev/pts', 'dev', 'tmp', 'etc/resolv.conf', 'sys']
 mounts_map = dict((m, join(mountpoint, m.lstrip('/'))) for m in mounts)
 for m in MOUNT_IF_EXISTS_IN_HOST:
     if os.path.exists(m):
@@ -128,9 +129,12 @@ for m in MOUNT_IF_EXISTS_IN_HOST:
         with catch_and_die([CalledProcessError]):
             check_call(['mount', '--bind', m, mounts_map[m]])
 
+# SECURITY: do we need flags like noexex and so on?
 with catch_and_die([CalledProcessError]):
     check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
-    check_call(['mount', '--bind', '/dev', mounts_map['dev']])
+    check_call(['mount', '-t', 'devtmpfs', 'devtmpfs', mounts_map['dev']])
+    check_call(['mount', '-t', 'devpts', 'devpts', mounts_map['dev/pts']])
+    check_call(['mount', '-t', 'sysfs', 'sysfs', mounts_map['sys']])
     check_call(['mount', '--bind', '/tmp', mounts_map['tmp']])
     check_call([
         'mount', '--bind', '/etc/resolv.conf',
