@@ -1,15 +1,11 @@
 [![Build Status](https://travis-ci.org/ihucos/plash-svg?branch=stable1)](https://travis-ci.org/ihucos/plash)
 
 ```
-#
 # Install 
-#
 $ pip3 install git+https://github.com/ihucos/plash.git
 
-
-#
-# Examples 
-#
+# the we must initilaize the storage directory
+$ plash init
 
 # build a simple image
 $ plash-build --os ubuntu --run 'touch /file'
