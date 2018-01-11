@@ -1,0 +1,33 @@
+#!/usr/bin/env python3
+#
+# usage: plash-exec file [arg1 [arg2 [arg3 ...]]]
+# Used as shebang
+
+import os, sys
+from plashlib.utils import handle_help_flag, die_with_usage, die
+
+handle_help_flag()
+
+try:
+    file, args = sys.argv[1], sys.argv[2:]
+except ValueError:
+    die_with_usage()
+
+file_args = None
+with open(file) as f:
+    f.readline()
+    for i in range(5):
+        line = f.readline()
+        if line.startswith('# plash: '):
+            file_args = dict(i.split('=', 1) for i in line[8:-1].split())
+if not file_args:
+    die("file must have a comment on the top: '# plash: cmd=<cmd>'")
+
+os.execlp(
+    'plash-run',
+    'plash-run',
+    '--include',
+    file,
+    '--',
+    file_args['cmd'],
+    *args)
