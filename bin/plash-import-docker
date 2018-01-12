@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+#
+# usage: plash-alias CONTAINER ALIAS
+# Create an alias for a container
+
+import subprocess
+import os
+import sys
+from time import sleep
+import tempfile
+from plashlib.utils import die
+
+def debug(msg):
+    print('==> {}'.format(msg), file=sys.stderr)
+
+debug('Ensuring docker is builded')
+subprocess.check_output(['plash-build', '-A', 'docker']) # ensure it is builded showing build logs
+debug('starting docker')
+log = open(tempfile.mkstemp()[1])
+p = subprocess.Popen(['plash-docker-daemon'], stderr=log)
+while True:
+    daemon_exit = p.poll()
+    if daemon_exit is not None:
+        die('plash-docker-daemon died with exit status {} (logs at {})'.format(daemon_exit, log.name))
+    try:
+        subprocess.check_call(['plash-docker', 'info'], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        sleep(1)
+    else:
+        break
+debug('docker is up')
+
+pull = sys.argv[1]
+
+debug('pulling image')
+subprocess.check_call(['plash-docker', 'pull', pull])
+container = subprocess.check_output(['plash-docker', 'create', pull]).decode().rstrip('\n')
+debug('exporting image into plash')
+docker_export = subprocess.Popen(['plash-docker', 'export', container], stdout=subprocess.PIPE)
+plash_import_tar = subprocess.Popen(['plash-import-tar', '-', pull], stdin=docker_export.stdout)
+if plash_import_tar.wait():
+    docker_export.kill()
+else:
+    docker_export.wait()

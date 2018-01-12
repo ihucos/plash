@@ -35,7 +35,7 @@ os.mkdir(join(tmp_image_dir, 'children'))
 # os.mkdir(join(tmp_image_dir, 'payload'))
 rootfs = join(tmp_image_dir, 'payload')
 if tar_file == '-':
-    t = tarfile.open(fileobj=sys.stdin, mode='r|')
+    t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')
 else:
     t = tarfile.open(tar_file)
 t.extractall(rootfs)
@@ -61,6 +61,6 @@ try:
     os.rename(tmp_image_dir, image_dir)
 except OSError as exc:
     if exc.errno == errno.ENOTEMPTY:
-        die('Image id already taken')
+        die('Image id already taken: {}'.format(image_id))
     else:
         raise

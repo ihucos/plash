@@ -9,4 +9,4 @@ import sys
 
 def interrupt(a, b):
     sys.exit(130)
-signal.signal(signal.SIGINT, interrupt)
+#signal.signal(signal.SIGINT, interrupt)
