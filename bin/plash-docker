@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+#
+# usage: plash-docker <DOCKER_ARGS>
+
+from plashlib.utils import handle_help_flag
+from os import execlp
+import sys
+
+handle_help_flag()
+
+execlp(
+    'plash-run',
+    'plash-run',
+    '-A',
+    'docker',
+    '--',
+    '--dont-deescalate',
+    'env',
+    'DOCKER_HOST=unix:///tmp/docker.sock',
+    'docker',
+    *sys.argv[1:])

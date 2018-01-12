@@ -158,7 +158,8 @@ with catch_and_die([CalledProcessError]):
     for group in groups:
         group_dir = join(mountpoint, 'sys/fs/cgroup',group)
         os.mkdir(group_dir)
-        call(['mount', '-n', '-t', 'cgroup', '-o', group, 'cgroup', group_dir])
+        import subprocess
+        call(['mount', '-n', '-t', 'cgroup', '-o', group, 'cgroup', group_dir], stderr=subprocess.DEVNULL) # FIXME: find out why some fail and make this more robust
 
 start_cleanup_daemon(mounts_map, clean_dirs)
 
