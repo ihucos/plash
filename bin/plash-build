@@ -52,10 +52,11 @@ try:
     check_call(['plash-nodepath', os_hint], stderr=DEVNULL, stdout=DEVNULL)
 except CalledProcessError:
     print('Container not found, trying to pull it', file=sys.stderr)
-    try:
-        check_call(['plash-import-cloud', os_hint])
-    except CalledProcessError:
-        sys.exit(1)
+    with catch_and_die([CalledProcessError]):
+        if os_hint.startswith('docker://'):
+            check_call(['plash-import-docker', os_hint[9:], os_hint])
+        else:
+            check_call(['plash-import-cloud', os_hint])
 
 building_happened = False
 current_container = os_hint

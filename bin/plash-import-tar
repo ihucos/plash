@@ -18,7 +18,7 @@ handle_help_flag()
 
 try:
     tar_file = sys.argv[1]
-    image_id = sys.argv[2]
+    image_id = sys.argv[2].replace('/', '%')  # escape for fs
 except IndexError:
     die_with_usage()
 

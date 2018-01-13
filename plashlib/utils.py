@@ -112,7 +112,8 @@ def handle_build_args():
         container_id = out[:-1]
         os.execvpe(sys.argv[0], [sys.argv[0], container_id] + cmd, os.environ)
 
-def nodepath_or_die(container):
+def nodepath_or_die(unescaped_container):
+    container = unescaped_container.replace('/', '%')
     try:
         # FIXME: security check that container does not contain bad chars
         with catch_and_die([OSError], ignore=FileNotFoundError, debug='readlink'):
