@@ -6,6 +6,7 @@
 import subprocess
 import os
 import sys
+import atexit
 from time import sleep
 import tempfile
 from plashlib.utils import die, catch_and_die, die_with_usage
@@ -25,6 +26,7 @@ with catch_and_die([subprocess.CalledProcessError]):
     debug('starting docker')
     log = open(tempfile.mkstemp()[1])
     p = subprocess.Popen(['plash-docker-daemon'], stderr=log)
+    atexit.register(lambda: p.kill())
     while True:
         daemon_exit = p.poll()
         if daemon_exit is not None:
@@ -36,16 +38,11 @@ with catch_and_die([subprocess.CalledProcessError]):
         else:
             break
     debug('docker is up')
-    
-    
     debug('pulling image')
-    subprocess.check_call(['plash-docker', 'pull', pull])
+    subprocess.check_call(['plash-docker', 'pull', pull], stdout=2) # docker pull shows progress in stdout by default
     debug('pulled')
     container = subprocess.check_output(['plash-docker', 'create', pull, 'sh']).decode().rstrip('\n')
     debug('exporting image into plash')
     docker_export = subprocess.Popen(['plash-docker', 'export', container], stdout=subprocess.PIPE)
-    plash_import_tar = subprocess.Popen(['plash-import-tar', '-', image_id], stdin=docker_export.stdout)
-    if plash_import_tar.wait():
-        docker_export.kill()
-    else:
-        docker_export.wait()
+    atexit.register(lambda: docker_export.kill())
+    subprocess.check_call(['plash-import-tar', '-', image_id], stdin=docker_export.stdout)

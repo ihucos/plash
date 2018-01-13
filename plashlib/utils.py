@@ -122,7 +122,7 @@ def nodepath_or_die(unescaped_container):
             os.stat(nodepath)
         return nodepath
     except FileNotFoundError:
-        die('no container {}'.format(repr(container)), exit=3)
+        die('no container {}'.format(repr(unescaped_container)), exit=3)
 
 
 def get_default_shell(passwd_file):
