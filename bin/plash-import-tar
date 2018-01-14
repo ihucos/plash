@@ -11,10 +11,15 @@ import sys
 import tarfile
 from os.path import join
 from tempfile import mkdtemp
+from shutil import rmtree
+import atexit
+import subprocess
 
-from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die, hashstr
+from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die, hashstr, nodepath_or_die
 
 handle_help_flag()
+
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 try:
     tar_file = sys.argv[1]
@@ -22,19 +27,8 @@ try:
 except IndexError:
     die_with_usage()
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-
-image_dir = join(join(PLASH_DATA, 'builds'), image_id)
-if os.path.exists(image_dir):
-    die('An image with that image id already exists')
-
-with catch_and_die([OSError]):
-    tmp_image_dir = mkdtemp(
-        dir=join(PLASH_DATA,
-                 'tmp'))  # must be on same fs than PLASH_DATA for rename to work
-    os.mkdir(join(tmp_image_dir, 'children'))
-
-rootfs = join(tmp_image_dir, 'payload')
+rootfs = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+atexit.register(lambda: rmtree(rootfs))
 if tar_file == '-':
     t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')
 else:
@@ -51,18 +45,4 @@ with open(resolvconf, 'w') as f:
     f.seek(0)
     f.truncate()
 
-# index the image
-try:
-    os.symlink(image_dir, join(join(PLASH_DATA, 'links'),
-                               image_id))  # absolute symlink!
-except FileExistsError:
-    pass
-
-try:
-    os.rename(tmp_image_dir, image_dir)
-except OSError as exc:
-    if exc.errno == errno.ENOTEMPTY:
-        die('Image id already taken: {}'.format(image_id))
-    else:
-        raise
-print(image_id)
+os.execlp('plash-import-layer', 'plash-import-layer', '/', image_id, rootfs)

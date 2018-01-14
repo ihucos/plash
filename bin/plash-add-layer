@@ -23,50 +23,23 @@ from tempfile import mkdtemp
 
 from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
 
-
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-
-handle_help_flag()
-handle_build_args()
 
 try:
     container = sys.argv[1]
 except IndexError:
     die_with_usage()
 
-nodepath = nodepath_or_die(container)
+handle_help_flag()
+handle_build_args()
 
+nodepath_or_die(container)
 cmd = sys.stdin.read()
-quiet = False
 
-new_container = hashstr(b':'.join([container.encode(), cmd.encode()]))
-final_child_dst = join(
-    join(PLASH_DATA, 'builds'), nodepath, 'children', new_container)
-
-for i in range(2, len(new_container)):
-    short = (new_container[:i + 1])
-    linkname = join(PLASH_DATA, 'links', short)
-    try:
-        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
-            os.symlink(final_child_dst, linkname)
-    except FileExistsError:
-        if os.readlink(
-                linkname
-        ) == final_child_dst and os.path.exists(final_child_dst):
-
-            # already cached
-            print(short)
-            sys.exit(3)
-
-    else:
-        break
-
-new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='workdir-')
-new_layer = join(new_node, 'payload')
-os.mkdir(new_layer)
-os.mkdir(join(new_node, 'children'))
-
+upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+atexit.register(lambda: shutil.rmtree(upperdir))
+atexit.register(lambda: shutil.rmtree(workdir))
 out = 2
 ps4 = color('--> ', 4)
 p = subprocess.Popen(
@@ -75,7 +48,7 @@ p = subprocess.Popen(
          container,
          '--dont-deescalate',
          '--upperdir',
-         new_layer,
+         upperdir,
 	 '--workdir',
 	 workdir,
          'sh',
@@ -87,21 +60,11 @@ p = subprocess.Popen(
     env=dict(os.environ, PS4=ps4),
     cwd='/')
 
-p.stdin.write(cmd.encode())
+p.stdin.write(cmd.encode()) # better: for each line or so for easier interactive use
 p.stdin.close()
 exit = p.wait()
-
-if exit != 0:
-    atexit.register(lambda: shutil.rmtree(new_node))
+if exit:
     die("build returned exit status {}".format(exit), exit=4)
 
-try:
-    os.rename(new_node, final_child_dst)
-except OSError as exc:
-    if exc.errno == errno.ENOTEMPTY:
-        info('container id or layer appeared while building, not replacing it'.
-             format(new_container))
-    else:
-        raise
-
-print(short)
+new_container_id = hashstr(b':'.join([container.encode(), cmd.encode()]))
+os.execlp('plash-import-layer', 'plash-import-layer', container, new_container_id, upperdir)
