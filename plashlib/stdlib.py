@@ -19,13 +19,13 @@ CLI_SHORTCUTS = [
     (('-l',), [['layer']], 0),
     (('-i',), [['include']], '+'),
     (('-o',), [['os']], 1),
-    (('--alpine', '-A',), [['os', 'alpine'], ['apk']], '*'),
-    (('--ubuntu', '-U',), [['os', 'ubuntu'], ['apt']], '*'),
-    (('--fedora', '-F',), [['os', 'fedora'], ['dnf']], '*'),
-    (('--debian', '-D',), [['os', 'debian'], ['apt']], '*'),
-    (('--centos', '-C',), [['os', 'centos'], ['yum']], '*'),
-    (('--arch', '-R',), [['os', 'arch'], ['pacman']], '*'),
-    (('--gentoo', '-G',), [['os', 'gentoo'], ['emerge']], '*'),
+    (('--alpine', '-A',), [['os', 'lxc://alpine'], ['apk']], '*'),
+    (('--ubuntu', '-U',), [['os', 'lxc://ubuntu'], ['apt']], '*'),
+    (('--fedora', '-F',), [['os', 'lxc://fedora'], ['dnf']], '*'),
+    (('--debian', '-D',), [['os', 'lxc://debian'], ['apt']], '*'),
+    (('--centos', '-C',), [['os', 'lxc://centos'], ['yum']], '*'),
+    (('--arch', '-R',), [['os', 'lxc://arch'], ['pacman']], '*'),
+    (('--gentoo', '-G',), [['os', 'lxc://gentoo'], ['emerge']], '*'),
 ]
 
 
