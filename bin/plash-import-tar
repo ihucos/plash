@@ -12,7 +12,7 @@ import tarfile
 from os.path import join
 from tempfile import mkdtemp
 
-from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die
+from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die, hashstr
 
 handle_help_flag()
 
@@ -65,3 +65,4 @@ except OSError as exc:
         die('Image id already taken: {}'.format(image_id))
     else:
         raise
+print(image_id)

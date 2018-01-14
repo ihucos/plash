@@ -48,14 +48,14 @@ layers = script.split(LAYER_MARKER + '\n')
 layers = [l for l in layers if l]
 
 # pull container if it does not exists
-try:
-    check_call(['plash-nodepath', image_hint], stderr=DEVNULL, stdout=DEVNULL)
-except CalledProcessError:
-    with catch_and_die([CalledProcessError]):
-        check_call(['plash-import', image_hint])
+#try:
+#    check_call(['plash-nodepath', image_hint], stderr=DEVNULL, stdout=DEVNULL)
+#except CalledProcessError:
+with catch_and_die([CalledProcessError]):
+    base_container = check_output(['plash-import', image_hint]).decode().strip('\n')
 
 building_happened = False
-current_container = image_hint
+current_container = base_container
 for counter, layer in enumerate(layers):
     p = Popen(
         ['plash-add-layer', current_container],
