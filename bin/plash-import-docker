@@ -5,11 +5,14 @@
 
 import subprocess
 import os
+from os.path import join
 import sys
 import atexit
 from time import sleep
 import tempfile
 from plashlib.utils import die, catch_and_die, die_with_usage
+
+DOCKER_START_TIMEOUT = 40
 
 try:
     pull, image_id = sys.argv[1], sys.argv[2]
@@ -19,30 +22,51 @@ except IndexError:
 def debug(msg):
     print('==> {}'.format(msg), file=sys.stderr)
 
-with catch_and_die([subprocess.CalledProcessError]):
+tmpdir = tempfile.mkdtemp(prefix='plash-import-docker-')
+socket_file = join(tmpdir, 'docker.sock')
+os.environ['PLASH_DOCKER_SOCKET'] = socket_file
+daemon_log = open(join(tmpdir, 'docker-daemon.log'), 'w')
+client_log = open(join(tmpdir, 'docker.log'), 'w')
 
-    debug('ensuring docker is builded')
+debug('ensuring docker is builded')
+with catch_and_die([subprocess.CalledProcessError]):
     subprocess.check_output(['plash-build', '-A', 'docker']) # ensure it is builded showing build logs
-    debug('starting docker')
-    log = open(tempfile.mkstemp()[1])
-    p = subprocess.Popen(['plash-docker-daemon'], stderr=log)
-    atexit.register(lambda: p.kill())
-    while True:
-        daemon_exit = p.poll()
-        if daemon_exit is not None:
-            die('plash-docker-daemon died with exit status {} (logs at {})'.format(daemon_exit, log.name))
-        try:
-            subprocess.check_call(['plash-docker', 'info'], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
-        except subprocess.CalledProcessError:
-            sleep(1)
-        else:
-            break
-    debug('docker is up')
-    debug('pulling image')
-    # docker pull shows progress in stdout by default, we must redirect it too stderr
-    subprocess.check_call(['plash-docker', 'pull', pull], stdout=2)
-    debug('pulled')
-    debug('exporting image into plash')
+debug('starting docker')
+
+#
+# start daemon and wait for it to start
+#
+with catch_and_die([subprocess.CalledProcessError]):
+    p = subprocess.Popen(['plash-docker-daemon'], stderr=daemon_log, stdout=daemon_log)
+atexit.register(lambda: p.kill())
+c = 0
+while True:
+
+    # check if daemon looks ok
+    daemon_exit = p.poll()
+    if c >= DOCKER_START_TIMEOUT:
+        die('timeout for docker start: server log: {}, client log: {}'.format(
+            daemon_log.name, client_log.name))
+    if daemon_exit is not None:
+        die('plash-docker-daemon died with exit status {} (logs at {})'.format(daemon_exit, log.name))
+
+    # check if daemon is up yet
+    try:
+        subprocess.check_call(['plash-docker', 'info'], stderr=client_log, stdout=client_log)
+    except subprocess.CalledProcessError:
+        sleep(1)
+        c += 1
+    else:
+        break
+
+debug('docker is up')
+debug('pulling image')
+# docker pull shows progress in stdout by default, we must redirect it too stderr
+subprocess.check_call(['plash-docker', 'pull', pull], stdout=2)
+debug('pulled')
+debug('exporting image into plash')
+
+with catch_and_die([subprocess.CalledProcessError]):
     container = subprocess.check_output(['plash-docker', 'create', pull, 'sh']).decode().rstrip('\n')
     docker_export = subprocess.Popen(['plash-docker', 'export', container], stdout=subprocess.PIPE)
     atexit.register(lambda: docker_export.kill())

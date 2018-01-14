@@ -3,10 +3,14 @@
 # usage: plash-docker <DOCKER_ARGS>
 
 from plashlib.utils import handle_help_flag
-from os import execlp
+from os import execlp, environ
 import sys
 
 handle_help_flag()
+
+socket = environ.get(
+    'PLASH_DOCKER_SOCKET',
+    '/tmp/docker.sock')
 
 execlp(
     'plash-run',
@@ -16,6 +20,6 @@ execlp(
     '--',
     '--dont-deescalate',
     'env',
-    'DOCKER_HOST=unix:///tmp/docker.sock',
+    'DOCKER_HOST=unix://{}'.format(socket),
     'docker',
     *sys.argv[1:])

@@ -33,7 +33,7 @@ IMAGE_PROVIDERS = {
     'tar': 'plash-import-tar',
     'docker': 'plash-import-docker',
 }
-DEFAULT_IMAGE_PROVIDER = 'lxc'
+#DEFAULT_IMAGE_PROVIDER = 'lxc'
 
 handle_help_flag()
 
@@ -61,9 +61,10 @@ try:
 except CalledProcessError:
     try:
         image_provider, arg = os_hint.split('://', 1)
-    except ValuerError:
-        image_provider = DEFAULT_IMAGE_PROVIDER
-        arg = os_hint
+    except ValueError:
+        #image_provider = DEFAULT_IMAGE_PROVIDER
+        #arg = os_hint
+        die('no such image')
     with catch_and_die([CalledProcessError]):
         prog = IMAGE_PROVIDERS[image_provider]
         check_call([prog, arg, '{}://{}'.format(image_provider, arg)])

@@ -3,9 +3,13 @@
 # usage: plash-dockerd <DOCKER_ARGS>
 
 from plashlib.utils import handle_help_flag
-from os import execlp
+from os import execlp, environ
 
 handle_help_flag()
+
+socket = environ.get(
+    'PLASH_DOCKER_SOCKET',
+    '/tmp/docker.sock')
 
 execlp(
     'plash-run',
@@ -18,4 +22,4 @@ execlp(
     'DOCKER_RAMDISK=1',
     'dockerd',
     '-H',
-    'unix:///tmp/docker.sock')
+    'unix://{}'.format(socket))
