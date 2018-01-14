@@ -12,7 +12,7 @@ import tarfile
 from os.path import join
 from tempfile import mkdtemp
 
-from plashlib.utils import die, info, handle_help_flag, die_with_usage
+from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die
 
 handle_help_flag()
 
@@ -28,11 +28,12 @@ image_dir = join(join(PLASH_DATA, 'builds'), image_id)
 if os.path.exists(image_dir):
     die('An image with that image id already exists')
 
-tmp_image_dir = mkdtemp(
-    dir=join(PLASH_DATA,
-             'tmp'))  # must be on same fs than PLASH_DATA for rename to work
-os.mkdir(join(tmp_image_dir, 'children'))
-# os.mkdir(join(tmp_image_dir, 'payload'))
+with catch_and_die([OSError]):
+    tmp_image_dir = mkdtemp(
+        dir=join(PLASH_DATA,
+                 'tmp'))  # must be on same fs than PLASH_DATA for rename to work
+    os.mkdir(join(tmp_image_dir, 'children'))
+
 rootfs = join(tmp_image_dir, 'payload')
 if tar_file == '-':
     t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')

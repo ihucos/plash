@@ -12,20 +12,20 @@ from itertools import dropwhile
 from .eval import ArgError, action, eval
 from .utils import hashstr
 
-OS_HINT_TEMPL = '### os hint: {}'
+IMAGE_HINT_TEMPL = '### image hint: {}'
 CLI_SHORTCUTS = [
     # shortcut, lsp, nargs
     (('-x',), [['run']], '+'),
     (('-l',), [['layer']], 0),
-    (('-i',), [['include']], '+'),
-    (('-o',), [['os']], 1),
-    (('--alpine', '-A',), [['os', 'lxc://alpine'], ['apk']], '*'),
-    (('--ubuntu', '-U',), [['os', 'lxc://ubuntu'], ['apt']], '*'),
-    (('--fedora', '-F',), [['os', 'lxc://fedora'], ['dnf']], '*'),
-    (('--debian', '-D',), [['os', 'lxc://debian'], ['apt']], '*'),
-    (('--centos', '-C',), [['os', 'lxc://centos'], ['yum']], '*'),
-    (('--arch', '-R',), [['os', 'lxc://arch'], ['pacman']], '*'),
-    (('--gentoo', '-G',), [['os', 'lxc://gentoo'], ['emerge']], '*'),
+    (('-I',), [['include']], '+'),
+    (('-i',), [['image']], 1),
+    (('--alpine', '-A',), [['image', 'lxc://alpine'], ['apk']], '*'),
+    (('--ubuntu', '-U',), [['image', 'lxc://ubuntu'], ['apt']], '*'),
+    (('--fedora', '-F',), [['image', 'lxc://fedora'], ['dnf']], '*'),
+    (('--debian', '-D',), [['image', 'lxc://debian'], ['apt']], '*'),
+    (('--centos', '-C',), [['image', 'lxc://centos'], ['yum']], '*'),
+    (('--arch', '-R',), [['image', 'lxc://arch'], ['pacman']], '*'),
+    (('--gentoo', '-G',), [['image', 'lxc://gentoo'], ['emerge']], '*'),
 ]
 
 
@@ -98,7 +98,7 @@ def include(*files):
 def hash_paths(paths):
     collect_files = []
     for path in paths:
-        if os.path.isdir(path):
+        if image.path.isdir(path):
             collect_files.extend(all_files(path))
         else:
             collect_files.append(path)
@@ -170,10 +170,10 @@ def comment(*args):
     pass
 
 
-@action('os', escape=False)
-def os_(os):
+@action('image', escape=False)
+def image(os):
     'set the base image'
-    return OS_HINT_TEMPL.format(os)
+    return IMAGE_HINT_TEMPL.format(os)
 
 
 @action(escape=False)

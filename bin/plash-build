@@ -24,7 +24,7 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
 from plashlib.eval import LAYER_MARKER
-from plashlib.stdlib import OS_HINT_TEMPL
+from plashlib.stdlib import IMAGE_HINT_TEMPL
 from plashlib.utils import catch_and_die, die, info, color, handle_help_flag
 
 handle_help_flag()
@@ -35,13 +35,13 @@ try:
 except CalledProcessError as exc:
     sys.exit(exc.returncode)
 
-os_re = re.compile(OS_HINT_TEMPL.format('(.+)\n'))
-matches = os_re.findall(script)
-script = os_re.sub('', script)
+image_ir = re.compile(IMAGE_HINT_TEMPL.format('(.+)\n'))
+matches = image_ir.findall(script)
+script = image_ir.sub('', script)
 if matches:
-    os_hint = matches[-1]
+    image_hint = matches[-1]
 else:
-    die('no OS specified')
+    die('no image specified')
 
 # split the script in its layers
 layers = script.split(LAYER_MARKER + '\n')
@@ -49,13 +49,13 @@ layers = [l for l in layers if l]
 
 # pull container if it does not exists
 try:
-    check_call(['plash-nodepath', os_hint], stderr=DEVNULL, stdout=DEVNULL)
+    check_call(['plash-nodepath', image_hint], stderr=DEVNULL, stdout=DEVNULL)
 except CalledProcessError:
     with catch_and_die([CalledProcessError]):
-        check_call(['plash-import', os_hint])
+        check_call(['plash-import', image_hint])
 
 building_happened = False
-current_container = os_hint
+current_container = image_hint
 for counter, layer in enumerate(layers):
     p = Popen(
         ['plash-add-layer', current_container],
