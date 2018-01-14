@@ -1,76 +1,71 @@
 #!/usr/bin/env python3
 #
-# usage: plash-add-layer CONTAINER [SHELL] [SHELARGS]
-# Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
-# The new container is the only thing printed to stdout, building information and status messages are printed to stderr.
-# For most cases use `plash build` for a higher level interface.
-#
-# Exit status:
-# Same as `plash build`
+# usage: plash-add-layer PARENT-CONTAINER NEW-LAYER-ID IMPORT-DIR
+# return a new container id
 
 
-import atexit
-import errno
-import os
-import shutil
-import subprocess
-import sys
-from os.path import basename, join
-from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
-                        check_output)
-from sys import exit
 from tempfile import mkdtemp
-
+import os
+import sys
 from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
+from os.path import join
+
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-
-try:
-    container = sys.argv[1]
-    shell_with_args = sys.argv[2:]
-except IndexError:
-    die_with_usage()
-
-if not container:
-    die('container arg can not be empty')
 
 handle_help_flag()
 handle_build_args()
 
-nodepath_or_die(container)
+try:
+    container, new_layer_id, new_layer_payload = sys.argv[1:4]
+except ValueError:
+    die_with_usage()
 
-upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-out = 2
-p = subprocess.Popen(
-    [
-        'plash-run',
-         container,
-         '--dont-deescalate',
-         '--upperdir',
-         upperdir,
-	 '--workdir',
-	 workdir,
-     ] + list(shell_with_args),
-    stdin=subprocess.PIPE,
-    stderr=out,
-    stdout=out,
-    cwd='/')
+if container == 'root': # that container is special
+    node_new_dst = join(PLASH_DATA, 'builds', new_layer_id)
+else:
+    nodepath = nodepath_or_die(container)
+    node_new_dst = join(nodepath, 'children', new_layer_id)
 
-cmds = []
-for line in sys.stdin:
-    cmds.append(line)
-    p.stdin.write(line.encode())
-    p.stdin.flush()
-p.stdin.close()
 
-exit = p.wait()
-if exit:
-    die("build returned exit status {}".format(exit), exit=4)
+#
+# create a short id for the layer in the 'links' folder.
+# put a link there pointing to node_new_dst before copying anything there so we don't 'loose'
+# orphaned data there. Cleaning broken symlinks in links is easier than traversing the build folder.
+# that the links are short (~ 3 charachters) is a covenience.
+#
+#for i in range(2, len(new_layer_id)):
+#    short = (new_layer_id[:i + 1])
+#    linkname = join(PLASH_DATA, 'links', short)
+#    try:
+#        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
+#            os.symlink(node_new_dst, linkname)
+#    except FileExistsError:
+#        if os.readlink(
+#                linkname
+#        ) == node_new_dst and os.path.exists(node_new_dst):
+#
+#            # already cached
+#            print(short)
+#            sys.exit(3)
+#    else:
+#        break
 
-# the new container id is a hash of the commands
-new_container = hashstr(b':'.join([container.encode(), ''.join(cmds).encode()]))
+try:
+    os.symlink(node_new_dst, join(PLASH_DATA, 'links', new_layer_id))
+except FileExistsError:
+    die('that layer id already exists')
 
-with catch_and_die([CalledProcessError]):
-    check_call(['plash-stacklayer', container, new_container, upperdir])
-print(new_container)
+new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+os.mkdir(join(new_node, 'payload'))
+os.mkdir(join(new_node, 'children'))
+os.rename(new_layer_payload, join(new_node, 'payload'))
+
+try:
+    os.rename(new_node, node_new_dst)
+except OSError as exc:
+    if exc.errno == errno.ENOTEMPTY:
+        info('container id or layer appeared while building, not replacing it'.
+             format(new_layer_id))
+    else:
+        raise

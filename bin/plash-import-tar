@@ -11,9 +11,9 @@ import sys
 import tarfile
 from os.path import join
 from tempfile import mkdtemp
-from shutil import rmtree
 import atexit
 import subprocess
+from subprocess import check_call, CalledProcessError
 
 from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die, hashstr, nodepath_or_die
 
@@ -28,7 +28,6 @@ except IndexError:
     die_with_usage()
 
 rootfs = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-atexit.register(lambda: rmtree(rootfs))
 if tar_file == '-':
     t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')
 else:
@@ -45,4 +44,5 @@ with open(resolvconf, 'w') as f:
     f.seek(0)
     f.truncate()
 
-os.execlp('plash-stacklayer', 'plash-import-layer', 'root', image_id, rootfs)
+with catch_and_die([CalledProcessError]):
+    check_call(['plash-add-layer', 'root', image_id, rootfs])

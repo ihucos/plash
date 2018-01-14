@@ -21,6 +21,7 @@ import re
 import subprocess
 import os
 import sys
+from plashlib.utils import hashstr, container_exists
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
@@ -55,24 +56,20 @@ layers = [l for l in layers if l]
 with catch_and_die([CalledProcessError]):
     base_container = check_output(['plash-import', image_hint]).decode().strip('\n')
 
-building_happened = False
 current_container = base_container
 os.environ['PS4'] = color('--> ', 4)
 for counter, layer in enumerate(layers):
-    p = Popen(
-        ['plash-add-layer', current_container, 'sh', '-ex'],
-        stdout=subprocess.PIPE,
-        stdin=subprocess.PIPE)
-    p.stdin.write(layer.encode())
-    p.stdin.close()
-    exit = p.wait()
-    if not exit:
-        building_happened = True
-    elif exit != 3:
-        sys.exit(1)
-    current_container = p.stdout.read()
-    current_container = current_container.decode().strip('\n')
-    if building_happened:
+    new_container = hashstr(b':'.join([current_container.encode(), layer.encode()]))
+    if not container_exists(new_container):
+        p = Popen(
+            ['plash-create-container', current_container, new_container, 'sh', '-ex'],
+            stdout=2, # redirect stdout to stderr
+            stdin=subprocess.PIPE)
+        p.stdin.write(layer.encode())
+        p.stdin.close()
+        exit = p.wait()
+        if exit:
+            die('build died with exit status: {}'.format(exit))
         info('--:')
 
-print(current_container)
+print(new_container)

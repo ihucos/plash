@@ -124,6 +124,14 @@ def nodepath_or_die(unescaped_container):
     except FileNotFoundError:
         die('no container {}'.format(repr(unescaped_container)), exit=3)
 
+def container_exists(unescaped_container):
+    container = unescaped_container.replace('/', '%')
+    try:
+        nodepath = os.readlink(os.path.join(LINKS_DIR, container))
+        return os.path.exists(nodepath)
+    except FileNotFoundError:
+        return False
+
 def get_default_shell(passwd_file):
     with open(passwd_file) as f:
         #  the first entry is the root entry
