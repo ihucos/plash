@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-add-layer CONTAINER
+# usage: plash-add-layer CONTAINER [SHELL] [SHELARGS]
 # Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
 # The new container is the only thing printed to stdout, building information and status messages are printed to stderr.
 # For most cases use `plash build` for a higher level interface.
@@ -27,6 +27,7 @@ PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 try:
     container = sys.argv[1]
+    shell_with_args = sys.argv[2:]
 except IndexError:
     die_with_usage()
 
@@ -37,12 +38,10 @@ handle_help_flag()
 handle_build_args()
 
 nodepath_or_die(container)
-cmd = sys.stdin.read()
 
 upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 out = 2
-ps4 = color('--> ', 4)
 p = subprocess.Popen(
     [
         'plash-run',
@@ -52,21 +51,26 @@ p = subprocess.Popen(
          upperdir,
 	 '--workdir',
 	 workdir,
-         'sh',
-         '-xe'
-     ],
+     ] + list(shell_with_args),
+    stdin=subprocess.PIPE,
     stderr=out,
     stdout=out,
-    stdin=subprocess.PIPE,
-    env=dict(os.environ, PS4=ps4),
     cwd='/')
 
-p.stdin.write(cmd.encode()) # better: for each line or so for easier interactive use
+cmds = []
+for line in sys.stdin:
+    cmds.append(line)
+    p.stdin.write(line.encode())
+    p.stdin.flush()
 p.stdin.close()
+
 exit = p.wait()
 if exit:
     die("build returned exit status {}".format(exit), exit=4)
 
-new_container_id = hashstr(b':'.join([container.encode(), cmd.encode()]))
-check_call(['plash-stacklayer', container, new_container_id, upperdir])
-print(new_container_id)
+# the new container id is a hash of the commands
+new_container = hashstr(b':'.join([container.encode(), ''.join(cmds).encode()]))
+
+with catch_and_die([CalledProcessError]):
+    check_call(['plash-stacklayer', container, new_container, upperdir])
+print(new_container)

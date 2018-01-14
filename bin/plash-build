@@ -19,6 +19,7 @@
 
 import re
 import subprocess
+import os
 import sys
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
@@ -56,9 +57,10 @@ with catch_and_die([CalledProcessError]):
 
 building_happened = False
 current_container = base_container
+os.environ['PS4'] = color('--> ', 4)
 for counter, layer in enumerate(layers):
     p = Popen(
-        ['plash-add-layer', current_container],
+        ['plash-add-layer', current_container, 'sh', '-ex'],
         stdout=subprocess.PIPE,
         stdin=subprocess.PIPE)
     p.stdin.write(layer.encode())
