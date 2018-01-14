@@ -2,11 +2,11 @@
 set -exu
 ! plash-nodepath mynoexistentcontainer
 
-newcont=$(plash-build --os busybox --bust-cache)
+newcont=$(plash-build -id busybox --bust-cache)
 nodepath=$(plash-nodepath $newcont)
 echo $nodepath | grep $newcont
 
-layerup=$(plash-build --os $newcont --layer --bust-cache)
+layerup=$(plash-build -id $newcont --layer --bust-cache)
 nodepath=$(plash-nodepath $layerup)
 echo $nodepath | grep $newcont
 echo $nodepath | grep $layerup

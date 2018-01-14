@@ -2,7 +2,7 @@
 set -xeu
 
 tmp=$(mktemp -d)
-plash-build --os busybox
+plash-build -i busybox
 plash-mount busybox $tmp
 grep  $tmp' '  /proc/mounts >/dev/null || {
   echo 'Could not find mountpoint in /proc/mounts '

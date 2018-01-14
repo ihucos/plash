@@ -6,9 +6,9 @@
 #
 # Some short examples:
 # ```
-# plash build -o zesty --run 'touch a'
-# plash build -o zesty --run 'touch a' --layer --run 'touch b'
-# plash build -o zesty --apt nmap
+# plash build -i zesty --run 'touch a'
+# plash build -i zesty --run 'touch a' --layer --run 'touch b'
+# plash build -i zesty --apt nmap
 # ```
 #
 # exit status:

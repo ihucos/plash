@@ -1,6 +1,6 @@
 #!/bin/bash
 set -xeu
-plash-build --os busybox
+plash-build -i busybox
 
 echo 'TEST: specifying "-" as a file'
 tmp=$(mktemp)
