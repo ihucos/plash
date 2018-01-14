@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
-# usage: plash-import-layer (CONTAINER-ID | /) LAYER-ID LAYER-DIR
+# usage: plash-stacklayer PARENT-CONTAINER NEW-LAYER-ID IMPORT-DIR
+# return a new container id
 
 
 from tempfile import mkdtemp
@@ -20,12 +21,11 @@ try:
 except ValueError:
     die_with_usage()
 
-if container == '/':
+if container == 'root': # that container is special
     node_new_dst = join(PLASH_DATA, 'builds', new_layer_id)
 else:
     nodepath = nodepath_or_die(container)
-    node_new_dst = join(
-        PLASH_DATA, 'builds', nodepath, 'children', new_layer_id)
+    node_new_dst = join(nodepath, 'children', new_layer_id)
 
 
 #
@@ -34,22 +34,27 @@ else:
 # orphaned data there. Cleaning broken symlinks in links is easier than traversing the build folder.
 # that the links are short (~ 3 charachters) is a covenience.
 #
-for i in range(2, len(new_layer_id)):
-    short = (new_layer_id[:i + 1])
-    linkname = join(PLASH_DATA, 'links', short)
-    try:
-        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
-            os.symlink(node_new_dst, linkname)
-    except FileExistsError:
-        if os.readlink(
-                linkname
-        ) == node_new_dst and os.path.exists(node_new_dst):
+#for i in range(2, len(new_layer_id)):
+#    short = (new_layer_id[:i + 1])
+#    linkname = join(PLASH_DATA, 'links', short)
+#    try:
+#        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
+#            os.symlink(node_new_dst, linkname)
+#    except FileExistsError:
+#        if os.readlink(
+#                linkname
+#        ) == node_new_dst and os.path.exists(node_new_dst):
+#
+#            # already cached
+#            print(short)
+#            sys.exit(3)
+#    else:
+#        break
 
-            # already cached
-            print(short)
-            sys.exit(3)
-    else:
-        break
+try:
+    os.symlink(node_new_dst, join(PLASH_DATA, 'links', new_layer_id))
+except FileExistsError:
+    die('that layer id already exists')
 
 new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 os.mkdir(join(new_node, 'payload'))
@@ -64,5 +69,3 @@ except OSError as exc:
              format(new_layer_id))
     else:
         raise
-
-print(short)

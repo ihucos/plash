@@ -45,4 +45,4 @@ with open(resolvconf, 'w') as f:
     f.seek(0)
     f.truncate()
 
-os.execlp('plash-import-layer', 'plash-import-layer', '/', image_id, rootfs)
+os.execlp('plash-stacklayer', 'plash-import-layer', 'root', image_id, rootfs)

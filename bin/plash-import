@@ -8,7 +8,7 @@
 #   lxc        import from linuxcontainers.org
 #   tar        import a tar file
 
-from plashlib.utils import nodepath_or_die, catch_and_die, die, handle_help_flag, die_with_usage, hashstr, layer_exists
+from plashlib.utils import nodepath_or_die, catch_and_die, die, handle_help_flag, die_with_usage, hashstr
 from subprocess import check_call, CalledProcessError, DEVNULL
 import sys
 
@@ -25,10 +25,6 @@ except ValueError:
     die('arg mus be in the format of "protocol://image" (try `plash-import --help` for available protocols)')
 
 hashed_arg = hashstr(arg.encode())
-short_id = layer_exists(hashed_arg)
-if short_id:
-    print(short_id)
-    sys.exit(0)
 
 # pull container if it does not exists
 try:
@@ -51,3 +47,4 @@ try:
         check_call(['plash-import-docker', protocol_arg, hashed_arg])
 except CalledProcessError as exc:
     pass
+print(hashed_arg)

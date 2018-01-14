@@ -124,7 +124,6 @@ def nodepath_or_die(unescaped_container):
     except FileNotFoundError:
         die('no container {}'.format(repr(unescaped_container)), exit=3)
 
-
 def get_default_shell(passwd_file):
     with open(passwd_file) as f:
         #  the first entry is the root entry
@@ -132,15 +131,3 @@ def get_default_shell(passwd_file):
         root_entry = f.readline().rstrip('\n')
         default_root_shell = root_entry.split(":")[6]
         return default_root_shell
-
-def layer_exists(layer_id):
-    for i in range(2, len(layer_id)):
-        short = (layer_id[:i + 1])
-        linkname = join(BASE_DIR, 'links', short)
-        try:
-            nodepath = os.readlink(linkname)
-        except FileNotFoundError:
-            continue
-        if os.path.basename(nodepath) == layer_id and os.path.exists(nodepath):
-            return short
-    return False

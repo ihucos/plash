@@ -30,6 +30,9 @@ try:
 except IndexError:
     die_with_usage()
 
+if not container:
+    die('container arg can not be empty')
+
 handle_help_flag()
 handle_build_args()
 
@@ -38,8 +41,6 @@ cmd = sys.stdin.read()
 
 upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-atexit.register(lambda: shutil.rmtree(upperdir))
-atexit.register(lambda: shutil.rmtree(workdir))
 out = 2
 ps4 = color('--> ', 4)
 p = subprocess.Popen(
@@ -67,4 +68,5 @@ if exit:
     die("build returned exit status {}".format(exit), exit=4)
 
 new_container_id = hashstr(b':'.join([container.encode(), cmd.encode()]))
-os.execlp('plash-import-layer', 'plash-import-layer', container, new_container_id, upperdir)
+check_call(['plash-stacklayer', container, new_container_id, upperdir])
+print(new_container_id)
