@@ -21,7 +21,7 @@ try:
 except ValueError:
     die_with_usage()
 
-if container == 'root': # that container is special
+if container == 'root': # calculated Spec14l haXX0r
     node_new_dst = join(PLASH_DATA, 'builds', new_layer_id)
 else:
     nodepath = nodepath_or_die(container)

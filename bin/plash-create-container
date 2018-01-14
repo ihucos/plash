@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+#
+# usage: plash-create-container CONTAINER NEW-CONTAINER-ID [CMD1 [CMD2 ...]]
+# Reads a shell script from stdin and returns a builded or cached container on top of the supplied container.
+# The new container is the only thing printed to stdout, building information and status messages are printed to stderr.
+# For most cases use `plash build` for a higher level interface.
+#
+# Exit status:
+# Same as `plash build`
+
+
+import atexit
+import errno
+import os
+import shutil
+import subprocess
+import sys
+from os.path import basename, join
+from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
+                        check_output)
+from sys import exit
+from tempfile import mkdtemp
+
+from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
+
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+try:
+    container = sys.argv[1]
+    new_container = sys.argv[2]
+    shell_with_args = sys.argv[3:]
+except IndexError:
+    die_with_usage()
+
+if not container:
+    die('container arg can not be empty')
+
+handle_help_flag()
+handle_build_args()
+
+nodepath_or_die(container)
+
+upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+p = subprocess.Popen(
+    [
+        'plash-run',
+         container,
+         '--dont-deescalate',
+         '--upperdir',
+         upperdir,
+	 '--workdir',
+	 workdir,
+     ] + list(shell_with_args))
+
+exit = p.wait()
+if exit:
+    die("build returned exit status {}".format(exit), exit=4)
+
+with catch_and_die([CalledProcessError]):
+    check_call(['plash-add-layer', container, new_container, upperdir])
