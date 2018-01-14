@@ -27,6 +27,14 @@ from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import OS_HINT_TEMPL
 from plashlib.utils import catch_and_die, die, info, color, handle_help_flag
 
+IMAGE_PROVIDERS = {
+    'tar': 'plash-import-tar',
+    'lxc': 'plash-import-lxc',
+    'tar': 'plash-import-tar',
+    'docker': 'plash-import-docker',
+}
+DEFAULT_IMAGE_PROVIDER = 'lxc'
+
 handle_help_flag()
 
 try:
@@ -51,12 +59,14 @@ layers = [l for l in layers if l]
 try:
     check_call(['plash-nodepath', os_hint], stderr=DEVNULL, stdout=DEVNULL)
 except CalledProcessError:
-    print('Container not found, trying to pull it', file=sys.stderr)
+    try:
+        image_provider, arg = os_hint.split('://', 1)
+    except ValuerError:
+        image_provider = DEFAULT_IMAGE_PROVIDER
+        arg = os_hint
     with catch_and_die([CalledProcessError]):
-        if os_hint.startswith('docker://'):
-            check_call(['plash-import-docker', os_hint[9:], os_hint])
-        else:
-            check_call(['plash-import-cloud', os_hint])
+        prog = IMAGE_PROVIDERS[image_provider]
+        check_call([prog, arg, '{}://{}'.format(image_provider, arg)])
 
 building_happened = False
 current_container = os_hint

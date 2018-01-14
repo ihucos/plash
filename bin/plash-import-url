@@ -44,5 +44,6 @@ with catch_and_die([URLError], debug=url):
     
 sys.stderr.write('100%]\n')
 sys.stderr.flush()
+print('extracting...', file=sys.stderr)
 
 execlp('plash-import-tar', 'plash-import-tar', tmpfile, image_id)

@@ -16,9 +16,9 @@ OS_HINT_TEMPL = '### os hint: {}'
 CLI_SHORTCUTS = [
     # shortcut, lsp, nargs
     (('-x',), [['run']], '+'),
-    (('-a',), [['apt']], '+'),
-    (('-y',), [['yum']], '+'),
-    (('-p',), [['pip']], '+'),
+    (('-l',), [['layer']], 0),
+    (('-i',), [['include']], '+'),
+    (('-o',), [['os']], 1),
     (('--alpine', '-A',), [['os', 'alpine'], ['apk']], '*'),
     (('--ubuntu', '-U',), [['os', 'ubuntu'], ['apt']], '*'),
     (('--fedora', '-F',), [['os', 'fedora'], ['dnf']], '*'),
@@ -26,8 +26,6 @@ CLI_SHORTCUTS = [
     (('--centos', '-C',), [['os', 'centos'], ['yum']], '*'),
     (('--arch', '-R',), [['os', 'arch'], ['pacman']], '*'),
     (('--gentoo', '-G',), [['os', 'gentoo'], ['emerge']], '*'),
-    (('-l',), [['layer']], 0),
-    (('-i',), [['include']], '+'),
 ]
 
 

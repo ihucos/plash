@@ -39,10 +39,11 @@ with catch_and_die([subprocess.CalledProcessError]):
             break
     debug('docker is up')
     debug('pulling image')
-    subprocess.check_call(['plash-docker', 'pull', pull], stdout=2) # docker pull shows progress in stdout by default
+    # docker pull shows progress in stdout by default, we must redirect it too stderr
+    subprocess.check_call(['plash-docker', 'pull', pull], stdout=2)
     debug('pulled')
-    container = subprocess.check_output(['plash-docker', 'create', pull, 'sh']).decode().rstrip('\n')
     debug('exporting image into plash')
+    container = subprocess.check_output(['plash-docker', 'create', pull, 'sh']).decode().rstrip('\n')
     docker_export = subprocess.Popen(['plash-docker', 'export', container], stdout=subprocess.PIPE)
     atexit.register(lambda: docker_export.kill())
     subprocess.check_call(['plash-import-tar', '-', image_id], stdin=docker_export.stdout)
