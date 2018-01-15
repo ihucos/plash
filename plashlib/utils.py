@@ -7,10 +7,10 @@ from os.path import join
 ERROR_COLOR = 1
 INFO_COLOR = 4
 
-BASE_DIR = os.environ.get('PLASH_DATA', '/var/lib/plash')
-TMP_DIR = join(BASE_DIR, 'tmp')
-BUILDS_DIR = join(BASE_DIR, 'builds')
-LINKS_DIR = join(BASE_DIR, 'links')
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+TMP_DIR = join(PLASH_DATA, 'tmp')
+BUILDS_DIR = join(PLASH_DATA, 'builds')
+LINKS_DIR = join(PLASH_DATA, 'links')
 
 
 def hashstr(stri):
@@ -124,11 +124,13 @@ def nodepath_or_die(unescaped_container):
     except FileNotFoundError:
         die('no container {}'.format(repr(unescaped_container)), exit=3)
 
-def container_exists(unescaped_container):
+def get_nodepath(unescaped_container):
     container = unescaped_container.replace('/', '%')
     try:
         nodepath = os.readlink(os.path.join(LINKS_DIR, container))
-        return os.path.exists(nodepath)
+        if os.path.exists(nodepath):
+            return nodepath
+        return False
     except FileNotFoundError:
         return False
 
@@ -139,3 +141,22 @@ def get_default_shell(passwd_file):
         root_entry = f.readline().rstrip('\n')
         default_root_shell = root_entry.split(":")[6]
         return default_root_shell
+
+def short_alias(container_id):
+    nodepath = get_nodepath(container_id)
+    for i in range(2, len(container_id)):
+        short = container_id[:i + 1]
+        linkname = os.path.join(PLASH_DATA, 'links', short)
+        try:
+            with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
+                os.symlink(nodepath, linkname)
+        except FileExistsError:
+            if os.readlink(
+                    linkname
+            ) == nodepath and os.path.exists(nodepath):
+    
+                # short id for this already used
+                break
+        else:
+            break
+    return short

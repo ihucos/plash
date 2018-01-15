@@ -28,29 +28,6 @@ else:
     node_new_dst = join(nodepath, 'children', new_layer_id)
 
 
-#
-# create a short id for the layer in the 'links' folder.
-# put a link there pointing to node_new_dst before copying anything there so we don't 'loose'
-# orphaned data there. Cleaning broken symlinks in links is easier than traversing the build folder.
-# that the links are short (~ 3 charachters) is a covenience.
-#
-#for i in range(2, len(new_layer_id)):
-#    short = (new_layer_id[:i + 1])
-#    linkname = join(PLASH_DATA, 'links', short)
-#    try:
-#        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
-#            os.symlink(node_new_dst, linkname)
-#    except FileExistsError:
-#        if os.readlink(
-#                linkname
-#        ) == node_new_dst and os.path.exists(node_new_dst):
-#
-#            # already cached
-#            print(short)
-#            sys.exit(3)
-#    else:
-#        break
-
 try:
     os.symlink(node_new_dst, join(PLASH_DATA, 'links', new_layer_id))
 except FileExistsError:

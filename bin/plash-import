@@ -8,8 +8,9 @@
 #   lxc        import from linuxcontainers.org
 #   tar        import a tar file
 
-from plashlib.utils import nodepath_or_die, catch_and_die, die, handle_help_flag, die_with_usage, hashstr
+from plashlib.utils import nodepath_or_die, catch_and_die, die, handle_help_flag, die_with_usage, hashstr, short_alias, get_nodepath
 from subprocess import check_call, CalledProcessError, DEVNULL
+import os
 import sys
 
 handle_help_flag()
@@ -27,24 +28,16 @@ except ValueError:
 hashed_arg = hashstr(arg.encode())
 
 # pull container if it does not exists
-try:
-    check_call(['plash-nodepath', hashed_arg], stderr=DEVNULL, stdout=DEVNULL)
-except CalledProcessError:
-    pass
-else:
-    # already imported
-    print(hashed_arg)
-    sys.exit(0) 
+if not get_nodepath(hashed_arg):
+    with catch_and_die([CalledProcessError]):
+        if protocol in ('http', 'https'):
+            check_call(['plash-import-url', arg, hashed_arg])
+        elif protocol == 'lxc':
+            check_call(['plash-import-lxc', protocol_arg, hashed_arg])
+        elif protocol == 'tar':
+            check_call(['plash-import-tar', protocol_arg, hashed_arg])
+        elif protocol == 'docker':
+            check_call(['plash-import-docker', protocol_arg, hashed_arg])
 
-try:
-    if protocol in ('http', 'https'):
-        check_call(['plash-import-url', arg, hashed_arg])
-    elif protocol == 'lxc':
-        check_call(['plash-import-lxc', protocol_arg, hashed_arg])
-    elif protocol == 'tar':
-        check_call(['plash-import-tar', protocol_arg, hashed_arg])
-    elif protocol == 'docker':
-        check_call(['plash-import-docker', protocol_arg, hashed_arg])
-except CalledProcessError as exc:
-    pass
-print(hashed_arg)
+short_container = short_alias(hashed_arg)
+print(short_container)

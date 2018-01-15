@@ -21,7 +21,7 @@ import re
 import subprocess
 import os
 import sys
-from plashlib.utils import hashstr, container_exists
+from plashlib.utils import hashstr, get_nodepath, short_alias, nodepath_or_die
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
@@ -56,15 +56,17 @@ layers = [l for l in layers if l]
 #    check_call(['plash-nodepath', image_hint], stderr=DEVNULL, stdout=DEVNULL)
 #except CalledProcessError:
 with catch_and_die([CalledProcessError]):
-    base_container = check_output(['plash-import', image_hint]).decode().strip('\n')
+    if '://' in image_hint:
+        base_container = check_output(['plash-import', image_hint]).decode().strip('\n')
+    else:
+        nodepath_or_die(image_hint)
+        base_container = image_hint
 
 current_container = base_container
 os.environ['PS4'] = color('--> ', 4)
-container_chain = [current_container]
 for counter, layer in enumerate(layers):
     next_container = hashstr(b':'.join([current_container.encode(), layer.encode()]))
-    container_chain.append(next_container)
-    if not container_exists(next_container):
+    if not get_nodepath(next_container):
         p = Popen(
             ['plash-create-container', current_container, next_container, 'sh', '-ex'],
             stdin=subprocess.PIPE,
@@ -78,27 +80,6 @@ for counter, layer in enumerate(layers):
         info('--:')
     current_container = next_container
 
-#import sys
-#print(next_container)
-#sys.exit(0)
-new_node_path = os.path.join(PLASH_DATA, 'builds', '/children/'.join(container_chain))
-#
-# shorten the current_container so its easier
-# handable manullay by the user
-#
-for i in range(2, len(current_container)):
-    short = (current_container[:i + 1])
-    linkname = os.path.join(PLASH_DATA, 'links', short)
-    try:
-        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
-            os.symlink(new_node_path, linkname)
-    except FileExistsError:
-        if os.readlink(
-                linkname
-        ) == new_node_path and os.path.exists(new_node_path):
-
-            # short id for this already used
-            break
-    else:
-        break
-print(short)
+short_id = short_alias(current_container)
+print(short_id)
+sys.exit(0)
