@@ -12,7 +12,7 @@ handle_help_flag()
 import re
 with open('/proc/mounts') as f:
     for entry in re.finditer(
-            '^overlay /var/tmp/plash-run/(.*?) ',
+            '^overlay /var/tmp/plash-run-(.*?)-.*? ',
             f.read(),
             flags=re.MULTILINE):
         pid = entry.group(1)
