@@ -68,7 +68,7 @@ for counter, layer in enumerate(layers):
     next_container = hashstr(b':'.join([current_container.encode(), layer.encode()]))
     if not get_nodepath(next_container):
         p = Popen(
-            ['plash-create-container', current_container, next_container, 'sh', '-ex'],
+            ['plash-create', current_container, next_container, 'sh', '-ex'],
             stdin=subprocess.PIPE,
             stdout=2,
             cwd='/')

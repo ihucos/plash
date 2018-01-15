@@ -42,7 +42,7 @@ try:
     os.rename(new_node, node_new_dst)
 except OSError as exc:
     if exc.errno == errno.ENOTEMPTY:
-        info('container id or layer appeared while building, not replacing it'.
+        info('new container id or layer appeared while preparing to copy, not replacing it'.
              format(new_layer_id))
     else:
         raise

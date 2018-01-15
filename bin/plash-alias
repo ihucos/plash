@@ -23,4 +23,5 @@ with catch_and_die([OSError]):
     try:
         symlink(nodepath, join(plash_data, 'links', alias))
     except FileExistsError:
+        # FIXME: different behaviour, check if this is the right symlink?
         pass
