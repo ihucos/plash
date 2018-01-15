@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-import-cloud IMAGE-NAME [IMAGE-ID]
+# usage: plash-import-cloud-as IMAGE-NAME IMAGE-ID
 # Import an image from linuxcontainers.org
 
 import os
@@ -28,10 +28,7 @@ handle_help_flag()
 try:
     image_name, image_id = sys.argv[1:3]
 except ValueError:
-    try:
-        image_name = image_id = sys.argv[1]
-    except IndexError:
-        die_with_usage()
+    die_with_usage()
 
 
 with catch_and_die([URLError]):
@@ -104,5 +101,5 @@ except KeyError:
         repr(image_name), ' '.join(sorted(names))
     ))
 
-cmd = ['plash-import-url', url, image_id]
+cmd = ['plash-import-url-as', url, image_id]
 os.execvpe(cmd[0], cmd, os.environ)

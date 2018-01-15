@@ -15,7 +15,7 @@ export PATH=$DIR/../bin:$PATH
 export PYTHONPATH=$DIR/..:$PYTHONPATH
 
 plash-init
-plash-import-tar $DIR/../misc/busybox.tar busybox
+plash-import-tar-as $DIR/../misc/busybox.tar busybox
 
 
 log=$(mktemp)

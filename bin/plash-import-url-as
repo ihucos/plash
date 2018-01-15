@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-import-url URL NEW-IMAGE-ID
+# usage: plash-import-url-as URL NEW-IMAGE-ID
 # Import an url as container
 
 import sys
@@ -46,4 +46,4 @@ sys.stderr.write('100%]\n')
 sys.stderr.flush()
 print('extracting...', file=sys.stderr)
 
-execlp('plash-import-tar', 'plash-import-tar', tmpfile, image_id)
+execlp('plash-import-tar-as', 'plash-import-tar', tmpfile, image_id)
