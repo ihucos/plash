@@ -52,9 +52,38 @@ binfmt_misc ./proc/sys/fs/binfmt_misc binfmt_misc rw,relatime
 /etc/passwd ./etc/passwd none defaults,bind
 /etc/resolv.conf ./etc/resolv.conf none defaults,bind
 '''
+MOUNT_GROUPS = {
+    'cgroup': [
+        '/sys/fs/cgroup',
+        '/sys/fs/cgroup/pids',
+        '/sys/fs/cgroup/debug',
+        '/sys/fs/cgroup/cpuset',
+        '/sys/fs/cgroup/freezer',
+        '/sys/fs/cgroup/memory',
+        '/sys/fs/cgroup/rdma',
+        '/sys/fs/cgroup/perf_event',
+        '/sys/fs/cgroup/devices',
+        '/sys/fs/cgroup/net_cls,net_prio',
+        '/sys/fs/cgroup/blkio',
+        '/sys/fs/cgroup/cpu,cpuacct'],
+    'debugfs': ['/sys/kernel/debug'],
+    'mqueue': ['/dev/mqueue'],
+    'configfs': ['/sys/kernel/config'],
+    'fusectl': ['/sys/fs/fuse/connections'],
+    'binfmt_misc': ['/proc/sys/fs/binfmt_misc'],
+    'essential': ['/proc', '/etc/resolv.conf'],
+}
 
 handle_help_flag()
 handle_build_args()
+
+def expand_mount_groups(arg_parts):
+    for i in arg_parts:
+        if i.startswith('/'):
+            yield i
+        else:
+            for a in MOUNT_GROUPS[i]:
+               yield a 
 
 def start_cleanup_daemon():
     '''
@@ -87,14 +116,14 @@ def start_cleanup_daemon():
                            check_call(['umount', join(mountpoint, mp[1:])])
                        except CalledProcessError as exc:
                            print(exc)
-                   check_call(['umount', mountpoint]) # umount the mountpoint itself
+                   check_call(['umount', mountpoint])
                    for dir in clean_dirs:
                        rmtree(dir)
                    sys.exit(0)
 
 workdir = None
 upperdir = None
-requested_mounts = ['/proc', '/dev', '/etc/resolv.conf']
+requested_mounts = list(expand_mount_groups(['essential'])) # the default value
 deescalate = True
 try:
     container, *args = sys.argv[1:]
@@ -109,8 +138,9 @@ try:
             workdir = args.pop(0)
         elif cmd == '--upperdir':
             upperdir = args.pop(0)
-        elif cmd == '--mounts':
-            requested_mounts = args.pop(0).split(',')
+        elif cmd == '--mount':
+            parts = args.pop(0).split(',')
+            requested_mounts = list(expand_mount_groups(parts))
         elif cmd in ('--dont-deescalate', '-r'):
             deescalate = False
         else:
