@@ -22,7 +22,6 @@ MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
 PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
 MOUNTPOINT_DIR = '/var/tmp/'
 
-# proc must be the first because mount -a needs it?
 PSEUDO_FSTAB = '''
 proc ./proc proc rw,nosuid,nodev,noexec,relatime
 devtmpfs ./dev devtmpfs rw,relatime,size=498860k,nr_inodes=124715,mode=755
@@ -53,12 +52,11 @@ binfmt_misc ./proc/sys/fs/binfmt_misc binfmt_misc rw,relatime
 /etc/passwd ./etc/passwd none defaults,bind
 /etc/resolv.conf ./etc/resolv.conf none defaults,bind
 '''
-# XXXXXXXXXXXXXXXXXXXXXXXX OMG
 
 handle_help_flag()
 handle_build_args()
 
-def start_cleanup_daemon(clean_dirs):
+def start_cleanup_daemon():
     '''
     Start a child process to cleanup when its parent dies
     '''
@@ -72,24 +70,31 @@ def start_cleanup_daemon(clean_dirs):
     
         os.setsid()  # makes this is kind of a standalone "daemon" process, not more inherit the signal processing
         os.chdir('/')  # don't lock the directory we where started
-        #os.setpgrp()  # that fixes that the called process waits for all its childs to finish
+        # os.setpgrp()  # that fixes that the called process waits for all its childs to finish
         # fork and exit so the child gets 1 as the parent id, which solves blocking if the main process exec waits for its children.
         signal.signal(signal.SIGHUP, signal.SIG_IGN)  # don't die if the user closes the terminal (untested)
         if os.fork():
            sys.exit(0)
         else:
            while True:
-               sleep(5)
+               sleep(1)
                parent_dead =  not isdir(join('/proc', str(main_pid)))
                if parent_dead:
 
                    # cleanup
-                   pass # XXXXXXXXXX
+                   for mp in reversed(requested_mounts): # unmount reversed
+                       try:
+                           check_call(['umount', join(mountpoint, mp[1:])])
+                       except CalledProcessError as exc:
+                           print(exc)
+                   check_call(['umount', mountpoint]) # umount the mountpoint itself
+                   for dir in clean_dirs:
+                       rmtree(dir)
                    sys.exit(0)
 
 workdir = None
 upperdir = None
-requested_mounts = ['/proc', '/dev', '/mnt', '/etc/resolv.conf']
+requested_mounts = ['/proc', '/dev', '/etc/resolv.conf']
 deescalate = True
 try:
     container, *args = sys.argv[1:]
@@ -137,10 +142,10 @@ with catch_and_die([CalledProcessError]):
         workdir
     ])
 
-start_cleanup_daemon(clean_dirs)
+start_cleanup_daemon()
 
 #
-# do something like mount --all outside the chroot and in python
+# mounts
 #
 pwd_at_start = os.getcwd()
 os.chdir(mountpoint)
