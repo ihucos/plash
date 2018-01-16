@@ -67,16 +67,16 @@ with catch_and_die([OSError], 'mkdtemp'):
     upperdir = args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
     workdir = args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
 
-os.execvpe(
-    'mount',
-    [
-        'mount', '-t', 'overlay', 'overlay', '-o',
-        'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}{extra}'.format(
-            upperdir=upperdir,
-            workdir=workdir,
-            lowerdir=lowerdir,
-            extra=MOUNT_EXTRA_OPTS),
-        args.mountpoint,
-    ],
-    os.environ
-) 
+os.execlp(
+'mount',
+'mount',
+'-t',
+'overlay',
+'overlay',
+'-o',
+'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}{extra}'.format(
+    upperdir=upperdir,
+    workdir=workdir,
+    lowerdir=lowerdir,
+    extra=MOUNT_EXTRA_OPTS),
+    args.mountpoint) 

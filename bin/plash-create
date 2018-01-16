@@ -46,7 +46,9 @@ p = subprocess.Popen(
     [
         'plash-run',
          container,
-         '--dont-deescalate',
+         '--root',
+         '--mount',
+         '/proc,/dev/pts,/etc/resolv.conf,/home',
          '--upperdir',
          upperdir,
 	 '--workdir',

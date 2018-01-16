@@ -101,4 +101,4 @@ for call_name in call_names:
 # finally run the program again
 #
 os.kill(child, signal.SIGINT)
-os.execlp('plash-run', 'plash-run', run_container, '--dont-deescalate', prog, *prog_args)
+os.execlp('plash-run', 'plash-run', run_container, prog, *prog_args)

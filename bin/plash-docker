@@ -18,7 +18,7 @@ execlp(
     '-A',
     'docker',
     '--',
-    '--dont-deescalate',
+    '--root',
     'env',
     'DOCKER_HOST=unix://{}'.format(socket),
     'docker',
