@@ -22,11 +22,43 @@ MOUNT_IF_EXISTS_IN_HOST = ['/home', '/Users']
 PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
 MOUNTPOINT_DIR = '/var/tmp/'
 
+# proc must be the first because mount -a needs it?
+PSEUDO_FSTAB = '''
+proc ./proc proc rw,nosuid,nodev,noexec,relatime
+devtmpfs ./dev devtmpfs rw,relatime,size=498860k,nr_inodes=124715,mode=755
+sysfs ./sys sysfs rw,nosuid,nodev,noexec,relatime
+tmpfs ./dev/shm tmpfs rw,nosuid,nodev
+devpts ./dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000
+tmpfs ./run tmpfs rw,nosuid,nodev,mode=755
+tmpfs ./run/lock tmpfs rw,nosuid,nodev,noexec,relatime,size=5120k
+tmpfs ./sys/fs/cgroup tmpfs nosuid,nodev,noexec,mode=755
+cgroup ./sys/fs/cgroup/pids cgroup rw,nosuid,nodev,noexec,relatime,pids
+cgroup ./sys/fs/cgroup/debug cgroup rw,nosuid,nodev,noexec,relatime,debug
+cgroup ./sys/fs/cgroup/cpuset cgroup rw,nosuid,nodev,noexec,relatime,cpuset
+cgroup ./sys/fs/cgroup/freezer cgroup rw,nosuid,nodev,noexec,relatime,freezer
+cgroup ./sys/fs/cgroup/memory cgroup rw,nosuid,nodev,noexec,relatime,memory
+cgroup ./sys/fs/cgroup/rdma cgroup rw,nosuid,nodev,noexec,relatime,rdma
+cgroup ./sys/fs/cgroup/perf_event cgroup rw,nosuid,nodev,noexec,relatime,perf_event
+cgroup ./sys/fs/cgroup/devices cgroup rw,nosuid,nodev,noexec,relatime,devices
+cgroup ./sys/fs/cgroup/net_cls,net_prio cgroup rw,nosuid,nodev,noexec,relatime,net_cls,net_prio
+cgroup ./sys/fs/cgroup/blkio cgroup rw,nosuid,nodev,noexec,relatime,blkio
+cgroup ./sys/fs/cgroup/cpu,cpuacct cgroup rw,nosuid,nodev,noexec,relatime,cpu,cpuacct
+debugfs ./sys/kernel/debug debugfs rw,relatime
+mqueue ./dev/mqueue mqueue rw,relatime
+configfs ./sys/kernel/config configfs rw,relatime
+fusectl ./sys/fs/fuse/connections fusectl rw,relatime
+binfmt_misc ./proc/sys/fs/binfmt_misc binfmt_misc rw,relatime
+/home ./home none defaults,bind
+/tmp ./tmp none defaults,bind
+/etc/passwd ./etc/passwd none defaults,bind
+/etc/resolv.conf ./etc/resolv.conf none defaults,bind
+'''
+# XXXXXXXXXXXXXXXXXXXXXXXX OMG
+
 handle_help_flag()
 handle_build_args()
 
-
-def start_cleanup_daemon(mounts_map, clean_dirs):
+def start_cleanup_daemon(clean_dirs):
     '''
     Start a child process to cleanup when its parent dies
     '''
@@ -52,41 +84,37 @@ def start_cleanup_daemon(mounts_map, clean_dirs):
                if parent_dead:
 
                    # cleanup
-                   with catch_and_die([CalledProcessError]):
-                       for mp in mounts_map.values():
-                              check_call(['umount', '-l', mp])
-                       check_call(['umount', '-l', mountpoint])
-                   for i in clean_dirs:
-                       rmtree(i)
+                   pass # XXXXXXXXXX
                    sys.exit(0)
 
 workdir = None
 upperdir = None
+requested_mounts = ['/proc', '/dev', '/mnt', '/etc/resolv.conf']
 deescalate = True
 try:
-    container, *cmd = sys.argv[1:]
-    while True:
-        if not cmd:
+    container, *args = sys.argv[1:]
+    while args:
+        cmd = args.pop(0)
+        if cmd == '--':
             break
-        if cmd[0] == '--workdir':
-            cmd.pop(0)
-            workdir = cmd.pop(0)
-        elif cmd[0] == '--upperdir':
-            cmd.pop(0)
-            upperdir = cmd.pop(0)
-        elif cmd[0] == '--dont-deescalate':
-            cmd.pop(0)
+        if not cmd.startswith('-'):
+            args.insert(0, cmd)
+            break
+        if cmd == '--workdir':
+            workdir = args.pop(0)
+        elif cmd == '--upperdir':
+            upperdir = args.pop(0)
+        elif cmd == '--mounts':
+            requested_mounts = args.pop(0).split(',')
+        elif cmd in ('--dont-deescalate', '-r'):
             deescalate = False
-        elif cmd[0] == '--':
-            cmd.pop(0)
-            break
         else:
-            break
-    if container.startswith('-') or cmd and cmd[0].startswith('-'):
-        raise ValueError()
-    if (not workdir and upperdir) or (workdir and not upperdir):
-        raise ValueError()
+            die_with_usage(hint='unknown flag: {}'.format(cmd))
+    cmd = args
 except (IndexError, ValueError):
+    raise
+    die_with_usage()
+if (not workdir and upperdir) or (workdir and not upperdir):
     die_with_usage()
 
 main_pid = os.getpid()
@@ -97,7 +125,6 @@ if not upperdir or not workdir:
     clean_dirs.extend([upperdir, workdir])
 
 mountpoint = tempfile.mkdtemp(dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
-clean_dirs.append(mountpoint)
 
 with catch_and_die([CalledProcessError]):
     check_call([
@@ -110,64 +137,34 @@ with catch_and_die([CalledProcessError]):
         workdir
     ])
 
-# write a /plashenv file
-with open(join(mountpoint, 'plashenv'), 'w') as f:
-    f.write(container + '\n')
+start_cleanup_daemon(clean_dirs)
 
-uid = int(os.environ.get('SUDO_UID') or os.getuid())
-
-# also the order how it will be unmounted
-mounts = ['proc', 'dev/pts', 'dev', 'tmp', 'etc/resolv.conf', 'sys']
-mounts_map = dict((m, join(mountpoint, m.lstrip('/'))) for m in mounts)
-for m in MOUNT_IF_EXISTS_IN_HOST:
-    if os.path.exists(m):
-        mounts_map[m] = join(mountpoint, m.lstrip('/'))
-        try:
-            os.makedirs(mounts_map[m]) # FIXME: directory access rights, maybe
-        except FileExistsError:
-            pass
-        with catch_and_die([CalledProcessError]):
-            check_call(['mount', '--bind', m, mounts_map[m]])
-
-# SECURITY: do we need flags like noexex and so on?
-with catch_and_die([CalledProcessError]):
-    check_call(['mount', '--bind', '/tmp', mounts_map['tmp']])
-    check_call([
-        'mount', '--bind', '/etc/resolv.conf',
-        mounts_map['etc/resolv.conf']
-    ])
-    check_call(['mount', '-t', 'proc', 'proc', mounts_map['proc']])
-    check_call(['mount', '-t', 'devtmpfs', 'devtmpfs', mounts_map['dev']])
-    check_call(['mount', '-t', 'devpts', 'devpts', mounts_map['dev/pts']])
-    check_call(['mount', '-t', 'sysfs', 'sysfs', mounts_map['sys']])
-
-# mount cgroupts (after sysfs is mounted)
-# a port of https://github.com/tianon/cgroupfs-mount/blob/master/cgroupfs-mount
-with catch_and_die([CalledProcessError]):
-    check_call(['mount', '-t', 'tmpfs', '-o', 'uid=0,gid=0,mode=0755', 'cgroup', join(mountpoint, 'sys/fs/cgroup')])
-
-with open('/proc/cgroups') as f:
-    lines = f.readlines()
-groups = []
-for line in lines:
-    if line.lstrip().startswith('#'):
+#
+# do something like mount --all outside the chroot and in python
+#
+pwd_at_start = os.getcwd()
+os.chdir(mountpoint)
+for line in PSEUDO_FSTAB.splitlines():
+    if not line or line.startswith('#'):
         continue
-    group = line.split()[0]
-    groups.append(group)
-with catch_and_die([CalledProcessError]):
-    for group in groups:
-        group_dir = join(mountpoint, 'sys/fs/cgroup',group)
-        os.mkdir(group_dir)
-        import subprocess
-        call(['mount', '-n', '-t', 'cgroup', '-o', group, 'cgroup', group_dir], stderr=subprocess.DEVNULL) # FIXME: find out why some fail and make this more robust
+    device, dir, type, options = line.split()
+    assert dir.startswith('./'), 'PSEUDO_FSTAB mountpoints must be relative'
+    try:
+        requested_mounts.remove(dir[1:])
+    except ValueError:
+        continue
+    try:
+        os.makedirs(dir, exist_ok=True)
+    except FileExistsError:
+        pass
+    check_call(['mount', '-t', type, '-o', options, device, dir])
+if requested_mounts:
+    die('unknown mount point(s): {}'.format(' '.join(requested_mounts)))
 
-start_cleanup_daemon(mounts_map, clean_dirs)
-
-pwd = os.getcwd()
 os.chroot(mountpoint)
 os.chdir('/')
 
-# alway calculate it for robustness
+# dont put that in an if for robustness
 default_root_shell = get_default_shell('/etc/passwd')
 if not cmd:
     cmd = [default_root_shell]
@@ -176,7 +173,7 @@ os.chmod('/', 0o755) # not so sure if this here or more to the top
 if deescalate:
     deescalate_sudo()
 try:
-    os.chdir(pwd)
+    os.chdir(pwd_at_start)
 except (ValueError, PermissionError, FileNotFoundError): # TODO: put more exceptions here
     os.chdir("/")
 try:

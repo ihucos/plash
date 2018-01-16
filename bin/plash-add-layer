@@ -27,7 +27,6 @@ else:
     nodepath = nodepath_or_die(container)
     node_new_dst = join(nodepath, 'children', new_layer_id)
 
-
 try:
     os.symlink(node_new_dst, join(PLASH_DATA, 'links', new_layer_id))
 except FileExistsError:
