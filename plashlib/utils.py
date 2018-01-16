@@ -62,14 +62,18 @@ def die(msg, exit=1):
 def info(msg):
     print(color(msg, INFO_COLOR), file=sys.stderr)
 
-def die_with_usage():
+def die_with_usage(*, hint=False):
+    prog = os.path.basename(sys.argv[0])
     printed_usage = False
     with open(sys.argv[0]) as f:
         for line in f.readlines():
             if line.startswith('# usage:'):
-                print(line[2:], end='')
+                usage_line = line[2:]
+                print('{}: {}'.format(prog, usage_line), end='')
                 printed_usage = True
     assert printed_usage, 'could not find usage comment'
+    if hint:
+        print('{}: usage hint: {}'.format(prog, hint), file=sys.stderr)
     sys.exit(2)
 
 def handle_help_flag():
