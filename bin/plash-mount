@@ -16,6 +16,7 @@ from tempfile import mkdtemp
 from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+MOUNT_EXTRA_OPTS = ',nosuid'
 
 handle_help_flag()
 handle_build_args()
@@ -70,10 +71,11 @@ os.execvpe(
     'mount',
     [
         'mount', '-t', 'overlay', 'overlay', '-o',
-        'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}'.format(
+        'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}{extra}'.format(
             upperdir=upperdir,
             workdir=workdir,
-            lowerdir=lowerdir),
+            lowerdir=lowerdir,
+            extra=MOUNT_EXTRA_OPTS),
         args.mountpoint,
     ],
     os.environ
