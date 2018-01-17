@@ -33,7 +33,7 @@ except IndexError:
     die_with_usage()
 
 if not container:
-    die('container arg can not be empty')
+    die('container arg can not be empty an empty string')
 
 handle_help_flag()
 handle_build_args()

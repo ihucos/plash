@@ -51,8 +51,9 @@ binfmt_misc ./proc/sys/fs/binfmt_misc binfmt_misc rw,relatime
 /home ./home none defaults,bind
 /tmp ./tmp none defaults,bind
 /etc/passwd ./etc/passwd none defaults,bind
+/etc/group ./etc/group none defaults,bind
+/etc/hosts ./etc/hosts none defaults,bind
 /etc/resolv.conf ./etc/resolv.conf none defaults,bind
-/ ./hostfs none defaults,bind
 '''
 
 MOUNT_GROUPS = {
