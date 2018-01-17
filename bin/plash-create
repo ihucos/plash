@@ -49,10 +49,14 @@ p = subprocess.Popen(
          '--root',
          '--mount',
          '/proc,/dev/pts,/etc/resolv.conf,/home',
-         '--upperdir',
+         '--upperdir-workdir-pair',
          upperdir,
-	 '--workdir',
 	 workdir,
+        #'plash-runc',
+        #container,
+        #'--upperdir-workdir-pair',
+        #upperdir,
+        #workdir,
      ] + list(shell_with_args))
 
 exit = p.wait()

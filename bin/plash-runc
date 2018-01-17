@@ -15,22 +15,42 @@ from uuid import uuid4
 
 from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell
 
+PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
+
 handle_help_flag()
 handle_build_args()
 
-
-palsh_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
-
 try:
     container, *cmd = sys.argv[1:]
+    if cmd and cmd[0] == '--upperdir-workdir-pair':
+        cmd.pop(0)
+        upperdir, workdir = cmd.pop(0), cmd.pop(0)
+    else:
+        workdir = upperdir = None
 except ValueError:
     die_with_usage()
+
+clean_dirs = []
+if not upperdir or not workdir:
+    upperdir = tempfile.mkdtemp(dir=PLASH_TMP, prefix='upperdir-{}-'.format(os.getpid()))
+    workdir = tempfile.mkdtemp(dir=PLASH_TMP, prefix='workdir-{}-'.format(os.getpid()))
+    cleanup_dirs = [upperdir, workdir]
+else:
+    cleanup_dirs = []
 
 tmp = tempfile.mkdtemp()
 os.chdir(tmp)
 os.mkdir('./rootfs')
 with catch_and_die([CalledProcessError]):
-    check_call(['plash-mount', container, './rootfs'])
+    check_call([
+    'plash-mount',
+    container,
+    '--upperdir',
+    upperdir,
+    '--workdir',
+    workdir,
+    './rootfs'
+    ])
     check_call(['runc', 'spec'])
 
 default_shell = get_default_shell(join('./rootfs/etc/passwd'))
@@ -39,13 +59,20 @@ with open(join(tmp, 'config.json')) as f:
     bundle = json.loads(f.read())
 
 bundle['hostname'] = container
+bundle['root']['readonly'] = False
+bundle['mounts'].append({'destination': '/etc/resolv.conf', 'source': '/etc/resolv.conf', 'type': 'bind', 'options': ['bind']})
 bundle['process']['args'] = cmd or [default_shell]
+# runc seems to need to be told when stdin is not from a terminal,
+# but that will also make stdout and and stderr per reported as not being ttys to the program being runned
+bundle['process']['terminal'] = os.isatty(0)
+bundle['linux']['namespaces'].remove({'type': 'network'})
 bundle.setdefault('hooks', {})
 bundle['hooks'].setdefault('poststop', [])
 bundle['hooks']['poststop'].append({
     "path": "/bin/umount",
-    "args": ['umount', join(tmp, 'rootfs')]
+    "args": ['umount', join(tmp, 'rootfs')] # also cleanup the dirs!!
 })
+# from pprint import pprint; pprint(bundle)
 
 with open(join(tmp, 'config.json'), 'w') as f:
     f.write(json.dumps(bundle))
