@@ -21,7 +21,7 @@ import re
 import subprocess
 import os
 import sys
-from plashlib.utils import hashstr, get_nodepath, short_alias, nodepath_or_die
+from plashlib.utils import hashstr, get_nodepath, nodepath_or_die
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
@@ -80,6 +80,5 @@ for counter, layer in enumerate(layers):
         info('--:')
     current_container = next_container
 
-short_id = short_alias(current_container)
-print(short_id)
+print(current_container)
 sys.exit(0)

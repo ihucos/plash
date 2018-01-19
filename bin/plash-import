@@ -8,7 +8,7 @@
 #   lxc        import from linuxcontainers.org
 #   tar        import a tar file
 
-from plashlib.utils import nodepath_or_die, catch_and_die, die, handle_help_flag, die_with_usage, hashstr, short_alias, get_nodepath
+from plashlib.utils import nodepath_or_die, catch_and_die, die, handle_help_flag, die_with_usage, hashstr, get_nodepath
 from subprocess import check_call, CalledProcessError, DEVNULL
 import os
 import sys
@@ -39,5 +39,4 @@ if not get_nodepath(hashed_arg):
         elif protocol == 'docker':
             check_call(['plash-import-docker-as', protocol_arg, hashed_arg])
 
-short_container = short_alias(hashed_arg)
-print(short_container)
+print(hashed_arg)

@@ -9,7 +9,7 @@ import argparse
 import os
 from os import path
 from os.path import basename, join
-from subprocess import CalledProcessError, check_output
+from subprocess import CalledProcessError, check_output, check_call
 from sys import exit
 from tempfile import mkdtemp
 
@@ -30,21 +30,6 @@ args = parser.parse_args()
 
 nodepath = nodepath_or_die(args.container)
 
-
-def vid_to_id(last_component):
-    for i in range(1, len(last_component)):
-        container_id = last_component[:i + 1]
-        linkname = join(PLASH_DATA, 'links', container_id)
-        try:
-            nodepath = os.readlink(linkname)
-        except FileNotFoundError:
-            pass
-        else:
-            if basename(nodepath) == last_component:
-                return container_id
-    raise ValueError('no such container')
-
-
 # use the symlinks and not the full paths because the arg size is limited
 # and this is shorter. on my setup i get 58 layers before an error, we could have multiple mount calls to overcome this
 symlinked_layer_paths = []
@@ -54,7 +39,8 @@ while True:
     base, dir = path.split(base)
     if dir == 'children':
         continue
-    symlinked_layer_paths.append(join(PLASH_DATA, 'links', vid_to_id(dir)))
+    node_id, container_id = dir.split('-') # a small oddity: node dirs include the container_id
+    symlinked_layer_paths.append(join(PLASH_DATA, 'index', container_id))
     if path.basename(base) == 'builds':
         break
 
@@ -67,16 +53,16 @@ with catch_and_die([OSError], 'mkdtemp'):
     upperdir = args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
     workdir = args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
 
-os.execlp(
-'mount',
-'mount',
-'-t',
-'overlay',
-'overlay',
-'-o',
-'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}{extra}'.format(
-    upperdir=upperdir,
-    workdir=workdir,
-    lowerdir=lowerdir,
-    extra=MOUNT_EXTRA_OPTS),
-    args.mountpoint) 
+with catch_and_die([CalledProcessError]):
+    check_call([
+    'mount',
+    '-t',
+    'overlay',
+    'overlay',
+    '-o',
+    'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}{extra}'.format(
+        upperdir=upperdir,
+        workdir=workdir,
+        lowerdir=lowerdir,
+        extra=MOUNT_EXTRA_OPTS),
+        args.mountpoint])

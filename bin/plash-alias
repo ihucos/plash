@@ -21,7 +21,7 @@ except (IndexError, ValueError):
 nodepath = nodepath_or_die(container)
 with catch_and_die([OSError]):
     try:
-        symlink(nodepath, join(plash_data, 'links', alias))
+        symlink(nodepath, join(plash_data, 'index', alias))
     except FileExistsError:
         # FIXME: different behaviour, check if this is the right symlink?
         pass

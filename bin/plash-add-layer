@@ -3,12 +3,16 @@
 # usage: plash-add-layer PARENT-CONTAINER NEW-LAYER-ID IMPORT-DIR
 # return a new container id
 
+#the idea:
+# write a symlink to the node in $DATA/index, the filename is an uuid and shal not be deleted so we can track that this think exists without traversing folders.
+# the given id is used as a filename for an symlink in the $DATA/alias folder. index in the alias folder can be deleted, renamed, etc.
 
 from tempfile import mkdtemp
 import os
 import sys
 from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
 from os.path import join
+import errno
 
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
@@ -16,32 +20,78 @@ PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 handle_help_flag()
 handle_build_args()
 
+PLASH_BUILDS = join(PLASH_DATA, 'builds')
+PLASH_INDEX = join(PLASH_DATA, 'index')
+PLASH_INDEX_STAGING = join(PLASH_DATA, 'index_staging')
+PLASH_TMP = join(PLASH_DATA, 'tmp')
+
 try:
-    container, new_layer_id, new_layer_payload = sys.argv[1:4]
+    base_container = sys.argv[1]
+    new_container_id = sys.argv[2]
+    import_dir = sys.argv[3]
 except ValueError:
     die_with_usage()
 
-if container == 'root': # calculated Spec14l haXX0r
-    node_new_dst = join(PLASH_DATA, 'builds', new_layer_id)
-else:
-    nodepath = nodepath_or_die(container)
-    node_new_dst = join(nodepath, 'children', new_layer_id)
+# a random internal id to save the node
+# also having the new_container_id in the internal id - this oddity  is used in plash-mount
+node_id = '{}-{}'.format(hashstr(os.urandom(128)), new_container_id) # " + '-' + node_id_payload_arg"
 
+#
+# the location where to put the node, which will contain the layer dir
+#
+if base_container == 'root':  # calculated Spec14l haXX0r
+    node_base_dir = PLASH_BUILDS
+
+new_node_path = (join(PLASH_BUILDS, node_id)
+            if base_container == 'root'
+            else join(nodepath_or_die(base_container), 'children', node_id))
+
+#
+#  prepare the node with the dir being imported
+#  this is the payload data we want to put in the builds folder later
+#
+prepared_new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+os.mkdir(join(prepared_new_node, 'children'))
+# that will actually make the import_dir "disapear" for the user
+os.rename(import_dir, join(prepared_new_node, 'payload'))
+
+#
+#  Register that we are using this new_node_path,
+#  so it does not gets lost in the 'build' folder tree if this program crashes.
+#  We also add this programs name in the filename for the index_stating folder, as a possible hint
+#  for cleanups or debugging
+#
+staging_link = join(PLASH_INDEX_STAGING, 'plash-add-layer:{}'.format(node_id))
+os.symlink(new_node_path, staging_link)
+
+# 
+#  put our new node with the import directory in the builds folder
+#  with this we are so to speak saving the "real data"
+#
+os.rename(prepared_new_node, new_node_path)
+
+#
+#  move the link in index_stating to index.
+#  this completely exports the data and makes it accessible to the user
+#
 try:
-    os.symlink(node_new_dst, join(PLASH_DATA, 'links', new_layer_id))
+    os.rename(staging_link, join(PLASH_INDEX, new_container_id))
 except FileExistsError:
-    die('that layer id already exists')
 
-new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-os.mkdir(join(new_node, 'payload'))
-os.mkdir(join(new_node, 'children'))
-os.rename(new_layer_payload, join(new_node, 'payload'))
+    #
+    #  well, that container_id name is already taken:
+    #  cleanup as possible right "on the spot"
+    #
 
-try:
-    os.rename(new_node, node_new_dst)
-except OSError as exc:
-    if exc.errno == errno.ENOTEMPTY:
-        info('new container id or layer appeared while preparing to copy, not replacing it'.
-             format(new_layer_id))
-    else:
-        raise
+    # NOTE: make all cleanups as atexit??
+
+    # give the user back his data - in life actually nothing truly belongs to you
+    os.rename(asdfdd, adfsjlk)
+
+    # There is nothing to point at in builds.
+    # So we can safely remove the symlink in index_staging
+    os.unlink(asdfXXXXXXXXX)
+
+    remove_the_tmp_data
+
+    die('that layer id is already taken')
