@@ -3,6 +3,7 @@ import os
 import sys
 from contextlib import contextmanager
 from os.path import join
+from tempfile import mkdtemp
 
 ERROR_COLOR = 1
 INFO_COLOR = 4
@@ -11,6 +12,7 @@ PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 TMP_DIR = join(PLASH_DATA, 'tmp')
 BUILDS_DIR = join(PLASH_DATA, 'builds')
 INDEX_DIR = join(PLASH_DATA, 'index')
+CACHE_KEYS_DIR = join(PLASH_DATA, 'cache_keys')
 
 
 def hashstr(stri):
@@ -129,6 +131,8 @@ def nodepath_or_die(unescaped_container):
         die('no container {}'.format(repr(unescaped_container)), exit=3)
 
 def get_nodepath(unescaped_container):
+    if not unescaped_container:
+        raise ValueError('container can not be empty')
     container = unescaped_container.replace('/', '%')
     try:
         nodepath = os.readlink(os.path.join(INDEX_DIR, container))
@@ -145,3 +149,24 @@ def get_default_shell(passwd_file):
         root_entry = f.readline().rstrip('\n')
         default_root_shell = root_entry.split(":")[6]
         return default_root_shell
+
+def cache_set(cache_key, container_id):
+    nodepath = get_nodepath(container_id)
+    if not nodepath:
+        raise ValueError('no such container: {}'.format(container_id))
+    tmpdir = mkdtemp(dir=TMP_DIR)
+    os.symlink(nodepath, join(tmpdir, 'link'))
+
+    # rename will overwrite atomically the cache key if it already exists, just symlink would not
+    os.rename(join(tmpdir, 'link'), join(CACHE_KEYS_DIR, cache_key))
+
+
+def cache_get(cache_key):
+    try:
+        nodepath = os.readlink(join(CACHE_KEYS_DIR, cache_key))
+    except FileNotFoundError:
+        return
+    if os.path.exists(nodepath):
+        return os.path.basename(nodepath)
+
+

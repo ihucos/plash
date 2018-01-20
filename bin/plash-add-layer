@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-add-layer PARENT-CONTAINER NEW-LAYER-ID IMPORT-DIR
+# usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
 # return a new container id
 
 #the idea:
@@ -22,19 +22,17 @@ handle_build_args()
 
 PLASH_BUILDS = join(PLASH_DATA, 'builds')
 PLASH_INDEX = join(PLASH_DATA, 'index')
-PLASH_INDEX_STAGING = join(PLASH_DATA, 'index_staging')
 PLASH_TMP = join(PLASH_DATA, 'tmp')
 
 try:
     base_container = sys.argv[1]
-    new_container_id = sys.argv[2]
-    import_dir = sys.argv[3]
+    import_dir = sys.argv[2]
 except ValueError:
     die_with_usage()
 
 # a random internal id to save the node
-# also having the new_container_id in the internal id - this oddity  is used in plash-mount
-node_id = '{}-{}'.format(hashstr(os.urandom(128)), new_container_id) # " + '-' + node_id_payload_arg"
+## also having the new_container_id in the internal id - this oddity  is used in plash-mount
+node_id = hashstr(os.urandom(128))[:12] # " + '-' + node_id_payload_arg"
 
 #
 # the location where to put the node, which will contain the layer dir
@@ -58,11 +56,8 @@ os.rename(import_dir, join(prepared_new_node, 'payload'))
 #
 #  Register that we are using this new_node_path,
 #  so it does not gets lost in the 'build' folder tree if this program crashes.
-#  We also add this programs name in the filename for the index_stating folder, as a possible hint
-#  for cleanups or debugging
 #
-staging_link = join(PLASH_INDEX_STAGING, 'plash-add-layer:{}'.format(node_id))
-os.symlink(new_node_path, staging_link)
+os.symlink(new_node_path, join(PLASH_INDEX, node_id))
 
 # 
 #  put our new node with the import directory in the builds folder
@@ -70,28 +65,31 @@ os.symlink(new_node_path, staging_link)
 #
 os.rename(prepared_new_node, new_node_path)
 
+##
+##  move the link in index_stating to index.
+##  this completely exports the data and makes it accessible to the user
+##
+#try:
+#    os.rename(staging_link, join(PLASH_INDEX, new_container_id))
+#except FileExistsError:
 #
-#  move the link in index_stating to index.
-#  this completely exports the data and makes it accessible to the user
+#    # XXX: will never happen
+#    #
+#    #  well, that container_id name is already taken:
+#    #  cleanup as possible right "on the spot"
+#    #
 #
-try:
-    os.rename(staging_link, join(PLASH_INDEX, new_container_id))
-except FileExistsError:
+#    # NOTE: make all cleanups as atexit??
+#
+#    # give the user back his data - in life actually nothing truly belongs to you
+#    os.rename(asdfdd, adfsjlk)
+#
+#    # There is nothing to point at in builds.
+#    # So we can safely remove the symlink in index_staging
+#    os.unlink(asdfXXXXXXXXX)
+#
+#    remove_the_tmp_data
+#
+#    die('that layer id is already taken')
 
-    #
-    #  well, that container_id name is already taken:
-    #  cleanup as possible right "on the spot"
-    #
-
-    # NOTE: make all cleanups as atexit??
-
-    # give the user back his data - in life actually nothing truly belongs to you
-    os.rename(asdfdd, adfsjlk)
-
-    # There is nothing to point at in builds.
-    # So we can safely remove the symlink in index_staging
-    os.unlink(asdfXXXXXXXXX)
-
-    remove_the_tmp_data
-
-    die('that layer id is already taken')
+print(node_id)

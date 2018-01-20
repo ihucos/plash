@@ -36,10 +36,9 @@ symlinked_layer_paths = []
 
 base = nodepath
 while True:
-    base, dir = path.split(base)
-    if dir == 'children':
+    base, container_id = path.split(base)
+    if container_id == 'children':
         continue
-    node_id, container_id = dir.split('-') # a small oddity: node dirs include the container_id
     symlinked_layer_paths.append(join(PLASH_DATA, 'index', container_id))
     if path.basename(base) == 'builds':
         break

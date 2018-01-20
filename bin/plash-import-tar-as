@@ -23,7 +23,6 @@ PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 try:
     tar_file = sys.argv[1]
-    image_id = sys.argv[2].replace('/', '%')  # escape for fs
 except IndexError:
     die_with_usage()
 
@@ -45,4 +44,4 @@ with open(resolvconf, 'w') as f:
     f.truncate()
 
 with catch_and_die([CalledProcessError]):
-    check_call(['plash-add-layer', 'root', image_id, rootfs])
+    check_call(['plash-add-layer', 'root', rootfs])

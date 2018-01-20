@@ -16,7 +16,6 @@ handle_help_flag()
 
 try:
     url = sys.argv[1]
-    image_id = sys.argv[2]
 except IndexError:
     die_with_usage()
 
@@ -46,4 +45,4 @@ sys.stderr.write('100%]\n')
 sys.stderr.flush()
 print('extracting...', file=sys.stderr)
 
-execlp('plash-import-tar-as', 'plash-import-tar', tmpfile, image_id)
+execlp('plash-import-tar-as', 'plash-import-tar', tmpfile)

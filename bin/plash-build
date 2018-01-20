@@ -21,7 +21,7 @@ import re
 import subprocess
 import os
 import sys
-from plashlib.utils import hashstr, get_nodepath, nodepath_or_die
+from plashlib.utils import hashstr, get_nodepath, nodepath_or_die, cache_get, cache_set
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
@@ -64,21 +64,60 @@ with catch_and_die([CalledProcessError]):
 
 current_container = base_container
 os.environ['PS4'] = color('--> ', 4)
-for counter, layer in enumerate(layers):
-    next_container = hashstr(b':'.join([current_container.encode(), layer.encode()]))
-    if not get_nodepath(next_container):
+for layer in layers:
+    cache_key = hashstr(b':'.join([current_container.encode(), layer.encode()]))
+    next_container = cache_get(cache_key)
+    if not next_container:
+        
+        # build and cache it
         p = Popen(
-            ['plash-create', current_container, next_container, 'sh', '-ex'],
+            ['plash-create', current_container, 'sh', '-ex'],
             stdin=subprocess.PIPE,
-            stdout=2,
+            stdout=subprocess.PIPE,
             cwd='/')
         p.stdin.write(layer.encode())
         p.stdin.close()
+        next_container = p.stdout.read().decode().strip('\n')
         exit = p.wait()
         if exit:
             die('build died with exit status: {}'.format(exit))
+        cache_set(cache_key, next_container)
         info('--:')
     current_container = next_container
+build_container = current_container
 
-print(current_container)
+#print(current_container)
+
+#
+# create a shorter id just for covenience
+#
+from random import Random
+from string import ascii_lowercase, ascii_letters
+random = Random()
+random.seed(current_container)
+x = ''
+for i in range(12):
+    x += random.choice(ascii_lowercase)
+    #x += random.choice('aeiou')
+
+nodepath = get_nodepath(build_container)
+
+build_container = x
+for i in range(1, len(build_container)):
+    short = build_container[:i + 1]
+    linkname = os.path.join(PLASH_DATA, 'index', short)
+    try:
+        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
+            os.symlink(nodepath, linkname)
+    except FileExistsError:
+        if os.readlink(
+                linkname
+        ) == nodepath and os.path.exists(nodepath):
+
+            # short id for this already used
+            break
+    else:
+        break
+
+print(short)
 sys.exit(0)

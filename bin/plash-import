@@ -31,12 +31,12 @@ hashed_arg = hashstr(arg.encode())
 if not get_nodepath(hashed_arg):
     with catch_and_die([CalledProcessError]):
         if protocol in ('http', 'https'):
-            check_call(['plash-import-url-as', arg, hashed_arg])
+            check_call(['plash-import-url-as', arg])
         elif protocol == 'lxc':
-            check_call(['plash-import-lxc-as', protocol_arg, hashed_arg])
+            check_call(['plash-import-lxc-as', protocol_arg])
         elif protocol == 'tar':
-            check_call(['plash-import-tar-as', protocol_arg, hashed_arg])
+            check_call(['plash-import-tar-as', protocol_arg])
         elif protocol == 'docker':
-            check_call(['plash-import-docker-as', protocol_arg, hashed_arg])
+            check_call(['plash-import-docker-as', protocol_arg])
 
 print(hashed_arg)

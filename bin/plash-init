@@ -10,6 +10,6 @@ from os.path import join
 handle_help_flag()
 plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
 os.makedirs(join(plash_data, 'index'), exist_ok=True)
-os.makedirs(join(plash_data, 'index_staging'), exist_ok=True)
+os.makedirs(join(plash_data, 'cache_keys'), exist_ok=True)
 os.makedirs(join(plash_data, 'tmp'), exist_ok=True)
 os.makedirs(join(plash_data, 'builds'), exist_ok=True)
