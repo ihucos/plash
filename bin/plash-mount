@@ -12,6 +12,7 @@ from os.path import basename, join
 from subprocess import CalledProcessError, check_output, check_call
 from sys import exit
 from tempfile import mkdtemp
+from itertools import takewhile
 
 from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die
 
@@ -30,24 +31,30 @@ args = parser.parse_args()
 
 # don't bother escaping, just only allow "harmless" chars
 def check_overlayfs_arg(arg):
-    if not arg.replace('/', '').replace('_', '').isalnum():
-        die('cowardly dying: bad char(s) in ovelrayfs arg: {}'.format(arg))
+    if arg and not arg.replace('/', '').replace('_', '').isalnum():
+        die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(arg))
 
 nodepath = nodepath_or_die(args.container)
 
-container_ids_path = ['0'] + nodepath.split('/0/')[-1].split('/')
+container_ids_path = []
+parts = nodepath.split('/')
+while True:
+    pop = parts.pop()
+    container_ids_path.append(pop)
+    if pop == '0':
+        break
 
 # use the symlinks and not the full paths because the arg size is limited
 # On my setup i get 58 (EDIT: should be more now) layers before an error,
 # we could have multiple mount calls to overcome this
 lowerdir_list = [
     join(PLASH_DATA, 'index', i, '_layer')
-    for i in reversed(container_ids_path)]
+    for i in container_ids_path]
 
 for i in lowerdir_list:
     check_overlayfs_arg(i)
-check_overlayfs_arg(args.upperdir)
-check_overlayfs_arg(args.workdir)
+check_overlayfs_arg(args.upperdir or '')
+check_overlayfs_arg(args.workdir or '')
 
 with catch_and_die([CalledProcessError]):
     check_call([
