@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 from os.path import basename, join
+from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 from sys import exit
@@ -25,11 +26,16 @@ from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
+ux.assert_initialized()
+ux.assert_is_root()
+
 try:
     container = sys.argv[1]
     shell_with_args = sys.argv[2:]
 except IndexError:
     die_with_usage()
+ux.assert_container_exists(container)
+ux.assert_is_root()
 
 if not container:
     die('container arg can not be empty an empty string')

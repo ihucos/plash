@@ -4,11 +4,14 @@
 # Export a container as squashfs
 
 from plashlib.utils import handle_help_flag, die_with_usage, handle_build_args
+from plashlib import ux
 import os
 import sys
 
 handle_help_flag()
 handle_build_args()
+ux.assert_initialized()
+ux.assert_is_root()
 
 try:
     container, out = sys.argv[1:3]

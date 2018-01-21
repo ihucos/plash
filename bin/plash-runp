@@ -8,14 +8,18 @@ import sys
 from shutil import which
 from os import mkdir, execlp, symlink
 from plashlib.utils import die_with_usage, handle_help_flag, die, handle_build_args
+from plashlib import ux
 
 handle_help_flag()
 handle_build_args()
+ux.assert_initialized()
+ux.assert_is_root()
 
 try:
     container, *cmd = sys.argv[1:]
 except ValueError:
     die_with_usage()
+ux.assert_container_exists(container)
 
 runp_binary = which('runp')
 if not runp_binary:

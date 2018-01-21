@@ -5,8 +5,11 @@
 
 import os, sys
 from plashlib.utils import handle_help_flag, die_with_usage, die
+from plashlib import ux
 
 handle_help_flag()
+ux.assert_initialized()
+ux.assert_is_root()
 
 try:
     file, args = sys.argv[1], sys.argv[2:]

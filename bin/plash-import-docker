@@ -11,8 +11,12 @@ import atexit
 from time import sleep
 import tempfile
 from plashlib.utils import die, catch_and_die, die_with_usage
+from plashlib import ux
 
 DOCKER_START_TIMEOUT = 40
+
+ux.assert_initialized()
+ux.assert_is_root()
 
 try:
     pull = sys.argv[1]

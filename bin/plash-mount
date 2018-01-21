@@ -15,12 +15,15 @@ from tempfile import mkdtemp
 from itertools import takewhile
 
 from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die
+from plashlib import ux
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 MOUNT_EXTRA_OPTS = ',nosuid'
 
 handle_help_flag()
 handle_build_args()
+ux.assert_initialized()
+ux.assert_is_root()
 
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('container')

@@ -16,8 +16,11 @@ import subprocess
 from subprocess import check_call, CalledProcessError
 
 from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die, hashstr, nodepath_or_die
+from plashlib import ux
 
 handle_help_flag()
+ux.assert_initialized()
+ux.assert_is_root()
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 

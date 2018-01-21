@@ -22,6 +22,7 @@ import subprocess
 import os
 import sys
 from plashlib.utils import hashstr, get_nodepath, nodepath_or_die
+from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
@@ -33,13 +34,14 @@ from tempfile import mkdtemp
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
+ux.assert_initialized()
+ux.assert_is_root()
+
 handle_help_flag()
 
-try:
+with catch_and_die([CalledProcessError]):
     script = check_output(['plash-getscript'] + sys.argv[1:])
     script = script.decode()
-except CalledProcessError as exc:
-    sys.exit(exc.returncode)
 
 def cache_set(cache_key, container_id):
     nodepath = get_nodepath(container_id)
@@ -86,7 +88,8 @@ else:
     cache_key = ':'.join(cmd)
     base_container = cache_get(cache_key)
     if not base_container:
-        base_container = check_output(cmd).decode().strip('\n')
+        with catch_and_die([CalledProcessError]):
+            base_container = check_output(cmd).decode().strip('\n')
         cache_set(cache_key, base_container)
 
 # split the script in its layers

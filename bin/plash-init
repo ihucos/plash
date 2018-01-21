@@ -4,10 +4,13 @@
 # Initialize build data - run this on a new system before anything else - sory
 
 from plashlib.utils import handle_help_flag
+from plashlib import ux
 import os
 from os.path import join
 
 handle_help_flag()
+ux.assert_is_root()
+
 plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
 os.makedirs(join(plash_data, 'index'), exist_ok=True)
 os.makedirs(join(plash_data, 'cache_keys'), exist_ok=True)

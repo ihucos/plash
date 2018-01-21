@@ -4,10 +4,12 @@
 # List processes started with plash-run
 
 from plashlib.utils import handle_help_flag
+from plashlib import ux
 import re
 import sys
 
 handle_help_flag()
+ux.assert_is_root()
 
 import re
 with open('/proc/mounts') as f:

@@ -14,11 +14,14 @@ from tempfile import mkdtemp
 from uuid import uuid4
 
 from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell
+from plashlib import ux
 
 PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
 
 handle_help_flag()
 handle_build_args()
+ux.assert_initialized()
+ux.assert_is_root()
 
 try:
     container, *cmd = sys.argv[1:]
@@ -29,6 +32,9 @@ try:
         workdir = upperdir = None
 except ValueError:
     die_with_usage()
+
+# fail here instead of inside plash-mount if container does not exists
+ux.assert_container_exists(container)
 
 clean_dirs = []
 if not upperdir or not workdir:

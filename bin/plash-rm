@@ -9,9 +9,11 @@ import sys
 from shutil import rmtree
 from tempfile import mkdtemp
 from plashlib.utils import handle_help_flag, catch_and_die, nodepath_or_die, handle_build_args
+from plashlib import ux
 
 handle_help_flag()
 handle_build_args()
+ux.assert_is_root()
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
