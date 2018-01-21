@@ -69,23 +69,25 @@ else:
     die('no image specified')
 
 #
-#  convert the image_hint into an container id using caching
+#  convert the image_hint into an container id, also use caching
 #
 if image_hint.isdigit():
     base_container = image_hint
     nodepath_or_die(base_container)
 else:
-    base_container = cache_get(image_hint)
+    if image_hint.startswith('https://') or image_hint.startswith('http://'):
+        cmd = ['plash-import-url', image_hint]
+    elif image_hint.startswith('/') or image_hint.startswith('./'):
+        cmd = ['plash-import-tar', image_hint]
+    elif image_hint.startswith('docker://'):
+        cmd = ['plash-import-docker', image_hint[8:]]
+    else:
+        cmd = ['plash-import-lxc', image_hint]
+    cache_key = ':'.join(cmd)
+    base_container = cache_get(cache_key)
     if not base_container:
-        if image_hint.startswith('https://') or image_hint.startswith('http://'):
-            base_container = check_output(['plash-import-url', image_hint]).decode().strip('\n')
-        elif image_hint.startswith('/') or image_hint.startswith('./'):
-            base_container = check_output(['plash-import-tar', image_hint]).decode().strip('\n')
-        elif image_hint.startswith('docker://'):
-            base_container = check_output(['plash-import-docker', image_hint[8:]]).decode().strip('\n')
-        else:
-            base_container = check_output(['plash-import-lxc', image_hint]).decode().strip('\n')
-        cache_set(image_hint, base_container)
+        base_container = check_output(cmd).decode().strip('\n')
+        cache_set(cache_key, base_container)
 
 # split the script in its layers
 layers = script.split(LAYER_MARKER + '\n')
