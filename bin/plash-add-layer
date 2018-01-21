@@ -31,8 +31,10 @@ except ValueError:
     die_with_usage()
 
 # a random internal id to save the node
-## also having the new_container_id in the internal id - this oddity  is used in plash-mount
-node_id = hashstr(os.urandom(128))[:12] # " + '-' + node_id_payload_arg"
+#node_id = hashstr(os.urandom(128))[:12] # " + '-' + node_id_payload_arg"
+with open(join(PLASH_DATA, 'id_counter'), 'a') as f:
+    f.write('A')
+    node_id = str(f.tell())
 
 #
 # the location where to put the node, which will contain the layer dir
@@ -56,6 +58,7 @@ os.rename(import_dir, join(prepared_new_node, 'payload'))
 #
 #  Register that we are using this new_node_path,
 #  so it does not gets lost in the 'build' folder tree if this program crashes.
+#  And actually also tries to find a shorter, nicer version of this id.
 #
 os.symlink(new_node_path, join(PLASH_INDEX, node_id))
 
@@ -64,32 +67,5 @@ os.symlink(new_node_path, join(PLASH_INDEX, node_id))
 #  with this we are so to speak saving the "real data"
 #
 os.rename(prepared_new_node, new_node_path)
-
-##
-##  move the link in index_stating to index.
-##  this completely exports the data and makes it accessible to the user
-##
-#try:
-#    os.rename(staging_link, join(PLASH_INDEX, new_container_id))
-#except FileExistsError:
-#
-#    # XXX: will never happen
-#    #
-#    #  well, that container_id name is already taken:
-#    #  cleanup as possible right "on the spot"
-#    #
-#
-#    # NOTE: make all cleanups as atexit??
-#
-#    # give the user back his data - in life actually nothing truly belongs to you
-#    os.rename(asdfdd, adfsjlk)
-#
-#    # There is nothing to point at in builds.
-#    # So we can safely remove the symlink in index_staging
-#    os.unlink(asdfXXXXXXXXX)
-#
-#    remove_the_tmp_data
-#
-#    die('that layer id is already taken')
 
 print(node_id)

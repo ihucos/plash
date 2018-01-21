@@ -21,13 +21,15 @@ import re
 import subprocess
 import os
 import sys
-from plashlib.utils import hashstr, get_nodepath, nodepath_or_die, cache_get, cache_set
+from plashlib.utils import hashstr, get_nodepath, nodepath_or_die
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
 from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import IMAGE_HINT_TEMPL
+from os.path import join
 from plashlib.utils import catch_and_die, die, info, color, handle_help_flag
+from tempfile import mkdtemp
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -38,6 +40,25 @@ try:
     script = script.decode()
 except CalledProcessError as exc:
     sys.exit(exc.returncode)
+
+def cache_set(cache_key, container_id):
+    nodepath = get_nodepath(container_id)
+    if not nodepath:
+        raise ValueError('no such container: {}'.format(container_id))
+    tmpdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+    os.symlink(nodepath, join(tmpdir, 'link'))
+
+    # rename will overwrite atomically the cache key if it already exists, just symlink would not
+    os.rename(join(tmpdir, 'link'), join(PLASH_DATA, 'cache_keys', cache_key))
+
+def cache_get(cache_key):
+    try:
+        nodepath = os.readlink(join(PLASH_DATA, 'keys_dir', cache_key))
+    except FileNotFoundError:
+        return
+    if os.path.exists(nodepath):
+        return os.path.basename(nodepath)
+
 
 image_ir = re.compile(IMAGE_HINT_TEMPL.format('(.+)\n'))
 matches = image_ir.findall(script)
@@ -86,38 +107,38 @@ for layer in layers:
     current_container = next_container
 build_container = current_container
 
-#print(current_container)
+print(current_container)
 
+##
+## create a shorter id just for covenience
+##
+#from random import Random
+#from string import ascii_lowercase, ascii_letters
+#random = Random()
+#random.seed(current_container)
+#x = ''
+#for i in range(12):
+#    x += random.choice(ascii_lowercase)
+#    #x += random.choice('aeiou')
 #
-# create a shorter id just for covenience
+#nodepath = get_nodepath(build_container)
 #
-from random import Random
-from string import ascii_lowercase, ascii_letters
-random = Random()
-random.seed(current_container)
-x = ''
-for i in range(12):
-    x += random.choice(ascii_lowercase)
-    #x += random.choice('aeiou')
-
-nodepath = get_nodepath(build_container)
-
-build_container = x
-for i in range(1, len(build_container)):
-    short = build_container[:i + 1]
-    linkname = os.path.join(PLASH_DATA, 'index', short)
-    try:
-        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
-            os.symlink(nodepath, linkname)
-    except FileExistsError:
-        if os.readlink(
-                linkname
-        ) == nodepath and os.path.exists(nodepath):
-
-            # short id for this already used
-            break
-    else:
-        break
-
-print(short)
-sys.exit(0)
+#build_container = x
+#for i in range(1, len(build_container)):
+#    short = build_container[:i + 1]
+#    linkname = os.path.join(PLASH_DATA, 'index', short)
+#    try:
+#        with catch_and_die([OSError], ignore=FileExistsError, debug='symlink'):
+#            os.symlink(nodepath, linkname)
+#    except FileExistsError:
+#        if os.readlink(
+#                linkname
+#        ) == nodepath and os.path.exists(nodepath):
+#
+#            # short id for this already used
+#            break
+#    else:
+#        break
+#
+#print(short)
+#sys.exit(0)

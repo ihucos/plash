@@ -149,24 +149,3 @@ def get_default_shell(passwd_file):
         root_entry = f.readline().rstrip('\n')
         default_root_shell = root_entry.split(":")[6]
         return default_root_shell
-
-def cache_set(cache_key, container_id):
-    nodepath = get_nodepath(container_id)
-    if not nodepath:
-        raise ValueError('no such container: {}'.format(container_id))
-    tmpdir = mkdtemp(dir=TMP_DIR)
-    os.symlink(nodepath, join(tmpdir, 'link'))
-
-    # rename will overwrite atomically the cache key if it already exists, just symlink would not
-    os.rename(join(tmpdir, 'link'), join(CACHE_KEYS_DIR, cache_key))
-
-
-def cache_get(cache_key):
-    try:
-        nodepath = os.readlink(join(CACHE_KEYS_DIR, cache_key))
-    except FileNotFoundError:
-        return
-    if os.path.exists(nodepath):
-        return os.path.basename(nodepath)
-
-
