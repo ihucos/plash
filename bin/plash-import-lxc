@@ -103,4 +103,4 @@ except KeyError:
     ))
 
 with catch_and_die([CalledProcessError]):
-    check_call(['plash-import-url-as', url])
+    check_call(['plash-import-url', url])

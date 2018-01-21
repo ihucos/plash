@@ -45,4 +45,4 @@ sys.stderr.write('100%]\n')
 sys.stderr.flush()
 print('extracting...', file=sys.stderr)
 
-execlp('plash-import-tar-as', 'plash-import-tar', tmpfile)
+execlp('plash-import-tar', 'plash-import-tar', tmpfile)

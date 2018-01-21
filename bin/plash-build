@@ -68,20 +68,28 @@ if matches:
 else:
     die('no image specified')
 
+#
+#  convert the image_hint into an container id using caching
+#
+if image_hint.isdigit():
+    base_container = image_hint
+    nodepath_or_die(base_container)
+else:
+    base_container = cache_get(image_hint)
+    if not base_container:
+        if image_hint.startswith('https://') or image_hint.startswith('http://'):
+            base_container = check_output(['plash-import-url', image_hint]).decode().strip('\n')
+        elif image_hint.startswith('/') or image_hint.startswith('./'):
+            base_container = check_output(['plash-import-tar', image_hint]).decode().strip('\n')
+        elif image_hint.startswith('docker://'):
+            base_container = check_output(['plash-import-docker', image_hint[8:]]).decode().strip('\n')
+        else:
+            base_container = check_output(['plash-import-lxc', image_hint]).decode().strip('\n')
+        cache_set(image_hint, base_container)
+
 # split the script in its layers
 layers = script.split(LAYER_MARKER + '\n')
 layers = [l for l in layers if l]
-
-# pull container if it does not exists
-#try:
-#    check_call(['plash-nodepath', image_hint], stderr=DEVNULL, stdout=DEVNULL)
-#except CalledProcessError:
-with catch_and_die([CalledProcessError]):
-    if '://' in image_hint:
-        base_container = check_output(['plash-import', image_hint]).decode().strip('\n')
-    else:
-        nodepath_or_die(image_hint)
-        base_container = image_hint
 
 current_container = base_container
 os.environ['PS4'] = color('--> ', 4)

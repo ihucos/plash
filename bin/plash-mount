@@ -31,7 +31,7 @@ args = parser.parse_args()
 
 # don't bother escaping, just only allow "harmless" chars
 def check_overlayfs_arg(arg):
-    if arg and not arg.replace('/', '').replace('_', '').isalnum():
+    if arg and not arg.replace('/', '').replace('_', '').replace('-', '').isalnum():
         die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(arg))
 
 nodepath = nodepath_or_die(args.container)

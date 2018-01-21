@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-import-docker-as CONTAINER ALIAS
+# usage: plash-import-docker CONTAINER ALIAS
 # Import an image from the docker cloud
 
 import subprocess
@@ -15,7 +15,7 @@ from plashlib.utils import die, catch_and_die, die_with_usage
 DOCKER_START_TIMEOUT = 40
 
 try:
-    pull, image_id = sys.argv[1], sys.argv[2]
+    pull = sys.argv[1]
 except IndexError:
     die_with_usage()
 
@@ -49,7 +49,7 @@ while True:
             'timeout for docker start: server log: {}, client log: {}'.format(
              daemon_log.name, client_log.name))
     if daemon_exit is not None:
-        die('plash-docker-daemon died with exit status {} (logs at {})'.format(daemon_exit, log.name))
+        die('plash-docker-daemon died with exit status {} (logs at {})'.format(daemon_exit, daemon_log.name))
 
     # check if daemon is up yet
     try:
@@ -71,4 +71,4 @@ with catch_and_die([subprocess.CalledProcessError]):
     container = subprocess.check_output(['plash-docker', 'create', pull, 'sh']).decode().rstrip('\n')
     docker_export = subprocess.Popen(['plash-docker', 'export', container], stdout=subprocess.PIPE)
     atexit.register(lambda: docker_export.kill())
-    subprocess.check_call(['plash-import-tar-as', '-', image_id], stdin=docker_export.stdout)
+    subprocess.check_call(['plash-import-tar', '-'], stdin=docker_export.stdout)
