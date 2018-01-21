@@ -13,7 +13,7 @@ from subprocess import CalledProcessError, check_output, check_call
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag
+from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 MOUNT_EXTRA_OPTS = ',nosuid'
@@ -28,29 +28,26 @@ parser.add_argument('--upperdir')
 parser.add_argument('--workdir')
 args = parser.parse_args()
 
+# don't bother escaping, just only allow "harmless" chars
+def check_overlayfs_arg(arg):
+    if not arg.replace('/', '').replace('_', '').isalnum():
+        die('cowardly dying: bad char(s) in ovelrayfs arg: {}'.format(arg))
+
 nodepath = nodepath_or_die(args.container)
 
+container_ids_path = ['0'] + nodepath.split('/0/')[-1].split('/')
+
 # use the symlinks and not the full paths because the arg size is limited
-# and this is shorter. on my setup i get 58 layers before an error, we could have multiple mount calls to overcome this
-symlinked_layer_paths = []
+# On my setup i get 58 (EDIT: should be more now) layers before an error,
+# we could have multiple mount calls to overcome this
+lowerdir_list = [
+    join(PLASH_DATA, 'index', i, '_layer')
+    for i in reversed(container_ids_path)]
 
-base = nodepath
-while True:
-    base, container_id = path.split(base)
-    if container_id == 'children':
-        continue
-    symlinked_layer_paths.append(join(PLASH_DATA, 'index', container_id))
-    if path.basename(base) == 'builds':
-        break
-
-# FIXME: escape ':' ?, escape ','
-lowerdir = ':'.join(
-        join(p, 'payload').replace(':', r'\:')
-        for p in reversed(symlinked_layer_paths))
-
-with catch_and_die([OSError], 'mkdtemp'):
-    upperdir = args.upperdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
-    workdir = args.workdir or mkdtemp(dir=join(PLASH_DATA, 'tmp'), prefix='')
+for i in lowerdir_list:
+    check_overlayfs_arg(i)
+check_overlayfs_arg(args.upperdir)
+check_overlayfs_arg(args.workdir)
 
 with catch_and_die([CalledProcessError]):
     check_call([
@@ -59,9 +56,9 @@ with catch_and_die([CalledProcessError]):
     'overlay',
     'overlay',
     '-o',
-    'upperdir={upperdir},lowerdir={lowerdir},workdir={workdir}{extra}'.format(
-        upperdir=upperdir,
-        workdir=workdir,
-        lowerdir=lowerdir,
+    'lowerdir={lowerdir}{workdir}{upperdir}{extra}'.format(
+        lowerdir=':'.join(lowerdir_list),
+        upperdir=',upperdir='+args.upperdir if args.upperdir else '',
+        workdir=',workdir='+args.workdir if args.workdir else '',
         extra=MOUNT_EXTRA_OPTS),
         args.mountpoint])

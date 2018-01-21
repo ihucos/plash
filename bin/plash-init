@@ -12,4 +12,11 @@ plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
 os.makedirs(join(plash_data, 'index'), exist_ok=True)
 os.makedirs(join(plash_data, 'cache_keys'), exist_ok=True)
 os.makedirs(join(plash_data, 'tmp'), exist_ok=True)
-os.makedirs(join(plash_data, 'builds'), exist_ok=True)
+# os.makedirs(join(plash_data, 'builds'), exist_ok=True)
+
+# create the empty root container
+os.makedirs(join(plash_data, 'builds', '0', '_layer'), exist_ok=True)
+try:
+    os.symlink(join(plash_data, 'builds', '0'), join(plash_data, 'index', '0'))
+except FileExistsError:
+    pass

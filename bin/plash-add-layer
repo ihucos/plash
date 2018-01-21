@@ -30,8 +30,6 @@ try:
 except ValueError:
     die_with_usage()
 
-# a random internal id to save the node
-#node_id = hashstr(os.urandom(128))[:12] # " + '-' + node_id_payload_arg"
 with open(join(PLASH_DATA, 'id_counter'), 'a') as f:
     f.write('A')
     node_id = str(f.tell())
@@ -39,21 +37,15 @@ with open(join(PLASH_DATA, 'id_counter'), 'a') as f:
 #
 # the location where to put the node, which will contain the layer dir
 #
-if base_container == 'root':  # calculated Spec14l haXX0r
-    node_base_dir = PLASH_BUILDS
-
-new_node_path = (join(PLASH_BUILDS, node_id)
-            if base_container == 'root'
-            else join(nodepath_or_die(base_container), 'children', node_id))
+new_node_path = join(nodepath_or_die(base_container), node_id)
 
 #
 #  prepare the node with the dir being imported
 #  this is the payload data we want to put in the builds folder later
 #
 prepared_new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-os.mkdir(join(prepared_new_node, 'children'))
 # that will actually make the import_dir "disapear" for the user
-os.rename(import_dir, join(prepared_new_node, 'payload'))
+os.rename(import_dir, join(prepared_new_node, '_layer'))
 
 #
 #  Register that we are using this new_node_path,
