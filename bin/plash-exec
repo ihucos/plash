@@ -18,16 +18,29 @@ with open(file) as f:
     f.readline()
     for i in range(5):
         line = f.readline()
-        if line.startswith('# plash: '):
-            file_args = dict(i.split('=', 1) for i in line[8:-1].split())
+        if line.startswith('# plash-exec: '):
+            file_args = dict(i.split('=', 1) for i in line[14:-1].split())
 if not file_args:
-    die("file must have a comment on the top: '# plash: cmd=<cmd>'")
+    die("file must have a comment on the top: '# plash-exec: exec=<exec>'")
 
-os.execlp(
-    'plash-run',
-    'plash-run',
-    '--include',
-    file,
-    '--',
-    file_args['cmd'],
-    *args)
+build_args = ['--include', file]
+run_args = [file_args['exec']] + args
+
+plash_run_extra_args = []
+if file_args.get('root') in ('yes', 'true', '1'):
+    plash_run_extra_args.append('--root')
+mount = file_args.get('mount')
+if mount:
+    plash_run_extra_args.append('--mount')
+    plash_run_extra_args.append(mount)
+
+cmd = [
+   'plash-run',
+   'plash-run',
+] + build_args + [
+'--'
+] + plash_run_extra_args + [
+'--'
+] + run_args
+
+os.execlp(*cmd)

@@ -80,7 +80,7 @@ else:
     elif image_hint.startswith('/') or image_hint.startswith('./'):
         cmd = ['plash-import-tar', image_hint]
     elif image_hint.startswith('docker://'):
-        cmd = ['plash-import-docker', image_hint[8:]]
+        cmd = ['plash-import-docker', image_hint[9:]]
     else:
         cmd = ['plash-import-lxc', image_hint]
     cache_key = ':'.join(cmd)

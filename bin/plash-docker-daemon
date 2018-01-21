@@ -1,27 +1,19 @@
-#!/usr/bin/env python3
-#
-# usage: plash-dockerd <DOCKER_ARGS>
+#!/usr/bin/env plash-exec
+# plash-exec: exec=/entrypoint root=true mount=default,cgroup
 
-from plashlib.utils import handle_help_flag
-from os import execlp, environ
+--image
+alpine
 
-handle_help_flag()
+--namespace
+docker
 
-socket = environ.get(
-    'PLASH_DOCKER_SOCKET',
-    '/tmp/docker.sock')
+--apk
+docker
 
-execlp(
-    'plash-run',
-    'plash-run',
-    '-A',
-    'docker',
-    '--',
-    '--root',
-    '--mount',
-    'default,cgroup',
-    'env',
-    'DOCKER_RAMDISK=1',
-    'dockerd',
-    '-H',
-    'unix://{}'.format(socket))
+--layer
+
+--write-script
+/entrypoint
+#!/bin/sh
+export DOCKER_RAMDISK=1
+exec dockerd -H unix://${PLASH_DOCKER_SOCKET:-/tmp/docker.sock}
