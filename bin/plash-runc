@@ -38,8 +38,10 @@ ux.assert_container_exists(container)
 
 clean_dirs = []
 if not upperdir or not workdir:
-    upperdir = tempfile.mkdtemp(dir=PLASH_TMP, prefix='upperdir-{}-'.format(os.getpid()))
-    workdir = tempfile.mkdtemp(dir=PLASH_TMP, prefix='workdir-{}-'.format(os.getpid()))
+    upperdir = tempfile.mkdtemp(
+        dir=PLASH_TMP, prefix='upperdir-{}-'.format(os.getpid()))
+    workdir = tempfile.mkdtemp(
+        dir=PLASH_TMP, prefix='workdir-{}-'.format(os.getpid()))
     cleanup_dirs = [upperdir, workdir]
 else:
     cleanup_dirs = []
@@ -49,13 +51,8 @@ os.chdir(tmp)
 os.mkdir('./rootfs')
 with catch_and_die([CalledProcessError]):
     check_call([
-    'plash-mount',
-    container,
-    '--upperdir',
-    upperdir,
-    '--workdir',
-    workdir,
-    './rootfs'
+        'plash-mount', container, '--upperdir', upperdir, '--workdir', workdir,
+        './rootfs'
     ])
     check_call(['runc', 'spec'])
 
@@ -66,7 +63,12 @@ with open(join(tmp, 'config.json')) as f:
 
 bundle['hostname'] = container
 bundle['root']['readonly'] = False
-bundle['mounts'].append({'destination': '/etc/resolv.conf', 'source': '/etc/resolv.conf', 'type': 'bind', 'options': ['bind']})
+bundle['mounts'].append({
+    'destination': '/etc/resolv.conf',
+    'source': '/etc/resolv.conf',
+    'type': 'bind',
+    'options': ['bind']
+})
 bundle['process']['args'] = cmd or [default_shell]
 # runc seems to need to be told when stdin is not from a terminal,
 # but that will also make stdout and and stderr per reported as not being ttys to the program being runned
@@ -76,7 +78,7 @@ bundle.setdefault('hooks', {})
 bundle['hooks'].setdefault('poststop', [])
 bundle['hooks']['poststop'].append({
     "path": "/bin/umount",
-    "args": ['umount', join(tmp, 'rootfs')] # also cleanup the dirs!!
+    "args": ['umount', join(tmp, 'rootfs')]  # also cleanup the dirs!!
 })
 # from pprint import pprint; pprint(bundle)
 

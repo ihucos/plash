@@ -8,7 +8,6 @@
 # Exit status:
 # Same as `plash build`
 
-
 import atexit
 import errno
 import os
@@ -50,32 +49,28 @@ workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 p = subprocess.Popen(
     [
         'plash-run',
-         container,
-         '--root',
-         '--mount',
-         '/proc,/dev/pts,/etc/resolv.conf,/home',
-         '--upperdir-workdir-pair',
-         upperdir,
-	 workdir,
+        container,
+        '--root',
+        '--mount',
+        '/proc,/dev/pts,/etc/resolv.conf,/home',
+        '--upperdir-workdir-pair',
+        upperdir,
+        workdir,
         #'plash-runc',
         #container,
         #'--upperdir-workdir-pair',
         #upperdir,
         #workdir,
-     ] + list(shell_with_args),
-     stdout=2) # redirect stdout to stderr because we need to pass the container id through stdout 
+    ] + list(shell_with_args),
+    stdout=2
+)  # redirect stdout to stderr because we need to pass the container id through stdout
 
 exit = p.wait()
 if exit:
     die("build returned exit status {}".format(exit), exit=4)
 
 #with catch_and_die([CalledProcessError]):
-    #cont = check_output(['plash-add-layer', container, upperdir]).decode().strip('\n')
-    #print(cont)
+#cont = check_output(['plash-add-layer', container, upperdir]).decode().strip('\n')
+#print(cont)
 
-os.execlp(
-'plash-add-layer',
-'plash-add-layer',
-container,
-upperdir
-)
+os.execlp('plash-add-layer', 'plash-add-layer', container, upperdir)

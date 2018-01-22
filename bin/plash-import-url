@@ -25,14 +25,17 @@ except IndexError:
 tmpfile = mkstemp()[1]
 
 dots = [0]
+
+
 def reporthook(count, block_size, total_size):
     percent = int(count * block_size * 100 / total_size)
     #percent = min(int(count*block_size*100/total_size),100)
     if percent // 10 > dots[0] and not dots[0] >= 9:
         dots[0] += 1
         if dots[0]:
-           sys.stderr.write('{}%|'.format(dots[0] * 10))
-           sys.stderr.flush()
+            sys.stderr.write('{}%|'.format(dots[0] * 10))
+            sys.stderr.flush()
+
 
 sys.stderr.write('[0%|')
 sys.stderr.flush()
@@ -43,7 +46,7 @@ with catch_and_die([URLError], debug=url):
         sys.stderr.write('\n')
         sys.stderr.flush()
         raise
-    
+
 sys.stderr.write('100%]\n')
 sys.stderr.flush()
 print('extracting...', file=sys.stderr)

@@ -23,7 +23,8 @@ ux.assert_container_exists(container)
 
 runp_binary = which('runp')
 if not runp_binary:
-    die('Could not find runp in PATH, `plash runp` needs the runp binary to run commands')
+    die('Could not find runp in PATH, `plash runp` needs the runp binary to run commands'
+        )
 
 mount_wrapper = mkdtemp(join(PLASH_DATA, 'tmp'))
 prog_dir = join(mount_wrapper, 'prog.dir')

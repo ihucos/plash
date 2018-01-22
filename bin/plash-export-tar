@@ -19,12 +19,5 @@ try:
 except IndexError:
     die_with_usage()
 
-execlp(
-    'plash-with-mount',
-    'plash-with-mount',
-    container,
-    'tar',
-    '-czf',
-    sys.argv[2] if len(sys.argv) > 2 else '-',
-    '.'
-)
+execlp('plash-with-mount', 'plash-with-mount', container, 'tar', '-czf',
+       sys.argv[2] if len(sys.argv) > 2 else '-', '.')

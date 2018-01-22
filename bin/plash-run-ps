@@ -14,8 +14,7 @@ ux.assert_is_root()
 import re
 with open('/proc/mounts') as f:
     for entry in re.finditer(
-            '^overlay /var/tmp/plash-run-(.*?)-.*? ',
-            f.read(),
+            '^overlay /var/tmp/plash-run-(.*?)-.*? ', f.read(),
             flags=re.MULTILINE):
         pid = entry.group(1)
         try:

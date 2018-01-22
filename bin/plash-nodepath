@@ -4,7 +4,6 @@
 # Prints the location of the last layer of a container.
 # Example: `plash-nodepath mycontainer | xargs tree`
 
-
 import os
 import sys
 

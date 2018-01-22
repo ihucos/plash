@@ -38,12 +38,8 @@ if mount:
     plash_run_extra_args.append(mount)
 
 cmd = [
-   'plash-run',
-   'plash-run',
-] + build_args + [
-'--'
-] + plash_run_extra_args + [
-'--'
-] + run_args
+    'plash-run',
+    'plash-run',
+] + build_args + ['--'] + plash_run_extra_args + ['--'] + run_args
 
 os.execlp(*cmd)

@@ -29,9 +29,9 @@ with catch_and_die([OSError]):
     mnt = mkdtemp()
 
 with catch_and_die([CalledProcessError, FileNotFoundError]):
-    image_size = int(check_output(
-        ['plash-with-mount', container, 'du', '-s']
-	).decode().split()[0]) * 1.2
+    image_size = int(
+        check_output(['plash-with-mount', container, 'du', '-s'
+                      ]).decode().split()[0]) * 1.2
     check_call(['fallocate', '-l', '{}K'.format(image_size), tmp])
     check_call(['mkfs.ext4', '-q', tmp])
     check_call(['mount', tmp, mnt])

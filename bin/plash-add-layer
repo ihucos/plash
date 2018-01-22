@@ -14,12 +14,10 @@ from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or
 from os.path import join
 import errno
 
-
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 handle_help_flag()
 handle_build_args()
-
 
 try:
     base_container = sys.argv[1]
@@ -51,7 +49,7 @@ os.rename(import_dir, join(prepared_new_node, '_data'))
 #
 os.symlink(new_node_path, join(PLASH_DATA, 'index', node_id))
 
-# 
+#
 #  put our new node with the import directory in the builds folder
 #  with this we are so to speak saving the "real data"
 #

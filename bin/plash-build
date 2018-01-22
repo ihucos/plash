@@ -43,6 +43,7 @@ with catch_and_die([CalledProcessError]):
     script = check_output(['plash-getscript'] + sys.argv[1:])
     script = script.decode()
 
+
 def cache_set(cache_key, container_id):
     nodepath = get_nodepath(container_id)
     if not nodepath:
@@ -52,6 +53,7 @@ def cache_set(cache_key, container_id):
 
     # rename will overwrite atomically the cache key if it already exists, just symlink would not
     os.rename(join(tmpdir, 'link'), join(PLASH_DATA, 'cache_keys', cache_key))
+
 
 def cache_get(cache_key):
     try:
@@ -99,10 +101,11 @@ layers = [l for l in layers if l]
 current_container = base_container
 os.environ['PS4'] = color('--> ', 4)
 for layer in layers:
-    cache_key = hashstr(b':'.join([current_container.encode(), layer.encode()]))
+    cache_key = hashstr(b':'.join([current_container.encode(),
+                                   layer.encode()]))
     next_container = cache_get(cache_key)
     if not next_container:
-        
+
         # build and cache it
         p = Popen(
             ['plash-create', current_container, 'sh', '-ex'],

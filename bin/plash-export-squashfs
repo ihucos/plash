@@ -18,10 +18,5 @@ try:
 except ValueError:
     die_with_usage()
 
-os.execlp(
-     'plash-with-mount',
-     'plash-with-mount',
-     container,
-     'mksquashfs',
-     '.',
-     out)
+os.execlp('plash-with-mount', 'plash-with-mount', container, 'mksquashfs', '.',
+          out)
