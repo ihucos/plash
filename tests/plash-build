@@ -1,19 +1,62 @@
+#!/bin/bash
 set -xeu
-# vim: set filetype=sh:
-busybox=$(plash-build -i busybox --bust-cache)
 
-echo 'TEST: build a layer and check it changes'
-newcont=$(plash-build -i $busybox -x 'touch /hellow')
+fresh(){
+    plash-build -i $BUSYBOX --bust-cache
+}
+
+: can build a fresh fresh container
+fresh
+
+: build a layer and check it contain changes
+cont=$(fresh)
+newcont=$(plash-build -i $cont -x 'touch /hellow')
 plash-run $newcont stat /hellow
 
+: simple cache test
+cont=$(fresh)
+stderr=$(mktemp)
+cont=$(plash-build -i $cont -x 'touch /a' 2> $stderr)
+test -s $stderr # its not empty
+cont=$(plash-build -i $cont -x 'touch /a' 2> $stderr)
+! test -s $stderr # its empty
 
-echo 'TEST: working directory is is /'
-plash-build -i $busybox --bust-cache -x 'test $(pwd) == /'
+: multilayer caching
+cont=$(fresh)
+layer1=$(plash-build -i $cont -x 'touch /a')
+plash-nodepath $newcont
+layer2=$(plash-build -i $layer1 -x 'touch /b')
+test $(plash-parent $layer2) = $layer1
 
-echo 'TEST: test that a build error returns a bad exit code'
+# also check that in the filesystem
+np1=$(plash-nodepath $layer1)
+np2=$(plash-nodepath $layer2)
+test $(basename $np1) = $(basename $(dirname $np2))
+
+: working directory when builing is is /
+plash-build -i 1 --bust-cache -x 'test $(pwd) == /'
+
+: home is mounted when building
+cont=$(plash-build -i 1 -x 'ls -1 /home > /tmp/out')
+np=$(plash-nodepath $cont)
+cmp $np/_data/tmp/out <(ls -1 /home)
+
+: tmp is not mounted when building
+touch /tmp/mark
+cont=$(plash-build -i 1 -x 'test -z $(ls /tmp)')
+
+: build error returns bad exit code
+cont=$(fresh)
 set +e
-plash-build -i $busybox -x 'exit 42'
+plash-build -i $cont -x 'exit 42'
 test 1 -eq $? || exit 1
 set -e
 
-echo 'TEST: base container specified as first argument and via the os hint comment'
+: nonexistent base container returns bad exit status
+! plash-build -i 999
+
+: existent base container return success exit status
+plash-build -i 1
+
+: bad option causes bad exit status
+! plash-build --my-bad-opiton

@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+#
+# usage: plash-parent CONTAINER
+# Prints the parent container of the given container
+
+from os.path import basename, dirname
+from sys import argv
+
+from plashlib.utils import die, handle_help_flag, die_with_usage, nodepath_or_die
+
+handle_help_flag()
+
+try:
+    container = argv[1]
+except IndexError:
+    die_with_usage()
+
+if container == '0':
+    die('the root container has no parent, you fool')
+
+nodepath = nodepath_or_die(container)
+print(basename(dirname(nodepath)))

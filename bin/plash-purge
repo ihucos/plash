@@ -8,13 +8,12 @@ from shutil import rmtree
 from plashlib.utils import handle_help_flag
 from plashlib import ux
 
-ux.assert_is_root()
-
 handle_help_flag()
+ux.assert_is_root()
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 if input('Delete all build data? [y/N] ') == 'y':
-    # TODO: don't delete the dir itself because it could be a mount
+    # don't delete the dir itself because it could be a mount
     os.unlink(os.path.join(PLASH_DATA, 'id_counter'))
     for dir in os.listdir(PLASH_DATA):
         rmtree(os.path.join(PLASH_DATA, dir))

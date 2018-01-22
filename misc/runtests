@@ -1,11 +1,12 @@
 #!/bin/bash
+set -eu
 
 # usage: plash test [TEST-PREFIX]
 # Run unit tests
 
-set -e
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+PS4='+ ${BASH_SOURCE}:${LINENO} '
 
 mkdir -p /var/lib/plash/tmp
 tmp=$(mktemp -d /var/lib/plash/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp
@@ -15,27 +16,24 @@ export PATH=$DIR/../bin:$PATH
 export PYTHONPATH=$DIR/..:$PYTHONPATH
 
 plash-init
-plash-import-tar-as $DIR/../misc/busybox.tar busybox
+BUSYBOX=$(plash-import-tar $DIR/../misc/busybox.tar busybox)
+export BUSYBOX
 
 
 log=$(mktemp)
 program_exit=0
-for script in $DIR/../tests/$1* ; do
+last_arg="${@: -1}"
+for script in "$DIR/../tests/$last_arg"* ; do
   test $(basename $script) == $(basename ${BASH_SOURCE[0]}) && continue
   printf $(basename "$script")
-  (
-  export PS4='+ ${BASH_SOURCE}:${LINENO} '
-  exec > $log 2>&1
-  exec "$script"
-  ) &
+  "$script" > $log 2>&1 &
   if wait $!; then
     echo ' OK'
   else
     echo ' ERROR'
     program_exit=1
-    echo "logs: $log" >&2
-    # tail -n7 <(cat -n $log) >&2
-    tail -n7 $log >&2
+    test_mark_line=$(grep -n '^+ : ' $log | tail -n1 | cut -d: -f1)
+    tail -n +$test_mark_line $log | sed 's/^/  | /'  >&2 
     echo
   fi
 done

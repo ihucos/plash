@@ -3,10 +3,6 @@
 # usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
 # return a new container id
 
-#the idea:
-# write a symlink to the node in $DATA/index, the filename is an uuid and shal not be deleted so we can track that this think exists without traversing folders.
-# the given id is used as a filename for an symlink in the $DATA/alias folder. index in the alias folder can be deleted, renamed, etc.
-
 from tempfile import mkdtemp
 import os
 import sys
@@ -25,6 +21,9 @@ try:
 except ValueError:
     die_with_usage()
 
+#
+#  get a new id
+#
 with open(join(PLASH_DATA, 'id_counter'), 'a') as f:
     f.write('A')
     node_id = str(f.tell())
@@ -55,4 +54,7 @@ os.symlink(new_node_path, join(PLASH_DATA, 'index', node_id))
 #
 os.rename(prepared_new_node, new_node_path)
 
+# 
+#  inform the user about the new container
+#
 print(node_id)
