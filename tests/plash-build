@@ -58,5 +58,10 @@ set -e
 : existent base container return success exit status
 plash-build -i 1
 
+: build fail return bad exit status and not container
+stdout=$(mktemp)
+! plash-build -i 1 -x false > $stdout
+! test -s $stderr # its empty
+
 : bad option causes bad exit status
 ! plash-build --my-bad-opiton

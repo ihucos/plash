@@ -18,7 +18,7 @@ handle_build_args()
 try:
     base_container = sys.argv[1]
     import_dir = sys.argv[2]
-except ValueError:
+except IndexError:
     die_with_usage()
 
 #

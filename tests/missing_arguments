@@ -3,13 +3,11 @@ set -xu
 
 array=(
 plash-add-layer
-plash-alias
 # plash-build
-plash-build-shell
 plash-export-img
 plash-export-squashfs
 plash-export-tar
-plash-import-cloud
+plash-import-lxc
 plash-import-tar
 plash-import-url
 plash-mount

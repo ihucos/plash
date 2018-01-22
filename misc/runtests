@@ -33,7 +33,11 @@ for script in "$DIR/../tests/$last_arg"* ; do
     echo ' ERROR'
     program_exit=1
     test_mark_line=$(grep -n '^+ : ' $log | tail -n1 | cut -d: -f1)
-    tail -n +$test_mark_line $log | sed 's/^/  | /'  >&2 
+    if [[ $test_mark_line =~ ^-?[0-9]+$ ]]; then
+        tail -n +$test_mark_line $log | sed 's/^/  | /'  >&2 
+    else
+        cat $log | sed 's/^/  | /'  >&2 
+    fi
     echo
   fi
 done
