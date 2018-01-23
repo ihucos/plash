@@ -37,7 +37,7 @@ ux.assert_container_exists(container)
 ux.assert_is_root()
 
 if not container:
-    die('container arg can not be empty an empty string')
+    die('container arg can not be an empty string')
 
 handle_help_flag()
 handle_build_args()
@@ -46,6 +46,7 @@ nodepath_or_die(container)
 
 upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
 workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+
 p = subprocess.Popen(
     [
         'plash-run',

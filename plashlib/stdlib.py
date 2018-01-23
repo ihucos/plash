@@ -47,6 +47,9 @@ def run(*args):
     'run shell script'
     return '\n'.join(args)
 
+@action()
+def align_cwd():
+    yield 'cd {}'.format(shlex.quote(os.getcwd()))
 
 @action()
 def import_envs(*envs):
@@ -98,7 +101,7 @@ def include(*files):
 def hash_paths(paths):
     collect_files = []
     for path in paths:
-        if image.path.isdir(path):
+        if os.path.isdir(path):
             collect_files.extend(all_files(path))
         else:
             collect_files.append(path)
@@ -128,7 +131,7 @@ def all_files(dir):
 def rebuild_when_changed(*paths):
     'invalidate cache if path changes'
     hash = hash_paths(paths)
-    return ":rebuild-when-changed hash: {}".format(hash)
+    return ": rebuild-when-changed hash: {}".format(hash)
 
 
 @action(escape=False)
@@ -180,7 +183,6 @@ def image(os):
 def chdir(path):
     'change directory at host'
     os.chdir(path)
-
 
 @action()
 def namespace(ns):
