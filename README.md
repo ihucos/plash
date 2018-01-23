@@ -5,7 +5,7 @@
 $ pip3 install git+https://github.com/ihucos/plash.git
 
 # the we must initilaize the storage directory
-$ plash init
+$ plash-init
 
 # build a simple image
 $ plash-build --os ubuntu --run 'touch /file'

@@ -14,6 +14,9 @@ ux.assert_is_root()
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 if input('Delete all build data? [y/N] ') == 'y':
     # don't delete the dir itself because it could be a mount
-    os.unlink(os.path.join(PLASH_DATA, 'id_counter'))
+    try:
+        os.unlink(os.path.join(PLASH_DATA, 'id_counter'))
+    except FileNotFoundError:
+        pass
     for dir in os.listdir(PLASH_DATA):
         rmtree(os.path.join(PLASH_DATA, dir))
