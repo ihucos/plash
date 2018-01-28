@@ -93,7 +93,7 @@ still building...
 --:
 f4f
 
-# something stilll experimental: we can have our build files executable
+# something still experimental: we can have our build files executable
 # E.g: instead of using virtualenv you could have your custom "./python" executable build file
 $ cat -n ~/bin/fzf
      1  #!/usr/bin/env plash-exec
