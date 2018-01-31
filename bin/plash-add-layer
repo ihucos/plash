@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 #
 # usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
-# return a new container id
+# Stack layer on top of a container.
+# Please note that it uses the rename syscall, meaning your import-dir will "disappear"
 
 from tempfile import mkdtemp
 import os

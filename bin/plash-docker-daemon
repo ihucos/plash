@@ -1,5 +1,7 @@
 #!/usr/bin/env plash-exec
 # plash-exec: exec=/entrypoint root=true mount=default,cgroup
+# usage: plash-docker-daemon <DOCKER-ARGS>
+# Run the docker daemon inside alpine linux.
 
 --image
 alpine

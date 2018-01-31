@@ -15,6 +15,7 @@ progs = [prog for prog in listdir(bin) if prog.startswith('plash-')]
 
 max_prog_lenght = max(len(prog) for prog in progs)
 for prog in sorted(progs):
+    first_sentence = '<empty>'
     with open(join(bin, prog)) as f:
         lines = f.readlines()
     for line, next_line in zip(lines, lines[1:]):

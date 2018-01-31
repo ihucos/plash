@@ -1,5 +1,7 @@
 #!/usr/bin/env plash-exec
 # plash-exec: exec=/entrypoint root=true
+# usage: plash-docker <DOCKER-ARGS>
+# Run the docker client inside alpine linux.
 
 --namespace
 docker

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # usage: plash-export-img CONTAINER FILE
-# Export an image as ext4 file system
+# Export a container as ext4 file system
 
 import sys
 from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die, handle_build_args
