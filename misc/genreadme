@@ -1,0 +1,12 @@
+#!/bin/bash
+set -eu
+
+rc=$(mktemp)
+out=$(mktemp)
+echo "PS1='$ '" > $rc
+script $out -fqc "bash --rcfile $rc"  < ./README.template > /dev/null
+
+BEGIN=$(grep -n ENDMARK  /tmp/tmp.EeBYW6eHWh | cut -d: -f 1)
+
+tail -n +$((BEGIN+1)) $out
+echo $out
