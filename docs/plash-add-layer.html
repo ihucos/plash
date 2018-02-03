@@ -1,0 +1,10 @@
+<pre>
+usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
+Stack layer on top of a container.
+Please note that it uses the rename syscall, meaning your import-dir will "disappear"
+
+Examples:
+$ plash-add-layer 0 /tmp/rootfs
+66
+$ plash-add-layer 33 /tmp/mylayer
+67

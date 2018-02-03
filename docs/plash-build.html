@@ -1,0 +1,18 @@
+<pre>
+usage: plash-build <ACTIONS>
+Builds a container.
+All command line options are interpreted as action calls from the `stdlib`.
+Consult `plash-getscript --help` for available actions.
+
+Some short examples:
+```
+plash build -i zesty --run 'touch a'
+plash build -i zesty --run 'touch a' --layer --run 'touch b'
+plash build -i zesty --apt nmap
+```
+
+exit status:
+1: Generic error code
+2: Unrecognized arguments
+3: Returning container from cache, not building
+4: Build error - building returned non-zero exit status
