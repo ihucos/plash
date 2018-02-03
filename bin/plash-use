@@ -3,7 +3,7 @@
 # usage: plash-use PROGRAM [CMD1 [CMD2 ...]]
 # Quickly use any program.
 
-from plashlib.utils import handle_help_flag, die, die_with_usage, catch_and_die
+from plashlib.utils import handle_help_flag, die, die_with_usage, catch_and_die, plash_map
 from plashlib import ux
 from subprocess import check_output, check_call, CalledProcessError, DEVNULL
 import signal
@@ -13,8 +13,8 @@ import os
 import tempfile
 
 handle_help_flag()
-ux.assert_initialized()
 ux.assert_is_root()
+ux.assert_initialized()
 
 #
 # find out the program to run
@@ -31,18 +31,9 @@ else:
     prog = basename
     prog_args = sys.argv[1:]
 
-run_container = 'plash-use-{}'.format(prog)
-
-#
-# see if we already have the container to run this
-#
-try:
-    check_call(
-        ['plash-nodepath', run_container], stdout=DEVNULL, stderr=DEVNULL)
-except CalledProcessError as exc:
-    if not exc.returncode == 3:
-        raise
-else:
+cache_key = 'plash-use-{}'.format(prog)
+run_container = plash_map(cache_key)
+if run_container:
     # short reace condition, it could get deleted in between
     os.execlp('plash-run', 'plash-run', run_container, prog, *prog_args)
 
@@ -69,6 +60,8 @@ query_container = check_output(
         '--arch',
         '--namespace',
         'plash-use',
+        '--devinit',
+        '--layer',
         '--pacman',
         'pkgfile',
         '--run',
@@ -88,7 +81,13 @@ except CalledProcessError:
 #
 final_container = check_output(
     [
-        'plash-build', '--arch', '--namespace', 'plash-use', '--pacman',
+        'plash-build',
+        '--arch',
+        '--namespace',
+        'plash-use',
+        '--devinit',
+        '--layer',
+        '--pacman',
         install_package
     ],
     stderr=log)
@@ -104,15 +103,12 @@ call_names = [
     os.path.basename(entry.split('\t')[-1])
     for entry in out.decode().splitlines()
 ]
-#print('{} provides {}'.format(install_package, ' '.join(call_names)))
+# print('{} provides {}'.format(install_package, ' '.join(call_names)))
 for call_name in call_names:
-    with catch_and_die([OSError]):
-        check_call(
-            ['plash-alias', final_container, 'plash-use-{}'.format(call_name)],
-            stderr=log)
+    plash_map('plash-use-{}'.format(call_name), final_container)
 
 #
 # finally run the program again
 #
 os.kill(child, signal.SIGINT)
-os.execlp('plash-run', 'plash-run', run_container, prog, *prog_args)
+os.execlp('plash-run', 'plash-run', final_container, prog, *prog_args)
