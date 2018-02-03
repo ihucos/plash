@@ -153,3 +153,11 @@ def get_default_shell(passwd_file):
         root_entry = f.readline().rstrip('\n')
         default_root_shell = root_entry.split(":")[6]
         return default_root_shell
+
+def plash_map(*args):
+    from subprocess import check_output
+    'thin wrapper around plash-map'
+    out = check_output(['plash-map'] + list(args))
+    if out == '':
+        return None
+    return out.decode().strip('\n')

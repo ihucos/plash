@@ -30,7 +30,7 @@ from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
 from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import IMAGE_HINT_TEMPL
 from os.path import join
-from plashlib.utils import catch_and_die, die, info, color, handle_help_flag
+from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, plash_map
 from tempfile import mkdtemp
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
@@ -44,29 +44,6 @@ try:
 except CalledProcessError as exc:
     die("getscript failed with exit {}".format(exc.returncode))
 script = script.decode()
-
-
-def cache_set(raw_cache_key, container_id):
-    cache_key = hashstr(raw_cache_key)
-    nodepath = get_nodepath(container_id)
-    if not nodepath:
-        raise ValueError('no such container: {}'.format(container_id))
-    tmpdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-    os.symlink(nodepath, join(tmpdir, 'link'))
-
-    # rename will overwrite atomically the cache key if it already exists, just symlink would not
-    os.rename(join(tmpdir, 'link'), join(PLASH_DATA, 'cache_keys', cache_key))
-
-
-def cache_get(raw_cache_key):
-    cache_key = hashstr(raw_cache_key)
-    try:
-        nodepath = os.readlink(join(PLASH_DATA, 'cache_keys', cache_key))
-    except FileNotFoundError:
-        return
-    if os.path.exists(nodepath):
-        return os.path.basename(nodepath)
-
 
 image_ir = re.compile(IMAGE_HINT_TEMPL.format('(.+)\n'))
 matches = image_ir.findall(script)
@@ -92,11 +69,11 @@ else:
     else:
         cmd = ['plash-import-lxc', image_hint]
     cache_key = ':'.join(cmd)
-    base_container = cache_get(cache_key.encode())
+    base_container = plash_map(cache_key.encode())
     if not base_container:
         with catch_and_die([CalledProcessError]):
             base_container = check_output(cmd).decode().strip('\n')
-        cache_set(cache_key.encode(), base_container)
+        plash_map(cache_key.encode(), base_container)
 
 # split the script in its layers
 layers = script.split(LAYER_MARKER + '\n')
@@ -107,7 +84,7 @@ os.environ['PS4'] = color('--> ', 4)
 for layer in layers:
     cache_key = hashstr(b':'.join([current_container.encode(),
                                    layer.encode()]))
-    next_container = cache_get(cache_key.encode())
+    next_container = plash_map(cache_key.encode())
     if not next_container:
 
         # build and cache it
@@ -122,7 +99,7 @@ for layer in layers:
         exit = p.wait()
         if exit:
             die('build died with exit status: {}'.format(exit))
-        cache_set(cache_key.encode(), next_container)
+        plash_map(cache_key.encode(), next_container)
         info('--:')
     current_container = next_container
 build_container = current_container
