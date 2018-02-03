@@ -51,13 +51,17 @@ def deescalate_sudo():
 
 
 def color(stri, color, isatty_fd_check=2):
-    if os.isatty(isatty_fd_check):
+    if os.environ.get('TERM') != 'dumb' and os.isatty(isatty_fd_check):
         return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
     return stri
 
 def die(msg, exit=1):
     prog = os.path.basename(sys.argv[0])
-    print(color('error: {}: '.format(prog), ERROR_COLOR) + msg, file=sys.stderr)
+    print('{}: {}: {}'.format(
+        color('error', ERROR_COLOR),
+        prog,
+        msg
+    ), file=sys.stderr)
     sys.exit(exit)
 
 
