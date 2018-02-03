@@ -192,6 +192,21 @@ def namespace(ns):
          ['run', ': new namespace {}'.format(ns)],
          ['layer']])
 
+@action()
+def devinit():
+    'ensure a minimal /dev setup'
+    # using this: from http://www.tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter06/devices.html
+    return '''
+    test -e /dev/console || mknod -m 622 /dev/console c 5 1
+    test -e /dev/null || mknod -m 666 /dev/null c 1 3
+    test -e /dev/zero || mknod -m 666 /dev/zero c 1 5
+    test -e /dev/ptmx || mknod -m 666 /dev/ptmx c 5 2
+    test -e /dev/tty || mknod -m 666 /dev/tty c 5 0
+    test -e /dev/random || mknod -m 444 /dev/random c 1 8
+    test -e /dev/urandom || mknod -m 444 /dev/urandom c 1 9
+    chown -v root:tty /dev/console
+    chown -v root:tty /dev/ptmx
+    chown -v root:tty /dev/tty'''
 
 eval([[
     'define-package-manager',
