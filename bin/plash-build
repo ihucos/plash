@@ -59,6 +59,10 @@ else:
 if image_hint.isdigit():
     base_container = image_hint
     nodepath_or_die(base_container)
+elif image_hint.startswith('@'):
+    base_container = plash_map(image_hint[1:])
+    if not base_container:
+        die('image map could not be resolved: {}'.format(image_hint))
 else:
     if image_hint.startswith('https://') or image_hint.startswith('http://'):
         cmd = ['plash-import-url', image_hint]
