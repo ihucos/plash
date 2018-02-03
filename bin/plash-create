@@ -29,6 +29,9 @@ PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 ux.assert_initialized()
 ux.assert_is_root()
 
+handle_help_flag()
+handle_build_args()
+
 try:
     container = sys.argv[1]
     shell_with_args = sys.argv[2:]
@@ -39,9 +42,6 @@ ux.assert_is_root()
 
 if not container:
     die('container arg can not be an empty string')
-
-handle_help_flag()
-handle_build_args()
 
 nodepath_or_die(container)
 
