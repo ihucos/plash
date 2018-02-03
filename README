@@ -1,0 +1,95 @@
+# the we must initilaize the storage directory
+$ plash-init
+
+# build a simple image
+$ plash-build --image alpine --run 'touch /file'
+[0%|10%|20%|30%|40%|50%|60%|70%|80%|90%|100%]
+extracting...
+--> touch /file
+--:
+2
+
+# second build is cached
+$ plash-build --image alpine --run 'touch /file'
+2
+
+# run something inside a container
+$ plash-run 2 ls /file
+/file
+
+# layering is explicit
+$ plash-build --image alpine --run 'touch /file' --layer --run 'touch /file2'
+--> touch /file2
+--:
+3
+
+# delete a container
+$ plash-rm 3
+
+# build and run in one command
+$ plash-run --image alpine --run 'touch /file' -- ls /file
+/file
+
+# you can easily mount, execute a command on the filesystem, then unmount.
+$ plash-with-mount --image alpine -- ls
+bin  etc   lib	  mnt	root  sbin  sys  usr
+dev  home  media  proc	run   srv   tmp  var
+$ plash-with-mount -i alpine -- chroot . /bin/sh
+/ # exit
+
+# plash actually includes some configuration management 
+$ plash-run --image alpine --apk git -- git --version
+--> apk update
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/community/x86_64/APKINDEX.tar.gz
+v3.7.0-61-g66a2eadbb3 [http://dl-cdn.alpinelinux.org/alpine/v3.7/main]
+v3.7.0-58-g26701b74f8 [http://dl-cdn.alpinelinux.org/alpine/v3.7/community]
+OK: 9044 distinct packages available
+--> apk add git
+(1/6) Installing ca-certificates (20171114-r0)
+(2/6) Installing libssh2 (1.8.0-r2)
+(3/6) Installing libcurl (7.57.0-r0)
+(4/6) Installing expat (2.2.5-r0)
+(5/6) Installing pcre2 (10.30-r0)
+(6/6) Installing git (2.15.0-r1)
+Executing busybox-1.27.2-r8.trigger
+Executing ca-certificates-20171114-r0.trigger
+OK: 21 MiB in 22 packages
+--:
+git version 2.15.0
+
+$ echo '#!/usr/bin/env plash-exec
+> # plash-exec: exec=fzf
+> --image
+> alpine
+> --apk
+> wget
+> --run
+> cd $(mktemp -d)
+> wget -q https://github.com/junegunn/fzf-bin/releases/download/0.17.3/fzf-0.<m/junegunn/fzf-bin/releases/download/0.17.3/fzf-0.1                         7.3-linux_amd64.tgz
+> tar xvzf *.tgz
+> cp fzf /usr/local/bin/fzf' > /tmp/fzf
+
+$ chmod +x /tmp/fzf
+$ /tmp/fzf --version
+--> apk update
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/community/x86_64/APKINDEX.tar.gz
+v3.7.0-61-g66a2eadbb3 [http://dl-cdn.alpinelinux.org/alpine/v3.7/main]
+v3.7.0-58-g26701b74f8 [http://dl-cdn.alpinelinux.org/alpine/v3.7/community]
+OK: 9044 distinct packages available
+--> apk add wget
+(1/1) Installing wget (1.19.2-r1)
+Executing busybox-1.27.2-r8.trigger
+OK: 7 MiB in 17 packages
+--> mktemp -d
+--> cd /tmp/tmp.jIGiEm
+--> wget -q https://github.com/junegunn/fzf-bin/releases/download/0.17.3/fzf-0.17.3-linux_amd64.tgz
+--> tar xvzf fzf-0.17.3-linux_amd64.tgz
+fzf
+--> cp fzf /usr/local/bin/fzf
+--:
+0.17.3 (390b496)
+
+$ exit
+exit
