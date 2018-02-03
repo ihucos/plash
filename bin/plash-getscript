@@ -5,6 +5,7 @@
 # Call with --help to see available actions.
 
 import argparse
+import sys
 
 from plashlib import eval, stdlib
 from plashlib.utils import catch_and_die, deescalate_sudo, die
@@ -29,6 +30,7 @@ def create_collect_lsp_action(lsp_begin):
 
 
 parser = argparse.ArgumentParser()
+parser.error = die
 
 from inspect import signature
 for action, func in eval.state['actions'].items():

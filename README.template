@@ -51,4 +51,5 @@ cp fzf /usr/local/bin/fzf' > /tmp/fzf
 chmod +x /tmp/fzf
 /tmp/fzf --version
 
+exit
 : ENDMARK

@@ -39,9 +39,11 @@ handle_help_flag()
 ux.assert_initialized()
 ux.assert_is_root()
 
-with catch_and_die([CalledProcessError]):
+try:
     script = check_output(['plash-getscript'] + sys.argv[1:])
-    script = script.decode()
+except CalledProcessError as exc:
+    die("getscript failed with exit {}".format(exc.returncode))
+script = script.decode()
 
 
 def cache_set(cache_key, container_id):
