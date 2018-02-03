@@ -2,12 +2,14 @@
 #
 # usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
 # Creates a new container from a command.
-# Example: plash-create ubuntu bash ./build.sh
 # The new container is printed to stdout, all other output goes to stderr.
 # For most cases use `plash build` for a higher level interface.
 #
-# Exit status:
-# Same as `plash build`
+# Examples:
+# $ plash-create 7 ./tmp/buildscript.sh
+# 42
+# $ plash-create -i ubuntu -- touch /myfile
+# 43
 
 import atexit
 import errno

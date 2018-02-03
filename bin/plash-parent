@@ -2,6 +2,10 @@
 #
 # usage: plash-parent CONTAINER
 # Prints the parent container of a given container
+#
+# Example:
+# $ plash-parent 89
+# 88
 
 from os.path import basename, dirname
 from sys import argv
