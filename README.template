@@ -8,25 +8,27 @@ function cleanup {
 }
 trap cleanup EXIT
 
+echo '=BEGINMARK='
+
 # the we must initilaize the storage directory
 plash-init
 
 # build a simple image
-plash-build --image ubuntu --run 'touch /file'
+plash-build --image alpine --run 'touch /file'
 # second build is cached
-plash-build --image ubuntu --run 'touch /file'
+plash-build --image alpine --run 'touch /file'
 
 # run something inside a container
-plash-run 2 file /file
+plash-run 2 ls /file
 
 # layering is explicit
-plash-build --image ubuntu --run 'touch /file' --layer --run 'touch /file2'
+plash-build --image alpine --run 'touch /file' --layer --run 'touch /file2'
 
 # delete a container
 plash-rm 3
 
 # build and run in one command
-plash-run --image ubuntu --run 'touch /file' -- file /file
+plash-run --image alpine --run 'touch /file' -- ls /file
 
 # you can easily mount, execute a command on the filesystem, then unmount.
 plash-with-mount --image alpine -- ls
@@ -39,8 +41,8 @@ plash-run --image alpine --apk git -- git --version
 echo '#!/usr/bin/env plash-exec
 # plash-exec: exec=fzf
 --image
-ubuntu
---apt
+alpine
+--apk
 wget
 --run
 cd $(mktemp -d)
@@ -52,4 +54,3 @@ chmod +x /tmp/fzf
 /tmp/fzf --version
 
 exit
-: ENDMARK

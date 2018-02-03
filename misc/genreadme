@@ -3,10 +3,11 @@ set -eu
 
 rc=$(mktemp)
 out=$(mktemp)
+out2=$(mktemp)
 echo "PS1='$ '" > $rc
 script $out -fqc "bash --rcfile $rc"  < ./README.template > /dev/null
 
-BEGIN=$(grep -n ENDMARK  /tmp/tmp.EeBYW6eHWh | cut -d: -f 1)
+sed -n '/^=BEGINMARK=/,//p' $out | tail -n +3 > $out2
 
-tail -n +$((BEGIN+1)) $out
-echo $out
+# prettify
+cat $out2 | sed 's/^\$ .$//g' | sed 's/^\$ #/#/g'
