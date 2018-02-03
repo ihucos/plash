@@ -10,15 +10,18 @@ trap cleanup EXIT
 
 echo '=BEGINMARK='
 
-# the we must initilaize the storage directory
+# don't forget to run init first.
 plash-init
+
+plash-use figlet plash
 
 # build a simple image
 plash-build --image alpine --run 'touch /file'
+
 # second build is cached
 plash-build --image alpine --run 'touch /file'
 
-# run something inside a container
+# run something inside a container (plash-runc also exists)
 plash-run 2 ls /file
 
 # layering is explicit
@@ -46,7 +49,7 @@ alpine
 wget
 --run
 cd $(mktemp -d)
-wget https://github.com/junegunn/fzf-bin/releases/download/0.17.3/fzf-0.17.3-linux_amd64.tgz
+wget -q https://github.com/junegunn/fzf-bin/releases/download/0.17.3/fzf-0.17.3-linux_amd64.tgz
 tar xvzf *.tgz
 cp fzf /usr/local/bin/fzf' > /tmp/fzf
 
