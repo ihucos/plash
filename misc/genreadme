@@ -5,7 +5,7 @@ rc=$(mktemp)
 out=$(mktemp)
 out2=$(mktemp)
 echo "PS1='$ '" > $rc
-script $out -fqc "bash --rcfile $rc"  < ./README.template > /dev/null
+script $out -fqc "env TERM=dumb bash --rcfile $rc"  < ./README.template > /dev/null
 
 sed -n '/^=BEGINMARK=/,//p' $out | tail -n +3 > $out2
 
