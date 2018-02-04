@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 <style>
@@ -16,17 +16,24 @@ code {
 }
 #doc {
   min-height: 66.66vh;
+  font-size: 1.25em;
   text-align: left;
-  margin-top: 5em;
-  margin-left: 5em;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  color: #212845;
 }
 </style>
 </head>
 <body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/plash-runc"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
 <center>
 
 <div id='doc'>
 <pre>
+<h1>plash-runc</h1>
 usage: plash-runc container [ARG1 [ARG2 [ARG3 ...]]]
 Run a container with runc.
 See the runc project page: https://github.com/opencontainers/runc
