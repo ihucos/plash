@@ -17,7 +17,7 @@ def render(tpl_path, **context):
 
 out = check_output('plash-list')
 out = out.decode()
-progs = dict(i.split(None, 1) for i in out.splitlines())
+progs = sorted((i.split(None, 1) for i in out.splitlines()))
 
 with open(path.join(DOCDIR, 'index.html'), 'w') as f:
     f.write(render('index.html', progs=progs))

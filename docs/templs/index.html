@@ -1,6 +1,67 @@
-hello html <br/>
-{% for prog, short in progs.items() %}
-<a href="{{ prog }}.html">{{ prog }}</a>
-{{ short }}
-<br>
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<style>
+body {
+  background-image: url("images/science.png");
+  background-color: rgba(0, 0, 0, 0.6);
+}
+#container {
+  display: inline-block;
+  background-color: white;
+  margin: 2em;
+  padding: 2em;
+  transform: rotate(-0.3deg);
+  font-family: 'Inconsolata', monospace;
+  border: solid 4px #832C2A;
+}
+
+a {
+  color: black;
+  text-decoration: none;
+}
+a:link {
+  color: black;
+  text-decoration: none;
+}
+a:visited {
+  color: black;
+  text-decoration: none;
+}
+a:hover {
+  color: black;
+  text-decoration: none;
+}
+a:active {
+  color: black;
+  text-decoration: none;
+}
+
+</style>
+</head>
+<body>
+<center>
+
+<div id="container">
+<table>
+<tr>
+<td>$ plash-list</td>
+<td></td>
+<tr>
+{% for prog, short in progs %}
+<tr>
+  <td>
+    <a href="{{ prog }}.html">{{ prog }}</a>
+  </td>
+  <td>
+    <a href="{{ prog }}.html">{{ short }}</a>
+  </td>
+</tr>
 {% endfor %}
+</table>
+</div>
+
+</center>
+</body>
+</html>
