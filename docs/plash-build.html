@@ -5,14 +5,20 @@
 <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
 <style>
 body {
   font-family: 'Inconsolata', monospace;
+  margin: 0px;
 }
 code {
   font-size: 0.85em;
   text-align: left;
+}
+pre {
+  margin: 0px;
 }
 #doc {
   min-height: 66.66vh;
@@ -21,6 +27,9 @@ code {
   margin-top: 2.5em;
   margin-left: 4em;
   color: #212845;
+}
+#usage {
+  background-color: #FFFECE;
 }
 </style>
 </head>
@@ -34,7 +43,7 @@ code {
 <div id='doc'>
 <pre>
 <h1>plash-build</h1>
-usage: plash-build <ACTIONS>
+<span id='usage'>usage: plash-build <ACTIONS></span>
 Builds a container.
 All command line options are interpreted as action calls from the `stdlib`.
 Consult `plash-getscript --help` for available actions.
@@ -50,15 +59,15 @@ exit status:
 1: Generic error code
 2: Unrecognized arguments
 3: Returning container from cache, not building
-4: Build error - building returned non-zero exit status
-</pre>
+4: Build error - building returned non-zero exit status</pre>
+
+<br/>
+<a href='..'>&larr; Command index</a>
 </div>
 
 <div id="container">
 <pre>
-<code>
-
-#!/usr/bin/env python3
+<code>#!/usr/bin/env python3
 #
 # usage: plash-build <ACTIONS>
 # Builds a container.
@@ -169,10 +178,7 @@ for layer in layers:
 build_container = current_container
 
 print(current_container)
-
-
-</code>
-</pre>
+</code></pre>
 </div>
 
 </center>

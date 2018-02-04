@@ -5,14 +5,20 @@
 <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
 <style>
 body {
   font-family: 'Inconsolata', monospace;
+  margin: 0px;
 }
 code {
   font-size: 0.85em;
   text-align: left;
+}
+pre {
+  margin: 0px;
 }
 #doc {
   min-height: 66.66vh;
@@ -21,6 +27,9 @@ code {
   margin-top: 2.5em;
   margin-left: 4em;
   color: #212845;
+}
+#usage {
+  background-color: #FFFECE;
 }
 </style>
 </head>
@@ -34,17 +43,17 @@ code {
 <div id='doc'>
 <pre>
 <h1>plash-run</h1>
-usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]
+<span id='usage'>usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]</span>
 Run a command inside a container. If no command is specified a shell is started.
-The workdir and upperdir parameters can be used to save file system changes made inside the container.
-</pre>
+The workdir and upperdir parameters can be used to save file system changes made inside the container.</pre>
+
+<br/>
+<a href='..'>&larr; Command index</a>
 </div>
 
 <div id="container">
 <pre>
-<code>
-
-#!/usr/bin/env python3
+<code>#!/usr/bin/env python3
 #
 # usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]
 # Run a command inside a container. If no command is specified a shell is started.
@@ -275,10 +284,7 @@ try:
     os.execlp(cmd[0], *cmd)
 except FileNotFoundError:
     die('Command not found: {}'.format(cmd[0]))
-
-
-</code>
-</pre>
+</code></pre>
 </div>
 
 </center>

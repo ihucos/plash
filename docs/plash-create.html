@@ -5,14 +5,20 @@
 <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
 <style>
 body {
   font-family: 'Inconsolata', monospace;
+  margin: 0px;
 }
 code {
   font-size: 0.85em;
   text-align: left;
+}
+pre {
+  margin: 0px;
 }
 #doc {
   min-height: 66.66vh;
@@ -21,6 +27,9 @@ code {
   margin-top: 2.5em;
   margin-left: 4em;
   color: #212845;
+}
+#usage {
+  background-color: #FFFECE;
 }
 </style>
 </head>
@@ -34,7 +43,7 @@ code {
 <div id='doc'>
 <pre>
 <h1>plash-create</h1>
-usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
+<span id='usage'>usage: plash-create CONTAINER [CMD1 [CMD2 ...]]</span>
 Creates a new container from a command.
 The new container is printed to stdout, all other output goes to stderr.
 For most cases use `plash build` for a higher level interface.
@@ -43,15 +52,15 @@ Examples:
 $ plash-create 7 ./tmp/buildscript.sh
 42
 $ plash-create -i ubuntu -- touch /myfile
-43
-</pre>
+43</pre>
+
+<br/>
+<a href='..'>&larr; Command index</a>
 </div>
 
 <div id="container">
 <pre>
-<code>
-
-#!/usr/bin/env python3
+<code>#!/usr/bin/env python3
 #
 # usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
 # Creates a new container from a command.
@@ -131,10 +140,7 @@ if exit:
 #print(cont)
 
 os.execlp('plash-add-layer', 'plash-add-layer', container, upperdir)
-
-
-</code>
-</pre>
+</code></pre>
 </div>
 
 </center>

@@ -5,14 +5,20 @@
 <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
 <style>
 body {
   font-family: 'Inconsolata', monospace;
+  margin: 0px;
 }
 code {
   font-size: 0.85em;
   text-align: left;
+}
+pre {
+  margin: 0px;
 }
 #doc {
   min-height: 66.66vh;
@@ -21,6 +27,9 @@ code {
   margin-top: 2.5em;
   margin-left: 4em;
   color: #212845;
+}
+#usage {
+  background-color: #FFFECE;
 }
 </style>
 </head>
@@ -34,18 +43,18 @@ code {
 <div id='doc'>
 <pre>
 <h1>plash-mount</h1>
-usage: plash-mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT
+<span id='usage'>usage: plash-mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT</span>
 Mounts the filsystem of a container. To cleanup, unmout it with the `umount` command.
 The optional arguments are options passed to the overlay filesystem program:
-`upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
-</pre>
+`upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.</pre>
+
+<br/>
+<a href='..'>&larr; Command index</a>
 </div>
 
 <div id="container">
 <pre>
-<code>
-
-#!/usr/bin/env python3
+<code>#!/usr/bin/env python3
 #
 # usage: plash-mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT
 # Mounts the filsystem of a container. To cleanup, unmout it with the `umount` command.
@@ -119,10 +128,7 @@ with catch_and_die([CalledProcessError]):
             workdir=',workdir=' + args.workdir if args.workdir else '',
             extra=MOUNT_EXTRA_OPTS), args.mountpoint
     ])
-
-
-</code>
-</pre>
+</code></pre>
 </div>
 
 </center>

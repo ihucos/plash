@@ -5,14 +5,20 @@
 <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
 <style>
 body {
   font-family: 'Inconsolata', monospace;
+  margin: 0px;
 }
 code {
   font-size: 0.85em;
   text-align: left;
+}
+pre {
+  margin: 0px;
 }
 #doc {
   min-height: 66.66vh;
@@ -21,6 +27,9 @@ code {
   margin-top: 2.5em;
   margin-left: 4em;
   color: #212845;
+}
+#usage {
+  background-color: #FFFECE;
 }
 </style>
 </head>
@@ -34,18 +43,18 @@ code {
 <div id='doc'>
 <pre>
 <h1>plash-export-tar</h1>
-usage: plash-export-tar CONTAINER [FILE | - ]
+<span id='usage'>usage: plash-export-tar CONTAINER [FILE | - ]</span>
 Export container as tar archive.
 It exports the file system of a container to the given file as a compressed tar archive.
-If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
-</pre>
+If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.</pre>
+
+<br/>
+<a href='..'>&larr; Command index</a>
 </div>
 
 <div id="container">
 <pre>
-<code>
-
-#!/usr/bin/env python3
+<code>#!/usr/bin/env python3
 #
 # usage: plash-export-tar CONTAINER [FILE | - ]
 # Export container as tar archive.
@@ -69,10 +78,7 @@ except IndexError:
 
 execlp('plash-with-mount', 'plash-with-mount', container, 'tar', '-czf',
        sys.argv[2] if len(sys.argv) > 2 else '-', '.')
-
-
-</code>
-</pre>
+</code></pre>
 </div>
 
 </center>

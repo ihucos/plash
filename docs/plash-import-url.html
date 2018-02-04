@@ -5,14 +5,20 @@
 <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
 <style>
 body {
   font-family: 'Inconsolata', monospace;
+  margin: 0px;
 }
 code {
   font-size: 0.85em;
   text-align: left;
+}
+pre {
+  margin: 0px;
 }
 #doc {
   min-height: 66.66vh;
@@ -21,6 +27,9 @@ code {
   margin-top: 2.5em;
   margin-left: 4em;
   color: #212845;
+}
+#usage {
+  background-color: #FFFECE;
 }
 </style>
 </head>
@@ -34,16 +43,16 @@ code {
 <div id='doc'>
 <pre>
 <h1>plash-import-url</h1>
-usage: plash-import-url-as URL
-Import a url as a container
-</pre>
+<span id='usage'>usage: plash-import-url-as URL</span>
+Import a url as a container</pre>
+
+<br/>
+<a href='..'>&larr; Command index</a>
 </div>
 
 <div id="container">
 <pre>
-<code>
-
-#!/usr/bin/env python3
+<code>#!/usr/bin/env python3
 #
 # usage: plash-import-url-as URL
 # Import a url as a container
@@ -97,10 +106,7 @@ sys.stderr.flush()
 print('extracting...', file=sys.stderr)
 
 execlp('plash-import-tar', 'plash-import-tar', tmpfile)
-
-
-</code>
-</pre>
+</code></pre>
 </div>
 
 </center>

@@ -5,14 +5,20 @@
 <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
 <style>
 body {
   font-family: 'Inconsolata', monospace;
+  margin: 0px;
 }
 code {
   font-size: 0.85em;
   text-align: left;
+}
+pre {
+  margin: 0px;
 }
 #doc {
   min-height: 66.66vh;
@@ -21,6 +27,9 @@ code {
   margin-top: 2.5em;
   margin-left: 4em;
   color: #212845;
+}
+#usage {
+  background-color: #FFFECE;
 }
 </style>
 </head>
@@ -34,17 +43,17 @@ code {
 <div id='doc'>
 <pre>
 <h1>plash-runc</h1>
-usage: plash-runc container [ARG1 [ARG2 [ARG3 ...]]]
+<span id='usage'>usage: plash-runc container [ARG1 [ARG2 [ARG3 ...]]]</span>
 Run a container with runc.
-See the runc project page: https://github.com/opencontainers/runc
-</pre>
+See the runc project page: https://github.com/opencontainers/runc</pre>
+
+<br/>
+<a href='..'>&larr; Command index</a>
 </div>
 
 <div id="container">
 <pre>
-<code>
-
-#!/usr/bin/env python3
+<code>#!/usr/bin/env python3
 #
 # usage: plash-runc container [ARG1 [ARG2 [ARG3 ...]]]
 # Run a container with runc.
@@ -133,10 +142,7 @@ with open(join(tmp, 'config.json'), 'w') as f:
 
 cmd = ['runc', 'run', str(uuid4())]
 os.execlp(cmd[0], *cmd)
-
-
-</code>
-</pre>
+</code></pre>
 </div>
 
 </center>
