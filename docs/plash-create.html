@@ -28,8 +28,33 @@ pre {
   margin-left: 4em;
   color: #212845;
 }
-#usage {
-  background-color: #FFFECE;
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
 }
 </style>
 </head>
@@ -43,7 +68,7 @@ pre {
 <div id='doc'>
 <pre>
 <h1>plash-create</h1>
-<span id='usage'>usage: plash-create CONTAINER [CMD1 [CMD2 ...]]</span>
+usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
 Creates a new container from a command.
 The new container is printed to stdout, all other output goes to stderr.
 For most cases use `plash build` for a higher level interface.
@@ -52,10 +77,11 @@ Examples:
 $ plash-create 7 ./tmp/buildscript.sh
 42
 $ plash-create -i ubuntu -- touch /myfile
-43</pre>
+43
 
-<br/>
-<a href='..'>&larr; Command index</a>
+
+<a href='..' id='command-index'>&larr; Command index</a>
+</pre>
 </div>
 
 <div id="container">

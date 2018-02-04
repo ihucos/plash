@@ -28,8 +28,33 @@ pre {
   margin-left: 4em;
   color: #212845;
 }
-#usage {
-  background-color: #FFFECE;
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
 }
 </style>
 </head>
@@ -43,13 +68,14 @@ pre {
 <div id='doc'>
 <pre>
 <h1>plash-mount</h1>
-<span id='usage'>usage: plash-mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT</span>
+usage: plash-mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT
 Mounts the filsystem of a container. To cleanup, unmout it with the `umount` command.
 The optional arguments are options passed to the overlay filesystem program:
-`upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.</pre>
+`upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
 
-<br/>
-<a href='..'>&larr; Command index</a>
+
+<a href='..' id='command-index'>&larr; Command index</a>
+</pre>
 </div>
 
 <div id="container">

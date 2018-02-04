@@ -35,13 +35,12 @@ for binfile in os.listdir(BINDIR):
     doc = []
     lines.pop(0)
     lines.pop(0)
-    usage = lines.pop(0)[2:]
     while lines:
         line = lines.pop(0)
         if not line.startswith('#'):
             break
         doc.append(line[2:])
-    filedocs.append({'code': read, 'doc': '\n'.join(doc), 'prog': binfile, 'usage': usage})
+    filedocs.append({'code': read, 'doc': '\n'.join(doc), 'prog': binfile})
 
 
 for item in filedocs:

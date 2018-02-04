@@ -28,8 +28,33 @@ pre {
   margin-left: 4em;
   color: #212845;
 }
-#usage {
-  background-color: #FFFECE;
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
 }
 </style>
 </head>
@@ -43,7 +68,7 @@ pre {
 <div id='doc'>
 <pre>
 <h1>plash-build</h1>
-<span id='usage'>usage: plash-build <ACTIONS></span>
+usage: plash-build <ACTIONS>
 Builds a container.
 All command line options are interpreted as action calls from the `stdlib`.
 Consult `plash-getscript --help` for available actions.
@@ -59,10 +84,11 @@ exit status:
 1: Generic error code
 2: Unrecognized arguments
 3: Returning container from cache, not building
-4: Build error - building returned non-zero exit status</pre>
+4: Build error - building returned non-zero exit status
 
-<br/>
-<a href='..'>&larr; Command index</a>
+
+<a href='..' id='command-index'>&larr; Command index</a>
+</pre>
 </div>
 
 <div id="container">

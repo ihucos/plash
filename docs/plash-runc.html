@@ -28,8 +28,33 @@ pre {
   margin-left: 4em;
   color: #212845;
 }
-#usage {
-  background-color: #FFFECE;
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
 }
 </style>
 </head>
@@ -43,12 +68,13 @@ pre {
 <div id='doc'>
 <pre>
 <h1>plash-runc</h1>
-<span id='usage'>usage: plash-runc container [ARG1 [ARG2 [ARG3 ...]]]</span>
+usage: plash-runc container [ARG1 [ARG2 [ARG3 ...]]]
 Run a container with runc.
-See the runc project page: https://github.com/opencontainers/runc</pre>
+See the runc project page: https://github.com/opencontainers/runc
 
-<br/>
-<a href='..'>&larr; Command index</a>
+
+<a href='..' id='command-index'>&larr; Command index</a>
+</pre>
 </div>
 
 <div id="container">

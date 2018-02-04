@@ -28,8 +28,33 @@ pre {
   margin-left: 4em;
   color: #212845;
 }
-#usage {
-  background-color: #FFFECE;
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
 }
 </style>
 </head>
@@ -43,12 +68,13 @@ pre {
 <div id='doc'>
 <pre>
 <h1>plash-run</h1>
-<span id='usage'>usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]</span>
+usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]
 Run a command inside a container. If no command is specified a shell is started.
-The workdir and upperdir parameters can be used to save file system changes made inside the container.</pre>
+The workdir and upperdir parameters can be used to save file system changes made inside the container.
 
-<br/>
-<a href='..'>&larr; Command index</a>
+
+<a href='..' id='command-index'>&larr; Command index</a>
+</pre>
 </div>
 
 <div id="container">
