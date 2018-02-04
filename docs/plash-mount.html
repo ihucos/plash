@@ -1,5 +1,123 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT
 Mounts the filsystem of a container. To cleanup, unmout it with the `umount` command.
 The optional arguments are options passed to the overlay filesystem program:
 `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT
+# Mounts the filsystem of a container. To cleanup, unmout it with the `umount` command.
+# The optional arguments are options passed to the overlay filesystem program:
+# `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
+
+import argparse
+import os
+from os import path
+from os.path import basename, join
+from subprocess import CalledProcessError, check_output, check_call
+from sys import exit
+from tempfile import mkdtemp
+from itertools import takewhile
+
+from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die
+from plashlib import ux
+
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+MOUNT_EXTRA_OPTS = ',nosuid'
+
+handle_help_flag()
+handle_build_args()
+ux.assert_initialized()
+ux.assert_is_root()
+
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument('container')
+parser.add_argument('mountpoint')
+parser.add_argument('--upperdir')
+parser.add_argument('--workdir')
+args = parser.parse_args()
+
+
+# don't bother escaping, just only allow "harmless" chars
+def check_overlayfs_arg(arg):
+    # TODO have this line more generic
+    if arg and not arg.replace('.', '').replace('/', '').replace('_', '').replace('-',
+                                                                 '').isalnum():
+        die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(arg))
+
+
+nodepath = nodepath_or_die(args.container)
+
+container_ids_path = []
+parts = nodepath.split('/')
+while True:
+    pop = parts.pop()
+    container_ids_path.append(pop)
+    if pop == '0':
+        break
+
+# use the symlinks and not the full paths because the arg size is limited
+# On my setup i get 58 (EDIT: should be more now) layers before an error,
+# we could have multiple mount calls to overcome this
+lowerdir_list = [
+    join(PLASH_DATA, 'index', i, '_data') for i in container_ids_path
+]
+
+for i in lowerdir_list:
+    check_overlayfs_arg(i)
+check_overlayfs_arg(args.upperdir or '')
+check_overlayfs_arg(args.workdir or '')
+
+with catch_and_die([CalledProcessError]):
+    check_call([
+        'mount', '-t', 'overlay', 'overlay', '-o',
+        'lowerdir={lowerdir}{workdir}{upperdir}{extra}'.format(
+            lowerdir=':'.join(lowerdir_list),
+            upperdir=',upperdir=' + args.upperdir if args.upperdir else '',
+            workdir=',workdir=' + args.workdir if args.workdir else '',
+            extra=MOUNT_EXTRA_OPTS), args.mountpoint
+    ])
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

@@ -1,3 +1,92 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-exec file [arg1 [arg2 [arg3 ...]]]
 Used as shebang. It runs a plash buildfile.
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-exec file [arg1 [arg2 [arg3 ...]]]
+# Used as shebang. It runs a plash buildfile.
+
+import os, sys
+from plashlib.utils import handle_help_flag, die_with_usage, die
+from plashlib import ux
+
+handle_help_flag()
+ux.assert_initialized()
+ux.assert_is_root()
+
+try:
+    file, args = sys.argv[1], sys.argv[2:]
+except ValueError:
+    die_with_usage()
+
+file_args = None
+with open(file) as f:
+    f.readline()
+    for i in range(5):
+        line = f.readline()
+        if line.startswith('# plash-exec: '):
+            file_args = dict(i.split('=', 1) for i in line[14:-1].split())
+if not file_args:
+    die("file must have a comment on the top: '# plash-exec: exec=<exec>'")
+
+build_args = ['--include', file]
+run_args = [file_args['exec']] + args
+
+plash_run_extra_args = []
+if file_args.get('root') in ('yes', 'true', '1'):
+    plash_run_extra_args.append('--root')
+mount = file_args.get('mount')
+if mount:
+    plash_run_extra_args.append('--mount')
+    plash_run_extra_args.append(mount)
+
+cmd = [
+    'plash-run',
+    'plash-run',
+] + build_args + ['--'] + plash_run_extra_args + ['--'] + run_args
+
+os.execlp(*cmd)
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

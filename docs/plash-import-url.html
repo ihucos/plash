@@ -1,3 +1,101 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-import-url-as URL
 Import a url as a container
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-import-url-as URL
+# Import a url as a container
+
+import sys
+from os import execlp
+from urllib.request import urlretrieve
+from urllib.error import URLError
+from subprocess import check_call, check_output, CalledProcessError
+from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
+from plashlib import ux
+from tempfile import mkstemp
+import time
+
+handle_help_flag()
+ux.assert_initialized()
+ux.assert_is_root()
+
+try:
+    url = sys.argv[1]
+except IndexError:
+    die_with_usage()
+
+tmpfile = mkstemp()[1]
+
+dots = [0]
+
+
+def reporthook(count, block_size, total_size):
+    percent = int(count * block_size * 100 / total_size)
+    #percent = min(int(count*block_size*100/total_size),100)
+    if percent // 10 > dots[0] and not dots[0] >= 9:
+        dots[0] += 1
+        if dots[0]:
+            sys.stderr.write('{}%|'.format(dots[0] * 10))
+            sys.stderr.flush()
+
+
+sys.stderr.write('[0%|')
+sys.stderr.flush()
+with catch_and_die([URLError], debug=url):
+    try:
+        urlretrieve(url, tmpfile, reporthook=reporthook)
+    except:
+        sys.stderr.write('\n')
+        sys.stderr.flush()
+        raise
+
+sys.stderr.write('100%]\n')
+sys.stderr.flush()
+print('extracting...', file=sys.stderr)
+
+execlp('plash-import-tar', 'plash-import-tar', tmpfile)
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

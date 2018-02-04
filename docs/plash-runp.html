@@ -1,4 +1,84 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-runp CONTAINER [ARG1 [ARG2 [ARG3...]]
 Run a container with runp.
 See the runp project page: https://github.com/ihucos/runp
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-runp CONTAINER [ARG1 [ARG2 [ARG3...]]
+# Run a container with runp.
+# See the runp project page: https://github.com/ihucos/runp
+
+import sys
+from shutil import which
+from os import mkdir, execlp, symlink
+from plashlib.utils import die_with_usage, handle_help_flag, die, handle_build_args
+from plashlib import ux
+
+handle_help_flag()
+handle_build_args()
+ux.assert_initialized()
+ux.assert_is_root()
+
+try:
+    container, *cmd = sys.argv[1:]
+except ValueError:
+    die_with_usage()
+ux.assert_container_exists(container)
+
+runp_binary = which('runp')
+if not runp_binary:
+    die('Could not find runp in PATH, `plash runp` needs the runp binary to run commands'
+        )
+
+mount_wrapper = mkdtemp(join(PLASH_DATA, 'tmp'))
+prog_dir = join(mount_wrapper, 'prog.dir')
+prog = join(mount_wrapper, 'prog')
+
+mkdir(prog_dir)
+check_call(['plash-mount', container, prog_dir])
+symlink(runp_binary, prog)
+execlp(prog, prog, sys.argv[1:])
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

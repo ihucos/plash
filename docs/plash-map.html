@@ -1,3 +1,108 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-map KEY [CONTAINER]
 Get or set a container by a key. Empty container to delete a key.
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-map KEY [CONTAINER]
+# Get or set a container by a key. Empty container to delete a key.
+
+import sys
+import os
+from os.path import join
+from tempfile import mkdtemp
+
+from plashlib.utils import die_with_usage, handle_help_flag, hashstr, nodepath_or_die, die
+from plashlib import ux
+
+handle_help_flag()
+ux.assert_is_root()
+ux.assert_initialized()
+
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+try:
+    key = sys.argv[1]
+except IndexError:
+    die_with_usage()
+
+try:
+    value = sys.argv[2]
+except IndexError:
+    value = None
+
+
+def cache_set(cache_key, container_id):
+    nodepath = nodepath_or_die(container_id)
+    tmpdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+    os.symlink(nodepath, join(tmpdir, 'link'))
+
+    # rename will overwrite atomically the cache key if it already exists, just symlink would not
+    os.rename(join(tmpdir, 'link'), join(PLASH_DATA, 'cache_keys', cache_key))
+
+def cache_rm(cache_key):
+    try:
+        os.unlink(join(PLASH_DATA, 'cache_keys', cache_key))
+        return True
+    except FileNotFoundError:
+        return False
+
+def cache_get(cache_key):
+    try:
+        nodepath = os.readlink(join(PLASH_DATA, 'cache_keys', cache_key))
+    except FileNotFoundError:
+        return
+    if os.path.exists(nodepath):
+        return os.path.basename(nodepath)
+
+if value == '':
+    cache_rm(key)
+elif value is None:
+    cont = cache_get(key)
+    if cont:
+        print(cont)
+else:
+    cache_set(key, value)
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

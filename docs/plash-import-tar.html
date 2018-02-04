@@ -1,3 +1,96 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-import-tar-as TARFILE
 Create a container from a tar file
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-import-tar-as TARFILE
+# Create a container from a tar file
+
+import errno
+import os
+import shutil
+import sys
+import tarfile
+from os.path import join
+from tempfile import mkdtemp
+import atexit
+import subprocess
+from subprocess import check_call, CalledProcessError
+
+from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die, hashstr, nodepath_or_die
+from plashlib import ux
+
+handle_help_flag()
+ux.assert_initialized()
+ux.assert_is_root()
+
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+try:
+    tar_file = sys.argv[1]
+except IndexError:
+    die_with_usage()
+
+rootfs = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+if tar_file == '-':
+    t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')
+else:
+    t = tarfile.open(tar_file)
+t.extractall(rootfs)
+
+# we want /etc/resolv to not by a symlink or not to not exist - that makes the later mount not work #FIXME: add a layer for that
+resolvconf = join(rootfs, 'etc/resolv.conf')
+try:
+    os.unlink(resolvconf)
+except FileNotFoundError:
+    pass
+with open(resolvconf, 'w') as f:
+    f.seek(0)
+    f.truncate()
+
+with catch_and_die([CalledProcessError]):
+    check_call(['plash-add-layer', '0', rootfs])
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

@@ -22,13 +22,14 @@ progs = sorted((i.split(None, 1) for i in out.splitlines()))
 with open(path.join(DOCDIR, 'index.html'), 'w') as f:
     f.write(render('index.html', progs=progs))
 
-filedocs = {}
+filedocs = []
 for binfile in os.listdir(BINDIR):
     if binfile.startswith('.'):
         continue
     fname = path.join(BINDIR, binfile)
     with open(fname) as f:
-        lines = f.read().splitlines()
+        read = f.read()
+    lines = read.splitlines()
     
     # get doc out of source code
     doc = []
@@ -39,9 +40,9 @@ for binfile in os.listdir(BINDIR):
         if not line.startswith('#'):
             break
         doc.append(line[2:])
-    filedocs[binfile] = '\n'.join(doc)
+    filedocs.append({'code': read, 'doc': '\n'.join(doc), 'prog': binfile})
 
 
-for prog, doc in filedocs.items():
-    with open(path.join(DOCDIR, prog+'.html'), 'w') as f:
-        f.write(render('command.html', doc=doc))
+for item in filedocs:
+    with open(path.join(DOCDIR, item['prog']+'.html'), 'w') as f:
+        f.write(render('command.html', **item))

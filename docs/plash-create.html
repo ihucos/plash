@@ -1,3 +1,31 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
 Creates a new container from a command.
@@ -9,3 +37,99 @@ $ plash-create 7 ./tmp/buildscript.sh
 42
 $ plash-create -i ubuntu -- touch /myfile
 43
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
+# Creates a new container from a command.
+# The new container is printed to stdout, all other output goes to stderr.
+# For most cases use `plash build` for a higher level interface.
+#
+# Examples:
+# $ plash-create 7 ./tmp/buildscript.sh
+# 42
+# $ plash-create -i ubuntu -- touch /myfile
+# 43
+
+import atexit
+import errno
+import os
+import shutil
+import subprocess
+import sys
+from os.path import basename, join
+from plashlib import ux
+from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
+                        check_output)
+from sys import exit
+from tempfile import mkdtemp
+
+from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
+
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+ux.assert_initialized()
+ux.assert_is_root()
+
+handle_help_flag()
+handle_build_args()
+
+try:
+    container = sys.argv[1]
+    shell_with_args = sys.argv[2:]
+except IndexError:
+    die_with_usage()
+ux.assert_container_exists(container)
+ux.assert_is_root()
+
+if not container:
+    die('container arg can not be an empty string')
+
+nodepath_or_die(container)
+
+upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+
+p = subprocess.Popen(
+    [
+        'plash-run',
+        container,
+        '--root',
+        '--mount',
+        '/proc,/dev/pts,/etc/resolv.conf,/home',
+        '--upperdir-workdir-pair',
+        upperdir,
+        workdir,
+        #'plash-runc',
+        #container,
+        #'--upperdir-workdir-pair',
+        #upperdir,
+        #workdir,
+    ] + list(shell_with_args),
+    stdout=2
+)  # redirect stdout to stderr because we need to pass the container id through stdout
+
+exit = p.wait()
+if exit:
+    die("build returned exit status {}".format(exit), exit=4)
+
+#with catch_and_die([CalledProcessError]):
+#cont = check_output(['plash-add-layer', container, upperdir]).decode().strip('\n')
+#print(cont)
+
+os.execlp('plash-add-layer', 'plash-add-layer', container, upperdir)
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

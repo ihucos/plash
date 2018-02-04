@@ -1,3 +1,77 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-init
 Initialize build data. Run this on a new system before anything else.
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-init
+# Initialize build data. Run this on a new system before anything else.
+
+from plashlib.utils import handle_help_flag
+from plashlib import ux
+import os
+from os.path import join
+
+handle_help_flag()
+ux.assert_is_root()
+
+plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
+os.makedirs(plash_data, exist_ok=True)
+
+# assert only root has access to it
+os.chmod(plash_data, 0x700)
+os.chown(plash_data, 0, 0)
+
+os.makedirs(join(plash_data, 'index'), exist_ok=True)
+os.makedirs(join(plash_data, 'cache_keys'), exist_ok=True)
+os.makedirs(join(plash_data, 'tmp'), exist_ok=True)
+
+# create the empty root container
+os.makedirs(join(plash_data, 'layers', '0', '_data'), exist_ok=True)
+try:
+    os.symlink(join(plash_data, 'layers', '0'), join(plash_data, 'index', '0'))
+except FileExistsError:
+    pass
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

@@ -1,3 +1,71 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
 Deletes the given containers.
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
+# Deletes the given containers.
+
+from subprocess import check_output, CalledProcessError
+import os
+import sys
+from shutil import rmtree
+from tempfile import mkdtemp
+from plashlib.utils import handle_help_flag, catch_and_die, nodepath_or_die, handle_build_args
+from plashlib import ux
+
+handle_help_flag()
+handle_build_args()
+ux.assert_is_root()
+
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+for container in sys.argv[1:]:
+    node = nodepath_or_die(container)
+    tmp = mkdtemp(dir=PLASH_DATA)
+    os.rename(node, tmp)
+    rmtree(tmp)
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

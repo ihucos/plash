@@ -1,3 +1,31 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-parent CONTAINER
 Prints the parent container of a given container
@@ -5,3 +33,45 @@ Prints the parent container of a given container
 Example:
 $ plash-parent 89
 88
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-parent CONTAINER
+# Prints the parent container of a given container
+#
+# Example:
+# $ plash-parent 89
+# 88
+
+from os.path import basename, dirname
+from sys import argv
+
+from plashlib.utils import die, handle_help_flag, die_with_usage, nodepath_or_die
+
+handle_help_flag()
+
+try:
+    container = argv[1]
+except IndexError:
+    die_with_usage()
+
+if container == '0':
+    die('the root container has no parent, you fool')
+
+nodepath = nodepath_or_die(container)
+print(basename(dirname(nodepath)))
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

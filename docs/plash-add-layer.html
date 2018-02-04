@@ -1,3 +1,31 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
 Stack layer on top of a container.
@@ -8,3 +36,86 @@ $ plash-add-layer 0 /tmp/rootfs
 66
 $ plash-add-layer 33 /tmp/mylayer
 67
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
+# Stack layer on top of a container.
+# Please note that it uses the rename syscall, meaning your import-dir will "disappear"
+#
+# Examples:
+# $ plash-add-layer 0 /tmp/rootfs
+# 66
+# $ plash-add-layer 33 /tmp/mylayer
+# 67
+
+from tempfile import mkdtemp
+import os
+import sys
+from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
+from os.path import join
+import errno
+
+PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+
+handle_help_flag()
+handle_build_args()
+
+try:
+    base_container = sys.argv[1]
+    import_dir = sys.argv[2]
+except IndexError:
+    die_with_usage()
+
+#
+#  get a new id
+#
+with open(join(PLASH_DATA, 'id_counter'), 'a') as f:
+    f.write('A')
+    node_id = str(f.tell())
+
+#
+# the location where to put the node, which will contain the layer dir
+#
+new_node_path = join(nodepath_or_die(base_container), node_id)
+
+#
+#  prepare the node with the dir being imported
+#  this is the payload data we want to put in the builds folder later
+#
+prepared_new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+# that will actually make the import_dir "disapear" for the user
+os.rename(import_dir, join(prepared_new_node, '_data'))
+
+#
+#  Register that we are using this new_node_path,
+#  so it does not gets lost in the 'build' folder tree if this program crashes.
+#  And actually also tries to find a shorter, nicer version of this id.
+#
+os.symlink(new_node_path, join(PLASH_DATA, 'index', node_id))
+
+#
+#  put our new node with the import directory in the builds folder
+#  with this we are so to speak saving the "real data"
+#
+os.rename(prepared_new_node, new_node_path)
+
+# 
+#  inform the user about the new container
+#
+print(node_id)
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

@@ -1,4 +1,279 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]
 Run a command inside a container. If no command is specified a shell is started.
 The workdir and upperdir parameters can be used to save file system changes made inside the container.
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]
+# Run a command inside a container. If no command is specified a shell is started.
+# The workdir and upperdir parameters can be used to save file system changes made inside the container.
+
+import argparse
+from time import sleep
+import atexit
+import os
+import sys
+import tempfile
+import signal
+from os.path import join, isdir
+from shutil import rmtree
+from subprocess import CalledProcessError, call, check_call
+
+from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell
+from plashlib import ux
+
+PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
+MOUNTPOINT_DIR = '/var/tmp/'
+DEFAULT_MOUNTS = ['default']
+
+# SECURITY: noexec and so on in / mounts?
+PSEUDO_FSTAB = '''
+proc ./proc proc rw,nosuid,nodev,noexec,relatime
+devtmpfs ./dev devtmpfs rw,relatime,size=498860k,nr_inodes=124715,mode=755
+sysfs ./sys sysfs rw,nosuid,nodev,noexec,relatime
+tmpfs ./dev/shm tmpfs rw,nosuid,nodev
+devpts ./dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000
+tmpfs ./run tmpfs rw,nosuid,nodev,mode=755
+tmpfs ./run/lock tmpfs rw,nosuid,nodev,noexec,relatime,size=5120k
+tmpfs ./sys/fs/cgroup tmpfs nosuid,nodev,noexec,mode=755
+cgroup ./sys/fs/cgroup/pids cgroup rw,nosuid,nodev,noexec,relatime,pids
+cgroup ./sys/fs/cgroup/debug cgroup rw,nosuid,nodev,noexec,relatime,debug
+cgroup ./sys/fs/cgroup/cpuset cgroup rw,nosuid,nodev,noexec,relatime,cpuset
+cgroup ./sys/fs/cgroup/freezer cgroup rw,nosuid,nodev,noexec,relatime,freezer
+cgroup ./sys/fs/cgroup/memory cgroup rw,nosuid,nodev,noexec,relatime,memory
+cgroup ./sys/fs/cgroup/rdma cgroup rw,nosuid,nodev,noexec,relatime,rdma
+cgroup ./sys/fs/cgroup/perf_event cgroup rw,nosuid,nodev,noexec,relatime,perf_event
+cgroup ./sys/fs/cgroup/devices cgroup rw,nosuid,nodev,noexec,relatime,devices
+cgroup ./sys/fs/cgroup/net_cls,net_prio cgroup rw,nosuid,nodev,noexec,relatime,net_cls,net_prio
+cgroup ./sys/fs/cgroup/blkio cgroup rw,nosuid,nodev,noexec,relatime,blkio
+cgroup ./sys/fs/cgroup/cpu,cpuacct cgroup rw,nosuid,nodev,noexec,relatime,cpu,cpuacct
+debugfs ./sys/kernel/debug debugfs rw,relatime
+mqueue ./dev/mqueue mqueue rw,relatime
+configfs ./sys/kernel/config configfs rw,relatime
+fusectl ./sys/fs/fuse/connections fusectl rw,relatime
+binfmt_misc ./proc/sys/fs/binfmt_misc binfmt_misc rw,relatime
+/home ./home none defaults,bind
+/tmp ./tmp none defaults,bind
+/etc/passwd ./etc/passwd none defaults,bind
+/etc/group ./etc/group none defaults,bind
+/etc/hosts ./etc/hosts none defaults,bind
+/etc/resolv.conf ./etc/resolv.conf none defaults,bind
+'''
+
+MOUNT_GROUPS = {
+    'cgroup': [
+        '/sys/fs/cgroup', '/sys/fs/cgroup/pids', '/sys/fs/cgroup/debug',
+        '/sys/fs/cgroup/cpuset', '/sys/fs/cgroup/freezer',
+        '/sys/fs/cgroup/memory', '/sys/fs/cgroup/rdma',
+        '/sys/fs/cgroup/perf_event', '/sys/fs/cgroup/devices',
+        '/sys/fs/cgroup/net_cls,net_prio', '/sys/fs/cgroup/blkio',
+        '/sys/fs/cgroup/cpu,cpuacct'
+    ],
+    'debugfs': ['/sys/kernel/debug'],
+    'mqueue': ['/dev/mqueue'],
+    'configfs': ['/sys/kernel/config'],
+    'fusectl': ['/sys/fs/fuse/connections'],
+    'binfmt_misc': ['/proc/sys/fs/binfmt_misc'],
+    'default': ['/proc', '/etc/resolv.conf', '/home', '/tmp'],
+    'host': ['/tmp', '/home'],
+}
+
+handle_help_flag()
+handle_build_args()
+ux.assert_is_root()
+ux.assert_initialized()
+
+main_pid = os.getpid()
+
+
+def expand_mount_groups(arg_parts):
+    for i in arg_parts:
+        if i.startswith('/'):
+            yield i
+        else:
+            try:
+                for a in MOUNT_GROUPS[i]:
+                    yield a
+            except KeyError:
+                die('invalid mount group {}, available: {}'.format(
+                    repr(i), ' '.join(MOUNT_GROUPS.keys())))
+
+
+def start_cleanup_daemon():
+    '''
+    Start a child process to cleanup when its parent dies
+    '''
+    if not os.fork():
+        os.close(0)
+        os.close(
+            1
+        )  # really weird, we need to close stdout or another process calling this via check_output will block forever
+        os.close(2)
+        out = open('/var/log/plash-run-cleanup.log', 'a+')
+        os.dup2(out.fileno(), 1)
+        os.dup2(out.fileno(), 2)
+
+        os.setsid(
+        )  # makes this is kind of a standalone "daemon" process, not more inherit the signal processing
+        os.chdir('/')  # don't lock the directory we where started
+        # os.setpgrp()  # that fixes that the called process waits for all its childs to finish
+        # fork and exit so the child gets 1 as the parent id, which solves blocking if the main process exec waits for its children.
+        signal.signal(signal.SIGHUP, signal.SIG_IGN
+                      )  # don't die if the user closes the terminal (untested)
+        if os.fork():
+            sys.exit(0)
+        else:
+            while True:
+                sleep(1)
+                parent_dead = not isdir(join('/proc', str(main_pid)))
+                if parent_dead:
+
+                    # cleanup
+                    for mp in reversed(requested_mounts):  # unmount reversed
+                        try:
+                            check_call(['umount', join(mountpoint, mp[1:])])
+                        except CalledProcessError as exc:
+                            print(exc)
+                    check_call(['umount', mountpoint])
+                    for dir in clean_dirs:
+                        rmtree(dir)
+                    sys.exit(0)
+
+
+#
+# parse arguments
+#
+workdir = None
+upperdir = None
+requested_mounts = list(expand_mount_groups(DEFAULT_MOUNTS))
+deescalate = True
+try:
+    container, *args = sys.argv[1:]
+    while args:
+        cmd = args.pop(0)
+        if cmd == '--':
+            break
+        if not cmd.startswith('-'):
+            args.insert(0, cmd)
+            break
+        if cmd == '--upperdir-workdir-pair':
+            upperdir, workdir = args.pop(0), args.pop(0)
+        elif cmd in ('--mount', '-m'):
+            parts = args.pop(0).split(',')
+            requested_mounts = list(expand_mount_groups(parts))
+        elif cmd in ('--root'):
+            deescalate = False
+        else:
+            die_with_usage(hint='unknown flag: {}'.format(cmd))
+    cmd = args
+except (IndexError, ValueError):
+    die_with_usage()
+
+# fail here instead of inside plash-mount for nicer error message
+ux.assert_container_exists(container)
+
+clean_dirs = []
+if not upperdir or not workdir:
+    upperdir = tempfile.mkdtemp(
+        dir=PLASH_TMP, prefix='upperdir-{}-'.format(main_pid))
+    workdir = tempfile.mkdtemp(
+        dir=PLASH_TMP, prefix='workdir-{}-'.format(main_pid))
+    clean_dirs.extend([upperdir, workdir])
+
+mountpoint = tempfile.mkdtemp(
+    dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
+
+with catch_and_die([CalledProcessError]):
+    check_call([
+        'plash-mount', container, '--upperdir', upperdir, '--workdir', workdir,
+        mountpoint
+    ])
+
+start_cleanup_daemon()
+
+#
+# mounts
+#
+pwd_at_start = os.getcwd()
+os.chdir(mountpoint)
+unused_mounts = set(requested_mounts)
+for line in PSEUDO_FSTAB.splitlines():
+    if not line or line.startswith('#'):
+        continue
+    device, dir, type, options = line.split()
+    assert dir.startswith('./'), 'PSEUDO_FSTAB mountpoints must be relative'
+    try:
+        unused_mounts.remove(dir[1:])
+    except KeyError:
+        continue
+    try:
+        os.makedirs(dir, exist_ok=True)
+    except FileExistsError:
+        pass
+    check_call(['mount', '-t', type, '-o', options, device, dir])
+if unused_mounts:
+    die('unknown mount point(s): {}'.format(' '.join(unused_mounts)))
+
+os.chroot(mountpoint)
+os.chdir('/')
+
+if not cmd:
+    default_root_shell = get_default_shell('/etc/passwd')
+    cmd = [default_root_shell]
+
+os.chmod('/', 0o755)  # not so sure if this here or more to the top
+if deescalate:
+    deescalate_sudo()
+try:
+    os.chdir(pwd_at_start)
+except (ValueError, PermissionError, FileNotFoundError):  # TODO: put more exceptions here
+        pass
+
+try:
+    os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    die('Command not found: {}'.format(cmd[0]))
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>

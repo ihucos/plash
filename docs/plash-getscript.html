@@ -1,4 +1,124 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+#doc {
+  min-height: 66.66vh;
+  text-align: left;
+  margin-top: 5em;
+  margin-left: 5em;
+}
+</style>
+</head>
+<body>
+<center>
+
+<div id='doc'>
 <pre>
 usage: plash-getscript <ACTIONS>
 Prints build script. It prints the shell script generated from actions passed as command line parameters.
 Call with --help to see available actions.
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>
+
+#!/usr/bin/env python3
+#
+# usage: plash-getscript <ACTIONS>
+# Prints build script. It prints the shell script generated from actions passed as command line parameters.
+# Call with --help to see available actions.
+
+import argparse
+import sys
+
+from plashlib import eval, stdlib
+from plashlib.utils import catch_and_die, deescalate_sudo, die
+
+# try not to be root
+deescalate_sudo()
+
+
+def create_collect_lsp_action(lsp_begin):
+    class CollectLspAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            if not 'lsp' in namespace:
+                setattr(namespace, 'lsp', [])
+            previous = namespace.lsp
+            previous.extend([
+                i if not c + 1 == len(lsp_begin) else (i + list(values))
+                for c, i in enumerate(lsp_begin)
+            ])
+            setattr(namespace, 'lsp', previous)
+
+    return CollectLspAction
+
+
+parser = argparse.ArgumentParser()
+parser.error = die
+
+from inspect import signature
+for action, func in eval.state['actions'].items():
+    # TODO: find out how many arguments it takes and pass it
+
+    # find out how many arguments the function takes
+    sig = signature(func)
+    arg_kinds = ([i.kind.name for i in sig.parameters.values()])
+    if 'KEYWORD_ONLY' in arg_kinds or 'VAR_KEYWORD' in arg_kinds:
+        die('action may not accept keyword arguments: {}{}'.format(
+            func.__name__, sig))
+    if 'VAR_POSITIONAL' in arg_kinds:
+        num = '*'
+    else:
+        num = len(arg_kinds)
+
+    parser.add_argument(
+        '--' + action,
+        dest='a',
+        help=func.__doc__,
+        action=create_collect_lsp_action([[action]]),
+        nargs=num)
+
+# add the cli shortucuts
+group = parser.add_argument_group('shortcuts', 'shortcuts')
+for shortcut, lsp, nargs in stdlib.CLI_SHORTCUTS:
+    help = 'macro for: `{} <ARGS>`'.format(' '.join(
+        '--{}'.format(' '.join(i)) for i in lsp))
+
+    group.add_argument(
+        *shortcut,
+        action=create_collect_lsp_action(lsp),
+        nargs=nargs,
+        help=help)
+
+args = parser.parse_args()
+
+with catch_and_die([eval.ActionNotFoundError]):
+    lsp = getattr(args, 'lsp', [])
+    script = eval.eval(lsp)
+    if script:
+        script += '\n'  # that '\n' is right
+print(script, end='')
+
+
+</code>
+</pre>
+</div>
+
+</center>
+</body>
+</html>
