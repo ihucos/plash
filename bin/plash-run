@@ -213,9 +213,8 @@ if unused_mounts:
 os.chroot(mountpoint)
 os.chdir('/')
 
-# dont put that in an if for robustness
-default_root_shell = get_default_shell('/etc/passwd')
 if not cmd:
+    default_root_shell = get_default_shell('/etc/passwd')
     cmd = [default_root_shell]
 
 os.chmod('/', 0o755)  # not so sure if this here or more to the top
