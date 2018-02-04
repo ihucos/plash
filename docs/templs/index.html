@@ -12,11 +12,19 @@ body {
   background-color: white;
   margin: 2em;
   padding: 2em;
-  transform: rotate(-0.3deg);
+  transform: rotate(0.2deg);
   font-family: 'Inconsolata', monospace;
   border: solid 4px #832C2A;
+  border-radius: 3px;
+  text-align: left;
 }
-
+#inner {
+  transform: rotate(-0.1deg);
+}
+pre {
+  margin: 0px;
+  font-family: 'Inconsolata', monospace;
+}
 a {
   color: black;
   text-decoration: none;
@@ -44,11 +52,19 @@ a:active {
 <center>
 
 <div id="container">
+<div id="inner">
+<pre>
+$ plash-run -i ubuntu --apt figlet -- figlet plash
+       _           _
+ _ __ | | __ _ ___| |__
+| '_ \| |/ _` / __| '_ \
+| |_) | | (_| \__ \ | | |
+| .__/|_|\__,_|___/_| |_|
+|_|
+$
+$ plash-list
+</pre>
 <table>
-<tr>
-<td>$ plash-list</td>
-<td></td>
-<tr>
 {% for prog, short in progs %}
 <tr>
   <td>
@@ -60,6 +76,7 @@ a:active {
 </tr>
 {% endfor %}
 </table>
+</div>
 </div>
 
 </center>
