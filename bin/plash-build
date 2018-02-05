@@ -52,7 +52,6 @@ from tempfile import mkdtemp
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 handle_help_flag()
-ux.assert_is_root()
 ux.assert_initialized()
 
 try:
