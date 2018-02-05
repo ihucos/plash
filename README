@@ -93,3 +93,30 @@ fzf
 
 $ exit
 exit
+
+
+########
+## DRAFT
+#######
+
+Why Plash?
+
+- Runs anywhere.
+Plash's only requiremenets is python3, a linux kernel (>= 3.18) and a mount
+binary. It does not need an extra daemon and can be used in infrastructure not
+meant to run containers like ci environemnts or exotic distributions. Running it inside docker is considered a valid use case. If you have linux and
+root, it should run there (or file a bug).
+
+- Flexebilety
+You can mount a container, add a layer on top of a container, run
+a container with runc, use images from the docker world, export an image to
+docker, create a container from a shell session, and much more.
+
+- Its just process. Plash containers are process exactly like you know them.
+They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin.
+Only parts of the filesystem are isolated. If you need more isolation,
+use another tool just for that or run containers "traditionally" with
+plash-runc.
+
+- Plashfiles
+Plashfiles are executable. At buildtime the home folder is mounted, so you can have ...bla
