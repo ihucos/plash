@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -68,7 +68,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-docker</h1>
-usage: plash-docker <DOCKER-ARGS>
+usage: plash-docker &lt;DOCKER-ARGS&gt;
 Run the docker client inside alpine linux.
 
 
@@ -80,7 +80,7 @@ Run the docker client inside alpine linux.
 <pre>
 <code>#!/usr/bin/env plash-exec
 # plash-exec: exec=/entrypoint root=true
-# usage: plash-docker <DOCKER-ARGS>
+# usage: plash-docker &lt;DOCKER-ARGS&gt;
 # Run the docker client inside alpine linux.
 
 --namespace

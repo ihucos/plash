@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -69,15 +69,25 @@ h1 {
 <pre>
 <h1>plash-create</h1>
 usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
-Creates a new container from a command.
-The new container is printed to stdout, all other output goes to stderr.
-For most cases use `plash build` for a higher level interface.
+Creates a new container from a command. If no command is passed, a shell is
+started.  The new container is printed to stdout, all other output goes to
+stderr. Note that a new container is only returned if the build command
+returns 0 (success) as exit code.  For most cases use `plash build` for a
+higher level interface.
+
 
 Examples:
+
 $ plash-create 7 ./tmp/buildscript.sh
 42
+
+$ sudo plash-create 3
+/home/fulano # echo &#39;hello&#39; &gt; /file
+/home/fulano # exit 0
+71
+
 $ plash-create -i ubuntu -- touch /myfile
-43
+44
 
 
 <a href='..' id='command-index'>&larr; Command index</a>
@@ -89,15 +99,25 @@ $ plash-create -i ubuntu -- touch /myfile
 <code>#!/usr/bin/env python3
 #
 # usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
-# Creates a new container from a command.
-# The new container is printed to stdout, all other output goes to stderr.
-# For most cases use `plash build` for a higher level interface.
+# Creates a new container from a command. If no command is passed, a shell is
+# started.  The new container is printed to stdout, all other output goes to
+# stderr. Note that a new container is only returned if the build command
+# returns 0 (success) as exit code.  For most cases use `plash build` for a
+# higher level interface.
+#
 #
 # Examples:
+#
 # $ plash-create 7 ./tmp/buildscript.sh
 # 42
+#
+# $ sudo plash-create 3
+# /home/fulano # echo &#39;hello&#39; &gt; /file
+# /home/fulano # exit 0
+# 71
+#
 # $ plash-create -i ubuntu -- touch /myfile
-# 43
+# 44
 
 import atexit
 import errno
@@ -114,7 +134,7 @@ from tempfile import mkdtemp
 
 from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+PLASH_DATA = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 
 ux.assert_initialized()
 ux.assert_is_root()
@@ -131,26 +151,26 @@ ux.assert_container_exists(container)
 ux.assert_is_root()
 
 if not container:
-    die('container arg can not be an empty string')
+    die(&#39;container arg can not be an empty string&#39;)
 
 nodepath_or_die(container)
 
-upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+upperdir = mkdtemp(dir=join(PLASH_DATA, &#39;tmp&#39;))
+workdir = mkdtemp(dir=join(PLASH_DATA, &#39;tmp&#39;))
 
 p = subprocess.Popen(
     [
-        'plash-run',
+        &#39;plash-run&#39;,
         container,
-        '--root',
-        '--mount',
-        '/proc,/dev/pts,/etc/resolv.conf,/home',
-        '--upperdir-workdir-pair',
+        &#39;--root&#39;,
+        &#39;--mount&#39;,
+        &#39;/proc,/dev/pts,/etc/resolv.conf,/home&#39;,
+        &#39;--upperdir-workdir-pair&#39;,
         upperdir,
         workdir,
-        #'plash-runc',
+        #&#39;plash-runc&#39;,
         #container,
-        #'--upperdir-workdir-pair',
+        #&#39;--upperdir-workdir-pair&#39;,
         #upperdir,
         #workdir,
     ] + list(shell_with_args),
@@ -159,13 +179,13 @@ p = subprocess.Popen(
 
 exit = p.wait()
 if exit:
-    die("build returned exit status {}".format(exit), exit=4)
+    die(&#34;build returned exit status {}&#34;.format(exit), exit=4)
 
 #with catch_and_die([CalledProcessError]):
-#cont = check_output(['plash-add-layer', container, upperdir]).decode().strip('\n')
+#cont = check_output([&#39;plash-add-layer&#39;, container, upperdir]).decode().strip(&#39;\n&#39;)
 #print(cont)
 
-os.execlp('plash-add-layer', 'plash-add-layer', container, upperdir)
+os.execlp(&#39;plash-add-layer&#39;, &#39;plash-add-layer&#39;, container, upperdir)
 </code></pre>
 </div>
 

@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -99,8 +99,8 @@ from itertools import takewhile
 from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die
 from plashlib import ux
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-MOUNT_EXTRA_OPTS = ',nosuid'
+PLASH_DATA = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
+MOUNT_EXTRA_OPTS = &#39;,nosuid&#39;
 
 handle_help_flag()
 handle_build_args()
@@ -108,50 +108,50 @@ ux.assert_initialized()
 ux.assert_is_root()
 
 parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument('container')
-parser.add_argument('mountpoint')
-parser.add_argument('--upperdir')
-parser.add_argument('--workdir')
+parser.add_argument(&#39;container&#39;)
+parser.add_argument(&#39;mountpoint&#39;)
+parser.add_argument(&#39;--upperdir&#39;)
+parser.add_argument(&#39;--workdir&#39;)
 args = parser.parse_args()
 
 
-# don't bother escaping, just only allow "harmless" chars
+# don&#39;t bother escaping, just only allow &#34;harmless&#34; chars
 def check_overlayfs_arg(arg):
     # TODO have this line more generic
-    if arg and not arg.replace('.', '').replace('/', '').replace('_', '').replace('-',
-                                                                 '').isalnum():
-        die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(arg))
+    if arg and not arg.replace(&#39;.&#39;, &#39;&#39;).replace(&#39;/&#39;, &#39;&#39;).replace(&#39;_&#39;, &#39;&#39;).replace(&#39;-&#39;,
+                                                                 &#39;&#39;).isalnum():
+        die(&#39;cowardly dying: bad char(s) in overlayfs arg: {}&#39;.format(arg))
 
 
 nodepath = nodepath_or_die(args.container)
 
 container_ids_path = []
-parts = nodepath.split('/')
+parts = nodepath.split(&#39;/&#39;)
 while True:
     pop = parts.pop()
     container_ids_path.append(pop)
-    if pop == '0':
+    if pop == &#39;0&#39;:
         break
 
 # use the symlinks and not the full paths because the arg size is limited
 # On my setup i get 58 (EDIT: should be more now) layers before an error,
 # we could have multiple mount calls to overcome this
 lowerdir_list = [
-    join(PLASH_DATA, 'index', i, '_data') for i in container_ids_path
+    join(PLASH_DATA, &#39;index&#39;, i, &#39;_data&#39;) for i in container_ids_path
 ]
 
 for i in lowerdir_list:
     check_overlayfs_arg(i)
-check_overlayfs_arg(args.upperdir or '')
-check_overlayfs_arg(args.workdir or '')
+check_overlayfs_arg(args.upperdir or &#39;&#39;)
+check_overlayfs_arg(args.workdir or &#39;&#39;)
 
 with catch_and_die([CalledProcessError]):
     check_call([
-        'mount', '-t', 'overlay', 'overlay', '-o',
-        'lowerdir={lowerdir}{workdir}{upperdir}{extra}'.format(
-            lowerdir=':'.join(lowerdir_list),
-            upperdir=',upperdir=' + args.upperdir if args.upperdir else '',
-            workdir=',workdir=' + args.workdir if args.workdir else '',
+        &#39;mount&#39;, &#39;-t&#39;, &#39;overlay&#39;, &#39;overlay&#39;, &#39;-o&#39;,
+        &#39;lowerdir={lowerdir}{workdir}{upperdir}{extra}&#39;.format(
+            lowerdir=&#39;:&#39;.join(lowerdir_list),
+            upperdir=&#39;,upperdir=&#39; + args.upperdir if args.upperdir else &#39;&#39;,
+            workdir=&#39;,workdir=&#39; + args.workdir if args.workdir else &#39;&#39;,
             extra=MOUNT_EXTRA_OPTS), args.mountpoint
     ])
 </code></pre>

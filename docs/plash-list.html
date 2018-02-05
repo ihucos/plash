@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -91,16 +91,16 @@ from plashlib.utils import handle_help_flag
 handle_help_flag()
 
 bin = dirname(sys.argv[0])
-progs = [prog for prog in listdir(bin) if prog.startswith('plash-')]
+progs = [prog for prog in listdir(bin) if prog.startswith(&#39;plash-&#39;)]
 
 max_prog_lenght = max(len(prog) for prog in progs)
 for prog in sorted(progs):
-    first_sentence = '<empty>'
+    first_sentence = &#39;&lt;empty&gt;&#39;
     with open(join(bin, prog)) as f:
         lines = f.readlines()
     for line, next_line in zip(lines, lines[1:]):
-        if line.startswith('# usage:'):
-            first_sentence = next_line[2:-1].split('.')[0]
+        if line.startswith(&#39;# usage:&#39;):
+            first_sentence = next_line[2:-1].split(&#39;.&#39;)[0]
 
     print(prog.ljust(max_prog_lenght), first_sentence)
 </code></pre>

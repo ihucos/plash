@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -95,7 +95,7 @@ handle_help_flag()
 ux.assert_is_root()
 ux.assert_initialized()
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+PLASH_DATA = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 
 try:
     key = sys.argv[1]
@@ -110,28 +110,28 @@ except IndexError:
 
 def cache_set(cache_key, container_id):
     nodepath = nodepath_or_die(container_id)
-    tmpdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-    os.symlink(nodepath, join(tmpdir, 'link'))
+    tmpdir = mkdtemp(dir=join(PLASH_DATA, &#39;tmp&#39;))
+    os.symlink(nodepath, join(tmpdir, &#39;link&#39;))
 
     # rename will overwrite atomically the cache key if it already exists, just symlink would not
-    os.rename(join(tmpdir, 'link'), join(PLASH_DATA, 'cache_keys', cache_key))
+    os.rename(join(tmpdir, &#39;link&#39;), join(PLASH_DATA, &#39;cache_keys&#39;, cache_key))
 
 def cache_rm(cache_key):
     try:
-        os.unlink(join(PLASH_DATA, 'cache_keys', cache_key))
+        os.unlink(join(PLASH_DATA, &#39;cache_keys&#39;, cache_key))
         return True
     except FileNotFoundError:
         return False
 
 def cache_get(cache_key):
     try:
-        nodepath = os.readlink(join(PLASH_DATA, 'cache_keys', cache_key))
+        nodepath = os.readlink(join(PLASH_DATA, &#39;cache_keys&#39;, cache_key))
     except FileNotFoundError:
         return
     if os.path.exists(nodepath):
         return os.path.basename(nodepath)
 
-if value == '':
+if value == &#39;&#39;:
     cache_rm(key)
 elif value is None:
     cont = cache_get(key)

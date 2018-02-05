@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -101,26 +101,26 @@ with open(file) as f:
     f.readline()
     for i in range(5):
         line = f.readline()
-        if line.startswith('# plash-exec: '):
-            file_args = dict(i.split('=', 1) for i in line[14:-1].split())
+        if line.startswith(&#39;# plash-exec: &#39;):
+            file_args = dict(i.split(&#39;=&#39;, 1) for i in line[14:-1].split())
 if not file_args:
-    die("file must have a comment on the top: '# plash-exec: exec=<exec>'")
+    die(&#34;file must have a comment on the top: &#39;# plash-exec: exec=&lt;exec&gt;&#39;&#34;)
 
-build_args = ['--include', file]
-run_args = [file_args['exec']] + args
+build_args = [&#39;--include&#39;, file]
+run_args = [file_args[&#39;exec&#39;]] + args
 
 plash_run_extra_args = []
-if file_args.get('root') in ('yes', 'true', '1'):
-    plash_run_extra_args.append('--root')
-mount = file_args.get('mount')
+if file_args.get(&#39;root&#39;) in (&#39;yes&#39;, &#39;true&#39;, &#39;1&#39;):
+    plash_run_extra_args.append(&#39;--root&#39;)
+mount = file_args.get(&#39;mount&#39;)
 if mount:
-    plash_run_extra_args.append('--mount')
+    plash_run_extra_args.append(&#39;--mount&#39;)
     plash_run_extra_args.append(mount)
 
 cmd = [
-    'plash-run',
-    'plash-run',
-] + build_args + ['--'] + plash_run_extra_args + ['--'] + run_args
+    &#39;plash-run&#39;,
+    &#39;plash-run&#39;,
+] + build_args + [&#39;--&#39;] + plash_run_extra_args + [&#39;--&#39;] + run_args
 
 os.execlp(*cmd)
 </code></pre>

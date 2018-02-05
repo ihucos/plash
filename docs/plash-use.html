@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -101,7 +101,7 @@ ux.assert_initialized()
 # if we are symliked take the name of the link file
 #
 basename = os.path.basename(sys.argv[0])
-if basename == 'plash-use':
+if basename == &#39;plash-use&#39;:
     try:
         prog = sys.argv[1]
     except IndexError:
@@ -111,87 +111,87 @@ else:
     prog = basename
     prog_args = sys.argv[1:]
 
-cache_key = 'plash-use-{}'.format(prog)
+cache_key = &#39;plash-use-{}&#39;.format(prog)
 run_container = plash_map(cache_key)
 if run_container:
     # short reace condition, it could get deleted in between
-    os.execlp('plash-run', 'plash-run', run_container, prog, *prog_args)
+    os.execlp(&#39;plash-run&#39;, &#39;plash-run&#39;, run_container, prog, *prog_args)
 
-log = open(tempfile.mktemp(), 'w')
+log = open(tempfile.mktemp(), &#39;w&#39;)
 
-# print('da log file:', log)
+# print(&#39;da log file:&#39;, log)
 child = os.fork()
 if not child:
-    print('plash-use: caching... (hit Ctrl-d for logs)', file=sys.stderr)
+    print(&#39;plash-use: caching... (hit Ctrl-d for logs)&#39;, file=sys.stderr)
     while True:
         try:
-            input('')
+            input(&#39;&#39;)
         except KeyboardInterrupt:
             sys.exit(0)
         except EOFError:
-            os.execlp('tail', 'tail', '-f', log.name)
+            os.execlp(&#39;tail&#39;, &#39;tail&#39;, &#39;-f&#39;, log.name)
 
 #
 # find out the package name for this binary
 #
 query_container = check_output(
     [
-        'plash-build',
-        '--arch',
-        '--namespace',
-        'plash-use',
-        '--devinit',
-        '--layer',
-        '--pacman',
-        'pkgfile',
-        '--run',
-        'pkgfile --update',
+        &#39;plash-build&#39;,
+        &#39;--arch&#39;,
+        &#39;--namespace&#39;,
+        &#39;plash-use&#39;,
+        &#39;--devinit&#39;,
+        &#39;--layer&#39;,
+        &#39;--pacman&#39;,
+        &#39;pkgfile&#39;,
+        &#39;--run&#39;,
+        &#39;pkgfile --update&#39;,
     ],
     stderr=log)  # --rebuild-every xdays with a system upgrade!!
-query_container = query_container.decode().strip('\n')
+query_container = query_container.decode().strip(&#39;\n&#39;)
 try:
     install_package = check_output(
-        ['plash-run', query_container, 'pkgfile', '-bs', prog],
+        [&#39;plash-run&#39;, query_container, &#39;pkgfile&#39;, &#39;-bs&#39;, prog],
         stderr=log).decode().splitlines()[0]
 except CalledProcessError:
-    die('programm {} not found'.format(prog))
+    die(&#39;programm {} not found&#39;.format(prog))
 
 #
-# "install" the package
+# &#34;install&#34; the package
 #
 final_container = check_output(
     [
-        'plash-build',
-        '--arch',
-        '--namespace',
-        'plash-use',
-        '--devinit',
-        '--layer',
-        '--pacman',
+        &#39;plash-build&#39;,
+        &#39;--arch&#39;,
+        &#39;--namespace&#39;,
+        &#39;plash-use&#39;,
+        &#39;--devinit&#39;,
+        &#39;--layer&#39;,
+        &#39;--pacman&#39;,
         install_package
     ],
     stderr=log)
-final_container = final_container.decode().strip('\n')
+final_container = final_container.decode().strip(&#39;\n&#39;)
 
 #
 # create a alias for every binary in that package
 #
 out = check_output(
-    ['plash-run', query_container, 'pkgfile', '-bl', install_package],
+    [&#39;plash-run&#39;, query_container, &#39;pkgfile&#39;, &#39;-bl&#39;, install_package],
     stderr=log)
 call_names = [
-    os.path.basename(entry.split('\t')[-1])
+    os.path.basename(entry.split(&#39;\t&#39;)[-1])
     for entry in out.decode().splitlines()
 ]
-# print('{} provides {}'.format(install_package, ' '.join(call_names)))
+# print(&#39;{} provides {}&#39;.format(install_package, &#39; &#39;.join(call_names)))
 for call_name in call_names:
-    plash_map('plash-use-{}'.format(call_name), final_container)
+    plash_map(&#39;plash-use-{}&#39;.format(call_name), final_container)
 
 #
 # finally run the program again
 #
 os.kill(child, signal.SIGINT)
-os.execlp('plash-run', 'plash-run', final_container, prog, *prog_args)
+os.execlp(&#39;plash-run&#39;, &#39;plash-run&#39;, final_container, prog, *prog_args)
 </code></pre>
 </div>
 

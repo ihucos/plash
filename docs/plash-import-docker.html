@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -105,66 +105,66 @@ except IndexError:
 
 
 def debug(msg):
-    print('==> {}'.format(msg), file=sys.stderr)
+    print(&#39;==&gt; {}&#39;.format(msg), file=sys.stderr)
 
 
-tmpdir = tempfile.mkdtemp(prefix='plash-import-docker-')
-socket_file = join(tmpdir, 'docker.sock')
-os.environ['PLASH_DOCKER_SOCKET'] = socket_file
-daemon_log = open(join(tmpdir, 'docker-daemon.log'), 'w')
-client_log = open(join(tmpdir, 'docker.log'), 'w')
+tmpdir = tempfile.mkdtemp(prefix=&#39;plash-import-docker-&#39;)
+socket_file = join(tmpdir, &#39;docker.sock&#39;)
+os.environ[&#39;PLASH_DOCKER_SOCKET&#39;] = socket_file
+daemon_log = open(join(tmpdir, &#39;docker-daemon.log&#39;), &#39;w&#39;)
+client_log = open(join(tmpdir, &#39;docker.log&#39;), &#39;w&#39;)
 
-debug('ensuring docker is builded')
+debug(&#39;ensuring docker is builded&#39;)
 with catch_and_die([subprocess.CalledProcessError]):
     subprocess.check_output(
-        ['plash-build', '-A',
-         'docker'])  # ensure it is builded showing build logs
-debug('starting docker')
+        [&#39;plash-build&#39;, &#39;-A&#39;,
+         &#39;docker&#39;])  # ensure it is builded showing build logs
+debug(&#39;starting docker&#39;)
 
 #
 # start daemon and wait for it to start
 #
 with catch_and_die([subprocess.CalledProcessError]):
     p = subprocess.Popen(
-        ['plash-docker-daemon'], stderr=daemon_log, stdout=daemon_log)
+        [&#39;plash-docker-daemon&#39;], stderr=daemon_log, stdout=daemon_log)
 atexit.register(lambda: p.kill())
 c = 0
 while True:
 
     # check if daemon looks ok
     daemon_exit = p.poll()
-    if c >= DOCKER_START_TIMEOUT:
-        die('timeout for docker start: server log: {}, client log: {}'.format(
+    if c &gt;= DOCKER_START_TIMEOUT:
+        die(&#39;timeout for docker start: server log: {}, client log: {}&#39;.format(
             daemon_log.name, client_log.name))
     if daemon_exit is not None:
-        die('plash-docker-daemon died with exit status {} (logs at {})'.format(
+        die(&#39;plash-docker-daemon died with exit status {} (logs at {})&#39;.format(
             daemon_exit, daemon_log.name))
 
     # check if daemon is up yet
     try:
         subprocess.check_call(
-            ['plash-docker', 'info'], stderr=client_log, stdout=client_log)
+            [&#39;plash-docker&#39;, &#39;info&#39;], stderr=client_log, stdout=client_log)
     except subprocess.CalledProcessError:
         sleep(1)
         c += 1
     else:
         break
 
-debug('docker is up')
-debug('pulling image')
+debug(&#39;docker is up&#39;)
+debug(&#39;pulling image&#39;)
 # docker pull shows progress in stdout by default, we must redirect it too stderr
-subprocess.check_call(['plash-docker', 'pull', pull], stdout=2)
-debug('pulled')
-debug('exporting image into plash')
+subprocess.check_call([&#39;plash-docker&#39;, &#39;pull&#39;, pull], stdout=2)
+debug(&#39;pulled&#39;)
+debug(&#39;exporting image into plash&#39;)
 
 with catch_and_die([subprocess.CalledProcessError]):
-    container = subprocess.check_output(['plash-docker', 'create', pull,
-                                         'sh']).decode().rstrip('\n')
+    container = subprocess.check_output([&#39;plash-docker&#39;, &#39;create&#39;, pull,
+                                         &#39;sh&#39;]).decode().rstrip(&#39;\n&#39;)
     docker_export = subprocess.Popen(
-        ['plash-docker', 'export', container], stdout=subprocess.PIPE)
+        [&#39;plash-docker&#39;, &#39;export&#39;, container], stdout=subprocess.PIPE)
     atexit.register(lambda: docker_export.kill())
     subprocess.check_call(
-        ['plash-import-tar', '-'], stdin=docker_export.stdout)
+        [&#39;plash-import-tar&#39;, &#39;-&#39;], stdin=docker_export.stdout)
 </code></pre>
 </div>
 

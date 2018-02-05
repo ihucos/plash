@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -91,21 +91,21 @@ from os.path import join
 handle_help_flag()
 ux.assert_is_root()
 
-plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
+plash_data = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 os.makedirs(plash_data, exist_ok=True)
 
 # assert only root has access to it
 os.chmod(plash_data, 0x700)
 os.chown(plash_data, 0, 0)
 
-os.makedirs(join(plash_data, 'index'), exist_ok=True)
-os.makedirs(join(plash_data, 'cache_keys'), exist_ok=True)
-os.makedirs(join(plash_data, 'tmp'), exist_ok=True)
+os.makedirs(join(plash_data, &#39;index&#39;), exist_ok=True)
+os.makedirs(join(plash_data, &#39;cache_keys&#39;), exist_ok=True)
+os.makedirs(join(plash_data, &#39;tmp&#39;), exist_ok=True)
 
 # create the empty root container
-os.makedirs(join(plash_data, 'layers', '0', '_data'), exist_ok=True)
+os.makedirs(join(plash_data, &#39;layers&#39;, &#39;0&#39;, &#39;_data&#39;), exist_ok=True)
 try:
-    os.symlink(join(plash_data, 'layers', '0'), join(plash_data, 'index', '0'))
+    os.symlink(join(plash_data, &#39;layers&#39;, &#39;0&#39;), join(plash_data, &#39;index&#39;, &#39;0&#39;))
 except FileExistsError:
     pass
 </code></pre>

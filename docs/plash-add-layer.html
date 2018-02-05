@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -69,12 +69,19 @@ h1 {
 <pre>
 <h1>plash-add-layer</h1>
 usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
-Stack layer on top of a container.
-Please note that it uses the rename syscall, meaning your import-dir will "disappear"
+Stack a layer on top of a container.  Please note that it uses the rename
+syscall, this means your IMPORT-DIR will be moved into the plash data
+directory.  The container &#34;0&#34; is the empty root container, use that to start
+a container from scratch.
+
 
 Examples:
+
+Create a container from a complete root file system:
 $ plash-add-layer 0 /tmp/rootfs
 66
+
+Add a new layer on top of an existing container:
 $ plash-add-layer 33 /tmp/mylayer
 67
 
@@ -88,12 +95,19 @@ $ plash-add-layer 33 /tmp/mylayer
 <code>#!/usr/bin/env python3
 #
 # usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
-# Stack layer on top of a container.
-# Please note that it uses the rename syscall, meaning your import-dir will "disappear"
+# Stack a layer on top of a container.  Please note that it uses the rename
+# syscall, this means your IMPORT-DIR will be moved into the plash data
+# directory.  The container &#34;0&#34; is the empty root container, use that to start
+# a container from scratch.
+#
 #
 # Examples:
+#
+# Create a container from a complete root file system:
 # $ plash-add-layer 0 /tmp/rootfs
 # 66
+#
+# Add a new layer on top of an existing container:
 # $ plash-add-layer 33 /tmp/mylayer
 # 67
 
@@ -104,7 +118,7 @@ from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or
 from os.path import join
 import errno
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+PLASH_DATA = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 
 handle_help_flag()
 handle_build_args()
@@ -118,8 +132,8 @@ except IndexError:
 #
 #  get a new id
 #
-with open(join(PLASH_DATA, 'id_counter'), 'a') as f:
-    f.write('A')
+with open(join(PLASH_DATA, &#39;id_counter&#39;), &#39;a&#39;) as f:
+    f.write(&#39;A&#39;)
     node_id = str(f.tell())
 
 #
@@ -131,20 +145,20 @@ new_node_path = join(nodepath_or_die(base_container), node_id)
 #  prepare the node with the dir being imported
 #  this is the payload data we want to put in the builds folder later
 #
-prepared_new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-# that will actually make the import_dir "disapear" for the user
-os.rename(import_dir, join(prepared_new_node, '_data'))
+prepared_new_node = mkdtemp(dir=join(PLASH_DATA, &#39;tmp&#39;))
+# that will actually make the import_dir &#34;disapear&#34; for the user
+os.rename(import_dir, join(prepared_new_node, &#39;_data&#39;))
 
 #
 #  Register that we are using this new_node_path,
-#  so it does not gets lost in the 'build' folder tree if this program crashes.
+#  so it does not gets lost in the &#39;build&#39; folder tree if this program crashes.
 #  And actually also tries to find a shorter, nicer version of this id.
 #
-os.symlink(new_node_path, join(PLASH_DATA, 'index', node_id))
+os.symlink(new_node_path, join(PLASH_DATA, &#39;index&#39;, node_id))
 
 #
 #  put our new node with the import directory in the builds folder
-#  with this we are so to speak saving the "real data"
+#  with this we are so to speak saving the &#34;real data&#34;
 #
 os.rename(prepared_new_node, new_node_path)
 

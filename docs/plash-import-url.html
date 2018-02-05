@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -110,28 +110,28 @@ dots = [0]
 def reporthook(count, block_size, total_size):
     percent = int(count * block_size * 100 / total_size)
     #percent = min(int(count*block_size*100/total_size),100)
-    if percent // 10 > dots[0] and not dots[0] >= 9:
+    if percent // 10 &gt; dots[0] and not dots[0] &gt;= 9:
         dots[0] += 1
         if dots[0]:
-            sys.stderr.write('{}%|'.format(dots[0] * 10))
+            sys.stderr.write(&#39;{}%|&#39;.format(dots[0] * 10))
             sys.stderr.flush()
 
 
-sys.stderr.write('[0%|')
+sys.stderr.write(&#39;[0%|&#39;)
 sys.stderr.flush()
 with catch_and_die([URLError], debug=url):
     try:
         urlretrieve(url, tmpfile, reporthook=reporthook)
     except:
-        sys.stderr.write('\n')
+        sys.stderr.write(&#39;\n&#39;)
         sys.stderr.flush()
         raise
 
-sys.stderr.write('100%]\n')
+sys.stderr.write(&#39;100%]\n&#39;)
 sys.stderr.flush()
-print('extracting...', file=sys.stderr)
+print(&#39;extracting...&#39;, file=sys.stderr)
 
-execlp('plash-import-tar', 'plash-import-tar', tmpfile)
+execlp(&#39;plash-import-tar&#39;, &#39;plash-import-tar&#39;, tmpfile)
 </code></pre>
 </div>
 

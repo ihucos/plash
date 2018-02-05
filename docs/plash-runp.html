@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -102,17 +102,17 @@ except ValueError:
     die_with_usage()
 ux.assert_container_exists(container)
 
-runp_binary = which('runp')
+runp_binary = which(&#39;runp&#39;)
 if not runp_binary:
-    die('Could not find runp in PATH, `plash runp` needs the runp binary to run commands'
+    die(&#39;Could not find runp in PATH, `plash runp` needs the runp binary to run commands&#39;
         )
 
-mount_wrapper = mkdtemp(join(PLASH_DATA, 'tmp'))
-prog_dir = join(mount_wrapper, 'prog.dir')
-prog = join(mount_wrapper, 'prog')
+mount_wrapper = mkdtemp(join(PLASH_DATA, &#39;tmp&#39;))
+prog_dir = join(mount_wrapper, &#39;prog.dir&#39;)
+prog = join(mount_wrapper, &#39;prog&#39;)
 
 mkdir(prog_dir)
-check_call(['plash-mount', container, prog_dir])
+check_call([&#39;plash-mount&#39;, container, prog_dir])
 symlink(runp_binary, prog)
 execlp(prog, prog, sys.argv[1:])
 </code></pre>

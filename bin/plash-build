@@ -1,22 +1,38 @@
 #!/usr/bin/env python3
 #
 # usage: plash-build <ACTIONS>
-# Builds a container.
-# All command line options are interpreted as action calls from the `stdlib`.
-# Consult `plash-getscript --help` for available actions.
-#
-# Some short examples:
-# ```
-# plash build -i zesty --run 'touch a'
-# plash build -i zesty --run 'touch a' --layer --run 'touch b'
-# plash build -i zesty --apt nmap
-# ```
+# Builds a container. Any command line options is interpreted as action,
+# consult `plash-getscript --help` for available functions.
 #
 # exit status:
 # 1: Generic error code
 # 2: Unrecognized arguments
 # 3: Returning container from cache, not building
 # 4: Build error - building returned non-zero exit status
+#
+#
+# Examples:
+#
+# $ plash-build -i ubuntu --run 'touch a'
+# --> touch a
+# --:
+# 66
+#
+# $ plash-build -i ubuntu --run 'touch a' --layer --run 'touch b'
+# --> touch b
+# --:
+# 67
+#
+# $ plash-build -i ubuntu --apt nmap
+# --> apt-get update
+# Hit:1 http://security.ubuntu.com/ubuntu bionic-security InRelease
+# Get:2 http://archive.ubuntu.com/ubuntu bionic InRelease [235 kB]
+# <snip>
+# Setting up nmap (7.60-1ubuntu2) ...
+# Processing triggers for libc-bin (2.26-0ubuntu2) ...
+# --:
+# 68
+
 
 import re
 import subprocess

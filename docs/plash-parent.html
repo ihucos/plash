@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -103,8 +103,8 @@ try:
 except IndexError:
     die_with_usage()
 
-if container == '0':
-    die('the root container has no parent, you fool')
+if container == &#39;0&#39;:
+    die(&#39;the root container has no parent, you fool&#39;)
 
 nodepath = nodepath_or_die(container)
 print(basename(dirname(nodepath)))

@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -71,7 +71,7 @@ h1 {
 usage: plash-export-tar CONTAINER [FILE | - ]
 Export container as tar archive.
 It exports the file system of a container to the given file as a compressed tar archive.
-If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
+If no file is supplied or the file is &#39;-&#39; the tar archive wil be printed to stdout instead.
 
 
 <a href='..' id='command-index'>&larr; Command index</a>
@@ -85,7 +85,7 @@ If no file is supplied or the file is '-' the tar archive wil be printed to stdo
 # usage: plash-export-tar CONTAINER [FILE | - ]
 # Export container as tar archive.
 # It exports the file system of a container to the given file as a compressed tar archive.
-# If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
+# If no file is supplied or the file is &#39;-&#39; the tar archive wil be printed to stdout instead.
 
 from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage, handle_build_args
 from plashlib import ux
@@ -102,8 +102,8 @@ try:
 except IndexError:
     die_with_usage()
 
-execlp('plash-with-mount', 'plash-with-mount', container, 'tar', '-czf',
-       sys.argv[2] if len(sys.argv) > 2 else '-', '.')
+execlp(&#39;plash-with-mount&#39;, &#39;plash-with-mount&#39;, container, &#39;tar&#39;, &#39;-czf&#39;,
+       sys.argv[2] if len(sys.argv) &gt; 2 else &#39;-&#39;, &#39;.&#39;)
 </code></pre>
 </div>
 

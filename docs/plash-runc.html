@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -97,7 +97,7 @@ from uuid import uuid4
 from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell
 from plashlib import ux
 
-PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
+PLASH_TMP = join(os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;), &#39;tmp&#39;)
 
 handle_help_flag()
 handle_build_args()
@@ -106,7 +106,7 @@ ux.assert_is_root()
 
 try:
     container, *cmd = sys.argv[1:]
-    if cmd and cmd[0] == '--upperdir-workdir-pair':
+    if cmd and cmd[0] == &#39;--upperdir-workdir-pair&#39;:
         cmd.pop(0)
         upperdir, workdir = cmd.pop(0), cmd.pop(0)
     else:
@@ -120,53 +120,53 @@ ux.assert_container_exists(container)
 clean_dirs = []
 if not upperdir or not workdir:
     upperdir = tempfile.mkdtemp(
-        dir=PLASH_TMP, prefix='upperdir-{}-'.format(os.getpid()))
+        dir=PLASH_TMP, prefix=&#39;upperdir-{}-&#39;.format(os.getpid()))
     workdir = tempfile.mkdtemp(
-        dir=PLASH_TMP, prefix='workdir-{}-'.format(os.getpid()))
+        dir=PLASH_TMP, prefix=&#39;workdir-{}-&#39;.format(os.getpid()))
     cleanup_dirs = [upperdir, workdir]
 else:
     cleanup_dirs = []
 
 tmp = tempfile.mkdtemp()
 os.chdir(tmp)
-os.mkdir('./rootfs')
+os.mkdir(&#39;./rootfs&#39;)
 with catch_and_die([CalledProcessError]):
     check_call([
-        'plash-mount', container, '--upperdir', upperdir, '--workdir', workdir,
-        './rootfs'
+        &#39;plash-mount&#39;, container, &#39;--upperdir&#39;, upperdir, &#39;--workdir&#39;, workdir,
+        &#39;./rootfs&#39;
     ])
-    check_call(['runc', 'spec'])
+    check_call([&#39;runc&#39;, &#39;spec&#39;])
 
-default_shell = get_default_shell(join('./rootfs/etc/passwd'))
+default_shell = get_default_shell(join(&#39;./rootfs/etc/passwd&#39;))
 
-with open(join(tmp, 'config.json')) as f:
+with open(join(tmp, &#39;config.json&#39;)) as f:
     bundle = json.loads(f.read())
 
-bundle['hostname'] = container
-bundle['root']['readonly'] = False
-bundle['mounts'].append({
-    'destination': '/etc/resolv.conf',
-    'source': '/etc/resolv.conf',
-    'type': 'bind',
-    'options': ['bind']
+bundle[&#39;hostname&#39;] = container
+bundle[&#39;root&#39;][&#39;readonly&#39;] = False
+bundle[&#39;mounts&#39;].append({
+    &#39;destination&#39;: &#39;/etc/resolv.conf&#39;,
+    &#39;source&#39;: &#39;/etc/resolv.conf&#39;,
+    &#39;type&#39;: &#39;bind&#39;,
+    &#39;options&#39;: [&#39;bind&#39;]
 })
-bundle['process']['args'] = cmd or [default_shell]
+bundle[&#39;process&#39;][&#39;args&#39;] = cmd or [default_shell]
 # runc seems to need to be told when stdin is not from a terminal,
 # but that will also make stdout and and stderr per reported as not being ttys to the program being runned
-bundle['process']['terminal'] = os.isatty(0)
-bundle['linux']['namespaces'].remove({'type': 'network'})
-bundle.setdefault('hooks', {})
-bundle['hooks'].setdefault('poststop', [])
-bundle['hooks']['poststop'].append({
-    "path": "/bin/umount",
-    "args": ['umount', join(tmp, 'rootfs')]  # also cleanup the dirs!!
+bundle[&#39;process&#39;][&#39;terminal&#39;] = os.isatty(0)
+bundle[&#39;linux&#39;][&#39;namespaces&#39;].remove({&#39;type&#39;: &#39;network&#39;})
+bundle.setdefault(&#39;hooks&#39;, {})
+bundle[&#39;hooks&#39;].setdefault(&#39;poststop&#39;, [])
+bundle[&#39;hooks&#39;][&#39;poststop&#39;].append({
+    &#34;path&#34;: &#34;/bin/umount&#34;,
+    &#34;args&#34;: [&#39;umount&#39;, join(tmp, &#39;rootfs&#39;)]  # also cleanup the dirs!!
 })
 # from pprint import pprint; pprint(bundle)
 
-with open(join(tmp, 'config.json'), 'w') as f:
+with open(join(tmp, &#39;config.json&#39;), &#39;w&#39;) as f:
     f.write(json.dumps(bundle))
 
-cmd = ['runc', 'run', str(uuid4())]
+cmd = [&#39;runc&#39;, &#39;run&#39;, str(uuid4())]
 os.execlp(cmd[0], *cmd)
 </code></pre>
 </div>

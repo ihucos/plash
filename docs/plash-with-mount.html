@@ -3,7 +3,7 @@
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atelier-sulphurpool-dark.min.css">
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>
 hljs.initHighlightingOnLoad();
@@ -101,20 +101,20 @@ ux.assert_is_root()
 
 try:
     container = sys.argv[1]
-    user_sh = ' '.join(shlex.quote(i) for i in sys.argv[2:])
+    user_sh = &#39; &#39;.join(shlex.quote(i) for i in sys.argv[2:])
 except IndexError:
     die_with_usage()
 ux.assert_container_exists(container)
 
 mountpoint = mkdtemp()
 with catch_and_die([CalledProcessError]):
-    check_call(['plash-mount', container, mountpoint])
-p = subprocess.Popen(['sh', '-c', user_sh], cwd=mountpoint)
+    check_call([&#39;plash-mount&#39;, container, mountpoint])
+p = subprocess.Popen([&#39;sh&#39;, &#39;-c&#39;, user_sh], cwd=mountpoint)
 user_exit = p.wait()
 with catch_and_die([CalledProcessError]):
-    check_call(['umount', mountpoint])
+    check_call([&#39;umount&#39;, mountpoint])
 if user_exit:
-    die('Exit status {}: {}'.format(user_exit, user_sh))
+    die(&#39;Exit status {}: {}&#39;.format(user_exit, user_sh))
 sys.exit(user_exit)
 </code></pre>
 </div>
