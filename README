@@ -112,11 +112,11 @@ You can mount a container, add a layer on top of a container, run
 a container with runc, use images from the docker world, export an image to
 docker, create a container from a shell session, and much more.
 
-- Its just process. Plash containers are process exactly like you know them.
-They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin.
-Only parts of the filesystem are isolated. If you need more isolation,
-use another tool just for that or run containers "traditionally" with
-plash-runc.
+- Its just processes. Plash containers are processes exactly like you know them.
+They can be listed with ps, `kill`ed, you can filter for stderr or pipe to
+stdin or manage them in groups with supervisord or runit. Only parts of the
+filesystem are isolated. If you need more isolation, use another tool just for
+that or run containers "traditionally" with plash-runc.
 
 - Plashfiles
 Plashfiles are executable. At buildtime the home folder is mounted, so you can have ...bla
