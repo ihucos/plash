@@ -50,8 +50,6 @@ try:
     shell_with_args = sys.argv[2:]
 except IndexError:
     die_with_usage()
-ux.assert_container_exists(container)
-ux.assert_is_root()
 
 if not container:
     die('container arg can not be an empty string')
