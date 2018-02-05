@@ -38,7 +38,7 @@ plash-run -i 1 --bust-cache -- ls
 : mounts get cleanuped
 new=$(plash-create 1 ls)
 before=$(mount | grep "/index/$new" | wc -l)
-plash-run $new --mount default,cgroup ls
+plash-run $new ls
 sleep 6 # wait for cleanup
 after=$(mount | grep "index/$new" | wc -l)
 test $before = $after
