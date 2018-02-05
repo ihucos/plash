@@ -1,4 +1,4 @@
-# the we must initilaize the storage directory
+# we must initilaize the storage directory
 $ plash-init
 
 # build a simple image
