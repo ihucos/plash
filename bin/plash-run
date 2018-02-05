@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 #
-# usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]
+# usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--deescalate-sudo] [CMD1 [CMD2 [CMD3 ...]]
 # Run a command inside a container. If no command is specified a shell is started.
 # The workdir and upperdir parameters can be used to save file system changes made inside the container.
 
+import os
+import sys
 import argparse
 from time import sleep
 import atexit
-import os
-import sys
 import tempfile
 import signal
 from os.path import join, isdir
@@ -76,7 +76,6 @@ MOUNT_GROUPS = {
 
 handle_help_flag()
 handle_build_args()
-ux.assert_is_root()
 ux.assert_initialized()
 
 main_pid = os.getpid()
@@ -142,7 +141,7 @@ def start_cleanup_daemon():
 workdir = None
 upperdir = None
 requested_mounts = list(expand_mount_groups(DEFAULT_MOUNTS))
-deescalate = True
+deescalate = False
 try:
     container, *args = sys.argv[1:]
     while args:
@@ -157,13 +156,31 @@ try:
         elif cmd in ('--mount', '-m'):
             parts = args.pop(0).split(',')
             requested_mounts = list(expand_mount_groups(parts))
-        elif cmd in ('--root'):
-            deescalate = False
+        elif cmd in ('--deescalate-sudo'):
+            deescalate = True
         else:
             die_with_usage(hint='unknown flag: {}'.format(cmd))
     cmd = args
 except (IndexError, ValueError):
     die_with_usage()
+
+#
+# Rerun this program with sudo if the user is not root. In the future plash-run
+# and plash-mount could be suid binaries instead of this.
+#
+if not os.getuid() == 0:
+   if deescalate:
+       die('only root can use --deescalate-sudo')
+   if workdir or upperdir:
+       die('only root can use --upperdir-workdir-pair')
+   if requested_mounts:
+       extra = ['--mount', ','.join(requested_mounts)]
+   else:
+       extra = []
+   prog = [sys.argv[0], container, '--deescalate-sudo'] + extra + cmd
+   os.execlp(
+       'sudo', 'sudo', '--non-interactive', *prog)
+
 
 # fail here instead of inside plash-mount for nicer error message
 ux.assert_container_exists(container)

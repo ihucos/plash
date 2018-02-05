@@ -63,7 +63,6 @@ p = subprocess.Popen(
     [
         'plash-run',
         container,
-        '--root',
         '--mount',
         '/proc,/dev/pts,/etc/resolv.conf,/home',
         '--upperdir-workdir-pair',
@@ -76,7 +75,7 @@ p = subprocess.Popen(
         #workdir,
     ] + list(shell_with_args),
     stdout=2
-)  # redirect stdout to stderr because we need to pass the container id through stdout
+)  # redirect stdout to stderr because we are passing the container id through stdout
 
 exit = p.wait()
 if exit:
