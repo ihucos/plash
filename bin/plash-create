@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
+#
 # Creates a new container from a command. If no command is passed, a shell is
 # started.  The new container is printed to stdout, all other output goes to
 # stderr. Note that a new container is only returned if the build command
@@ -10,7 +11,7 @@
 #
 # Examples:
 #
-# $ plash-create 7 ./tmp/buildscript.sh
+# $ plash-create 7 ./buildscript.sh
 # 42
 #
 # $ sudo plash-create 3

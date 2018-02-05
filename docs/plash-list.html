@@ -98,10 +98,14 @@ for prog in sorted(progs):
     first_sentence = &#39;&lt;empty&gt;&#39;
     with open(join(bin, prog)) as f:
         lines = f.readlines()
-    for line, next_line in zip(lines, lines[1:]):
+    for line, next_line, next_next_line in zip(lines, lines[1:], lines[2:]):
         if line.startswith(&#39;# usage:&#39;):
             first_sentence = next_line[2:-1].split(&#39;.&#39;)[0]
+            if not first_sentence: # try the next line
+                first_sentence = next_next_line[2:-1].split(&#39;.&#39;)[0]
 
+                
+    assert first_sentence
     print(prog.ljust(max_prog_lenght), first_sentence)
 </code></pre>
 </div>
