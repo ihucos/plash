@@ -69,7 +69,10 @@ h1 {
 <pre>
 <h1>plash-docker</h1>
 usage: plash-docker &lt;DOCKER-ARGS&gt;
-Run the docker client inside alpine linux.
+Run the docker client inside alpine linux. Use the PLASH_DOCKER_SOCKET
+environment variable to select the docker socket, the default is
+&#39;/tmp/docker.sock&#39;. Note that &#39;/var/run/docker.sock&#39; is not shared between
+containers and host and may not be appropriate as a socket.
 
 
 <a href='..' id='command-index'>&larr; Command index</a>
@@ -81,7 +84,10 @@ Run the docker client inside alpine linux.
 <code>#!/usr/bin/env plash-exec
 # plash-exec: exec=/entrypoint root=true
 # usage: plash-docker &lt;DOCKER-ARGS&gt;
-# Run the docker client inside alpine linux.
+# Run the docker client inside alpine linux. Use the PLASH_DOCKER_SOCKET
+# environment variable to select the docker socket, the default is
+# &#39;/tmp/docker.sock&#39;. Note that &#39;/var/run/docker.sock&#39; is not shared between
+# containers and host and may not be appropriate as a socket.
 
 --namespace
 docker

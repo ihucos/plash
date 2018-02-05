@@ -69,7 +69,19 @@ h1 {
 <pre>
 <h1>plash-docker-daemon</h1>
 usage: plash-docker-daemon &lt;DOCKER-ARGS&gt;
-Run the docker daemon inside alpine linux.
+Run the docker daemon inside alpine linux. Use the PLASH_DOCKER_SOCKET
+environment variable to select the docker socket, the default is
+&#39;/tmp/docker.sock&#39;. Note that &#39;/var/run/docker.sock&#39; is not shared between
+containers and host, so it may not be appropriate as a socket
+
+
+Example:
+
+$ sudo plash-docker-daemon
+INFO[2018-02-05T00:20:06.645188781Z] libcontainerd: new containerd process, pid: 19841
+&lt;snip&gt;
+INFO[2018-02-05T00:20:07.840933519Z] Daemon has completed initialization
+INFO[2018-02-05T00:20:07.849471459Z] API listen on /tmp/docker.sock
 
 
 <a href='..' id='command-index'>&larr; Command index</a>
@@ -81,7 +93,20 @@ Run the docker daemon inside alpine linux.
 <code>#!/usr/bin/env plash-exec
 # plash-exec: exec=/entrypoint root=true mount=default,cgroup
 # usage: plash-docker-daemon &lt;DOCKER-ARGS&gt;
-# Run the docker daemon inside alpine linux.
+# Run the docker daemon inside alpine linux. Use the PLASH_DOCKER_SOCKET
+# environment variable to select the docker socket, the default is
+# &#39;/tmp/docker.sock&#39;. Note that &#39;/var/run/docker.sock&#39; is not shared between
+# containers and host, so it may not be appropriate as a socket
+#
+#
+# Example:
+#
+# $ sudo plash-docker-daemon
+# INFO[2018-02-05T00:20:06.645188781Z] libcontainerd: new containerd process, pid: 19841
+# &lt;snip&gt;
+# INFO[2018-02-05T00:20:07.840933519Z] Daemon has completed initialization
+# INFO[2018-02-05T00:20:07.849471459Z] API listen on /tmp/docker.sock
+
 
 --image
 alpine
