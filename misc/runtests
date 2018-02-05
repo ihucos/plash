@@ -13,7 +13,7 @@ tmp=$(mktemp -d /var/lib/plash/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp
 export PLASH_DATA=$tmp
 
 export PATH=$DIR/../bin:$PATH
-export PYTHONPATH=$DIR/..:$PYTHONPATH
+export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
 
 plash-init
 BUSYBOX=$(plash-import-tar $DIR/../misc/busybox.tar busybox)
