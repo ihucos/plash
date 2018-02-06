@@ -12,11 +12,11 @@ python3 -m pip install https://github.com/ihucos/plash/archive/master.zip
 - **Runs anywhere**
 Plash's only requirements are python3, a linux kernel (>= 3.18) and a rudimentary mount binary in `$PATH`. It does not need an extra daemon and can be easily run in infrastructure not meant to support containers like virtually any ci environment, embedded systems or even docker containers.
 
-- **Flexibility**
-You can mount a container filesystem, export/import docker images, run containers as chrooted processes or runc, directly add a raw layer o top of a container, save containers by a cache key and much more.
-
 - **Its just processes**
 Plash containers are processes exactly like you know them. They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in groups with supervisord or runit or simply access files in your home directory. Only parts of the filesystem are isolated. If you need more isolation, use another tool just for that or run containers "traditionally" with plash-runc.
+
+- **Flexibility**
+You can mount a container filesystem, export/import docker images, run containers as chrooted processes or as runc, directly add a layers o top of a containers, save containers by a cache key and much more.
 
 - **Plashfiles**
 Plashfiles are executable build files featuring optional lightweight configuration management capabilities.
