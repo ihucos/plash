@@ -101,7 +101,7 @@ exit
 
 
 Plash
-is a container build an runtime system.
+is a container build and runtime system.
 
 install
 python3 -m pip install https://github.com/ihucos/plash/archive/master.zip
