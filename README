@@ -133,7 +133,7 @@ filesystem are isolated. If you need more isolation, use another tool just for
 that or run containers "traditionally" with plash-runc.
 
 - Plashfiles
-Plashfiles are executable. At buildtime the home folder is mounted, so you can have ...bla
+Plashfiles are executable build files and a leightweight, extendable  configuration management language.
 
 Example session:
 {{ EXAMPLE_HERE }}
