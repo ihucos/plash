@@ -162,7 +162,7 @@ Plash thrives not to be more than a usefull tool. There is no monetization
 strategy, bundling or closed source. It plays well with other software in the
 ecosystem. Plash and its internal architecture tries to honor the "Do
 One Thing and Do It Well" UNIX philosphy. This software tries to not "oversell"
-its abstraction layer, which is containerization of processes. Containerization
+its abstraction layer, which is containerization of processes. Even containerization
 and isolation are seen as two different tasks, but as a flexible tool this
 software does not enforce any specific why of using it. Sloppily speaking:
 after we had a revolutionay containerziation of processes with docker, this is
