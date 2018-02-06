@@ -7,12 +7,6 @@ is a container build an runtime system.
 python3 -m pip install https://github.com/ihucos/plash/archive/master.zip
 ```
 
-## Documentation
-* This README
-* Reference: *link coming soon*
-* Wiki pages in progress.
-
-
 ## Why Plash?
 
 - **Runs anywhere**
@@ -27,6 +21,10 @@ Plash containers are processes exactly like you know them. They can be listed wi
 - **Plashfiles**
 Plashfiles are executable build files featuring optional lightweight configuration management capabilities.
 
+## Documentation
+* This README
+* Reference: *link coming soon*
+* Wiki pages in progress.
 
 ## Example session
 {{ EXAMPLE_HERE }}
@@ -41,7 +39,7 @@ There is some fine print: Root access is needed for container setup. In the futu
 TODO
 
 ### Philosophy
-Plash thrives to not be more than a useful tool. There is no monetization strategy, bundling or closed source. It plays well with other software in the ecosystem. Plash and its internal architecture tries to honor the "Do One Thing and Do It Well" UNIX philosophy. This software tries to not "oversell" its abstraction layer, which is containerization of processes. Containerization and isolation are seen as two different tasks, but as a flexible tool this software does not enforce any specific why of using it. Sloppily speaking: after we had a revolutionary containerization of processes with docker, this is also some needed fine adjusting: a <b>processisation of containers</b>.
+Plash thrives to not be more than a useful tool. There is no monetization strategy, bundling or closed source. It plays well with other software in the ecosystem. Plash and its internal architecture tries to honor the "Do One Thing and Do It Well" UNIX philosophy. This software tries to not "oversell" its abstraction layer, which is containerization of processes. Containerization and isolation are seen as two different tasks, but as a flexible tool this software does not enforce any specific why of using it. Sloppily speaking: after we had a revolutionary containerization of processes with docker, this is also some needed fine adjusting: a processisation of containers.
 
 Plash tries to be very maintainable and is designed to still securely run without any changes in 5 or 10 years. This software tries to be in every aspect of the word lightweight. For example covering less complicated use cases for
 
