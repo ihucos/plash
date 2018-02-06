@@ -1,6 +1,6 @@
 
 # Plash
-is a container build an runtime system.
+is a container build and runtime system.
 
 ## install
 ```
