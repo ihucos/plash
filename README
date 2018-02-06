@@ -170,9 +170,7 @@ also some needed fine adjusting: a <b>processisation of containers</b>. Plash
 tries to be very maintainable and still run without any changes in 5 or 10
 years.  Plash also tries to cover less complicated use cases for containers,
 like letting a user quickly user software from another distribution.  This
-software has tries to be in any aspect to be lightweight.  Altough plash can
-also be seen as a framework that is a great starting point for experimentation
-with containers its long term golas are stability, and backwards compability
-(something that is not established yet).
+software has tries to be in any aspect to be lightweight.  
+In a fast-changing, new container world plash tries to provide lont term stability and backwards compability (something that is not established until version 1.0).
 
 FAQ
