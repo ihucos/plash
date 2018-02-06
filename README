@@ -104,73 +104,78 @@ Plash
 is a container build an runtime system.
 
 install
-pip install blah
+python3 -m pip install https://github.com/ihucos/plash/archive/master.zip
 
 Documentation
 This README
-reference: link.
+Reference: <link comming soon>.
 More being written.
 
 
 Why Plash?
 
 - Runs anywhere.
-Plash's only requiremenets is python3, a linux kernel (>= 3.18) and the mount
-binary. It does not need an extra daemon and can be used in infrastructure not
-meant to run containers like ci environemnts or exotic distributions. Running it inside docker is a valid use case. If you have linux and
-root, it should run there.
+Plash's only requiremenets are python3, a linux kernel (>= 3.18) and a
+rudimentary mount binary in $PATH. It does not need an extra daemon and can be
+easily run in infrastructure not meant to support containers like virtually any
+ci environment, embeded systems or even docker containers.
 
 - Flexibility
-You can mount a container, add a layer on top of a container, run
-a container with runc, use images from the docker world, export an image to
-docker, create a container from a shell session, and much more.
+You can mount a container filesystem, export/import docker images, run
+containers as chrooted processes or runc, direcly add a raw layer o top of a
+container, save containers by a cache key and much more.
 
-- Its just processes.
-Plash containers are processes exactly like you know them.
-They can be listed with ps, `kill`ed, you can filter for stderr or pipe to
-stdin, manage them in groups with supervisord or runit or access your home directory. Only parts of the
-filesystem are isolated. If you need more isolation, use another tool just for
-that or run containers "traditionally" with plash-runc.
+- Its just processes
+Plash containers are processes exactly like you know them. They can be listed
+with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in
+groups with supervisord or runit or simply access files in your home directory.
+Only parts of the filesystem are isolated. If you need more isolation, use
+another tool just for that or run containers "traditionally" with plash-runc.
 
 - Plashfiles
-Plashfiles are executable build files and a leightweight, extendable  configuration management language.
+Plashfiles are executable build files featuring optional
+leightweight configuration management capabilities.
 
-Example session:
-{{ EXAMPLE_HERE }}
+Example session: {{ EXAMPLE_HERE }}
 
 
 Security
-Plash's default container runtime does come with a security concept. That is
-figuratively speaking not to barricade everything with tape. It does not try to
-invent any new security layer but to only rely on traditional UNIX security
-mechanisms. Inside a container a user is what he was outside of it. As far as
-the kernel cares the only difference between a container and a "normal" process
-is that the container is chrooted. Access rights established outside of the
-container should still be valid inside the container. So in fact to install
-software with a package manager inside a container you probably need root, but
-to run it not. It can be seen as a one to one mappping between host and
-container.  There is some fine print: root access is needed for setup. In the
-future the plan is to use suid binaries to archive this. In the moment sudo is
-used used for that. To allow a user to use plash put this is the suoders file
-`joe ALL=NOPASSWD: /usr/local/bin/plash-run`. Since this software
-is still not "finished" this should currenlty be considered totally unsafe.
+Plash's default container runtime does come with a security concept. It does
+not try to reinvent any security layer but to only rely on traditional UNIX
+security mechanisms. Figuratively speaking plash does not try to barricade
+processeses with tape. Inside a container a user is what he was outside of it.
+As far as the kernel cares the only difference between a container and a
+"normal" process is that the container is chrooted. Access rights established
+outside of the container are still valid inside. So in fact to install software
+with a package manager inside a container you probably need root, but to later
+run it not. It can be seen as a one to one mappping between host and container.
+
+There is some fine print: Root access is needed for container setup. In the
+future the plan is to use suid binaries to archive this. In the the moment this
+is done with sudo. To allow a user to use plash put this is the suoders file
+`joe ALL=NOPASSWD: /usr/local/bin/plash-run`. This should be considered unsafe
+until version 1.0.
 
 Plashfiles
+text.. bla..
 
 Philosophy
-Plash thrives not to be more than a usefull tool. There is no monetization
-strategy, bundling, closed source or ownership by overengeneering. It plays well with other software in the
-ecosystem. Plash and its internal architecture tries to honor the "Do
-One Thing and Do It Well" UNIX philosphy. This software tries to not "oversell"
-its abstraction layer, which is containerization of processes. Even containerization
-and isolation are seen as two different tasks, but as a flexible tool this
-software does not enforce any specific why of using it. Sloppily speaking:
-after we had a revolutionay containerziation of processes with docker, this is
-also some needed fine adjusting: a <b>processisation of containers</b>. Plash
-tries to be very maintainable and still run without any changes in 5 or 10
-years.  Plash also tries to cover less complicated use cases for containers,
-like letting a user quickly user software from another distribution.  This
-software has tries to be in any aspect to be lightweight.  
-In a fast-changing, new container world plash tries to provide boring long term stability and backwards compability (something that is not established until version 1.0).
+Plash thrives to not be more than a usefull tool. There is no monetization
+strategy, bundling or closed source. It plays well with other software in the
+ecosystem. Plash and its internal architecture tries to honor the "Do One Thing
+and Do It Well" UNIX philosphy. This software tries to not "oversell" its
+abstraction layer, which is containerization of processes. Containerization and
+isolation are seen as two different tasks, but as a flexible tool this software
+does not enforce any specific why of using it. Sloppily speaking: after we had
+a revolutionay containerziation of processes with docker, this is also some
+needed fine adjusting: a <b>processisation of containers</b>.
+
+Plash tries to be very maintainable and is designed to still securely run
+without any changes in 5 or 10 years. This software tries to be in every aspect
+of the word lightweight. For example covering less complicated use cases for
+containers, like letting a user quickly use a newer software package from
+another distribution in a sane way. Or being easy to install. Last but not
+least in a new and fast-moving container world the focus is on boring long term
+stability and backwards compability, starting from version 1.0.
 
 FAQ
