@@ -159,7 +159,7 @@ Plashfiles
 
 Philosophy
 Plash thrives not to be more than a usefull tool. There is no monetization
-strategy, bundling or closed source. It plays well with other software in the
+strategy, bundling, closed source or ownership by overengeneering. It plays well with other software in the
 ecosystem. Plash and its internal architecture tries to honor the "Do
 One Thing and Do It Well" UNIX philosphy. This software tries to not "oversell"
 its abstraction layer, which is containerization of processes. Even containerization
