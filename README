@@ -106,11 +106,16 @@ is a container build an runtime system.
 install
 pip install blah
 
+Documentation
+This README
+reference: link.
+More being written.
+
 
 Why Plash?
 
 - Runs anywhere.
-Plash's only requiremenets is python3, a linux kernel (>= 3.18) and a mount
+Plash's only requiremenets is python3, a linux kernel (>= 3.18) and the mount
 binary. It does not need an extra daemon and can be used in infrastructure not
 meant to run containers like ci environemnts or exotic distributions. Running it inside docker is considered a valid use case. If you have linux and
 root, it should run there.
