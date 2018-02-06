@@ -140,8 +140,8 @@ Example session:
 
 
 Security
-Plash's default container runtime does come with a security concept.  That is
-figuratively speaking to not barricade anything with tape. It does not try to
+Plash's default container runtime does come with a security concept. That is
+figuratively speaking not to barricade everything with tape. It does not try to
 invent any new security layer but to only rely on traditional UNIX security
 mechanisms. Inside a container a user is what he was outside of it. As far as
 the kernel cares the only difference between a container and a "normal" process
