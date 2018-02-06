@@ -1,8 +1,8 @@
 
-# Plash
+# plash
 is a container build and runtime system.
 
-## install
+## Install
 ```
 python3 -m pip install https://github.com/ihucos/plash/archive/master.zip
 ```
