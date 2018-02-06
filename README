@@ -117,7 +117,7 @@ Why Plash?
 - Runs anywhere.
 Plash's only requiremenets is python3, a linux kernel (>= 3.18) and the mount
 binary. It does not need an extra daemon and can be used in infrastructure not
-meant to run containers like ci environemnts or exotic distributions. Running it inside docker is considered a valid use case. If you have linux and
+meant to run containers like ci environemnts or exotic distributions. Running it inside docker is a valid use case. If you have linux and
 root, it should run there.
 
 - Flexibility
@@ -160,7 +160,7 @@ Plashfiles
 Philosophy
 Plash thrives not to be more than a usefull tool. There is no monetization
 strategy, bundling or closed source. It plays well with other software in the
-container ecosystem. Plash and its internal architecture tries to honor the "Do
+ecosystem. Plash and its internal architecture tries to honor the "Do
 One Thing and Do It Well" UNIX philosphy. This software tries to not "oversell"
 its abstraction layer, which is containerization of processes. Containerization
 and isolation are seen as two different tasks, but as a flexible tool this
