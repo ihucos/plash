@@ -144,8 +144,11 @@ is that the container is chrooted. Access rights established outside of the
 container should still be valid inside the container. So in fact to install
 software with a package manager inside a container you probably need root, but
 to run it not. It can be seen as a one to one mappping between host and
-container.
-But there is some fine print: root access is needed for setup. 
+container.  There is some fine print: root access is needed for setup. In the
+future the plan is to use suid binaries to archive this. In the moment sudo is
+used used for that. To allow a user to use plash put this is the suoders file
+`joe ALL=NOPASSWD: /usr/local/bin/plash-run`. Since this software
+is still not "finished" this should currenlty be considered totally unsafe.
 
 Plashfiles
 
