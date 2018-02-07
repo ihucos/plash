@@ -22,7 +22,6 @@ You can mount a container filesystem, export/import docker images, run container
 Plashfiles are executable build files featuring optional lightweight configuration management capabilities.
 
 ## Documentation
-* This README
 * Reference: https://ihucos.github.io/plash
 * Wiki pages in progress.
 
