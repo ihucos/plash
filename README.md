@@ -45,4 +45,12 @@ Plash tries to be very maintainable and is designed to still securely run withou
 containers, like letting a user quickly use a newer software package from another distribution in a sane way. Or being easy to install. Last but not least in a new and fast-moving container world the focus is on boring long term stability and backwards compatibility, starting from version 1.0.
 
 ## FAQ
-TODO
+
+#### Why did you write it?
+In my personal opintion Docker is revolutionary but has some shortcommings: awkward interface, reinvention of established software or interfaces, bundling, vendor lock in and overengeneering. In a way it kills it's idea by trying too hard to build a huge company on top of it. Plash thrives to not to be more usefull tool with one task: Building and running containerized processes. Ultimatevly I wanted something I can if neccesary maintain by myself.
+
+#### How does the code base look?
+One python3 library without dependencies and one python3 script per command.
+
+#### I'ts actually just a chrooted process?
+Yes, also a container build engine, some glue and technical subtleties.
