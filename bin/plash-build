@@ -108,10 +108,11 @@ for layer in layers:
 
         # build and cache it
         p = Popen(
-            ['plash-create', current_container, 'sh', '-ex'],
+            ['plash-create', current_container, 'env', '-i', 'sh', '-l'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             cwd='/')
+        p.stdin.write(b'set -ex\n')
         p.stdin.write(layer.encode())
         p.stdin.close()
         next_container = p.stdout.read().decode().strip('\n')
