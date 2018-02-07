@@ -128,7 +128,7 @@ container, save containers by a cache key and much more.
 - Its just processes
 Plash containers are processes exactly like you know them. They can be listed
 with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in
-groups with supervisord or runit or simply access files in your home directory.
+groups with `supervisord` and `runit` or simply access files in your home directory.
 Only parts of the filesystem are isolated. If you need more isolation, use
 another tool just for that or run containers "traditionally" with plash-runc.
 
