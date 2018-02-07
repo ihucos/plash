@@ -23,7 +23,7 @@ Plashfiles are executable build files featuring optional lightweight configurati
 
 ## Documentation
 * This README
-* Reference: *link coming soon*
+* Reference: https://ihucos.github.io/plash
 * Wiki pages in progress.
 
 ## Example session
