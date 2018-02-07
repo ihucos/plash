@@ -50,7 +50,7 @@ containers, like letting a user quickly use a newer software package from anothe
 Please! Write me an mail plash@irae.me, open an issue, do a pull request or or ask me out for a friendly chat about plash in Berlin.
 
 #### Who are you?
-A Django/Python software-developer. Since this is an open source project I hope this software grows 
+A Django/Python software-developer. Since this is an open source project I hope this software grows organically and collaboratively.
 
 #### Why did you write it?
 In my personal opintion Docker is revolutionary but has some shortcommings: awkward interface, reinvention of established software or interfaces, bundling, vendor lock in and overengeneering. In a way it kills it's idea by trying too hard to build a huge company on top of it. Plash thrives to not to be more than a usefull tool with one task: Building and running containerized processes. Ultimatevly I wanted something I can if neccesary maintain by myself.
