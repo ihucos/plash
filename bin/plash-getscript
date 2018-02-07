@@ -31,21 +31,10 @@ def create_collect_lsp_action(lsp_begin):
 
     return CollectLspAction
 
-helps = []
-def print_help():
-    maxlen = max(len(i[0]) for i in helps)
-    for command, descr in helps:
-        print(command)
-        print(descr)
-        print()
-        #descr = descr or ''
-        #print('{} {}'.format(command, descr.rjust(12)))
-
 class PlashHelpFormatter(argparse.HelpFormatter):
-    #def _format_args(self, *args, **kwargs):
-    def _format_args(self, action, default_metavar):
+    # usage of "private" attribute will at least not make this crash
+    def _format_args(self, *args, **kwargs):
         return ''
-        return str(action.nargs)
 
 parser = argparse.ArgumentParser(formatter_class=PlashHelpFormatter, usage='plash-getscript <ARGS>')
 parser.error = die
@@ -67,7 +56,6 @@ for action, func in eval.state['actions'].items():
     else:
         num = len(arg_kinds)
 
-    helps.append((action, func.__doc__))
     group.add_argument(
         '--' + action,
         dest='a',
