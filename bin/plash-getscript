@@ -33,8 +33,10 @@ def create_collect_lsp_action(lsp_begin):
 
 class PlashHelpFormatter(argparse.HelpFormatter):
     # usage of "private" attribute will at least not make this crash
-    def _format_args(self, *args, **kwargs):
-        return ''
+    def _format_args(self, action, *args, **kwargs):
+        nargs = action.nargs
+        if nargs == '*':
+            return 'ARG*'
 
 parser = argparse.ArgumentParser(formatter_class=PlashHelpFormatter, usage='plash-getscript <ARGS>')
 parser.error = die
@@ -62,8 +64,7 @@ for action, func in eval.state['actions'].items():
     group = groups[key]
     group.add_argument(
         '--' + action,
-        dest='a',
-        help=func.__doc__,
+        help='{}: {}'.format(sig, func.__doc__),
         action=create_collect_lsp_action([[action]]),
         nargs=num)
 

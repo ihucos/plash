@@ -43,12 +43,13 @@ def layer(command=None, *args):
 
 
 @action(escape=False, keep_comments=True)
-def run(*args):
+def run(*cmds):
     'run shell script'
-    return '\n'.join(args)
+    return '\n'.join(cmds)
 
 @action()
 def align_cwd():
+    'cd tho the pwd at the host'
     yield 'cd {}'.format(shlex.quote(os.getcwd()))
 
 @action()
