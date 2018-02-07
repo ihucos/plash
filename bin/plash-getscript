@@ -41,7 +41,7 @@ parser.error = die
 #parser.print_help = print_help
 
 
-group = parser.add_argument_group('actions')
+groups = {}
 for action, func in eval.state['actions'].items():
     # TODO: find out how many arguments it takes and pass it
 
@@ -56,6 +56,10 @@ for action, func in eval.state['actions'].items():
     else:
         num = len(arg_kinds)
 
+    key = func._plash_group or 'default'
+    if not key in groups:
+        groups[key] = parser.add_argument_group(key)
+    group = groups[key]
     group.add_argument(
         '--' + action,
         dest='a',

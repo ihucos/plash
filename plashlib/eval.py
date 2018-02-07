@@ -19,7 +19,7 @@ class EvalError(Exception):
     pass
 
 
-def action(action_name=None, keep_comments=False, escape=True):
+def action(action_name=None, keep_comments=False, escape=True, group=None):
     def decorator(func):
 
         action = action_name or func.__name__.replace('_', '-')
@@ -42,6 +42,7 @@ def action(action_name=None, keep_comments=False, escape=True):
             return res
 
         state['actions'][action] = function_wrapper
+        function_wrapper._plash_group = group
         return function_wrapper
 
     return decorator

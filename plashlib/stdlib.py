@@ -128,16 +128,16 @@ def all_files(dir):
 
 
 @action(escape=False)
-def rebuild_when_changed(*paths):
-    'invalidate cache if path changes'
+def watch(*paths):
+    'only rebuild if anything in a path has changed'
     hash = hash_paths(paths)
-    return ": rebuild-when-changed hash: {}".format(hash)
+    return ": watch hash: {}".format(hash)
 
 
 @action(escape=False)
 def define_package_manager(name, *lines):
     'define a new package manager'
-    @action(name)
+    @action(name, group='package managers')
     def package_manager(*packages):
         if not packages:
             return
