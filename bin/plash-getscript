@@ -31,10 +31,28 @@ def create_collect_lsp_action(lsp_begin):
 
     return CollectLspAction
 
+helps = []
+def print_help():
+    maxlen = max(len(i[0]) for i in helps)
+    for command, descr in helps:
+        print(command)
+        print(descr)
+        print()
+        #descr = descr or ''
+        #print('{} {}'.format(command, descr.rjust(12)))
 
-parser = argparse.ArgumentParser()
+class PlashHelpFormatter(argparse.HelpFormatter):
+    #def _format_args(self, *args, **kwargs):
+    def _format_args(self, action, default_metavar):
+        return ''
+        return str(action.nargs)
+
+parser = argparse.ArgumentParser(formatter_class=PlashHelpFormatter, usage='plash-getscript <ARGS>')
 parser.error = die
+#parser.print_help = print_help
 
+
+group = parser.add_argument_group('actions')
 for action, func in eval.state['actions'].items():
     # TODO: find out how many arguments it takes and pass it
 
@@ -49,7 +67,8 @@ for action, func in eval.state['actions'].items():
     else:
         num = len(arg_kinds)
 
-    parser.add_argument(
+    helps.append((action, func.__doc__))
+    group.add_argument(
         '--' + action,
         dest='a',
         help=func.__doc__,
@@ -57,7 +76,7 @@ for action, func in eval.state['actions'].items():
         nargs=num)
 
 # add the cli shortucuts
-group = parser.add_argument_group('shortcuts', 'shortcuts')
+group = parser.add_argument_group('macros')
 for shortcut, lsp, nargs in stdlib.CLI_SHORTCUTS:
     help = 'macro for: `{} <ARGS>`'.format(' '.join(
         '--{}'.format(' '.join(i)) for i in lsp))
