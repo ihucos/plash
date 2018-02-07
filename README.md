@@ -97,10 +97,10 @@ Please! Write me an mail plash@irae.me, open an issue, do a pull request or or a
 A Django/Python software-developer. Since this is an open source project I hope this software grows organically and collaboratively.
 
 #### Why did you write it?
-In my personal opintion Docker is revolutionary but has some shortcommings: awkward interface, reinvention of established software or interfaces, bundling, vendor lock in and overengeneering. In a way it kills it's idea by trying too hard to build a huge company on top of it. Plash thrives to not to be more than a usefull tool with one task: Building and running containerized processes. Ultimatevly I wanted something I can if neccesary maintain by myself.
+In my personal opinion Docker is revolutionary but has some shortcomings: awkward interface, reinvention of established software or interfaces, bundling, vendor lock in and overengineering. In a way it kills it's idea by trying too hard to build a huge company on top of it. Plash thrives to not to be more than a useful tool with one task: Building and running containerized processes. Ultimately I wanted something I can if necessary maintain by myself.
 
 #### How does the code base look?
 One python3 library without dependencies and one python3 script per command.
 
-#### I'ts actually just a chrooted process?
+#### It's actually just a chrooted process?
 Yes, also a container build engine, frameworkish features, some new ideas, some glue and technical subtleties.
