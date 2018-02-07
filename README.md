@@ -26,7 +26,52 @@ Plashfiles are executable build files featuring optional lightweight configurati
 * Wiki pages in progress.
 
 ## Example session
-{{ EXAMPLE_HERE }}
+
+```
+# don't forget to run init first.
+$ plash-init
+
+# build a simple image
+$ plash-build --image alpine --run 'touch /file'
+[0%|10%|20%|30%|40%|50%|60%|70%|80%|90%|100%]
+extracting...
+--> touch /file
+--:
+2
+
+# second build is cached
+$ plash-build --image alpine --run 'touch /file'
+2
+
+# run something inside a container (or use plash-runc)
+$ plash-run 2 ls /file
+/file
+
+# layering is explicit
+$ plash-build --image alpine --run 'touch /file' --layer --run 'touch /file2'
+--> touch /file2
+--:
+3
+
+# delete a container
+$ plash-rm 3
+
+# build and run in one command
+$ plash-run --image alpine --run 'touch /file' -- ls /file
+/file
+
+# plash actually includes some configuration management
+$ plash-run --image alpine --apk git -- git --version
+--> apk update
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/APKINDEX.tar.gz
+<snip>
+(6/6) Installing git (2.15.0-r1)
+Executing busybox-1.27.2-r8.trigger
+Executing ca-certificates-20171114-r0.trigger
+OK: 21 MiB in 22 packages
+--:
+git version 2.15.0
+```
 
 ## Other topics
 
