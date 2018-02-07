@@ -149,8 +149,6 @@ try:
     shell_with_args = sys.argv[2:]
 except IndexError:
     die_with_usage()
-ux.assert_container_exists(container)
-ux.assert_is_root()
 
 if not container:
     die(&#39;container arg can not be an empty string&#39;)
@@ -164,7 +162,6 @@ p = subprocess.Popen(
     [
         &#39;plash-run&#39;,
         container,
-        &#39;--root&#39;,
         &#39;--mount&#39;,
         &#39;/proc,/dev/pts,/etc/resolv.conf,/home&#39;,
         &#39;--upperdir-workdir-pair&#39;,
@@ -177,7 +174,7 @@ p = subprocess.Popen(
         #workdir,
     ] + list(shell_with_args),
     stdout=2
-)  # redirect stdout to stderr because we need to pass the container id through stdout
+)  # redirect stdout to stderr because we are passing the container id through stdout
 
 exit = p.wait()
 if exit:

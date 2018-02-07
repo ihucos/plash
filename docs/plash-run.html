@@ -68,7 +68,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-run</h1>
-usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]
+usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--deescalate-sudo] [CMD1 [CMD2 [CMD3 ...]]
 Run a command inside a container. If no command is specified a shell is started.
 The workdir and upperdir parameters can be used to save file system changes made inside the container.
 
@@ -81,15 +81,15 @@ The workdir and upperdir parameters can be used to save file system changes made
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--root] [CMD1 [CMD2 [CMD3 ...]]
+# usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--deescalate-sudo] [CMD1 [CMD2 [CMD3 ...]]
 # Run a command inside a container. If no command is specified a shell is started.
 # The workdir and upperdir parameters can be used to save file system changes made inside the container.
 
+import os
+import sys
 import argparse
 from time import sleep
 import atexit
-import os
-import sys
 import tempfile
 import signal
 from os.path import join, isdir
@@ -157,7 +157,6 @@ MOUNT_GROUPS = {
 
 handle_help_flag()
 handle_build_args()
-ux.assert_is_root()
 ux.assert_initialized()
 
 main_pid = os.getpid()
@@ -223,7 +222,7 @@ def start_cleanup_daemon():
 workdir = None
 upperdir = None
 requested_mounts = list(expand_mount_groups(DEFAULT_MOUNTS))
-deescalate = True
+deescalate = False
 try:
     container, *args = sys.argv[1:]
     while args:
@@ -238,13 +237,31 @@ try:
         elif cmd in (&#39;--mount&#39;, &#39;-m&#39;):
             parts = args.pop(0).split(&#39;,&#39;)
             requested_mounts = list(expand_mount_groups(parts))
-        elif cmd in (&#39;--root&#39;):
-            deescalate = False
+        elif cmd in (&#39;--deescalate-sudo&#39;):
+            deescalate = True
         else:
             die_with_usage(hint=&#39;unknown flag: {}&#39;.format(cmd))
     cmd = args
 except (IndexError, ValueError):
     die_with_usage()
+
+#
+# Rerun this program with sudo if the user is not root. In the future plash-run
+# and plash-mount could be suid binaries instead of this.
+#
+if not os.getuid() == 0:
+   if deescalate:
+       die(&#39;only root can use --deescalate-sudo&#39;)
+   if workdir or upperdir:
+       die(&#39;only root can use --upperdir-workdir-pair&#39;)
+   if requested_mounts:
+       extra = [&#39;--mount&#39;, &#39;,&#39;.join(requested_mounts)]
+   else:
+       extra = []
+   prog = [sys.argv[0], container, &#39;--deescalate-sudo&#39;] + extra + cmd
+   os.execlp(
+       &#39;sudo&#39;, &#39;sudo&#39;, &#39;--non-interactive&#39;, *prog)
+
 
 # fail here instead of inside plash-mount for nicer error message
 ux.assert_container_exists(container)

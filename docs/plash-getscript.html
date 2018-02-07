@@ -86,6 +86,7 @@ Call with --help to see available actions.
 # Call with --help to see available actions.
 
 import argparse
+from inspect import signature
 import sys
 
 from plashlib import eval, stdlib
@@ -113,13 +114,12 @@ def create_collect_lsp_action(lsp_begin):
 parser = argparse.ArgumentParser()
 parser.error = die
 
-from inspect import signature
 for action, func in eval.state[&#39;actions&#39;].items():
     # TODO: find out how many arguments it takes and pass it
 
     # find out how many arguments the function takes
     sig = signature(func)
-    arg_kinds = ([i.kind.name for i in sig.parameters.values()])
+    arg_kinds = ([str(i.kind) for i in sig.parameters.values()])
     if &#39;KEYWORD_ONLY&#39; in arg_kinds or &#39;VAR_KEYWORD&#39; in arg_kinds:
         die(&#39;action may not accept keyword arguments: {}{}&#39;.format(
             func.__name__, sig))

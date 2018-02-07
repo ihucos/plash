@@ -89,7 +89,6 @@ from plashlib import ux
 
 handle_help_flag()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     file, args = sys.argv[1], sys.argv[2:]
@@ -109,13 +108,11 @@ if not file_args:
 build_args = [&#39;--include&#39;, file]
 run_args = [file_args[&#39;exec&#39;]] + args
 
-plash_run_extra_args = []
-if file_args.get(&#39;root&#39;) in (&#39;yes&#39;, &#39;true&#39;, &#39;1&#39;):
-    plash_run_extra_args.append(&#39;--root&#39;)
 mount = file_args.get(&#39;mount&#39;)
 if mount:
-    plash_run_extra_args.append(&#39;--mount&#39;)
-    plash_run_extra_args.append(mount)
+    plash_run_extra_args = [&#39;--mount&#39;, mount]
+else:
+    plash_run_extra_args = []
 
 cmd = [
     &#39;plash-run&#39;,

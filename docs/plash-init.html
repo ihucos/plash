@@ -93,14 +93,12 @@ ux.assert_is_root()
 
 plash_data = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 os.makedirs(plash_data, exist_ok=True)
+os.chmod(plash_data, 0o755)
 
-# assert only root has access to it
-os.chmod(plash_data, 0x700)
-os.chown(plash_data, 0, 0)
-
-os.makedirs(join(plash_data, &#39;index&#39;), exist_ok=True)
-os.makedirs(join(plash_data, &#39;cache_keys&#39;), exist_ok=True)
-os.makedirs(join(plash_data, &#39;tmp&#39;), exist_ok=True)
+os.makedirs(join(plash_data, &#39;index&#39;), exist_ok=True, mode=0o755)
+os.makedirs(join(plash_data, &#39;cache_keys&#39;), exist_ok=True, mode=0o755)
+os.makedirs(join(plash_data, &#39;layers&#39;), exist_ok=True, mode=0o755)
+os.makedirs(join(plash_data, &#39;tmp&#39;), exist_ok=True, mode=0o700)
 
 # create the empty root container
 os.makedirs(join(plash_data, &#39;layers&#39;, &#39;0&#39;, &#39;_data&#39;), exist_ok=True)
