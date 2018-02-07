@@ -53,4 +53,4 @@ In my personal opintion Docker is revolutionary but has some shortcommings: awkw
 One python3 library without dependencies and one python3 script per command.
 
 #### I'ts actually just a chrooted process?
-Yes, also a container build engine, some glue and technical subtleties.
+Yes, also a container build engine, some glue, some new ideas and technical subtleties.
