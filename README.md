@@ -85,7 +85,7 @@ TODO
 
 ### Philosophy
 Plash thrives to not be more than a useful tool. There is no monetization strategy, bundling or closed source. It plays well with other software in the ecosystem. Plash and its internal architecture tries to honor the "Do One Thing and Do It Well" UNIX philosophy. This software tries to not "oversell" its abstraction layer, which is containerization of processes. Containerization and isolation are seen as two different tasks, but as a flexible tool this software does not enforce any specific why of using it. Sloppily speaking: after we had a revolutionary containerization of processes with docker, this is also some needed fine adjusting: a *processisation of containers*.
-Plash tries to be very maintainable and is designed to still securely run without any changes in 5 or 10 years. This software tries to be in every aspect of the word lightweight. For example covering less complicated use cases for
+Plash tries to be very maintainable and is designed to still securely run without any changes in 5 or 10 years. This software tries to be in every aspect of the word lightweight. For example by covering less complicated use cases for
 containers, like letting a user quickly use a newer software package from another distribution in a sane way. Or being easy to install. Last but not least in a new and fast-moving container world the focus is on boring long term stability and backwards compatibility, starting from version 1.0.
 
 ## FAQ
@@ -107,3 +107,6 @@ Yes, also a container build engine, frameworkish features, some new ideas, some 
 
 #### Is this a replacement for docker?
 No. There are no efforts to implement features like image distribution, process management, or orchestration in plash.  Instead it works nicely with docker or other software in the ecosystem. You can use plash to run docker in your system or run your plash containers inside docker. If you for exampling are using docker but want to have containers inside your docker container, you could use plash. You can also access docker images from plash or export plash images to docker. So another use case is to build docker images inside docker containers. They are two software with completely different philosophies. In my opinion docker is kind of a big framework that tries to solve all your container related problems. Plash on the other hand tries to be a flexible minimalistic command line tool that is only concerned with the essential needs of using containers. Both approaches are totally valid and very different. Comparing the code base between the two projects is also difficult, plash is currently only developed by one person.
+
+#### Can I run this in production?
+No. Not yet.
