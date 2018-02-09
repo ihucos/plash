@@ -3,6 +3,7 @@ import os
 import re
 import shlex
 import stat
+import sys
 import subprocess
 import tempfile
 import uuid
@@ -198,7 +199,7 @@ def devinit():
 
 @action()
 def list():
-    'list all action'
+    'list all actions'
     actions = get_actions()
     prev_group = None
     for name, func in sorted(actions.items(),
@@ -206,9 +207,10 @@ def list():
         group = func._plash_group or 'main'
         if group != prev_group:
             prev_group is None or print()
-            print('    ## {} ##'.format(group))
-        print('{: <16} {}'.format(name, func.__doc__))
+            print('    ## {} ##'.format(group), file=sys.stderr)
+        print('{: <16} {}'.format(name, func.__doc__), file=sys.stderr)
         prev_group = group
+    sys.exit(1)
 
 
 ALIASES = dict(
@@ -242,7 +244,7 @@ for name, macro in ALIASES.items():
         func.__doc__ = 'macro for: {}[ARG1 [ARG2 [...]]]'.format(' '.join('--'+i[0]+' '+' '.join(i[1:]) for i in macro))
         return func
     func = bounder()
-    action(name=name, group='macro', escape=False)(func)
+    action(name=name, group='macros', escape=False)(func)
 
 eval([[
     'defpm',
