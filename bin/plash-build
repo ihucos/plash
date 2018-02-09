@@ -2,7 +2,7 @@
 #
 # usage: plash-build <ACTIONS>
 # Builds a container. Any command line options is interpreted as action,
-# consult `plash-getscript --help` for available functions.
+# Use `--list` to list all available action.
 #
 # exit status:
 # 1: Generic error code
