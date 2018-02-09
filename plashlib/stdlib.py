@@ -9,24 +9,10 @@ import uuid
 from base64 import b64encode
 from itertools import dropwhile
 
-from .eval import ArgError, action, eval
+from .eval import ArgError, action, eval, get_actions
 from .utils import hashstr
 
 IMAGE_HINT_TEMPL = '### image hint: {}'
-CLI_SHORTCUTS = [
-    # shortcut, lsp, nargs
-    (('-x',), [['run']], '+'),
-    (('-l',), [['layer']], 0),
-    (('-I',), [['include']], '+'),
-    (('-i',), [['image']], 1),
-    (('--alpine', '-A',), [['image', 'alpine'], ['apk']], '*'),
-    (('--ubuntu', '-U',), [['image', 'ubuntu'], ['apt']], '*'),
-    (('--fedora', '-F',), [['image', 'fedora'], ['dnf']], '*'),
-    (('--debian', '-D',), [['image', 'debian'], ['apt']], '*'),
-    (('--centos', '-C',), [['image', 'centos'], ['yum']], '*'),
-    (('--arch', '-R',), [['image', 'arch'], ['pacman']], '*'),
-    (('--gentoo', '-G',), [['image', 'gentoo'], ['emerge']], '*'),
-]
 
 
 @action(escape=False)
@@ -136,7 +122,7 @@ def watch(*paths):
 
 
 @action(escape=False)
-def define_package_manager(name, *lines):
+def defpm(name, *lines):
     'define a new package manager'
     @action(name, group='package managers')
     def package_manager(*packages):
@@ -145,13 +131,13 @@ def define_package_manager(name, *lines):
         sh_packages = ' '.join(pkg for pkg in packages)
         expanded_lines = [line.format(sh_packages) for line in lines]
         return eval([['run'] + expanded_lines])
-    package_manager.__doc__ = "install packages via '{}'".format(name)
+    package_manager.__doc__ = "install packages with {}".format(name)
 
 
 @action()
 def pkg(*packages):
     'call the default package manager'
-    raise ArgError('you need to ":set-pkg <package-manager>" to use pkg')
+    raise ArgError('you need to "--set-pkg <package-manager>" to use pkg')
 
 
 @action(escape=False)
@@ -209,43 +195,92 @@ def devinit():
     chown -v root:tty /dev/ptmx
     chown -v root:tty /dev/tty'''
 
+
+@action()
+def list():
+    'list all action'
+    actions = get_actions()
+    prev_group = None
+    for name, func in sorted(actions.items(),
+            key=lambda i: (i[1]._plash_group or '', i[0])):
+        group = func._plash_group or 'main'
+        if group != prev_group:
+            prev_group is None or print()
+            print('    ## {} ##'.format(group))
+        print('{: <16} {}'.format(name, func.__doc__))
+        prev_group = group
+
+
+ALIASES = dict(
+    x=[['run']],
+    l=[['layer']],
+    I=[['include']],
+    i=[['image']],
+    alpine=[['image', 'alpine'], ['apk']],
+    A=[['alpine']],
+    ubuntu=[['image', 'ubuntu'], ['apt']],
+    U=[['ubuntu']],
+    fedora=[['image', 'fedora'], ['dnf']],
+    F=[['fedora']],
+    debian=[['image', 'debian'], ['apt']],
+    D=[['debian']],
+    centos=[['image', 'centos'], ['yum']],
+    C=[['centos']],
+    arch=[['image', 'arch'], ['pacman']],
+    R=[['arch']],
+    gentoo=[['image', 'gentoo'], ['emerge']],
+    G=[['gentoo']],
+)
+
+for name, macro in ALIASES.items():
+    def bounder(macro=macro):
+        def func(*args):
+            # list(args) throws exception some really funny reason
+            # therefore the list comprehension
+            args = [i for i in args]
+            return eval(macro[:-1] + [macro[-1] + args])
+        func.__doc__ = 'macro for: {}[ARG1 [ARG2 [...]]]'.format(' '.join('--'+i[0]+' '+' '.join(i[1:]) for i in macro))
+        return func
+    func = bounder()
+    action(name=name, group='macro', escape=False)(func)
+
 eval([[
-    'define-package-manager',
+    'defpm',
     'apt',
     'apt-get update',
     'apt-get install -y {}',
 ], [
-    'define-package-manager',
+    'defpm',
     'add-apt-repository',
     'apt-get install software-properties-common',
     'run add-apt-repository -y {}',
 ], [
-    'define-package-manager',
+    'defpm',
     'apk',
     'apk update',
     'apk add {}',
 ], [
-    'define-package-manager',
+    'defpm',
     'yum',
     'yum install -y {}',
 ], [
-    'define-package-manager',
+    'defpm',
     'dnf',
     'dnf install -y {}',
 ], [
-    'define-package-manager',
+    'defpm',
     'pip',
     'pip install {}',
 ], [
-    'define-package-manager',
+    'defpm',
     'npm',
     'npm install -g {}',
 ], [
-    'define-package-manager',
+    'defpm',
     'pacman',
     'pacman -Sy --noconfirm {}',
 ], [
-    'define-package-manager',
+    'defpm',
     'emerge',
     'emerge {}',
 ]])

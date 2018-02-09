@@ -18,11 +18,13 @@ class ActionNotFoundError(Exception):
 class EvalError(Exception):
     pass
 
+def get_actions():
+    return state['actions']
 
-def action(action_name=None, keep_comments=False, escape=True, group=None):
+def action(name=None, keep_comments=False, escape=True, group=None):
     def decorator(func):
 
-        action = action_name or func.__name__.replace('_', '-')
+        action = name or func.__name__.replace('_', '-')
 
         @wraps(func)
         def function_wrapper(*args, **kw):
@@ -62,19 +64,19 @@ def eval(lisp):
             raise EvalError(
                 'must evaluate list of list of strings. not a list of strings: {}'.
                 format(item))
-        action_name = item[0]
+        name = item[0]
         args = item[1:]
         actions = state['actions']
         try:
-            action = actions[action_name]
+            action = actions[name]
         except KeyError:
             raise ActionNotFoundError(
-                'Action "{}" not found'.format(action_name))
+                'Action "{}" not found'.format(name))
         res = action(*args)
         if not isinstance(res, str) and res is not None:
             raise EvalError(
                 'eval action must return string or None ({} returned {})'.
-                format(action_name, type(res)))
+                format(name, type(res)))
         if res is not None:
             action_values.append(res)
     return '\n'.join(action_values)

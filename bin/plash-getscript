@@ -9,6 +9,7 @@
 import argparse
 from inspect import signature
 import sys
+import os
 
 from plashlib import eval, stdlib
 from plashlib.utils import catch_and_die, deescalate_sudo, die
@@ -16,75 +17,23 @@ from plashlib.utils import catch_and_die, deescalate_sudo, die
 # try not to be root
 deescalate_sudo()
 
+tokens = sys.argv[1:]
 
-def create_collect_lsp_action(lsp_begin):
-    class CollectLspAction(argparse.Action):
-        def __call__(self, parser, namespace, values, option_string=None):
-            if not 'lsp' in namespace:
-                setattr(namespace, 'lsp', [])
-            previous = namespace.lsp
-            previous.extend([
-                i if not c + 1 == len(lsp_begin) else (i + list(values))
-                for c, i in enumerate(lsp_begin)
-            ])
-            setattr(namespace, 'lsp', previous)
-
-    return CollectLspAction
-
-class PlashHelpFormatter(argparse.HelpFormatter):
-    # usage of "private" attribute will at least not make this crash
-    def _format_args(self, action, *args, **kwargs):
-        nargs = action.nargs
-        if nargs == '*':
-            return 'ARG*'
-
-parser = argparse.ArgumentParser(formatter_class=PlashHelpFormatter, usage='plash-getscript <ARGS>')
-parser.error = die
-#parser.print_help = print_help
-
-
-groups = {}
-for action, func in eval.state['actions'].items():
-    # TODO: find out how many arguments it takes and pass it
-
-    # find out how many arguments the function takes
-    sig = signature(func)
-    arg_kinds = ([str(i.kind) for i in sig.parameters.values()])
-    if 'KEYWORD_ONLY' in arg_kinds or 'VAR_KEYWORD' in arg_kinds:
-        die('action may not accept keyword arguments: {}{}'.format(
-            func.__name__, sig))
-    if 'VAR_POSITIONAL' in arg_kinds:
-        num = '*'
-    else:
-        num = len(arg_kinds)
-
-    key = func._plash_group or 'default'
-    if not key in groups:
-        groups[key] = parser.add_argument_group(key)
-    group = groups[key]
-    group.add_argument(
-        '--' + action,
-        help='{}: {}'.format(sig, func.__doc__),
-        action=create_collect_lsp_action([[action]]),
-        nargs=num)
-
-# add the cli shortucuts
-group = parser.add_argument_group('macros')
-for shortcut, lsp, nargs in stdlib.CLI_SHORTCUTS:
-    help = 'macro for: `{} <ARGS>`'.format(' '.join(
-        '--{}'.format(' '.join(i)) for i in lsp))
-
-    group.add_argument(
-        *shortcut,
-        action=create_collect_lsp_action(lsp),
-        nargs=nargs,
-        help=help)
-
-args = parser.parse_args()
+lsp = []
+for token in tokens:
+    if token == '--':
+        die('invalid option: --')
+    elif token.startswith('--'):
+        lsp.append([token[2:]])
+    elif token.startswith('-'):
+        if not len(token) == 2:
+            die('invalid option: {}'.format(token))
+        lsp.append([token[1:]])
+    elif token:
+        lsp[-1].append(token)
 
 with catch_and_die([eval.ActionNotFoundError]):
-    lsp = getattr(args, 'lsp', [])
     script = eval.eval(lsp)
-    if script:
-        script += '\n'  # that '\n' is right
+if script:
+    script += '\n'  # that '\n' is right
 print(script, end='')
