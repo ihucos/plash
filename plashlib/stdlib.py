@@ -241,7 +241,8 @@ for name, macro in ALIASES.items():
             # therefore the list comprehension
             args = [i for i in args]
             return eval(macro[:-1] + [macro[-1] + args])
-        func.__doc__ = 'macro for: {}[ARG1 [ARG2 [...]]]'.format(' '.join('--'+i[0]+' '+' '.join(i[1:]) for i in macro))
+        func.__doc__ = 'macro for: {}[ARG1 [ARG2 [...]]]'.format(
+                ' '.join('--'+i[0]+' '+' '.join(i[1:]) for i in macro))
         return func
     func = bounder()
     action(name=name, group='macros', escape=False)(func)
