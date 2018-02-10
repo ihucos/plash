@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+#
+# usage: plash-install-suid-wrapper
+
+import os
+import sys
+import shutil
+
+from plashlib.utils import die, handle_help_flag, die_with_usage, catch_and_die, handle_build_args, nodepath_or_die
+from plashlib import ux
+from tempfile import mkdtemp
+from subprocess import check_call
+
+handle_help_flag()
+ux.assert_is_root()
+
+PLASH_RUN_WRAPPER_GO = '''
+package main
+
+import "syscall"
+import "os"
+
+const PrimaryBinary = "/usr/local/bin/plash-run"
+const SecondaryBinary = "/usr/bin/plash-run"
+
+func main() {
+	env := os.Environ()
+	newEnv := make([]string, len(env)+1)
+	newEnv[0] = "PLASH_RUN_SUID=1"
+	for i := 1; i < len(env); i++ {
+		newEnv[i] = "_" + env[i] // "escape" environment
+	}
+	args := os.Args[:]
+	args[0] = PrimaryBinary
+
+	err := syscall.Exec(PrimaryBinary, args, newEnv)
+	if err != nil && err.Error() == "no such file or directory" {
+		args[0] = SecondaryBinary
+		err = syscall.Exec(SecondaryBinary, args, newEnv)
+	}
+	panic(err)
+}
+'''
+
+
+tmp = mkdtemp()
+gofile = os.path.join(tmp, 'plash-run-wrapper.go')
+outfile = os.path.join(tmp, 'plash-run-wrapper')
+with open(gofile, 'w') as f:
+    f.write(PLASH_RUN_WRAPPER_GO)
+check_call([
+ 'plash-run',
+ '-i',
+ 'debian',
+ '--apt',
+ 'golang',
+ '--',
+ 'go', 'build', '-o', outfile, gofile
+])
+dst = '/usr/local/bin/plash-run-wrapper'
+shutil.copy2(outfile, dst)
+os.chmod(dst, 0o4755) # make it suid binary
