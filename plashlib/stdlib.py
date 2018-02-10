@@ -122,7 +122,7 @@ def watch(*paths):
     return ": watch hash: {}".format(hash)
 
 
-@action(escape=False)
+@action(escape=False, group='package managers')
 def defpm(name, *lines):
     'define a new package manager'
     @action(name, group='package managers')
@@ -135,22 +135,8 @@ def defpm(name, *lines):
     package_manager.__doc__ = "install packages with {}".format(name)
 
 
-@action()
-def pkg(*packages):
-    'call the default package manager'
-    raise ArgError('you need to "--set-pkg <package-manager>" to use pkg')
-
-
 @action(escape=False)
-def set_pkg(pm):
-    'set the default package manager'
-    @action('pkg')
-    def pkg(*packages):
-        return eval([[pm] + list(packages)])
-
-
-@action(escape=False)
-def all(command, *args):
+def map(command, *args):
     'use first argument as action, map it to other arguments'
     return eval([[command, arg] for arg in args])
 
@@ -166,11 +152,6 @@ def image(os):
     'set the base image'
     return IMAGE_HINT_TEMPL.format(os)
 
-
-@action(escape=False)
-def chdir(path):
-    'change directory at host'
-    os.chdir(path)
 
 @action()
 def namespace(ns):
