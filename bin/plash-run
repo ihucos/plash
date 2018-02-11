@@ -21,6 +21,7 @@ from plashlib import ux
 PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
 MOUNTPOINT_DIR = '/var/tmp/'
 DEFAULT_MOUNTS = ['default']
+SAFE_PATH = '/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
 # SECURITY: noexec and so on in / mounts?
 PSEUDO_FSTAB = '''
@@ -73,6 +74,9 @@ MOUNT_GROUPS = {
     'default': ['/proc', '/etc/resolv.conf', '/home', '/tmp'],
     'host': ['/tmp', '/home'],
 }
+
+# the suid wrapper calls it without any pass
+os.environ['PATH'] = SAFE_PATH
 
 handle_help_flag()
 handle_build_args()
@@ -164,27 +168,6 @@ try:
 except (IndexError, ValueError):
     die_with_usage()
 
-#
-# Rerun this program with sudo if the user is not root. In the future plash-run
-# and plash-mount could be suid binaries instead of this.
-#
-if not os.getuid() == 0:
-   if deescalate:
-       die('only root can use --deescalate-sudo')
-   if workdir or upperdir:
-       die('only root can use --upperdir-workdir-pair')
-   if requested_mounts:
-       extra = ['--mount', ','.join(requested_mounts)]
-   else:
-       extra = []
-   prog = [sys.argv[0], container, '--deescalate-sudo'] + extra + cmd
-   os.execlp(
-       'sudo', 'sudo', '--non-interactive', *prog)
-
-
-# fail here instead of inside plash-mount for nicer error message
-ux.assert_container_exists(container)
-
 clean_dirs = []
 if not upperdir or not workdir:
     upperdir = tempfile.mkdtemp(
@@ -193,8 +176,13 @@ if not upperdir or not workdir:
         dir=PLASH_TMP, prefix='workdir-{}-'.format(main_pid))
     clean_dirs.extend([upperdir, workdir])
 
+# fail here instead of inside plash-mount for nicer error message
+ux.assert_container_exists(container)
+
 mountpoint = tempfile.mkdtemp(
     dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
+
+os.setreuid(0, 0)
 
 with catch_and_die([CalledProcessError]):
     check_call([
