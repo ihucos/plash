@@ -6,6 +6,18 @@
 
 import os
 import sys
+
+# suid wrapper stuff
+os.environ['PATH'] = '/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+try:
+    os.setreuid(0, 0)
+except PermissionError:
+    # call the suid wrapper
+    os.execl(
+        '/usr/local/bin/plash-run-wrapper',
+        '/usr/local/bin/plash-run-wrapper',
+        *sys.argv[1:])
+
 import argparse
 from time import sleep
 import atexit
@@ -21,7 +33,6 @@ from plashlib import ux
 PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
 MOUNTPOINT_DIR = '/var/tmp/'
 DEFAULT_MOUNTS = ['default']
-SAFE_PATH = '/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
 # SECURITY: noexec and so on in / mounts?
 PSEUDO_FSTAB = '''
@@ -74,9 +85,6 @@ MOUNT_GROUPS = {
     'default': ['/proc', '/etc/resolv.conf', '/home', '/tmp'],
     'host': ['/tmp', '/home'],
 }
-
-# the suid wrapper calls it without any pass
-os.environ['PATH'] = SAFE_PATH
 
 handle_help_flag()
 handle_build_args()
@@ -181,8 +189,6 @@ ux.assert_container_exists(container)
 
 mountpoint = tempfile.mkdtemp(
     dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
-
-os.setreuid(0, 0)
 
 with catch_and_die([CalledProcessError]):
     check_call([
