@@ -19,33 +19,30 @@ package main
 
 import "syscall"
 import "os"
-
-const PrimaryBinary = "/usr/local/bin/plash-run"
-const SecondaryBinary = "/usr/bin/plash-run"
+import "ioutil"
+import "exec"
+import "fmt"
 
 func main() {
-	env := os.Environ()
-	newEnv := make([]string, len(env)+1)
-	newEnv[0] = "PLASH_RUN_SUID=1"
-	for i := 1; i < len(env); i++ {
-		newEnv[i] = "_" + env[i] // "escape" environment
-	}
-	args := os.Args[:]
-	args[0] = PrimaryBinary
+    container := os.Args[1]
+    mountpoint = ioutil.TempDir('/var/run', '-plash-run-suid')
+    if _, err := strconv.Atoi(container); err != nil {
+        panic('argument must be an container, that is an integer')
+    }
+    link, err = os.Readlink('/var/lib/plash/index/'+container)
+    cmd, err = exec.Command('mount', '-t', 'overlay', 'overlay', '-o', 'lowerdir=/var/lib/plash/index/2/_data:/var/lib/plash/index/0/_data,nosuid', mountpoint)
+    if err != null {panic(err)}
+    cmd.Wait()
+    fmt.Println(mountpoint)
 
-	err := syscall.Exec(PrimaryBinary, args, newEnv)
-	if err != nil && err.Error() == "no such file or directory" {
-		args[0] = SecondaryBinary
-		err = syscall.Exec(SecondaryBinary, args, newEnv)
-	}
-	panic(err)
-}
+    //['mount', '-t', 'overlay', 'overlay', '-o', 'lowerdir=/var/lib/plash/index/2/_data:/var/lib/plash/index/0/_data,nosuid', '/asdf']
+l
 '''
 
 
 tmp = mkdtemp()
-gofile = os.path.join(tmp, 'plash-run-wrapper.go')
-outfile = os.path.join(tmp, 'plash-run-wrapper')
+gofile = os.path.join(tmp, 'plash-run-suid.go')
+outfile = os.path.join(tmp, 'plash-run-suid')
 with open(gofile, 'w') as f:
     f.write(PLASH_RUN_WRAPPER_GO)
 check_call([
@@ -57,6 +54,6 @@ check_call([
  '--',
  'go', 'build', '-o', outfile, gofile
 ])
-dst = '/usr/local/bin/plash-run-wrapper'
+dst = '/usr/local/bin/plash-run-suid'
 shutil.copy2(outfile, dst)
 os.chmod(dst, 0o4755) # make it suid binary
