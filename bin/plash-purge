@@ -18,5 +18,9 @@ if input('Delete all build data? [y/N] ') == 'y':
         os.unlink(os.path.join(PLASH_DATA, 'id_counter'))
     except FileNotFoundError:
         pass
+    try:
+        os.unlink(os.path.join(PLASH_DATA, 'id'))
+    except FileNotFoundError:
+        pass
     for dir in os.listdir(PLASH_DATA):
         rmtree(os.path.join(PLASH_DATA, dir))

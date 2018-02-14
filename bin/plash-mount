@@ -55,7 +55,7 @@ while True:
 # On my setup i get 58 (EDIT: should be more now) layers before an error,
 # we could have multiple mount calls to overcome this
 lowerdir_list = [
-    join(PLASH_DATA, 'index', i, '_data') for i in container_ids_path
+    join(PLASH_DATA, 'index', i, '_data', 'root') for i in container_ids_path
 ]
 
 for i in lowerdir_list:
