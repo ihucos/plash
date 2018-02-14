@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-run CONTAINER [--workdir-upperdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--deescalate-sudo] [CMD1 [CMD2 [CMD3 ...]]
+# usage: plash-run CONTAINER [--upperdir-workdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--deescalate-sudo] [CMD1 [CMD2 [CMD3 ...]]
 # Run a command inside a container. If no command is specified a shell is started.
 # The workdir and upperdir parameters can be used to save file system changes made inside the container.
 
@@ -164,27 +164,6 @@ try:
 except (IndexError, ValueError):
     die_with_usage()
 
-#
-# Rerun this program with sudo if the user is not root. In the future plash-run
-# and plash-mount could be suid binaries instead of this.
-#
-if not os.getuid() == 0:
-   if deescalate:
-       die('only root can use --deescalate-sudo')
-   if workdir or upperdir:
-       die('only root can use --upperdir-workdir-pair')
-   if requested_mounts:
-       extra = ['--mount', ','.join(requested_mounts)]
-   else:
-       extra = []
-   prog = [sys.argv[0], container, '--deescalate-sudo'] + extra + cmd
-   os.execlp(
-       'sudo', 'sudo', '--non-interactive', *prog)
-
-
-# fail here instead of inside plash-mount for nicer error message
-ux.assert_container_exists(container)
-
 clean_dirs = []
 if not upperdir or not workdir:
     upperdir = tempfile.mkdtemp(
@@ -192,6 +171,9 @@ if not upperdir or not workdir:
     workdir = tempfile.mkdtemp(
         dir=PLASH_TMP, prefix='workdir-{}-'.format(main_pid))
     clean_dirs.extend([upperdir, workdir])
+
+# fail here instead of inside plash-mount for nicer error message
+ux.assert_container_exists(container)
 
 mountpoint = tempfile.mkdtemp(
     dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))

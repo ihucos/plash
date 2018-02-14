@@ -39,7 +39,7 @@ plash-build -i 1 --bust-cache -x 'test $(pwd) == /'
 : home is mounted when building
 cont=$(plash-build -i 1 -x 'ls -1 /home > /tmp/out')
 np=$(plash-nodepath $cont)
-cmp $np/_data/tmp/out <(ls -1 /home)
+cmp $np/_data/root/tmp/out <(ls -1 /home)
 
 : tmp is not mounted when building
 touch /tmp/mark

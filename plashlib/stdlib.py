@@ -257,6 +257,10 @@ eval([[
     'pip install {}',
 ], [
     'defpm',
+    'pip3',
+    'pip3 install {}',
+], [
+    'defpm',
     'npm',
     'npm install -g {}',
 ], [
