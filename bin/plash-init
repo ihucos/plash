@@ -3,7 +3,7 @@
 # usage: plash-init
 # Initialize build data. Run this on a new system before anything else.
 
-from plashlib.utils import handle_help_flag, hashstr
+from plashlib.utils import handle_help_flag
 from plashlib import ux
 import os
 from os.path import join
@@ -19,13 +19,6 @@ os.makedirs(join(plash_data, 'index'), exist_ok=True, mode=0o755)
 os.makedirs(join(plash_data, 'cache_keys'), exist_ok=True, mode=0o755)
 os.makedirs(join(plash_data, 'layers'), exist_ok=True, mode=0o755)
 os.makedirs(join(plash_data, 'tmp'), exist_ok=True, mode=0o700)
-
-try:
-    with open(join(plash_data, 'id'), 'x') as f:
-        f.write(hashstr(os.urandom(128)))
-        f.close()
-except FileExistsError:
-    pass
 
 # create the empty root container
 os.makedirs(join(plash_data, 'layers', '0', '_data', 'root'), exist_ok=True)

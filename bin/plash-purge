@@ -18,9 +18,10 @@ if input('Delete all build data? [y/N] ') == 'y':
         os.unlink(os.path.join(PLASH_DATA, 'id_counter'))
     except FileNotFoundError:
         pass
-    try:
-        os.unlink(os.path.join(PLASH_DATA, 'id'))
-    except FileNotFoundError:
-        pass
     for dir in os.listdir(PLASH_DATA):
+
+        # don't delete id_counter because plash-pun uses it as cache key
+        if dir == 'id_counter':
+            continue
+
         rmtree(os.path.join(PLASH_DATA, dir))
