@@ -79,7 +79,7 @@ func main() {
                         first = false
                         buffer.WriteString("/var/lib/plash/index/")
                         buffer.WriteString(cont)
-                        buffer.WriteString("/_data")
+                        buffer.WriteString("/_data/root")
                 }
                 buffer.WriteString(",nosuid")
                 overlayOpts := buffer.String()
