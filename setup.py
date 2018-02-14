@@ -16,7 +16,7 @@ bin_files= set([
 for file in bin_files:
     os.chmod(file, 0o755)
 
-# This will Implicitly change the access rights to setuid in dev
+# This will implicitly change the access rights to setuid in dev
 os.chmod('bin/plash-pun', 0o4755)
 
 setup(
