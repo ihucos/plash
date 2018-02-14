@@ -6,21 +6,6 @@
 
 import os
 import sys
-
-if os.getuid() != 0:
-    os.execlp('/home/irae/plash/bin/plash-run-suid', '/home/irae/plash/bin/plash-run-suid', *sys.argv[1:])
-
-# suid wrapper stuff
-os.environ['PATH'] = '/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-try:
-    os.setreuid(0, 0)
-except PermissionError:
-    # call the suid wrapper
-    os.execl(
-        '/usr/local/bin/plash-run-wrapper',
-        '/usr/local/bin/plash-run-wrapper',
-        *sys.argv[1:])
-
 import argparse
 from time import sleep
 import atexit

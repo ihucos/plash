@@ -7,17 +7,17 @@ import os
 
 here = path.abspath(path.dirname(__file__))
 
-class PostInstallCommand(install):     
-    def run(self):   
-        install.run(self)
-        print()
-        print('##  calling plash-run-suid-install ##')
-        #check_call(['plash-run-suid-install'])
-        os.system('ash')
+bin_files= set([
+        path.join('bin', i)
+        for i in os.listdir(path.join(here, 'bin'))
+        if not '.' in i])
 
-bin_files=[path.join('bin', i) for i in os.listdir(path.join(here, 'bin'))]
+# be sure about the access rights since this is security sensitive
 for file in bin_files:
-    print(file)
+    os.chmod(file, 0o755)
+
+# This will Implicitly change the access rights to setuid in dev
+os.chmod('bin/plash-run-suid', 0o4755)
 
 setup(
     name='plash',
@@ -26,5 +26,4 @@ setup(
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
     data_files=[("/usr/local/bin", bin_files)],
-    cmdclass={'install': PostInstallCommand},
 )
