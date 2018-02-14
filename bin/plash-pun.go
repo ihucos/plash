@@ -53,7 +53,8 @@ func main() {
 
         // the mountpoint to chroot into
         bootId, err := ioutil.ReadFile("/proc/sys/kernel/random/boot_id"); check(err)
-        finalMountpoint := fmt.Sprintf("/var/run/plash-run-suid-%s-%d", bootId, container )
+        plashId, err := ioutil.ReadFile("/var/lib/plash/id"); check(err) // if err, plash was not initialized yet
+        finalMountpoint := fmt.Sprintf("/var/run/plash-run-suid-%s-%s-%d", bootId, plashId, container)
 
         //
         // populate mountpoint, if not done yet
