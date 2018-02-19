@@ -1,11 +1,20 @@
 from setuptools import setup, find_packages
 from setuptools.command.install import install
-from subprocess import check_call
+from subprocess import check_output
 from codecs import open
 from os import path
 import os
 
+VERSION_MAJOR = "0"
+VERSION_MINOR = "8"
+VERSION_DEFAULT_MICRO = "0"
+
 here = path.abspath(path.dirname(__file__))
+
+if os.environ.get('TRAVIS'):
+    version_minor = os.environ['TRAVIS_BUILD_NUMBER']
+else:
+    version_minor = VERSION_DEFAULT_MICRO
 
 bin_files= set([
         path.join('bin', i)
@@ -22,7 +31,7 @@ for file in bin_files:
 
 setup(
     name='plash',
-    version='0.8.0.3',
+    version='{}.{}.{}'.format(VERSION_MAJOR, VERSION_MINOR, version_micro),
     description='Container build tool',
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
