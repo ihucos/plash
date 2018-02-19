@@ -11,3 +11,6 @@ deploy:
   password:
     secure: gksASJl2kpPKUzGO985xStiAa8A/0h0bO/mIH9ZSeEQ3K5jxuyY89T9E/CETtT9qXR59g2P6IwN9AlpxYmmisrXC9ACGyrX4Lj6ANk0Q9pcbamHabfw4ms8TZyExBDIIGbMFrREqUx5nDWX1455gBcH+KxTg7icwea5LjlytlyWOi62WhrJijx8ypX4O+hZq/Scq8KlXeas2RB0Z6bLr1GP2QljzA8yvNJQWEYhtwtWFwIdVOWEa9EhQfjO7tyOOHiDjPSs5tuJjUryn3hl01zevLJENWrpeWVsHUxh/skywsf/pf0M64XGuJg76Ep8JAnFAouEwtZTObaP+4t47HTuALpSTRG4aX7ahFl0c+WgsgzAivBPaL3NONqXC7Qre8ParFWHpP8WGslD6GYS4AjCCqqWQ6KFu5WrI4rePSeunWDpU4Bd3cMPTIjpaVbcI1+qjarbqpmYkaO+q7UUODjiY8owfAs+kOlxduLGTeJci4xkonTwvafas0BC1JBb+buR0hFZnexCL4AB674tETGE3dCGxiGBN9lx1YAQaLHlTzLacMC3ZJL9QvPz2mFr7g4WiuEnwD7n+IcJ+BH9hyNJRZx2Gdh63w75Tb2nLzGUz/doHVGv/TZANHlj908Igk36lCCyZwhp3oWev0FJz8f4VlZP6fkJ21qARuz+34io=
   server: https://test.pypi.org/legacy/
+  on:
+    branch: pypi-release
+    condition: TRAVIS_PYTHON_VERSION = 3.6
