@@ -16,8 +16,9 @@ bin_files= set([
 for file in bin_files:
     os.chmod(file, 0o755)
 
-# This will implicitly change the access rights to setuid in dev
-os.chmod('bin/plash-pun', 0o4755)
+# only automatically setuid when plash-pun is better reviewed
+## This will implicitly change the access rights to setuid in dev
+#os.chmod('bin/plash-pun', 0o4755)
 
 setup(
     name='plash',
