@@ -12,9 +12,9 @@ VERSION_DEFAULT_MICRO = "0"
 here = path.abspath(path.dirname(__file__))
 
 if os.environ.get('TRAVIS'):
-    version_minor = os.environ['TRAVIS_BUILD_NUMBER']
+    version_micro = os.environ['TRAVIS_BUILD_NUMBER']
 else:
-    version_minor = VERSION_DEFAULT_MICRO
+    version_micro = VERSION_DEFAULT_MICRO
 
 bin_files= set([
         path.join('bin', i)
