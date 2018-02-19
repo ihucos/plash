@@ -22,7 +22,7 @@ for file in bin_files:
 
 setup(
     name='plash',
-    version='0.8.0.1',
+    version='0.8.0.2',
     description='Container build tool',
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
