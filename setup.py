@@ -6,7 +6,7 @@ from os import path
 import os
 
 VERSION_MAJOR = "0"
-VERSION_MINOR = "8"
+VERSION_PSEUDO_MINOR = "8"
 VERSION_DEFAULT_MICRO = "0"
 
 here = path.abspath(path.dirname(__file__))
@@ -31,7 +31,7 @@ for file in bin_files:
 
 setup(
     name='plash',
-    version='{}.{}.{}'.format(VERSION_MAJOR, VERSION_MINOR, version_micro),
+    version='{}.{}{}'.format(VERSION_MAJOR, VERSION_PSEUDO_MINOR, version_micro),
     description='Container build tool',
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
