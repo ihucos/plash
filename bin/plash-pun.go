@@ -14,13 +14,13 @@ import "runtime"
 // think of a reason for a specific exit code number
 const ERROR_EXIT_NUMBER = 120
 
-const ERR_SETREUID_CONTEXT = "calling setreuid(0, 0)"
+const ERR_SETREUID_CONTEXT = "call setreuid(0, 0)"
 const ERR_SETREUID_HINT = "Run as root or set suid bit"
 
-const ERR_READ_BOOT_ID_CONTEXT = "reading the file /proc/sys/kernel/random/boot_id"
+const ERR_READ_BOOT_ID_CONTEXT = "read the file /proc/sys/kernel/random/boot_id"
 const ERR_READ_BOOT_ID_HINT = "Maybe /proc is not mounted"
 
-const ERR_READ_PLASH_ID_CONTEXT = "reading the file /var/lib/plash/id"
+const ERR_READ_PLASH_ID_CONTEXT = "read the file /var/lib/plash/id"
 const ERR_READ_PLASH_ID_HINT = "run plash-init"
 
 const ERR_TMP_DIR_CONTEXT = "create temporary directory in /var/tmp"
@@ -41,7 +41,7 @@ const ERR_CHROOT_HINT = ""
 const ERR_CHDIR_ROOT_CONTEXT = "chdir to / after chroot into container"
 const ERR_CHDIR_ROOT_HINT = ""
 
-const ERR_EXEC_CONTEXT = "execing inside container" 
+const ERR_EXEC_CONTEXT = "exec inside container" 
 const ERR_EXEC_HINT = ""
 
 func isint(val string) bool {
@@ -60,10 +60,10 @@ func call(name string, arg ...string) {
 
 func checkErr(err error, contextMsg string, hint string) {
         if err != nil { 
-            fmt.Fprintf(os.Stderr, "Error while: %s")
-            fmt.Fprintf(os.Stderr, err.Error())
+            fmt.Fprintf(os.Stderr, "plash-pun: error: %s\n", err.Error())
+            fmt.Fprintf(os.Stderr, "plash-pun: at: %s\n", contextMsg)
             if (hint != ""){
-                fmt.Fprintf(os.Stderr, "Hint: %s:", hint)
+                fmt.Fprintf(os.Stderr, "plash-pun: hint: %s:\n", hint)
             }
             os.Exit(ERROR_EXIT_NUMBER)
         }
@@ -77,10 +77,20 @@ func pathExists(path string) (bool) {
 }
 func main() {
 
-	container := os.Args[1]
-	if !isint(container) {
-		panic("argument must be an container, which is an integer")
+        if len(os.Args) < 2 {
+                fmt.Fprint(os.Stderr, "plash-pun: usage: plash-pun CONTAINER_ID [CMD1, [CMD2 ...]]\n")
+                os.Exit(ERROR_EXIT_NUMBER)
+        } 
+	if !isint(os.Args[1]) {
+		fmt.Fprint(os.Stderr, "plash-pun: first argument must be an integer container id\n")
+                os.Exit(ERROR_EXIT_NUMBER)
 	}
+	container := os.Args[1]
+        cmd := os.Args[2:]
+        if len(cmd) == 0 {
+                // open default root terminal with sh
+                cmd = []string{"sh", "-c", "$(head -n1 /etc/passwd | cut -d: -f7)"}
+        }
 
         // Think three times before removing this line.
         // without it, chroot could be executed in a thread that still is root.
@@ -98,7 +108,7 @@ func main() {
         plashId, err := ioutil.ReadFile("/var/lib/plash/id")
         checkErr(err, ERR_READ_PLASH_ID_CONTEXT, ERR_READ_PLASH_ID_HINT)
 
-        finalMountpoint := fmt.Sprintf("/var/run/plash-run-suid-%s-%s-%d", bootId, plashId, container)
+        finalMountpoint := fmt.Sprintf("/var/run/plash-run-suid-%s-%s-%s", bootId, plashId, container)
 
         //
         // populate mountpoint, if not done yet
@@ -107,7 +117,7 @@ func main() {
                 
                 mountpoint, err := ioutil.TempDir("/var/tmp", "plash-run-suid-mountpoint-")
                 checkErr(err, ERR_TMP_DIR_CONTEXT, ERR_TMP_DIR_HINT)
-                indexLink := fmt.Sprintf("/var/lib/plash/index/%d", container)
+                indexLink := fmt.Sprintf("/var/lib/plash/index/%s", container)
                 topLayer, err := os.Readlink(indexLink);
                 checkErr(err, fmt.Sprintf(ERR_READLINK_CONTEXT, indexLink), ERR_READLINK_HINT)
 
@@ -167,6 +177,8 @@ func main() {
 		err = os.Chdir("/");
                 checkErr(err, ERR_CHDIR_ROOT_CONTEXT, ERR_CHDIR_ROOT_HINT)
 	}
-	err = syscall.Exec("/usr/bin/env", os.Args[2:], os.Environ())
+	err = syscall.Exec(
+                "/usr/bin/env", append([]string{"/usr/bin/env"}, cmd...),
+                os.Environ())
         checkErr(err, ERR_EXEC_CONTEXT, ERR_EXEC_HINT)
 }
