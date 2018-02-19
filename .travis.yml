@@ -13,4 +13,4 @@ deploy:
   server: https://test.pypi.org/legacy/
   on:
     branch: pypi-release
-    condition: TRAVIS_PYTHON_VERSION = 3.6
+    condition: $TRAVIS_PYTHON_VERSION = 3.6
