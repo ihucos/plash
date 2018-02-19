@@ -1,4 +1,4 @@
-
+[![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash)
 # plash
 is a container build and runtime system.
 
