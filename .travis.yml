@@ -17,14 +17,5 @@ deploy:
     condition: $TRAVIS_PYTHON_VERSION = 3.6
 
 after_deploy:
-  - |
-    curl --fail --user "$GH_USER:$GH_TOKEN" --data @- https://api.github.com/repos/ihucos/plash/releases <<<"
-    {
-      \"tag_name\": \"v0.$TRAVIS_BUILD_NUMBER\",
-      \"name\": \"0.$TRAVIS_BUILD_NUMBER\",
-      \"target_commitish\": \"master\",
-      \"body\": \"https://test.pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER/ $TRAVIS_COMMIT_RANGE\",
-      \"draft\": false,
-      \"prerelease\": true
-    }
-    "
+  - git tag 0.$TRAVIS_BUILD_NUMBER -m "https://test.pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER/ $TRAVIS_COMMIT_RANGE"
+  - git push https://${GH_TOKEN}#github.com/ihucos/plash.git --tags
