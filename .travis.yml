@@ -17,6 +17,7 @@ deploy:
     condition: $TRAVIS_PYTHON_VERSION = 3.6
 
 after_deploy:
+  - travis_terminate 1
   - |
     curl --fail --user "$GH_USER:$GH_TOKEN" --data @- https://api.github.com/repos/ihucos/plash/releases <<EOF
     {
