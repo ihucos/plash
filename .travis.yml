@@ -17,7 +17,6 @@ deploy:
     condition: $TRAVIS_PYTHON_VERSION = 3.6
 
 after_deploy:
-  - travis_terminate 1
   - |
     cat <<EOF
     {
