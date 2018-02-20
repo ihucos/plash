@@ -18,4 +18,4 @@ deploy:
 
 after_deploy:
   - git tag 0.$TRAVIS_BUILD_NUMBER -m "https://test.pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER/ $TRAVIS_COMMIT_RANGE"
-  - git push https://${GH_TOKEN}:github.com/ihucos/plash.git --tags
+  - git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
