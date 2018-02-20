@@ -5,8 +5,6 @@ from codecs import open
 from os import path
 import os
 
-DEFAULT_MINOR_VERSION = "8"
-
 here = path.abspath(path.dirname(__file__))
 
 bin_files= set([
@@ -24,7 +22,7 @@ for file in bin_files:
 
 setup(
     name='plash',
-    version='0.{}'.format(os.environ.get('TRAVIS_BUILD_NUMBER', DEFAULT_MINOR_VERSION)),
+    version='0.{}'.format(os.environ['TRAVIS_BUILD_NUMBER']),
     description='Container build and run tool',
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
