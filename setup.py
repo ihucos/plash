@@ -5,16 +5,9 @@ from codecs import open
 from os import path
 import os
 
-VERSION_MAJOR = "0"
-VERSION_PSEUDO_MINOR = "8"
-VERSION_DEFAULT_MICRO = "0"
+DEFAULT_MINOR_VERSION = "8"
 
 here = path.abspath(path.dirname(__file__))
-
-if os.environ.get('TRAVIS'):
-    version_micro = os.environ['TRAVIS_BUILD_NUMBER']
-else:
-    version_micro = VERSION_DEFAULT_MICRO
 
 bin_files= set([
         path.join('bin', i)
@@ -31,7 +24,7 @@ for file in bin_files:
 
 setup(
     name='plash',
-    version='{}.{}{}'.format(VERSION_MAJOR, VERSION_PSEUDO_MINOR, version_micro),
+    version='0.{}'.format(os.environ.get('TRAVIS_BUILD_NUMBER', DEFAULT_MINOR_VERSION)),
     description='Container build and run tool',
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
