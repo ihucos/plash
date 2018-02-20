@@ -108,7 +108,9 @@ func main() {
         plashId, err := ioutil.ReadFile("/var/lib/plash/id")
         checkErr(err, ERR_READ_PLASH_ID_CONTEXT, ERR_READ_PLASH_ID_HINT)
 
-        finalMountpoint := fmt.Sprintf("/var/run/plash-run-suid-%s-%s-%s", bootId, plashId, container)
+        runData := "/var/run/plash-pun"
+        tmp = fmt.Sprintf("/var/run/plash-pun-%s-%s-%s", bootId, plashId, container)
+        finalMountpoint := fmt.Sprintf("/var/run/plash-pun-%s-%s-%s", bootId, plashId, container)
 
         //
         // populate mountpoint, if not done yet

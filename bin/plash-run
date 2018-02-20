@@ -77,6 +77,7 @@ MOUNT_GROUPS = {
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
+ux.assert_is_root()
 
 main_pid = os.getpid()
 

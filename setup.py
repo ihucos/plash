@@ -32,8 +32,11 @@ for file in bin_files:
 setup(
     name='plash',
     version='{}.{}{}'.format(VERSION_MAJOR, VERSION_PSEUDO_MINOR, version_micro),
-    description='Container build tool',
+    description='Container build and run tool',
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
     data_files=[("/usr/local/bin", bin_files)],
+     
+    # extra stuff
+    python_requires='>=3',
 )
