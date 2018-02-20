@@ -117,6 +117,6 @@ Will still take some time, after this:
 * Security audit
 * API worth staying
 * Some little real-world usage
-
+* More unit tests
 
 
