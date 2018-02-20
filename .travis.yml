@@ -28,4 +28,4 @@ after_deploy:
       "prerelease": true
     }
     EOF
-
+    # some line after line after EOF
