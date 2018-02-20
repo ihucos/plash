@@ -5,6 +5,11 @@ from codecs import open
 from os import path
 import os
 
+VERSION = '0.1dev'
+
+if os.environ.get('TRAVIS'):
+    assert VERSION != '0.1dev', 'not building with version 0.1dev in travis'
+
 here = path.abspath(path.dirname(__file__))
 
 bin_files= set([
@@ -22,7 +27,7 @@ for file in bin_files:
 
 setup(
     name='plash',
-    version='0.{}'.format(os.environ['TRAVIS_BUILD_NUMBER']),
+    version=VERSION,
     description='Container build and run tool',
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
@@ -31,3 +36,7 @@ setup(
     # extra stuff
     python_requires='>=3',
 )
+
+if os.environ.get('FAIL'):
+    assert 0, os.getcwd()
+print(os.getcwd())

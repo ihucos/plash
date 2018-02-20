@@ -7,12 +7,13 @@ python:
 
 script:
   - sudo misc/runtests
+  - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 
 deploy:
   - provider: pypi
     user: $PYPI_USER
     password: $PYPI_PASSWORD
-    distributions: "bdist_wheel"
+    distributions: "sdist"
     on:
       branch: master
       condition: $TRAVIS_PYTHON_VERSION = 3.6
