@@ -4,6 +4,7 @@ from subprocess import check_output
 from codecs import open
 from os import path
 import os
+import sys
 
 VERSION = '0.1dev'
 
@@ -40,7 +41,3 @@ setup(
     # extra stuff
     python_requires='>=3',
 )
-
-if os.environ.get('FAIL'):
-    assert 0, os.getcwd()
-print(os.getcwd())
