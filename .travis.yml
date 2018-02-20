@@ -18,7 +18,7 @@ deploy:
 
 after_deploy:
   - |
-    curl --user "$GH_USER:$GH_TOKEN" --data @- https://api.github.com/repos/ihucos/plash/releases <<EOF
+    curl --fail --user "$GH_USER:$GH_TOKEN" --data @- https://api.github.com/repos/ihucos/plash/releases <<EOF
     {
       "tag_name": "v0.$TRAVIS_BUILD_NUMBER",
       "name": "0.$TRAVIS_BUILD_NUMBER",
