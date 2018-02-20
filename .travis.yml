@@ -17,8 +17,8 @@ deploy:
     condition: $TRAVIS_PYTHON_VERSION = 3.6
 
 after_deploy:
-  - git tag 0.$TRAVIS_BUILD_NUMBER -m $(printf "
+  - git tag 0.$TRAVIS_BUILD_NUMBER -m "$(printf \"
     https://test.pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER\n
     $TRAVIS_COMMIT_RANGE\n
-    ")
+    \")"
   - git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
