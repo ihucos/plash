@@ -14,6 +14,7 @@ deploy:
     user: $PYPI_USER
     password: $PYPI_PASSWORD
     distributions: "sdist"
+    skip_cleanup: true
     on:
       branch: master
       condition: $TRAVIS_PYTHON_VERSION = 3.6
