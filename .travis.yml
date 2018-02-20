@@ -18,12 +18,14 @@ deploy:
 
 after_deploy:
   - |
-    echo '{
-    "tag_name": "v0.$TRAVIS_BUILD_NUMBER",
-    "name": "0.$TRAVIS_BUILD_NUMBER",
-    "target_commitish": "master",
-    "body": "https://test.pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER/ $TRAVIS_COMMIT_RANGE",
-    "draft": false,
-    "prerelease": true
-    }'| curl --user "$GH_USER:$GH_TOKEN" --data @- https://api.github.com/repos/ihucos/plash/releases
+    curl --user "$GH_USER:$GH_TOKEN" --data @- https://api.github.com/repos/ihucos/plash/releases <<EOF
+    {
+      "tag_name": "v0.$TRAVIS_BUILD_NUMBER",
+      "name": "0.$TRAVIS_BUILD_NUMBER",
+      "target_commitish": "master",
+      "body": "https://test.pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER/ $TRAVIS_COMMIT_RANGE",
+      "draft": false,
+      "prerelease": true
+    }
+    EOF
 
