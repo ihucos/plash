@@ -6,7 +6,7 @@ python:
   - "pypy3.5"
 
 install:
-  - pip install setuptools
+  - pip3 install setuptools
 
 script:
   - sudo misc/runtests
