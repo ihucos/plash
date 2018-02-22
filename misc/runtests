@@ -23,9 +23,9 @@ export BUSYBOX
 log=$(mktemp)
 program_exit=0
 last_arg="${@: -1}"
-for script in "$DIR/../tests/$last_arg"* ; do
-  test $(basename $script) == $(basename ${BASH_SOURCE[0]}) && continue
-  printf $(basename "$script")
+testfiles=$(find ./tests/ -type f ! -iname "*.sw*")
+for script in $testfiles ; do
+  printf $(realpath --relative-to="$DIR/../tests" "$script")
   "$script" > $log 2>&1 &
   if wait $!; then
     echo ' OK'
