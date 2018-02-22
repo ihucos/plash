@@ -73,6 +73,7 @@ MOUNT_GROUPS = {
     'binfmt_misc': ['/proc/sys/fs/binfmt_misc'],
     'default': ['/proc', '/etc/resolv.conf', '/home', '/tmp'],
     'host': ['/tmp', '/home'],
+    'none': [],
 }
 
 handle_help_flag()
