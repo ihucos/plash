@@ -86,7 +86,7 @@ else:
     elif image_hint.startswith('docker://'):
         cmd = ['plash-import-docker', image_hint[9:]]
     else:
-        cmd = ['plash-import-lxc', image_hint]
+        cmd = ['plash-import-lxcimages', image_hint]
     cache_key = ':'.join(cmd)
     base_container = plash_map(cache_key.encode())
     if not base_container:
