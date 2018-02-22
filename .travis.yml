@@ -6,12 +6,14 @@ python:
   - "pypy3.5"
 
 install:
-  - pip3 install setuptools
+  - pip --version
+  - pip install setuptools
 
 script:
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-  - sudo python3 setup.py install
+  - python --version
+  - sudo python setup.py install
   - sudo plash-init
   - sudo misc/pretty
   - git checkout prettyfy-test
