@@ -37,7 +37,7 @@ import re
 import subprocess
 import os
 import sys
-from plashlib.utils import get_nodepath, hashstr, nodepath_or_die
+from plashlib.utils import hashstr, nodepath_or_die
 from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)

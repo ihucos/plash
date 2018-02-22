@@ -20,7 +20,7 @@
 from tempfile import mkdtemp
 import os
 import sys
-from plashlib.utils import catch_and_die, color, die, die_with_usage, handle_build_args, handle_help_flag, hashstr, info, nodepath_or_die
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 from os.path import join
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')

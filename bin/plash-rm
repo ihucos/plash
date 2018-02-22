@@ -3,12 +3,11 @@
 # usage: plash-rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
 # Deletes the given containers.
 
-from subprocess import CalledProcessError, check_output
 import os
 import sys
 from shutil import rmtree
 from tempfile import mkdtemp
-from plashlib.utils import catch_and_die, handle_build_args, handle_help_flag, nodepath_or_die
+from plashlib.utils import handle_build_args, handle_help_flag, nodepath_or_die
 from plashlib import ux
 
 handle_help_flag()

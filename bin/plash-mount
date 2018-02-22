@@ -7,8 +7,8 @@
 
 import argparse
 import os
-from os.path import basename, join
-from subprocess import CalledProcessError, check_call, check_output
+from os.path import join
+from subprocess import CalledProcessError, check_call
 
 from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die
 from plashlib import ux
