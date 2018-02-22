@@ -7,7 +7,7 @@ plash-add-layer
 plash-export-img
 plash-export-squashfs
 plash-export-tar
-plash-import-lxc
+plash-import-lxcimages
 plash-import-tar
 plash-import-url
 plash-mount

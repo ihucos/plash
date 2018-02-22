@@ -24,7 +24,7 @@ else:
     elif base_container.startswith('docker://'):
         cmd = ['plash-import-docker', base_container[9:]]
     else:
-        cmd = ['plash-import-lxc', base_container]
+        cmd = ['plash-import-lxcimages', base_container]
     cache_key = ':'.join(cmd)
     base_container = plash_map(cache_key.encode())
     if not base_container:

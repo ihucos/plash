@@ -1,4 +1,0 @@
-set -xeu
-cont=$(plash-import-lxc alpine:edge)
-plash-run $cont ls
-! plash-import-lxc unknownos
