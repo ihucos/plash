@@ -3,7 +3,7 @@ from os import path
 import os
 import sys
 
-VERSION = '0.1dev'
+VERSION = '0.456'
 
 if os.environ.get('TRAVIS'):
     assert VERSION != '0.1dev', 'not building with version 0.1dev in travis'
