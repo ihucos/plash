@@ -14,7 +14,6 @@ plash-mount
 plash-nodepath
 plash-run
 plash-runc
-plash-runp
 plash-use
 plash-with-mount
 )
