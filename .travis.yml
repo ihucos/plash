@@ -8,6 +8,7 @@ python:
 script:
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
+  - sudo env PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH plash-init
   - sudo env PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH misc/pretty
   - git checkout prettyfy-test
   - git commit -am "prettify test"
