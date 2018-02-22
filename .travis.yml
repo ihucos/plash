@@ -8,16 +8,12 @@ python:
 git:
   depth: 1
 
-install:
-  - sudo apt-get install -y python3 python3-setuptools
-
 script:
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-  - sudo python3 --version
-  - sudo python3 setup.py install
-  - sudo plash-init
-  - sudo misc/pretty
+  - alias s="sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH"
+  - s plash-init
+  - s misc/pretty
   - git checkout prettyfy-test
   - git commit -am "automatic prettify"
   - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
