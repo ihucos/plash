@@ -122,8 +122,9 @@ def handle_build_args():
         container_id = out[:-1]
         os.execvpe(sys.argv[0], [sys.argv[0], container_id] + cmd, os.environ)
 
-def nodepath_or_die(unescaped_container):
-    container = unescaped_container.replace('/', '%')
+def nodepath_or_die(container):
+    if not container.isdigit():
+        die("container id must be an whole integer, not: {}".format(repr(container)))
     try:
         # FIXME: security check that container does not contain bad chars
         with catch_and_die([OSError], ignore=FileNotFoundError, debug='readlink'):
@@ -132,12 +133,11 @@ def nodepath_or_die(unescaped_container):
             os.stat(nodepath)
         return nodepath
     except FileNotFoundError:
-        die('no container {}'.format(repr(unescaped_container)), exit=3)
+        die('no container {}'.format(repr(container)), exit=3)
 
-def get_nodepath(unescaped_container):
-    if not unescaped_container:
-        raise ValueError('container can not be empty')
-    container = unescaped_container.replace('/', '%')
+def get_nodepath(container):
+    if not container.isdigit():
+        raise ValueError("container id must be an whole integer, not: {}".format(repr(container)))
     try:
         nodepath = os.readlink(os.path.join(INDEX_DIR, container))
         if os.path.exists(nodepath):
