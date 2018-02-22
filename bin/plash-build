@@ -37,9 +37,6 @@ import re
 import subprocess
 import os
 
-
-
-
 import sys
 from plashlib import ux
 from plashlib.utils import hashstr, nodepath_or_die
@@ -56,11 +53,7 @@ handle_help_flag()
 ux.assert_initialized()
 
 try:
-    script = check_output(
-    
-    
-    
-    ['plash-getscript'] + sys.argv[1:])
+    script = check_output(['plash-getscript'] + sys.argv[1:])
 except CalledProcessError as exc:
     die("getscript failed with exit {}".format(exc.returncode))
 script = script.decode()
@@ -69,7 +62,7 @@ image_ir = re.compile(IMAGE_HINT_TEMPL.format('(.+)\n'))
 matches = image_ir.findall(script)
 script = image_ir.sub('', script)
 if matches:
-    image_hint = matches[-1 ]
+    image_hint = matches[-1]
 else:
     die('no image specified')
 
