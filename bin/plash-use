@@ -81,14 +81,8 @@ except CalledProcessError:
 #
 final_container = check_output(
     [
-        'plash-build',
-        '--arch',
-        '--namespace',
-        'plash-use',
-        '--devinit',
-        '--layer',
-        '--pacman',
-        install_package
+        'plash-build', '--arch', '--namespace', 'plash-use', '--devinit',
+        '--layer', '--pacman', install_package
     ],
     stderr=log)
 final_container = final_container.decode().strip('\n')

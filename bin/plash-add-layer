@@ -75,7 +75,7 @@ os.symlink(new_node_path, join(PLASH_DATA, 'index', node_id))
 #
 os.rename(prepared_new_node, new_node_path)
 
-# 
+#
 #  inform the user about the new container
 #
 print(node_id)

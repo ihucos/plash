@@ -224,8 +224,9 @@ if deescalate:
     deescalate_sudo()
 try:
     os.chdir(pwd_at_start)
-except (ValueError, PermissionError, FileNotFoundError):  # TODO: put more exceptions here
-        pass
+except (ValueError, PermissionError,
+        FileNotFoundError):  # TODO: put more exceptions here
+    pass
 
 try:
     os.execlp(cmd[0], *cmd)
