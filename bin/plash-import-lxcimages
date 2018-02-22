@@ -3,7 +3,6 @@
 # usage: plash-import-cloud-as IMAGE-NAME
 # Import an image from linuxcontainers.org
 
-import os
 import re
 import sys
 from urllib.error import URLError

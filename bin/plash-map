@@ -8,8 +8,7 @@ import os
 from os.path import join
 from tempfile import mkdtemp
 
-from plashlib.utils import die_with_usage, handle_help_flag, hashstr, nodepath_or_die, die, catch_and_die
-from plashlib import ux
+from plashlib.utils import catch_and_die, die, die_with_usage, handle_help_flag, hashstr, nodepath_or_die
 
 handle_help_flag()
 #ux.assert_is_root()

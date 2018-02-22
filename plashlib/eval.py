@@ -1,5 +1,4 @@
 import shlex
-import uuid
 from importlib import import_module
 from functools import wraps
 

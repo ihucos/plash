@@ -3,7 +3,6 @@ import os
 import sys
 from contextlib import contextmanager
 from os.path import join
-from tempfile import mkdtemp
 
 ERROR_COLOR = 1
 INFO_COLOR = 4
@@ -36,8 +35,6 @@ def catch_and_die(exceptions, debug=None, ignore=None):
 
 
 def deescalate_sudo():
-    import pwd
-    import grp
     uid = os.environ.get('SUDO_UID')
     gid = os.environ.get('SUDO_GID')
     if uid and gid:

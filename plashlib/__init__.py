@@ -1,8 +1,6 @@
 #
 # magically hide tracebacks when the user Ctrl-c
 #
-import signal
-import os
 import sys
 
 

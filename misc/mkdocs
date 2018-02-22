@@ -4,7 +4,6 @@ from subprocess import check_output
 import os
 from os import path
 import jinja2
-from pprint import pprint
 
 DOCDIR = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'docs')
 BINDIR = path.join(path.dirname(DOCDIR), 'bin')

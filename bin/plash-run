@@ -7,9 +7,7 @@
 
 import os
 import sys
-import argparse
 from time import sleep
-import atexit
 import tempfile
 import signal
 from os.path import join, isdir

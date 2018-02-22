@@ -3,18 +3,14 @@
 # usage: plash-import-tar-as TARFILE
 # Create a container from a tar file
 
-import errno
 import os
-import shutil
 import sys
 import tarfile
 from os.path import join
 from tempfile import mkdtemp
-import atexit
-import subprocess
 from subprocess import check_call, CalledProcessError
 
-from plashlib.utils import die, info, handle_help_flag, die_with_usage, catch_and_die, hashstr, nodepath_or_die
+from plashlib.utils import catch_and_die, die, die_with_usage, handle_help_flag, hashstr, info, nodepath_or_die
 from plashlib import ux
 
 handle_help_flag()

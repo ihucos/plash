@@ -1,13 +1,9 @@
 import hashlib
 import os
-import re
 import shlex
 import stat
 import sys
-import subprocess
-import tempfile
 import uuid
-from base64 import b64encode
 from itertools import dropwhile
 
 from .eval import ArgError, action, eval, get_actions
@@ -147,7 +143,6 @@ def map(command, *args):
 @action()
 def comment(*args):
     'do nothing'
-    pass
 
 
 @action('image', escape=False)

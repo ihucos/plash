@@ -8,7 +8,6 @@ from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die, hand
 from plashlib import ux
 from subprocess import check_call, CalledProcessError, check_output, DEVNULL
 from tempfile import mkdtemp, mktemp
-from os.path import join
 import os
 from shutil import move
 

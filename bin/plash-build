@@ -37,16 +37,14 @@ import re
 import subprocess
 import os
 import sys
-from plashlib.utils import hashstr, get_nodepath, nodepath_or_die
+from plashlib.utils import get_nodepath, hashstr, nodepath_or_die
 from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
 from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import IMAGE_HINT_TEMPL
-from os.path import join
 from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, plash_map
-from tempfile import mkdtemp
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 

@@ -1,7 +1,4 @@
-from setuptools import setup, find_packages
-from setuptools.command.install import install
-from subprocess import check_output
-from codecs import open
+from setuptools import find_packages, setup
 from os import path
 import os
 import sys

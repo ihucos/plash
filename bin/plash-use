@@ -3,12 +3,11 @@
 # usage: plash-use PROGRAM [CMD1 [CMD2 ...]]
 # Quickly use any program.
 
-from plashlib.utils import handle_help_flag, die, die_with_usage, catch_and_die, plash_map
+from plashlib.utils import catch_and_die, die, die_with_usage, handle_help_flag, plash_map
 from plashlib import ux
-from subprocess import check_output, check_call, CalledProcessError, DEVNULL
+from subprocess import CalledProcessError, DEVNULL, check_call, check_output
 import signal
 import sys
-import shlex
 import os
 import tempfile
 
