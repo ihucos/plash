@@ -8,7 +8,7 @@ python:
 script:
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-
+  - pip3 install setuptools
   - sudo python3 setup.py install
   - sudo misc/pretty
   - git commit -am "prettify test"
