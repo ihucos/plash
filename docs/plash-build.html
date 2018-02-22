@@ -71,7 +71,7 @@ h1 {
 <h1>plash-build</h1>
 usage: plash-build &lt;ACTIONS&gt;
 Builds a container. Any command line options is interpreted as action,
-consult `plash-getscript --help` for available functions.
+Use `--list` to list all available action.
 
 exit status:
 1: Generic error code
@@ -113,7 +113,7 @@ Processing triggers for libc-bin (2.26-0ubuntu2) ...
 #
 # usage: plash-build &lt;ACTIONS&gt;
 # Builds a container. Any command line options is interpreted as action,
-# consult `plash-getscript --help` for available functions.
+# Use `--list` to list all available action.
 #
 # exit status:
 # 1: Generic error code
@@ -219,10 +219,11 @@ for layer in layers:
 
         # build and cache it
         p = Popen(
-            [&#39;plash-create&#39;, current_container, &#39;sh&#39;, &#39;-ex&#39;],
+            [&#39;plash-create&#39;, current_container, &#39;env&#39;, &#39;-i&#39;, &#39;sh&#39;, &#39;-l&#39;],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             cwd=&#39;/&#39;)
+        p.stdin.write(b&#39;set -ex\n&#39;)
         p.stdin.write(layer.encode())
         p.stdin.close()
         next_container = p.stdout.read().decode().strip(&#39;\n&#39;)
