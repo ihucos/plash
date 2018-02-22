@@ -11,7 +11,7 @@ from plashlib.utils import handle_help_flag
 handle_help_flag()
 
 bin = dirname(sys.argv[0])
-progs = [prog for prog in listdir(bin) if prog.startswith('plash-')]
+progs = [prog for prog in listdir(bin) if prog.startswith('plash-') and prog != 'plash-pun']
 
 max_prog_lenght = max(len(prog) for prog in progs)
 for prog in sorted(progs):
