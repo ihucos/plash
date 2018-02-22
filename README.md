@@ -4,7 +4,7 @@ is a container build and runtime system.
 
 ## Install
 ```
-python3 -m pip install https://github.com/ihucos/plash/archive/master.zip
+python3 -m pip install plash
 ```
 
 ## Why Plash?
@@ -118,5 +118,3 @@ Will still take some time, after this:
 - [ ] API worth staying
 - [ ] Some little real-world usage
 - [ ] More unit tests
-
-
