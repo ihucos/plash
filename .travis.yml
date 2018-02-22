@@ -9,7 +9,7 @@ script:
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
   - pip3 install setuptools
-  - sudo python3 setup.py install
+  - sudo pip3 install plash
   - sudo misc/pretty
   - git commit -am "prettify test"
   - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
