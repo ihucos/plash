@@ -23,7 +23,9 @@ with open(path.join(DOCDIR, 'index.html'), 'w') as f:
     f.write(render('index.html', progs=progs))
 
 filedocs = []
-for binfile in os.listdir(BINDIR):
+binfiles = [i.split()[0] for i in
+        check_output('plash-list').decode().splitlines()]
+for binfile in binfiles:
     if binfile.startswith('.'):
         continue
     fname = path.join(BINDIR, binfile)

@@ -149,10 +149,13 @@ new_node_path = join(nodepath_or_die(base_container), node_id)
 prepared_new_node = mkdtemp(dir=join(PLASH_DATA, &#39;tmp&#39;))
 # other users can see the build tree
 os.chmod(prepared_new_node, 0o755)
-# that will actually make the import_dir &#34;disapear&#34; for the user
-os.rename(import_dir, join(prepared_new_node, &#39;_data&#39;))
-# but other users can not see any build data
-os.chmod(join(prepared_new_node, &#39;_data&#39;), 0o700)
+# but other users can not see the layer data
+os.mkdir(join(prepared_new_node, &#39;_data&#39;), 0o700)
+
+# the next line will actually make the import_dir &#34;disappear&#34; for the user.
+# the &#34;root&#34; folder will hold the access rights, user rights and maybe other meta
+# data for the root folder (&#39;/&#39; after a chroot)
+os.rename(import_dir, join(prepared_new_node, &#39;_data&#39;, &#39;root&#39;))
 
 #
 #  Register that we are using this new_node_path,

@@ -109,11 +109,13 @@ ux.assert_container_exists(container)
 
 mountpoint = mkdtemp()
 with catch_and_die([CalledProcessError]):
-    check_call([&#39;plash-mount&#39;, container, mountpoint])
+    check_call([&#39;plash-mount&#39;, container, mountpoint],
+    stdout=2) # pipe any stdout to stderr
 p = subprocess.Popen([&#39;sh&#39;, &#39;-c&#39;, user_sh], cwd=mountpoint)
 user_exit = p.wait()
 with catch_and_die([CalledProcessError]):
-    check_call([&#39;umount&#39;, mountpoint])
+    check_call([&#39;umount&#39;, mountpoint],
+    stdout=2) # pipe any stdout to stderr
 if user_exit:
     die(&#39;Exit status {}: {}&#39;.format(user_exit, user_sh))
 sys.exit(user_exit)

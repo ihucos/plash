@@ -70,8 +70,10 @@ h1 {
 <pre>
 <h1>plash-getscript</h1>
 usage: plash-getscript &lt;ACTIONS&gt;
-Prints build script. It prints the shell script generated from actions passed as command line parameters.
-Call with --help to see available actions.
+Prints build script. It prints the shell script generated from actions passed
+as command line parameters.  Call with --help to see available actions.
+plash-build passes its arguments to this script to generate the shell script
+with the build instruction.
 
 
 <a href='index.html' id='command-index'>&larr; Command index</a>
@@ -83,12 +85,15 @@ Call with --help to see available actions.
 <code>#!/usr/bin/env python3
 #
 # usage: plash-getscript &lt;ACTIONS&gt;
-# Prints build script. It prints the shell script generated from actions passed as command line parameters.
-# Call with --help to see available actions.
+# Prints build script. It prints the shell script generated from actions passed
+# as command line parameters.  Call with --help to see available actions.
+# plash-build passes its arguments to this script to generate the shell script
+# with the build instruction.
 
 import argparse
 from inspect import signature
 import sys
+import os
 
 from plashlib import eval, stdlib
 from plashlib.utils import catch_and_die, deescalate_sudo, die
@@ -96,65 +101,25 @@ from plashlib.utils import catch_and_die, deescalate_sudo, die
 # try not to be root
 deescalate_sudo()
 
+tokens = sys.argv[1:]
 
-def create_collect_lsp_action(lsp_begin):
-    class CollectLspAction(argparse.Action):
-        def __call__(self, parser, namespace, values, option_string=None):
-            if not &#39;lsp&#39; in namespace:
-                setattr(namespace, &#39;lsp&#39;, [])
-            previous = namespace.lsp
-            previous.extend([
-                i if not c + 1 == len(lsp_begin) else (i + list(values))
-                for c, i in enumerate(lsp_begin)
-            ])
-            setattr(namespace, &#39;lsp&#39;, previous)
-
-    return CollectLspAction
-
-
-parser = argparse.ArgumentParser()
-parser.error = die
-
-for action, func in eval.state[&#39;actions&#39;].items():
-    # TODO: find out how many arguments it takes and pass it
-
-    # find out how many arguments the function takes
-    sig = signature(func)
-    arg_kinds = ([str(i.kind) for i in sig.parameters.values()])
-    if &#39;KEYWORD_ONLY&#39; in arg_kinds or &#39;VAR_KEYWORD&#39; in arg_kinds:
-        die(&#39;action may not accept keyword arguments: {}{}&#39;.format(
-            func.__name__, sig))
-    if &#39;VAR_POSITIONAL&#39; in arg_kinds:
-        num = &#39;*&#39;
-    else:
-        num = len(arg_kinds)
-
-    parser.add_argument(
-        &#39;--&#39; + action,
-        dest=&#39;a&#39;,
-        help=func.__doc__,
-        action=create_collect_lsp_action([[action]]),
-        nargs=num)
-
-# add the cli shortucuts
-group = parser.add_argument_group(&#39;shortcuts&#39;, &#39;shortcuts&#39;)
-for shortcut, lsp, nargs in stdlib.CLI_SHORTCUTS:
-    help = &#39;macro for: `{} &lt;ARGS&gt;`&#39;.format(&#39; &#39;.join(
-        &#39;--{}&#39;.format(&#39; &#39;.join(i)) for i in lsp))
-
-    group.add_argument(
-        *shortcut,
-        action=create_collect_lsp_action(lsp),
-        nargs=nargs,
-        help=help)
-
-args = parser.parse_args()
+lsp = []
+for token in tokens:
+    if token == &#39;--&#39;:
+        die(&#39;invalid option: --&#39;)
+    elif token.startswith(&#39;--&#39;):
+        lsp.append([token[2:]])
+    elif token.startswith(&#39;-&#39;):
+        if not len(token) == 2:
+            die(&#39;invalid option: {}&#39;.format(token))
+        lsp.append([token[1:]])
+    elif token:
+        lsp[-1].append(token)
 
 with catch_and_die([eval.ActionNotFoundError]):
-    lsp = getattr(args, &#39;lsp&#39;, [])
     script = eval.eval(lsp)
-    if script:
-        script += &#39;\n&#39;  # that &#39;\n&#39; is right
+if script:
+    script += &#39;\n&#39;  # that &#39;\n&#39; is right
 print(script, end=&#39;&#39;)
 </code></pre>
 </div>
