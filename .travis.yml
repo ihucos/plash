@@ -9,8 +9,7 @@ git:
   depth: 1
 
 install:
-  - apt-get install -y python3
-  - pip install setuptools
+  - sudo apt-get install -y python3
 
 script:
   - sudo misc/runtests
