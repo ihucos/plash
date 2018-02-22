@@ -11,9 +11,9 @@ git:
 script:
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-  - alias s="sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH"
-  - s plash-init
-  - s misc/pretty
+  - alias s="sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH";
+    s plash-init;
+    s misc/pretty
   - git checkout prettyfy-test
   - git commit -am "automatic prettify"
   - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
