@@ -13,6 +13,7 @@ def assert_initialized():
 
 
 def assert_is_root():
+    return
     if not os.getuid() == 0:
         die('you are not root')
 

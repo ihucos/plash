@@ -15,12 +15,13 @@ env:
 
 cache:
   directories:
-    - .plashcache
+    - ~/.plashdata.tar
 
 git:
   depth: 1
 
 script:
+  - sudo tar -cf ~/plashdata.tar /var/lib/plash/
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
   - sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH plash-init
@@ -28,6 +29,7 @@ script:
   - git checkout prettyfy-test
   - git commit -am "automatic prettify"
   - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
+  - sudo tar -xvf ~/plashdata.tar -C /
 
 deploy:
   - provider: script
