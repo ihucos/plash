@@ -10,15 +10,18 @@ install:
   - sudo apt-get install python3 python3-pip
   - sudo pip3 install plash
 
+env:
+  - PLASH_DATA=.plashcache
+
 cache:
   directories:
-    - ~/plashcache
+    - ~/plashdata.tar
 
 git:
   depth: 1
 
 script:
-  - sudo tar -cf ~/plashcache/data.tar /var/lib/plash/
+  - sudo tar -xvf ~/plashdata.tar -C /
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
   - sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH plash-init
@@ -26,7 +29,7 @@ script:
   - git checkout prettyfy-test
   - git commit -am "automatic prettify"
   - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
-  - sudo tar -xvf ~/plashcache/data.tar -C /
+  - sudo tar -cf ~/plashdata.tar /var/lib/plash/
 
 deploy:
   - provider: script
