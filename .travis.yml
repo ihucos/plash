@@ -6,7 +6,7 @@ python:
   - "pypy3.5"
 
 install:
-  - sudo apt-get install python3
+  - sudo apt-get install python3 python3-pip
   - sudo pip3 install plash
 
 git:
