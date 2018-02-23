@@ -50,7 +50,7 @@ from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, pl
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 handle_help_flag()
-ux.assert_initialized()
+#ux.assert_initialized()
 
 try:
     script = check_output(['plash-getscript'] + sys.argv[1:])
