@@ -5,15 +5,18 @@ python:
   - "3.6"
   - "pypy3.5"
 
+install:
+  - sudo apt-get install python3
+  - sudo pip3 install plash
+
 git:
   depth: 1
 
 script:
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-  - alias s="sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH";
-    s plash-init;
-    s misc/pretty
+  - sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH plash-init
+  - sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH misc/pretty
   - git checkout prettyfy-test
   - git commit -am "automatic prettify"
   - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
