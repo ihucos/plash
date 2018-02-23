@@ -38,4 +38,3 @@ setup(
     # extra stuff
     python_requires='>=3',
 )
-
