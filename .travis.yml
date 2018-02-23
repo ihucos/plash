@@ -15,7 +15,7 @@ env:
 
 cache:
   directories:
-    - ~/.plashdata.tar
+    - ~/plashdata.tar
 
 git:
   depth: 1
