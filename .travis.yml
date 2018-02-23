@@ -10,9 +10,6 @@ install:
   - sudo apt-get install python3 python3-pip
   - sudo pip3 install plash
 
-env:
-  - PLASH_DATA=.plashcache
-
 cache:
   directories:
     - ~/plashdata/data.tar
