@@ -23,7 +23,8 @@ env:
 script:
 
   # load cache
-  - sudo tar -xvf ~/plashcache/data.tar -C / || plash-init
+  - sudo tar -xvf ~/plashcache/data.tar -C /
+  - sudo plash-init
 
   - IFS=$'\n' arr=( $(xargs -n1 <<<"$BUILD") )
   - sudo plash-build ${arr[@]}
