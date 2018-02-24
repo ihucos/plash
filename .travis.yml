@@ -6,9 +6,9 @@ install:
   - sudo apt-get install python3 python3-pip
   - sudo pip3 install plash
 
-#cache:
-#  directories:
-#    - ~/plashdata/mydata.tar
+cache:
+  directories:
+    - ~/mycache
 
 git:
   depth: 1
@@ -16,10 +16,13 @@ git:
 env:
   - BUILD="--alpine python3 bash"
   - BUILD="--ubuntu python3"
-  - BUILD="--fedora pypy3 --run 'ln -fs /usr/bin/pypy3 /usr/bin/python3'"
+
+  # wait for: https://bitbucket.org/pypy/pypy/issues/2759/osmakedirs-behaviour-differs-from-cpython
+  # - BUILD="--fedora pypy3 --run 'ln -fs /usr/bin/pypy3 /usr/bin/python3'"
 
 script:
-  - sudo plash-init
-  - IFS=$'\n' arr=( $(xargs -n1 <<<"$BUILD") )
-  - sudo plash-build ${arr[@]}
-  - sudo plash-run ${arr[@]} --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
+  - echo $(date) > $HOME/mycache
+  #- sudo plash-init-from ./plashcache.tar
+  # IFS=$'\n' arr=( $(xargs -n1 <<<"$BUILD") )
+  # sudo plash-build ${arr[@]}
+  # sudo plash-run ${arr[@]} --layer --devinit -- sh -c 'ln -s $(mktemp -d)/plashdata /var/lib/plash && misc/runtests'
