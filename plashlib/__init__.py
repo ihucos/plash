@@ -9,3 +9,5 @@ def interrupt(a, b):
 
 
 #signal.signal(signal.SIGINT, interrupt)
+
+import coverage; coverage.process_startup()
