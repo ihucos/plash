@@ -19,4 +19,5 @@ envs:
 
 script:
   - sudo plash-init
+  - echo sudo plash-run $BUILD -- misc/runtests
   - sudo plash-run $BUILD -- misc/runtests
