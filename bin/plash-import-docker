@@ -48,7 +48,7 @@ with catch_and_die([subprocess.CalledProcessError]):
 #
 debug('starting docker')
 p = subprocess.Popen(
-    ['plash-docker-daemon'], stderr=daemon_log, stdout=daemon_log)
+    ['plash-docker-daemon'], stderr=2, stdout=2)
 atexit.register(lambda: p.kill())
 c = 0
 while True:
