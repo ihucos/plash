@@ -28,7 +28,7 @@ script:
 
   - IFS=$'\n' arr=( $(xargs -n1 <<<"$BUILD") )
   - sudo plash-build ${arr[@]}
-  - sudo plash-run ${arr[@]} --layer --devinit -- sh -c 'ln -s $(mktemp -d)/plashdata /var/lib/plash && misc/runtests'
+  - sudo plash-run ${arr[@]} --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
 
   # save cache
   - sudo tar -cf ~/plashcache/data.tar /var/lib/plash/
