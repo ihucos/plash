@@ -18,4 +18,5 @@ envs:
   - BUILD="--ubuntu python3"
 
 script:
+  - sudo plash-init
   - sudo plash-run $BUILD -- misc/runtests
