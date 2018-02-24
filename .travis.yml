@@ -16,9 +16,7 @@ git:
 env:
   - BUILD="--alpine python3 bash"
   - BUILD="--ubuntu python3"
-
-  # wait for: https://bitbucket.org/pypy/pypy/issues/2759/osmakedirs-behaviour-differs-from-cpython
-  # - BUILD="--fedora pypy3 --run 'ln -fs /usr/bin/pypy3 /usr/bin/python3'"
+  - BUILD="--arch --devinit --pacman pypy3"
 
 script:
 
