@@ -36,9 +36,9 @@
 import re
 import subprocess
 import os
-
 import sys
 from plashlib.utils import hashstr, nodepath_or_die
+from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
@@ -49,7 +49,7 @@ from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, pl
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 handle_help_flag()
-#ux.assert_initialized()
+ux.assert_initialized()
 
 try:
     script = check_output(['plash-getscript'] + sys.argv[1:])

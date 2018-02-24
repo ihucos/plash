@@ -136,7 +136,6 @@ def nodepath_or_die(container):
             os.stat(nodepath)
         return nodepath
     except FileNotFoundError:
-        raise
         die('no container {}'.format(repr(container)), exit=3)
 
 
