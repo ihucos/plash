@@ -5,9 +5,6 @@ python:
   - "3.6"
   - "pypy3.5"
 
-envs:
-  - COVERAGE_PROCESS_START=.coveragerc
-
 install:
   # install plash
   - sudo apt-get install python3 python3-pip
@@ -21,7 +18,7 @@ git:
   depth: 1
 
 script:
-  - sudo misc/runtests
+  - sudo env COVERAGE_PROCESS_START=.coveragerc misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 
 deploy:
