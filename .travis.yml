@@ -27,7 +27,7 @@ script:
   - sudo plash-run --include-string " $BUILD" --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
 
   # save cache
-  - sudo tar -cf --sort=name ~/plashcache/data.tar /var/lib/plash/
+  - sudo tar -cf --sort=name ~/plashcache/data.tar /var/lib/plash/ || true
 
 deploy:
 
