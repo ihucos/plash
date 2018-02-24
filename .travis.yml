@@ -25,12 +25,8 @@ script:
   # load cache
   - sudo tar -xf ~/plashcache/data.tar -C /
   - sudo plash-init
-  
-  - md5sum ~/plashcache/data.tar
-
 
   - sudo plash-run --include-string " $BUILD" --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
 
   # save cache
-  - sudo tar -cf --sort=name --mtime='2015-10-21 00:00Z' ~/plashcache/data.tar /var/lib/plash/
-  - md5sum ~/plashcache/data.tar
+  - sudo tar -cf --sort=name --mtime='2000-01-01 00:00Z' ~/plashcache/data.tar /var/lib/plash/
