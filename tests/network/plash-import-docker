@@ -1,2 +1,0 @@
-!#/bin/sh
-exec plash-import-docker hello-world
