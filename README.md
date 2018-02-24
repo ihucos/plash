@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash)
+[![Travis branch](https://img.shields.io/travis/ihucos/plash/master.svg?style=flat-square)]()
+[![PyPI](https://img.shields.io/pypi/v/plash.svg?style=flat-square)]()
+[![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?style=flat-square)]()
 # plash
 is a container build and runtime system.
 
