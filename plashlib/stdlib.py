@@ -161,8 +161,9 @@ def namespace(ns):
 @action()
 def devinit():
     'ensure a minimal /dev setup'
-    # using this: from http://www.tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter06/devices.html
+    # based on this: from http://www.tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter06/devices.html
     return '''
+    test -e /dev/fd || ln -s /proc/self/fd /dev/fd
     test -e /dev/console || mknod -m 622 /dev/console c 5 1
     test -e /dev/null || mknod -m 666 /dev/null c 1 3
     test -e /dev/zero || mknod -m 666 /dev/zero c 1 5
