@@ -35,9 +35,12 @@ def catch_and_die(exceptions, debug=None, ignore=None):
 
 
 def deescalate_sudo():
-    uid = os.environ.get('SUDO_UID')
-    gid = os.environ.get('SUDO_GID')
-    if uid and gid:
+    try:
+        uid = os.environ.pop('SUDO_UID')
+        gid = os.environ.pop('SUDO_GID')
+    except KeyError:
+        pass
+    else:
         uid = int(uid)
         gid = int(gid)
         # username = pwd.getpwuid(uid).pw_name

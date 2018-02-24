@@ -5,6 +5,8 @@ import stat
 import sys
 import uuid
 from itertools import dropwhile
+from plashlib.utils import catch_and_die
+import subprocess
 
 from .eval import ArgError, action, eval, get_actions
 from .utils import hashstr
@@ -65,23 +67,20 @@ def write_script(fname, *lines):
 
 
 @action(escape=False)
-def include(*files):
+def include(file):
     'include parameters from file'
-    for file in files:
-        fname = os.path.realpath(os.path.expanduser(file))
-        with open(fname) as f:
-            lsp = []
-            tokens = dropwhile(lambda l: l.startswith('#'),
-                               (i[:-1] for i in f.readlines()))
-            for line0, token in enumerate(tokens):
-                if line0 == 0 and token.startswith('#!'):
-                    continue
-                if token.startswith('--'):
-                    lsp.append([token[2:]])
-                elif token:
-                    lsp[-1].append(token)
-        yield eval(lsp)
+    fname = os.path.realpath(os.path.expanduser(file))
+    with open(fname) as f:
+        tokens = dropwhile(lambda l: l.startswith('#'),
+                        (i[:-1] for i in f.readlines()))
+    with catch_and_die([subprocess.CalledProcessError], debug='include'):
+        return subprocess.check_output(('plash-getscript',) + tuple(tokens)).decode()
 
+@action(escape=False)
+def include_string(stri):
+    tokens = shlex.split(stri)
+    with catch_and_die([subprocess.CalledProcessError], debug='include-string'):
+        return subprocess.check_output(['plash-getscript'] + tokens).decode()
 
 def hash_paths(paths):
     collect_files = []
