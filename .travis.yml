@@ -21,4 +21,4 @@ env:
 script:
   - sudo plash-init
   - sudo plash-build $BUILD
-  - sudo eval plash-run $BUILD --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
+  - sudo sh -c "eval plash-run $BUILD --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'"
