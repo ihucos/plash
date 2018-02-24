@@ -18,24 +18,21 @@ git:
   depth: 1
 
 script:
-  - sudo tar -xvf ~/plashdata/mydata.tar -C /
   - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-  - sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH plash-init
-  - sudo PATH=$(pwd)/bin:$PATH PYTHONPATH=$(pwd):$PYTHONPATH misc/pretty
-  - git checkout prettyfy-test
-  - git commit -am "automatic prettify"
-  - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
-  - sudo tar -cf ~/plashdata/mydata.tar /var/lib/plash/
 
 deploy:
+
   - provider: script
     script:
-      - sudo misc/pretty
-      - git commit -am "prettify test"
+      - sudo plash plash-init
+      - sudo plash misc/pretty
+      - git commit -am "prettify cron job"
       - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
     on:
-      condition: $TRAVIS_PYTHON_VERSION = 3.5
+      condition: $TRAVIS_PYTHON_VERSION = 3.6
+      condition: $TRAVIS_EVENT_TYPE = cron
+
   - provider: pypi
     user: $PYPI_USER
     password: $PYPI_PASSWORD
@@ -44,6 +41,7 @@ deploy:
     on:
       branch: master
       condition: $TRAVIS_PYTHON_VERSION = 3.6
+
   - provider: script
     script: git tag 0.$TRAVIS_BUILD_NUMBER -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
     on:
