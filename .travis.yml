@@ -20,5 +20,6 @@ env:
 
 script:
   - sudo plash-init
-  - sudo plash-build $BUILD
-  - sudo sh -c "eval plash-run $BUILD --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'"
+  - IFS=$'\n' arr=( $(xargs -n1 <<<"$BUILD") )
+  - sudo plash-build ${arr[@]}
+  - sudo plash-run ${arr[@]} --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
