@@ -30,3 +30,18 @@ script:
 
   # save cache
   - sudo tar -cf --sort=name ~/plashcache/data.tar /var/lib/plash/
+
+deploy:
+
+  - provider: pypi
+    user: $PYPI_USER
+    password: $PYPI_PASSWORD
+    distributions: "sdist"
+    skip_cleanup: true
+    on:
+      branch: master
+
+  - provider: script
+    script: git tag 0.$TRAVIS_BUILD_NUMBER -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
+    on:
+      branch: master
