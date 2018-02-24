@@ -19,6 +19,4 @@ env:
 
 script:
   - sudo plash-init
-  - echo sudo plash-run $BUILD -- misc/runtests
-  - sudo plash-run $BUILD -- misc/runtests
-  - sudo dmesg
+  - sudo plash-run $BUILD -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
