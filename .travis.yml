@@ -16,7 +16,7 @@ git:
 env:
   - BUILD="--alpine python3 bash"
   - BUILD="--ubuntu python3"
-  - BUILD="--fedora pyp3 --run 'ln -fs /usr/bin/pypy3 /usr/bin/python3'"
+  - BUILD="--fedora pypy3 --run 'ln -fs /usr/bin/pypy3 /usr/bin/python3'"
 
 script:
   - sudo plash-init
