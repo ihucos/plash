@@ -13,7 +13,7 @@ install:
 git:
   depth: 1
 
-envs:
+env:
   - BUILD="--alpine python3 bash"
   - BUILD="--ubuntu python3"
 
