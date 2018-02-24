@@ -25,9 +25,13 @@ script:
   # load cache
   - sudo tar -xf ~/plashcache/data.tar -C /
   - sudo plash-init
+  
+  - md5 ~/plashcache/data.tar
+
 
   - sudo plash-run --include-string " $BUILD" --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
 
   # save cache
   - sudo tar -cf ~/plashcache/data.tar /var/lib/plash/
+  - md5 ~/plashcache/data.tar
 
