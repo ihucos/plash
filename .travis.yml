@@ -1,49 +1,21 @@
-language: python
+language: generic
 sudo: enabled
-python:
-  - "3.5"
-  - "3.6"
-  - "pypy3.5"
 
 install:
   # install plash
   - sudo apt-get install python3 python3-pip
   - sudo pip3 install plash
 
-cache:
-  directories:
-    - ~/plashdata/mydata.tar
+#cache:
+#  directories:
+#    - ~/plashdata/mydata.tar
 
 git:
   depth: 1
 
+envs:
+  - BUILD="--alpine python3 bash"
+  - BUILD="--ubuntu python3"
+
 script:
-  - sudo misc/runtests
-  - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-
-deploy:
-
-  - provider: script
-    script:
-      - sudo plash plash-init
-      - sudo plash misc/pretty
-      - git commit -am "prettify cron job"
-      - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
-    on:
-      condition: $TRAVIS_PYTHON_VERSION = 3.6
-      condition: $TRAVIS_EVENT_TYPE = cron
-
-  - provider: pypi
-    user: $PYPI_USER
-    password: $PYPI_PASSWORD
-    distributions: "sdist"
-    skip_cleanup: true
-    on:
-      branch: master
-      condition: $TRAVIS_PYTHON_VERSION = 3.6
-
-  - provider: script
-    script: git tag 0.$TRAVIS_BUILD_NUMBER -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
-    on:
-      branch: master
-      condition: $TRAVIS_PYTHON_VERSION = 3.6
+  - sudo plash-run $BUILD -- misc/runtests
