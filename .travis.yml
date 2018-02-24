@@ -5,6 +5,9 @@ python:
   - "3.6"
   - "pypy3.5"
 
+envs:
+  - COVERAGE_PROCESS_START=.coveragerc
+
 install:
   # install plash
   - sudo apt-get install python3 python3-pip
