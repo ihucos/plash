@@ -16,7 +16,7 @@ git:
 env:
   - BUILD="--alpine python3 bash"
   - BUILD="--ubuntu python3"
-  - BUILD="--arch --devinit --pacman pypy3 --run 'ln -sf /usr/bin/pypy3 /usr/bin/pyhton3'"
+  - BUILD="--arch --devinit --pacman pypy3 --run 'ln -sf /usr/bin/pypy3 /usr/bin/python3'"
 
 script:
 
