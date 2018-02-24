@@ -5,6 +5,7 @@
 
 import subprocess
 import os
+import shutil
 from os.path import join
 import sys
 import atexit
@@ -34,19 +35,20 @@ os.environ['PLASH_DOCKER_SOCKET'] = socket_file
 daemon_log = open(join(tmpdir, 'docker-daemon.log'), 'w')
 client_log = open(join(tmpdir, 'docker.log'), 'w')
 
+#
+# build daemon if not done yet
+#
 debug('ensuring docker is builded')
+buildfile = shutil.which('plash-docker-daemon')
 with catch_and_die([subprocess.CalledProcessError]):
-    subprocess.check_output(
-        ['plash-build', '-A',
-         'docker'])  # ensure it is builded showing build logs
-debug('starting docker')
+    subprocess.check_output(['plash-build', '--include', buildfile])
 
 #
 # start daemon and wait for it to start
 #
-with catch_and_die([subprocess.CalledProcessError]):
-    p = subprocess.Popen(
-        ['plash-docker-daemon'], stderr=daemon_log, stdout=daemon_log)
+debug('starting docker')
+p = subprocess.Popen(
+    ['plash-docker-daemon'], stderr=2, stdout=2)
 atexit.register(lambda: p.kill())
 c = 0
 while True:
