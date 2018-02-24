@@ -8,7 +8,7 @@ install:
 
 cache:
   directories:
-    - ~/mycache
+    - ~/plashcache
 
 git:
   depth: 1
@@ -21,12 +21,14 @@ env:
   # - BUILD="--fedora pypy3 --run 'ln -fs /usr/bin/pypy3 /usr/bin/python3'"
 
 script:
-  - sudo tar -xvf ~/mycache/file -C /
-  - sudo plash-init
-  - sudo plash-build -A
-  - sudo tar -cf ~/mycache/file /var/lib/plash/
 
-  #- sudo plash-init-from ./plashcache.tar
-  # IFS=$'\n' arr=( $(xargs -n1 <<<"$BUILD") )
-  # sudo plash-build ${arr[@]}
-  # sudo plash-run ${arr[@]} --layer --devinit -- sh -c 'ln -s $(mktemp -d)/plashdata /var/lib/plash && misc/runtests'
+  # load cache
+  - sudo tar -xvf ~/plashcache/data.tar -C /
+
+  - IFS=$'\n' arr=( $(xargs -n1 <<<"$BUILD") )
+  - sudo plash-build ${arr[@]}
+  - sudo plash-run ${arr[@]} --layer --devinit -- sh -c 'ln -s $(mktemp -d)/plashdata /var/lib/plash && misc/runtests'
+
+  # save cache
+  - sudo tar -cf ~/plashcache/data.tar /var/lib/plash/
+
