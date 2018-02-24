@@ -21,6 +21,7 @@ env:
   # - BUILD="--fedora pypy3 --run 'ln -fs /usr/bin/pypy3 /usr/bin/python3'"
 
 script:
+  - plash-init
   - plash-build -A
   - sudo tar -cf ~/mycache/file /var/lib/plash/
 
