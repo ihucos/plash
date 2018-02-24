@@ -7,12 +7,8 @@
 
 import argparse
 import os
-from os import path
-from os.path import basename, join
-from subprocess import CalledProcessError, check_output, check_call
-from sys import exit
-from tempfile import mkdtemp
-from itertools import takewhile
+from os.path import join
+from subprocess import CalledProcessError, check_call
 
 from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die
 from plashlib import ux
@@ -36,8 +32,8 @@ args = parser.parse_args()
 # don't bother escaping, just only allow "harmless" chars
 def check_overlayfs_arg(arg):
     # TODO have this line more generic
-    if arg and not arg.replace('.', '').replace('/', '').replace('_', '').replace('-',
-                                                                 '').isalnum():
+    if arg and not arg.replace('.', '').replace('/', '').replace(
+            '_', '').replace('-', '').isalnum():
         die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(arg))
 
 

@@ -6,10 +6,7 @@
 # plash-build passes its arguments to this script to generate the shell script
 # with the build instruction.
 
-import argparse
-from inspect import signature
 import sys
-import os
 
 from plashlib import eval, stdlib
 from plashlib.utils import catch_and_die, deescalate_sudo, die

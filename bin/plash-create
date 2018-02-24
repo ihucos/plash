@@ -22,20 +22,17 @@
 # $ plash-create -i ubuntu -- touch /myfile
 # 44
 
-import atexit
-import errno
 import os
-import shutil
 import subprocess
 import sys
-from os.path import basename, join
+from os.path import join
 from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
+from plashlib.utils import die, die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 

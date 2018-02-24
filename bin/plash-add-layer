@@ -20,9 +20,8 @@
 from tempfile import mkdtemp
 import os
 import sys
-from plashlib.utils import catch_and_die, color, die, hashstr, info, nodepath_or_die, die_with_usage, handle_help_flag, handle_build_args
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 from os.path import join
-import errno
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -75,7 +74,7 @@ os.symlink(new_node_path, join(PLASH_DATA, 'index', node_id))
 #
 os.rename(prepared_new_node, new_node_path)
 
-# 
+#
 #  inform the user about the new container
 #
 print(node_id)

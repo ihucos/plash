@@ -4,16 +4,17 @@ from subprocess import check_output
 import os
 from os import path
 import jinja2
-from pprint import pprint
 
 DOCDIR = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'docs')
 BINDIR = path.join(path.dirname(DOCDIR), 'bin')
 
+
 def render(tpl_path, **context):
     path, filename = os.path.split(tpl_path)
     return jinja2.Environment(
-        loader=jinja2.FileSystemLoader(os.path.join(DOCDIR, 'templs'))
-    ).get_template(filename).render(context)
+        loader=jinja2.FileSystemLoader(os.path.join(
+            DOCDIR, 'templs'))).get_template(filename).render(context)
+
 
 out = check_output('plash-list')
 out = out.decode()
@@ -23,8 +24,9 @@ with open(path.join(DOCDIR, 'index.html'), 'w') as f:
     f.write(render('index.html', progs=progs))
 
 filedocs = []
-binfiles = [i.split()[0] for i in
-        check_output('plash-list').decode().splitlines()]
+binfiles = [
+    i.split()[0] for i in check_output('plash-list').decode().splitlines()
+]
 for binfile in binfiles:
     if binfile.startswith('.'):
         continue
@@ -32,7 +34,7 @@ for binfile in binfiles:
     with open(fname) as f:
         read = f.read()
     lines = read.splitlines()
-    
+
     # get doc out of source code
     doc = []
     lines.pop(0)
@@ -44,7 +46,6 @@ for binfile in binfiles:
         doc.append(line[2:])
     filedocs.append({'code': read, 'doc': '\n'.join(doc), 'prog': binfile})
 
-
 for item in filedocs:
-    with open(path.join(DOCDIR, item['prog']+'.html'), 'w') as f:
+    with open(path.join(DOCDIR, item['prog'] + '.html'), 'w') as f:
         f.write(render('command.html', **item))

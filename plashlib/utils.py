@@ -3,7 +3,6 @@ import os
 import sys
 from contextlib import contextmanager
 from os.path import join
-from tempfile import mkdtemp
 
 ERROR_COLOR = 1
 INFO_COLOR = 4
@@ -36,8 +35,6 @@ def catch_and_die(exceptions, debug=None, ignore=None):
 
 
 def deescalate_sudo():
-    import pwd
-    import grp
     uid = os.environ.get('SUDO_UID')
     gid = os.environ.get('SUDO_GID')
     if uid and gid:
@@ -55,18 +52,18 @@ def color(stri, color, isatty_fd_check=2):
         return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
     return stri
 
+
 def die(msg, exit=1):
     prog = os.path.basename(sys.argv[0])
-    print('{}: {}: {}'.format(
-        color('error', ERROR_COLOR),
-        prog,
-        msg
-    ), file=sys.stderr)
+    print(
+        '{}: {}: {}'.format(color('error', ERROR_COLOR), prog, msg),
+        file=sys.stderr)
     sys.exit(exit)
 
 
 def info(msg):
     print(color(msg, INFO_COLOR), file=sys.stderr)
+
 
 def die_with_usage(*, hint=False):
     prog = os.path.basename(sys.argv[0])
@@ -82,6 +79,7 @@ def die_with_usage(*, hint=False):
         print('{}: usage hint: {}'.format(prog, hint), file=sys.stderr)
     sys.exit(2)
 
+
 def handle_help_flag():
     if len(sys.argv) >= 2 and sys.argv[1] in ('--help', '-h'):
         with open(sys.argv[0]) as f:
@@ -94,6 +92,7 @@ def handle_help_flag():
                 if do_print:
                     print(line[2:], end='')
         sys.exit(0)
+
 
 def filter_positionals(args):
     positional = []
@@ -111,6 +110,7 @@ def filter_positionals(args):
             found_first_opt = True
     return positional, filtered_args
 
+
 def handle_build_args():
     import subprocess
     if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
@@ -122,12 +122,15 @@ def handle_build_args():
         container_id = out[:-1]
         os.execvpe(sys.argv[0], [sys.argv[0], container_id] + cmd, os.environ)
 
+
 def nodepath_or_die(container):
     if not container.isdigit():
-        die("container id must be an whole integer, not: {}".format(repr(container)))
+        die("container id must be an whole integer, not: {}".format(
+            repr(container)))
     try:
         # FIXME: security check that container does not contain bad chars
-        with catch_and_die([OSError], ignore=FileNotFoundError, debug='readlink'):
+        with catch_and_die(
+            [OSError], ignore=FileNotFoundError, debug='readlink'):
             nodepath = os.readlink(os.path.join(INDEX_DIR, container))
         with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
             os.stat(nodepath)
@@ -135,9 +138,12 @@ def nodepath_or_die(container):
     except FileNotFoundError:
         die('no container {}'.format(repr(container)), exit=3)
 
+
 def get_nodepath(container):
     if not container.isdigit():
-        raise ValueError("container id must be an whole integer, not: {}".format(repr(container)))
+        raise ValueError(
+            "container id must be an whole integer, not: {}".format(
+                repr(container)))
     try:
         nodepath = os.readlink(os.path.join(INDEX_DIR, container))
         if os.path.exists(nodepath):
@@ -146,6 +152,7 @@ def get_nodepath(container):
     except FileNotFoundError:
         return False
 
+
 def get_default_shell(passwd_file):
     with open(passwd_file) as f:
         #  the first entry is the root entry
@@ -153,6 +160,7 @@ def get_default_shell(passwd_file):
         root_entry = f.readline().rstrip('\n')
         default_root_shell = root_entry.split(":")[6]
         return default_root_shell
+
 
 def plash_map(*args):
     from subprocess import check_output

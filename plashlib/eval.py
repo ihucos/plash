@@ -1,5 +1,4 @@
 import shlex
-import uuid
 from importlib import import_module
 from functools import wraps
 
@@ -18,8 +17,10 @@ class ActionNotFoundError(Exception):
 class EvalError(Exception):
     pass
 
+
 def get_actions():
     return state['actions']
+
 
 def action(name=None, keep_comments=False, escape=True, group=None):
     def decorator(func):
@@ -70,8 +71,7 @@ def eval(lisp):
         try:
             action = actions[name]
         except KeyError:
-            raise ActionNotFoundError(
-                'Action "{}" not found'.format(name))
+            raise ActionNotFoundError('Action "{}" not found'.format(name))
         res = action(*args)
         if not isinstance(res, str) and res is not None:
             raise EvalError(

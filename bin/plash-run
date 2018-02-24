@@ -7,9 +7,7 @@
 
 import os
 import sys
-import argparse
 from time import sleep
-import atexit
 import tempfile
 import signal
 from os.path import join, isdir
@@ -224,8 +222,9 @@ if deescalate:
     deescalate_sudo()
 try:
     os.chdir(pwd_at_start)
-except (ValueError, PermissionError, FileNotFoundError):  # TODO: put more exceptions here
-        pass
+except (ValueError, PermissionError,
+        FileNotFoundError):  # TODO: put more exceptions here
+    pass
 
 try:
     os.execlp(cmd[0], *cmd)

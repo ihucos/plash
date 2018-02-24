@@ -7,11 +7,10 @@ import sys
 from os import execlp
 from urllib.request import urlretrieve
 from urllib.error import URLError
-from subprocess import check_call, check_output, CalledProcessError
+from subprocess import CalledProcessError, check_call, check_output
 from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
 from plashlib import ux
 from tempfile import mkstemp
-import time
 
 handle_help_flag()
 ux.assert_initialized()

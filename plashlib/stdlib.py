@@ -1,13 +1,9 @@
 import hashlib
 import os
-import re
 import shlex
 import stat
 import sys
-import subprocess
-import tempfile
 import uuid
-from base64 import b64encode
 from itertools import dropwhile
 
 from .eval import ArgError, action, eval, get_actions
@@ -34,10 +30,12 @@ def run(*cmds):
     'run shell script'
     return '\n'.join(cmds)
 
+
 @action()
 def align_cwd():
     'cd tho the pwd at the host'
     yield 'cd {}'.format(shlex.quote(os.getcwd()))
+
 
 @action()
 def import_envs(*envs):
@@ -73,9 +71,8 @@ def include(*files):
         fname = os.path.realpath(os.path.expanduser(file))
         with open(fname) as f:
             lsp = []
-            tokens = dropwhile(
-	        lambda l: l.startswith('#'),
-	        (i[:-1] for i in f.readlines()))
+            tokens = dropwhile(lambda l: l.startswith('#'),
+                               (i[:-1] for i in f.readlines()))
             for line0, token in enumerate(tokens):
                 if line0 == 0 and token.startswith('#!'):
                     continue
@@ -125,6 +122,7 @@ def watch(*paths):
 @action(escape=False, group='package managers')
 def defpm(name, *lines):
     'define a new package manager'
+
     @action(name, group='package managers')
     def package_manager(*packages):
         if not packages:
@@ -132,6 +130,7 @@ def defpm(name, *lines):
         sh_packages = ' '.join(pkg for pkg in packages)
         expanded_lines = [line.format(sh_packages) for line in lines]
         return eval([['run'] + expanded_lines])
+
     package_manager.__doc__ = "install packages with {}".format(name)
 
 
@@ -144,7 +143,6 @@ def map(command, *args):
 @action()
 def comment(*args):
     'do nothing'
-    pass
 
 
 @action('image', escape=False)
@@ -156,10 +154,9 @@ def image(os):
 @action()
 def namespace(ns):
     'start a new build namespace'
-    return eval([
-         ['layer'],
-         ['run', ': new namespace {}'.format(ns)],
-         ['layer']])
+    return eval([['layer'], ['run', ': new namespace {}'.format(ns)],
+                 ['layer']])
+
 
 @action()
 def devinit():
@@ -183,8 +180,8 @@ def list():
     'list all actions'
     actions = get_actions()
     prev_group = None
-    for name, func in sorted(actions.items(),
-            key=lambda i: (i[1]._plash_group or '', i[0])):
+    for name, func in sorted(
+            actions.items(), key=lambda i: (i[1]._plash_group or '', i[0])):
         group = func._plash_group or 'main'
         if group != prev_group:
             prev_group is None or print()
@@ -216,15 +213,18 @@ ALIASES = dict(
 )
 
 for name, macro in ALIASES.items():
+
     def bounder(macro=macro):
         def func(*args):
             # list(args) throws exception some really funny reason
             # therefore the list comprehension
             args = [i for i in args]
             return eval(macro[:-1] + [macro[-1] + args])
+
         func.__doc__ = 'macro for: {}[ARG1 [ARG2 [...]]]'.format(
-                ' '.join('--'+i[0]+' '+' '.join(i[1:]) for i in macro))
+            ' '.join('--' + i[0] + ' ' + ' '.join(i[1:]) for i in macro))
         return func
+
     func = bounder()
     action(name=name, group='macros', escape=False)(func)
 

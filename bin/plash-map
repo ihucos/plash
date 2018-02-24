@@ -8,8 +8,7 @@ import os
 from os.path import join
 from tempfile import mkdtemp
 
-from plashlib.utils import die_with_usage, handle_help_flag, hashstr, nodepath_or_die, die, catch_and_die
-from plashlib import ux
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, nodepath_or_die
 
 handle_help_flag()
 #ux.assert_is_root()
@@ -36,7 +35,9 @@ def cache_set(cache_key, container_id):
 
         # rename will overwrite atomically the cache key if it already exists,
         # just symlink would not
-        os.rename(join(tmpdir, 'link'), join(PLASH_DATA, 'cache_keys', cache_key))
+        os.rename(
+            join(tmpdir, 'link'), join(PLASH_DATA, 'cache_keys', cache_key))
+
 
 def cache_rm(cache_key):
     try:
@@ -46,6 +47,7 @@ def cache_rm(cache_key):
     except FileNotFoundError:
         return False
 
+
 def cache_get(cache_key):
     try:
         nodepath = os.readlink(join(PLASH_DATA, 'cache_keys', cache_key))
@@ -53,6 +55,7 @@ def cache_get(cache_key):
         return
     if os.path.exists(nodepath):
         return os.path.basename(nodepath)
+
 
 if value == '':
     cache_rm(key)
