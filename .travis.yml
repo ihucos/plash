@@ -21,7 +21,7 @@ env:
   # - BUILD="--fedora pypy3 --run 'ln -fs /usr/bin/pypy3 /usr/bin/python3'"
 
 script:
-  - echo $(date) > $HOME/mycache
+  - echo $(date) > $HOME/mycache/file
   #- sudo plash-init-from ./plashcache.tar
   # IFS=$'\n' arr=( $(xargs -n1 <<<"$BUILD") )
   # sudo plash-build ${arr[@]}
