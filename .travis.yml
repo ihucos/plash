@@ -16,12 +16,12 @@ git:
 env:
   - BUILD="--alpine python3 bash"
   - BUILD="--ubuntu python3"
-  - BUILD="--arch --devinit --pacman pypy3"
+  - BUILD="--arch --devinit --pacman pypy3 --run 'ln -sf /usr/bin/pypy3 /usr/bin/pyhton3'"
 
 script:
 
   # load cache
-  - sudo tar -xf ~/plashcache/data.tar -C /
+  - sudo tar -xf ~/plashcache/data.tar -C / || true
   - sudo plash-init
 
   - sudo plash-run --include-string " $BUILD" --layer --devinit -- sh -c 'ln -s $(mktemp -d) /var/lib/plash && misc/runtests'
