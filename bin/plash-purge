@@ -9,7 +9,6 @@ from plashlib.utils import handle_help_flag
 from plashlib import ux
 
 handle_help_flag()
-ux.assert_is_root()
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 if input('Delete all build data? [y/N] ') == 'y':

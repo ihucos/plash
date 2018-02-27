@@ -37,7 +37,6 @@ from plashlib.utils import die, die_with_usage, handle_build_args, handle_help_f
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 ux.assert_initialized()
-ux.assert_is_root()
 
 handle_help_flag()
 handle_build_args()

@@ -9,7 +9,6 @@ import os
 from os.path import join
 
 handle_help_flag()
-ux.assert_is_root()
 
 plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
 os.makedirs(plash_data, exist_ok=True)

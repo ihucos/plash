@@ -11,7 +11,6 @@ from tempfile import mkdtemp
 from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, nodepath_or_die
 
 handle_help_flag()
-#ux.assert_is_root()
 # ux.assert_initialized()
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')

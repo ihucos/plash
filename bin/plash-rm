@@ -12,7 +12,6 @@ from plashlib import ux
 
 handle_help_flag()
 handle_build_args()
-ux.assert_is_root()
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 

@@ -14,7 +14,6 @@ PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 handle_help_flag()
 handle_build_args()
-ux.assert_is_root()
 
 try:
     container = sys.argv[1]

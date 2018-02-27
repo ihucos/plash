@@ -14,12 +14,10 @@ from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, ha
 from plashlib import ux
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-MOUNT_EXTRA_OPTS = ',nosuid'
 
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
-ux.assert_is_root()
 
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('container')
@@ -59,12 +57,13 @@ for i in lowerdir_list:
 check_overlayfs_arg(args.upperdir or '')
 check_overlayfs_arg(args.workdir or '')
 
-with catch_and_die([CalledProcessError]):
-    check_call([
-        'mount', '-t', 'overlay', 'overlay', '-o',
-        'lowerdir={lowerdir}{workdir}{upperdir}{extra}'.format(
-            lowerdir=':'.join(lowerdir_list),
-            upperdir=',upperdir=' + args.upperdir if args.upperdir else '',
-            workdir=',workdir=' + args.workdir if args.workdir else '',
-            extra=MOUNT_EXTRA_OPTS), args.mountpoint
-    ])
+def mount_unionfs(lowerdir_list, mountpoint, upperdir=None, workdir=None):
+    lowerdirs_str = ':'.join('{}=RO'.format(i) for i in lowerdir_list)
+    if upperdir:
+        upperdir_str = '{}=RW'.format(upperdir)
+    else:
+        upperdir_str = ''
+    check_call(['unionfs', '-o', 'nosuid', '{lowerdirs}{upperdir}'.format(
+            lowerdirs=lowerdirs_str, upperdir=upperdir_str)])
+    
+mount_unionfs(lowerdir_list, args.mountpoint, args.upperdir, args.workdir)

@@ -14,7 +14,6 @@ from tempfile import mkstemp
 
 handle_help_flag()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     url = sys.argv[1]

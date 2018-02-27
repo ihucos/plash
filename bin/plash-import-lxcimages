@@ -26,7 +26,6 @@ DEBIAN_RELESES = [
 
 handle_help_flag()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     image_name = sys.argv[1]

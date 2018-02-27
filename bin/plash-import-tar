@@ -15,7 +15,6 @@ from plashlib import ux
 
 handle_help_flag()
 ux.assert_initialized()
-ux.assert_is_root()
 
 PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
@@ -29,7 +28,13 @@ if tar_file == '-':
     t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')
 else:
     t = tarfile.open(tar_file)
-t.extractall(rootfs)
+def filter_dev(members):
+    for m in members:
+        if m.isdev():
+            print('ignoring dev file: {}'.format(m.name), file=sys.stderr)
+            continue
+        yield m
+t.extractall(rootfs, members=filter_dev(t.getmembers()))
 
 # we want /etc/resolv to not by a symlink or not to not exist - that makes the later mount not work #FIXME: add a layer for that
 resolvconf = join(rootfs, 'etc/resolv.conf')
