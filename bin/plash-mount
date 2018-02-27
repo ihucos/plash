@@ -66,7 +66,7 @@ def mount_unionfs(lowerdir_list, mountpoint, upperdir=None, workdir=None):
     check_call([
             'unionfs',
             '-o',
-            'nosuid,cow,relaxed_permissions',
+            'nosuid,cow',
             '{upperdir}{lowerdirs}'.format(
             lowerdirs=lowerdirs_str, upperdir=upperdir_str),
             mountpoint])
