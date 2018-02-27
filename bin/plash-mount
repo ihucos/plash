@@ -60,14 +60,14 @@ check_overlayfs_arg(args.workdir or '')
 def mount_unionfs(lowerdir_list, mountpoint, upperdir=None, workdir=None):
     lowerdirs_str = ':'.join('{}=RO'.format(i) for i in lowerdir_list)
     if upperdir:
-        upperdir_str = ':{}=RW'.format(upperdir)
+        upperdir_str = '{}=RW:'.format(upperdir)
     else:
         upperdir_str = ''
     check_call([
             'unionfs',
             '-o',
-            'nosuid,cow',
-            '{lowerdirs}{upperdir}'.format(
+            'nosuid,cow,relaxed_permissions',
+            '{upperdir}{lowerdirs}'.format(
             lowerdirs=lowerdirs_str, upperdir=upperdir_str),
             mountpoint])
     

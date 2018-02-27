@@ -31,7 +31,7 @@ with catch_and_die([CalledProcessError]):
 p = subprocess.Popen(['sh', '-c', user_sh], cwd=mountpoint)
 user_exit = p.wait()
 with catch_and_die([CalledProcessError]):
-    check_call(['umount', mountpoint], stdout=2)  # pipe any stdout to stderr
+    check_call(['fusermount', '-u', mountpoint], stdout=2)  # pipe any stdout to stderr
 if user_exit:
     die('Exit status {}: {}'.format(user_exit, user_sh))
 sys.exit(user_exit)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-run CONTAINER [--upperdir-workdir-pair WORKDIR UPPERDIR] [--deescalate-sudo] [CMD1 [CMD2 [CMD3 ...]]
+# usage: plash-run CONTAINER [--upperdir-workdir-pair WORKDIR UPPERDIR] [CMD1 [CMD2 [CMD3 ...]]
 # Run a command inside a container. If no command is specified a shell is
 # started.  The workdir and upperdir parameters can be used to save file system
 # changes made inside the container.
@@ -28,7 +28,6 @@ ux.assert_initialized()
 #
 workdir = None
 upperdir = None
-deescalate = False
 try:
     container, *args = sys.argv[1:]
     while args:
@@ -40,8 +39,6 @@ try:
             break
         if cmd == '--upperdir-workdir-pair':
             upperdir, workdir = args.pop(0), args.pop(0)
-        elif cmd in ('--deescalate-sudo'):
-            deescalate = True
         else:
             die_with_usage(hint='unknown flag: {}'.format(cmd))
     cmd = args
@@ -67,24 +64,10 @@ with catch_and_die([CalledProcessError]):
         mountpoint
     ])
 
-pwd_at_start = os.getcwd()
-os.chroot(mountpoint)
-os.chdir('/')
-
 if not cmd:
-    default_root_shell = get_default_shell('/etc/passwd')
+    default_root_shell = get_default_shell(join(mountpoint, 'etc/passwd'))
     cmd = [default_root_shell]
 
-os.chmod('/', 0o755)  # not so sure if this here or more to the top
-if deescalate:
-    deescalate_sudo()
-try:
-    os.chdir(pwd_at_start)
-except (ValueError, PermissionError,
-        FileNotFoundError):  # TODO: put more exceptions here
-    pass
 
-try:
-    os.execlp(cmd[0], *cmd)
-except FileNotFoundError:
-    die('Command not found: {}'.format(cmd[0]))
+os.environ['PROOT_NO_SECCOMP'] = '1' # figure out more about this
+os.execlp('proot', 'proot', '-0', '-r', mountpoint, '-b', '/home', '-b', '/proc', '-b', '/etc/resolv.conf', '-b', '/tmp', '-b', '/dev', *cmd)
