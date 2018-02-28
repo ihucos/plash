@@ -10,20 +10,18 @@ from os.path import join
 from tempfile import mkdtemp
 from subprocess import check_call, CalledProcessError
 
-from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, get_plash_data
 from plashlib import ux
 
 handle_help_flag()
 ux.assert_initialized()
-
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 try:
     tar_file = sys.argv[1]
 except IndexError:
     die_with_usage()
 
-rootfs = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+rootfs = mkdtemp(dir=join(get_plash_data(), 'tmp'))
 if tar_file == '-':
     t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')
 else:

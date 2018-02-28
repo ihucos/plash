@@ -3,14 +3,14 @@
 # usage: plash-init
 # Initialize build data. Run this on a new system before anything else.
 
-from plashlib.utils import handle_help_flag, hashstr
+from plashlib.utils import handle_help_flag, hashstr, get_plash_data
 from plashlib import ux
 import os
 from os.path import join
 
 handle_help_flag()
 
-plash_data = os.environ.get('PLASH_DATA', '/var/lib/plash')
+plash_data = get_plash_data()
 os.makedirs(plash_data, exist_ok=True)
 os.chmod(plash_data, 0o755)
 

@@ -27,6 +27,7 @@ import subprocess
 import sys
 from os.path import join
 from plashlib import ux
+from plashlib.utils import get_plash_data
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 from sys import exit
@@ -34,7 +35,7 @@ from tempfile import mkdtemp
 
 from plashlib.utils import die, die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+plash_data = get_plash_data()
 
 ux.assert_initialized()
 
@@ -52,8 +53,8 @@ if not container:
 
 nodepath_or_die(container)
 
-upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+upperdir = mkdtemp(dir=join(plash_data, 'tmp'))
+workdir = mkdtemp(dir=join(plash_data, 'tmp'))
 
 p = subprocess.Popen(
     [

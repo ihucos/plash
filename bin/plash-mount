@@ -10,10 +10,8 @@ import os
 from os.path import join
 from subprocess import CalledProcessError, check_call
 
-from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die
+from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die, get_plash_data()
 from plashlib import ux
-
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 handle_help_flag()
 handle_build_args()
@@ -48,8 +46,9 @@ while True:
 # use the symlinks and not the full paths because the arg size is limited
 # On my setup i get 58 (EDIT: should be more now) layers before an error,
 # we could have multiple mount calls to overcome this
+plash_data = get_plash_data()
 lowerdir_list = [
-    join(PLASH_DATA, 'index', i, '_data', 'root') for i in container_ids_path
+    join(plash_data, 'index', i, '_data', 'root') for i in container_ids_path
 ]
 
 for i in lowerdir_list:

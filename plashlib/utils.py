@@ -7,13 +7,6 @@ from os.path import join
 ERROR_COLOR = 1
 INFO_COLOR = 4
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-TMP_DIR = join(PLASH_DATA, 'tmp')
-BUILDS_DIR = join(PLASH_DATA, 'builds')
-INDEX_DIR = join(PLASH_DATA, 'index')
-CACHE_KEYS_DIR = join(PLASH_DATA, 'cache_keys')
-
-
 def hashstr(stri):
     import hashlib
     return hashlib.sha1(stri).hexdigest()
@@ -33,6 +26,12 @@ def catch_and_die(exceptions, debug=None, ignore=None):
             msg = '{debug}: {message}'.format(debug=debug, message=msg)
         die(msg)
 
+def get_plash_data():
+    if os.getuid():
+        default = '~/.plashdata'
+    else:
+        default = '/var/lib/plash'
+    return os.environ.get('PLASH_DATA', default)
 
 def deescalate_sudo():
     try:
@@ -134,7 +133,7 @@ def nodepath_or_die(container):
         # FIXME: security check that container does not contain bad chars
         with catch_and_die(
             [OSError], ignore=FileNotFoundError, debug='readlink'):
-            nodepath = os.readlink(os.path.join(INDEX_DIR, container))
+            nodepath = os.readlink(os.path.join(get_plash_data(), 'index', container))
         with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
             os.stat(nodepath)
         return nodepath

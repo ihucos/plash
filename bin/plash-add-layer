@@ -20,10 +20,10 @@
 from tempfile import mkdtemp
 import os
 import sys
-from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data
 from os.path import join
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+plash_data = get_plash_data()
 
 handle_help_flag()
 handle_build_args()
@@ -37,7 +37,7 @@ except IndexError:
 #
 #  get a new id
 #
-with open(join(PLASH_DATA, 'id_counter'), 'a') as f:
+with open(join(plash_data, 'id_counter'), 'a') as f:
     f.write('A')
     node_id = str(f.tell())
 
@@ -50,7 +50,7 @@ new_node_path = join(nodepath_or_die(base_container), node_id)
 #  prepare the node with the dir being imported
 #  this is the payload data we want to put in the builds folder later
 #
-prepared_new_node = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+prepared_new_node = mkdtemp(dir=join(plash_data, 'tmp'))
 # other users can see the build tree
 os.chmod(prepared_new_node, 0o755)
 # but other users can not see the layer data
@@ -66,7 +66,7 @@ os.rename(import_dir, join(prepared_new_node, '_data', 'root'))
 #  so it does not gets lost in the 'build' folder tree if this program crashes.
 #  And actually also tries to find a shorter, nicer version of this id.
 #
-os.symlink(new_node_path, join(PLASH_DATA, 'index', node_id))
+os.symlink(new_node_path, join(plash_data, 'index', node_id))
 
 #
 #  put our new node with the import directory in the builds folder

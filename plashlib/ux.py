@@ -1,12 +1,10 @@
-from plashlib.utils import die, nodepath_or_die
+from plashlib.utils import die, nodepath_or_die, get_plash_data
 from os.path import join
 import os
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-
 
 def assert_initialized():
-    last_inited = join(PLASH_DATA, 'index', '0')
+    last_inited = join(get_plash_data(), 'index', '0')
     if not os.path.exists(last_inited):
         die('run plash-init first')
 
