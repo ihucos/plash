@@ -30,8 +30,11 @@ else:
     t = tarfile.open(tar_file)
 def filter_dev(members):
     for m in members:
+        if m.name == '.' and not m.mode == 0o755:
+            print('plash-import-tar: using different mode for root folder: {} -> 755'.format(oct(m.mode)), file=sys.stderr)
+            m.mode = 0o755
         if m.isdev():
-            print('ignoring dev file: {}'.format(m.name), file=sys.stderr)
+            print('plash-import-tar: ignoring dev file: {}'.format(m.name), file=sys.stderr)
             continue
         yield m
 t.extractall(rootfs, members=filter_dev(t.getmembers()))

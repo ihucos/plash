@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+#
+# usage: plash-install blah
+
+import sys
+import os
+from os.path import join
+
+binary = sys.argv[1]
+buildargs = sys.argv[2:]
+
+home_bin = os.path.expanduser('~/bin/')
+os.makedirs(home_bin, exist_ok=True)
+with open(join(home_bin, binary), 'w') as f:
+    f.write('#!/usr/bin/env plash-exec\n')
+    f.write('# plash-exec: exec={}\n'.format(binary))
+    f.write('\n')
+
+    for arg in buildargs:
+        f.write('{}\n'.format(arg))
+
+os.chmod(f.name, 0o755)
