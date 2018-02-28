@@ -71,4 +71,7 @@ if not cmd:
 
 
 os.environ['PROOT_NO_SECCOMP'] = '1' # figure out more about this
-os.execlp('proot', 'proot', '-0', '-r', mountpoint, '-b', '/home', '-b', '/proc', '-b', '/etc/resolv.conf', '-b', '/tmp', '-b', '/dev', *cmd)
+try:
+    os.execlp('proot', 'proot', '-0', '-r', mountpoint, '-b', '/home', '-b', '/proc', '-b', '/etc/resolv.conf', '-b', '/tmp', '-b', '/dev', *cmd)
+except FileNotFoundError as exc:
+    die('proot not found, maybe install it')
