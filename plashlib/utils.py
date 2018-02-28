@@ -31,7 +31,8 @@ def get_plash_data():
         default = '~/.plashdata'
     else:
         default = '/var/lib/plash'
-    return os.environ.get('PLASH_DATA', default)
+    dir = os.environ.get('PLASH_DATA', default)
+    return os.path.expanduser(dir)
 
 def deescalate_sudo():
     try:
