@@ -86,7 +86,8 @@ def mount_overlay(lowerdirs_list, mountpoint, upperdir, workdir):
 	 	mountpoint
 	])
     
-if not os.getuid() and platform.system() == 'Linux':
+#if not os.getuid() and platform.system() == 'Linux':
+if False:
     # overlay is only in the Linux kernel and accesible by root
     mount_overlay(lowerdir_list, args.mountpoint, args.upperdir, args.workdir)
 else:

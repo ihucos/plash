@@ -7,12 +7,14 @@
 
 
 
-import os
-from time import sleep
-import sys
-import subprocess
-import tempfile
-if os.getuid(): # not root
+def recall_in_ns():
+    import os
+    from time import sleep
+    import sys
+    import subprocess
+    import tempfile
+    from plashlib.utils import get_plash_data
+
     tmp = tempfile.mkdtemp()
     fifo_name = os.path.join(tmp, 'fifo')
     os.mkfifo(fifo_name)
@@ -22,12 +24,14 @@ if os.getuid(): # not root
     if not child:
             open(fifo_name, 'r').read().strip('\n')
             subprocess.check_call(['newuidmap', str(parent), '0', '1000', '1', '1', '100000', '65536'])
+            subprocess.check_call(['newgidmap', str(parent), '0', '1000', '1', '1', '100000', '65536'])
             with open(fifo_name, 'w') as f: # open and clone the file for sync
                 pass
             sys.exit(0)
 
-    os.execlp('unshare', 'unshare', '--user', 'sh', '-c', 'echo $$ > {0}; cat {0}; exec sh'.format(fifo_name))
-
+    os.environ['PLASH_DATA'] = get_plash_data()
+    os.execlp('unshare', 'unshare', '--user', '--mount', '--pid', '--fork', 'sh', '-c', 'echo $$ > {0}; cat {0}; exec $@'.format(fifo_name), '--', *sys.argv)
+    
 import os
 import sys
 from time import sleep
@@ -37,10 +41,10 @@ from os.path import join, isdir
 from shutil import rmtree
 from subprocess import CalledProcessError, call, check_call
 
-from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell
+from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell, get_plash_data
 from plashlib import ux
 
-PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
+PLASH_TMP = join(get_plash_data(), 'tmp')
 MOUNTPOINT_DIR = '/var/tmp/'
 DEFAULT_MOUNTS = ['default']
 
@@ -71,7 +75,7 @@ configfs ./sys/kernel/config configfs rw,relatime
 fusectl ./sys/fs/fuse/connections fusectl rw,relatime
 binfmt_misc ./proc/sys/fs/binfmt_misc binfmt_misc rw,relatime
 /home ./home none defaults,bind
-/tmp ./tmp none defaults,bind
+tmpfs ./tmp tmpfs rw,nosuid,nodev
 /etc/passwd ./etc/passwd none defaults,bind
 /etc/group ./etc/group none defaults,bind
 /etc/hosts ./etc/hosts none defaults,bind
@@ -100,7 +104,6 @@ MOUNT_GROUPS = {
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
-ux.assert_is_root()
 
 main_pid = os.getpid()
 
@@ -199,14 +202,19 @@ if not upperdir or not workdir:
 # fail here instead of inside plash-mount for nicer error message
 ux.assert_container_exists(container)
 
-mountpoint = tempfile.mkdtemp(
-    dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
 
-with catch_and_die([CalledProcessError]):
-    check_call([
-        'plash-mount', container, '--upperdir', upperdir, '--workdir', workdir,
-        mountpoint
-    ])
+mountpoint = '/tmp/staticmp'
+if os.getuid():
+
+    #mountpoint = tempfile.mkdtemp(
+    #    dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
+    
+    with catch_and_die([CalledProcessError]):
+        check_call([
+            'plash-mount', container, '--upperdir', upperdir, '--workdir', workdir,
+            mountpoint
+        ])
+    recall_in_ns()
 
 start_cleanup_daemon()
 
