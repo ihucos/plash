@@ -17,21 +17,16 @@ if os.getuid(): # not root
     fifo_name = os.path.join(tmp, 'fifo')
     os.mkfifo(fifo_name)
 
-    first_child = os.fork()
-    if not first_child:
-        os.execlp('unshare', 'unshare', '--user', 'sh', '-c', 'echo $$ > {0}; cat {0}; exec sh'.format(fifo_name))
-        sys.exit(0)
+    parent = os.getpid()
+    child = os.fork()
+    if not child:
+            open(fifo_name, 'r').read().strip('\n')
+            subprocess.check_call(['newuidmap', str(parent), '0', '1000', '1', '1', '100000', '65536'])
+            with open(fifo_name, 'w') as f: # open and clone the file for sync
+                pass
+            sys.exit(0)
 
-    pid = open(fifo_name, 'r').read().strip('\n')
-    second_child = os.fork()
-    if not second_child:
-        subprocess.check_call(['newuidmap', pid, '0', '1000', '1', '1', '100000', '65536'])
-        with open(fifo_name, 'w') as f: # open and clone the file for sync
-           pass
-        sys.exit(0)
-    os.waitpid(int(first_child), 0)
-    sys.exit(0)
-        
+    os.execlp('unshare', 'unshare', '--user', 'sh', '-c', 'echo $$ > {0}; cat {0}; exec sh'.format(fifo_name))
 
 import os
 import sys
