@@ -7,21 +7,20 @@
 
 
 
-def recall_in_ns():
+import os
+if os.getuid(): # call again after namespace setup
     import fcntl
     import os
     from time import sleep
     import sys
     import subprocess
     import tempfile
-    from plashlib.utils import get_plash_data
+    from plashlib.utils import get_plash_data, catch_and_die
 
     tmp = tempfile.mkdtemp()
     fifo_name = os.path.join(tmp, 'fifo')
     os.mkfifo(fifo_name)
 
-    val = fcntl.fcntl(fd, fcntl.F_GETFD)
-    fcntl.fcntl(3, fcntl.F_SETFD, val & ~fcntl.FD_CLOEXEC)                                                                 
     parent = os.getpid()
     child = os.fork()
     if not child:
@@ -31,12 +30,28 @@ def recall_in_ns():
             subprocess.check_call(['newgidmap', str(parent), '0', '1000', '1', '1', '100000', '65536'])
             with open(fifo_name, 'w') as f: # open and clone the file for sync
                 pass
-            sys.exit(0)
+
+            with open(fifo_name, 'r') as f:
+                container = f.read()
+            with open(fifo_name, 'r') as f:
+                upperdir = f.read()
+            with open(fifo_name, 'r') as f:
+                workdir = f.read()
+            with open(fifo_name, 'r') as f:
+                mountpoint = f.read()
+
+            with catch_and_die([subprocess.CalledProcessError]):
+                subprocess.check_call([
+                            'plash-mount', container, '--upperdir', upperdir, '--workdir', workdir,
+                            mountpoint])
+            with open(fifo_name, 'w') as f:
+                mountpoint = f.write()
+
 
             # apperanetely we can't use fuse inside the namespace, so this process stays alive to also do that 
 
     os.environ['PLASH_DATA'] = get_plash_data()
-    os.environ['PLASH_MOUNTER_FD'] = fifo_name
+    os.environ['PLASH_MOUNTER'] = fifo_name
     os.execlp('unshare', 'unshare', '--user', '--mount', '--pid', '--fork', 'sh', '-c', 'echo $$ > {0}; cat {0}; exec $@'.format(fifo_name), '--', *sys.argv)
     
 import os
@@ -169,52 +184,6 @@ def start_cleanup_daemon():
                     sys.exit(0)
 
 
-def chroot():
-    start_cleanup_daemon()
-    #
-    # mounts
-    #
-    pwd_at_start = os.getcwd()
-    os.chdir(mountpoint)
-    unused_mounts = set(requested_mounts)
-    for line in PSEUDO_FSTAB.splitlines():
-        if not line or line.startswith('#'):
-            continue
-        device, dir, type, options = line.split()
-        assert dir.startswith('./'), 'PSEUDO_FSTAB mountpoints must be relative'
-        try:
-            unused_mounts.remove(dir[1:])
-        except KeyError:
-            continue
-        try:
-            os.makedirs(dir, exist_ok=True)
-        except FileExistsError:
-            pass
-        check_call(['mount', '-t', type, '-o', options, device, dir])
-    if unused_mounts:
-        die('unknown mount point(s): {}'.format(' '.join(unused_mounts)))
-    
-    os.chroot(mountpoint)
-    os.chdir('/')
-    
-    if not cmd:
-        default_root_shell = get_default_shell('/etc/passwd')
-        cmd = [default_root_shell]
-    
-    os.chmod('/', 0o755)  # not so sure if this here or more to the top
-    if deescalate:
-        deescalate_sudo()
-    try:
-        os.chdir(pwd_at_start)
-    except (ValueError, PermissionError,
-            FileNotFoundError):  # TODO: put more exceptions here
-        pass
-    
-    try:
-        os.execlp(cmd[0], *cmd)
-    except FileNotFoundError:
-        die('Command not found: {}'.format(cmd[0]))
-
 #
 # parse arguments
 #
@@ -256,17 +225,74 @@ if not upperdir or not workdir:
 ux.assert_container_exists(container)
 
 
-mountpoint = '/tmp/staticmp'
-if os.getuid():
+mountpoint = tempfile.mkdtemp(
+    dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
 
-    #mountpoint = tempfile.mkdtemp(
-    #    dir=MOUNTPOINT_DIR, prefix='plash-run-{}-'.format(main_pid))
+fifo = os.environ.get('PLASH_MOUNTER')
+if fifo:
+    with open(fifo, 'w') as f:
+        f.write(container)
+    with open(fifo, 'w') as f:
+        f.write(upperdir)
+    with open(fifo, 'w') as f:
+        f.write(container)
+    with open(fifo, 'w') as f:
+        f.write(mountpoint)
     
+    print(mountpoint)
+
+    with open(fifo, 'r') as f:
+        f.read()
+else:
     with catch_and_die([CalledProcessError]):
         check_call([
             'plash-mount', container, '--upperdir', upperdir, '--workdir', workdir,
             mountpoint
         ])
-    recall_in_ns()
 
-chroot()
+start_cleanup_daemon()
+
+#
+# mounts
+#
+pwd_at_start = os.getcwd()
+os.chdir(mountpoint)
+unused_mounts = set(requested_mounts)
+for line in PSEUDO_FSTAB.splitlines():
+    if not line or line.startswith('#'):
+        continue
+    device, dir, type, options = line.split()
+    assert dir.startswith('./'), 'PSEUDO_FSTAB mountpoints must be relative'
+    try:
+        unused_mounts.remove(dir[1:])
+    except KeyError:
+        continue
+    try:
+        os.makedirs(dir, exist_ok=True)
+    except FileExistsError:
+        pass
+    check_call(['mount', '-t', type, '-o', options, device, dir])
+if unused_mounts:
+    die('unknown mount point(s): {}'.format(' '.join(unused_mounts)))
+
+os.chroot(mountpoint)
+os.chdir('/')
+
+if not cmd:
+    default_root_shell = get_default_shell('/etc/passwd')
+    cmd = [default_root_shell]
+
+os.chmod('/', 0o755)  # not so sure if this here or more to the top
+if deescalate:
+    deescalate_sudo()
+try:
+    os.chdir(pwd_at_start)
+except (ValueError, PermissionError,
+        FileNotFoundError):  # TODO: put more exceptions here
+    pass
+
+try:
+    os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    die('Command not found: {}'.format(cmd[0]))
+
