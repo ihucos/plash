@@ -35,7 +35,7 @@ try:
     os.chdir(pwd_at_start)
 except (ValueError, PermissionError,
         FileNotFoundError):  # TODO: put more exceptions here
-    pass
+    os.chdir('/')
 
 try:
     os.execlp(cmd[0], *cmd)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-mount [--upperdir UPPERDIR] [--workdir WORKDIR] CONTAINER MOUNTPOINT
+# usage: plash-mount CONTAINER MOUNTPOINT [CHANGESDIR]
 # Mounts the filsystem of a container. To cleanup, unmout it with the `umount` command.
 # The optional arguments are options passed to the overlay filesystem program:
 # `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
@@ -10,7 +10,7 @@ import os
 from os.path import join
 from subprocess import CalledProcessError, check_call
 
-from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die, get_plash_data
+from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die, get_plash_data, die_with_usage
 from plashlib import ux
 import platform
 
@@ -18,23 +18,20 @@ handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
 
-parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument('container')
-parser.add_argument('mountpoint')
-parser.add_argument('--upperdir')
-parser.add_argument('--workdir')
-args = parser.parse_args()
 
+try:
+    container, mountpoint = sys.argv[1:2]
+    changedir = sys.argv[2:3]
+except ValueError:
+    die_with_usage()
 
-# don't bother escaping, just only allow "harmless" chars
-def check_overlayfs_arg(arg):
-    # TODO have this line more generic
-    if arg and not arg.replace('.', '').replace('/', '').replace(
-            '_', '').replace('-', '').isalnum():
-        die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(arg))
+nodepath_or_die(container)
 
+# TODO have this line more generic
+if arg and not changedir.replace('.', '').replace('/', '').replace(
+        '_', '').replace('-', '').isalnum():
+    die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(changedir))
 
-nodepath = nodepath_or_die(args.container)
 
 container_ids_path = []
 parts = nodepath.split('/')
@@ -52,12 +49,9 @@ lowerdir_list = [
     join(plash_data, 'index', i, '_data', 'root') for i in container_ids_path
 ]
 
-for i in lowerdir_list:
-    check_overlayfs_arg(i)
-check_overlayfs_arg(args.upperdir or '')
-check_overlayfs_arg(args.workdir or '')
-
-def mount_unionfs(lowerdir_list, mountpoint, upperdir=None, workdir=None):
+def mount_unionfs(lowerdir_list, mountpoint, changedir):
+    upperdir = os.path.join(upperdir, 'changes')
+    os.mkdir(upperdir)
     lowerdirs_str = ':'.join('{}=RO'.format(i) for i in lowerdir_list)
     if upperdir:
         upperdir_str = '{}=RW:'.format(upperdir)
@@ -75,7 +69,11 @@ def mount_unionfs(lowerdir_list, mountpoint, upperdir=None, workdir=None):
     except FileNotFoundError as exc:
         die('{} (HINT: install unionfs-fuse and proot)'.format(exc))
 
-def mount_overlay(lowerdirs_list, mountpoint, upperdir, workdir):
+def mount_overlay(lowerdirs_list, mountpoint, changedir):
+    workdir = os.path.join(changedir, 'work')
+    upperdir = os.path.join(upperdir, 'changes')
+    os.mkdir(workdir)
+    os.mkdir(upperdir)
     with catch_and_die([CalledProcessError]):
         check_call([
             'mount', '-t', 'overlay', 'overlay', '-o',
@@ -89,7 +87,7 @@ def mount_overlay(lowerdirs_list, mountpoint, upperdir, workdir):
 #if not os.getuid() and platform.system() == 'Linux':
 if False:
     # overlay is only in the Linux kernel and accesible by root
-    mount_overlay(lowerdir_list, args.mountpoint, args.upperdir, args.workdir)
+    mount_overlay(lowerdir_list, mountpoint, changedir)
 else:
     # unionfs is fuse based and available in Linux, Mac and FreeBSD
-    mount_unionfs(lowerdir_list, args.mountpoint, args.upperdir, args.workdir)
+    mount_unionfs(lowerdir_list, args.mountpoint, changedir)
