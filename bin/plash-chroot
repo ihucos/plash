@@ -1,12 +1,14 @@
-
 #!/usr/bin/env python3
 #
 # usage: plash-chroot rootfs [MOUNTS]
     
 import os
 import sys
+if os.getuid(): # not root
+    os.execlp('plash-noroot', 'plash-noroot', *sys.argv)
 from time import sleep
 import tempfile
+import argparse
 import signal
 from os.path import join, isdir
 from shutil import rmtree
@@ -46,7 +48,7 @@ configfs ./sys/kernel/config configfs rw,relatime
 fusectl ./sys/fs/fuse/connections fusectl rw,relatime
 binfmt_misc ./proc/sys/fs/binfmt_misc binfmt_misc rw,relatime
 /home ./home none defaults,bind
-tmpfs ./tmp tmpfs rw,nosuid,nodev
+/tmp ./tmp none defaults,rbind
 /etc/passwd ./etc/passwd none defaults,bind
 /etc/group ./etc/group none defaults,bind
 /etc/hosts ./etc/hosts none defaults,bind
@@ -73,10 +75,13 @@ MOUNT_GROUPS = {
 }
 
 handle_help_flag()
-handle_build_args()
-ux.assert_initialized()
 
-main_pid = os.getpid()
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument('mountpoint')
+parser.add_argument('cmd', nargs='*')
+parser.add_argument('--deescalate-sudo')
+parser.add_argument('--mount', default='none')
+args = parser.parse_args()
 
 
 def expand_mount_groups(arg_parts):
@@ -92,8 +97,8 @@ def expand_mount_groups(arg_parts):
                     repr(i), ' '.join(MOUNT_GROUPS.keys())))
 
 pwd_at_start = os.getcwd()
-os.chdir(mountpoint)
-unused_mounts = set(requested_mounts)
+os.chdir(args.mountpoint)
+unused_mounts = set(expand_mount_groups(args.mount.split(',')))
 for line in PSEUDO_FSTAB.splitlines():
     if not line or line.startswith('#'):
         continue
@@ -111,15 +116,17 @@ for line in PSEUDO_FSTAB.splitlines():
 if unused_mounts:
     die('unknown mount point(s): {}'.format(' '.join(unused_mounts)))
 
-os.chroot(mountpoint)
+os.chroot(args.mountpoint)
 os.chdir('/')
 
-if not cmd:
+if not args.cmd:
     default_root_shell = get_default_shell('/etc/passwd')
     cmd = [default_root_shell]
+else:
+    cmd = args.cmd
 
-os.chmod('/', 0o755)  # not so sure if this here or more to the top
-if deescalate:
+#os.chmod('/', 0o755)  # not so sure if this here or more to the top
+if args.deescalate_sudo:
     deescalate_sudo()
 try:
     os.chdir(pwd_at_start)

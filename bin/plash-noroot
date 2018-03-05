@@ -14,41 +14,40 @@ tmp = tempfile.mkdtemp()
 fifo_name = os.path.join(tmp, 'fifo')
 os.mkfifo(fifo_name)
 
-
 def get_subs(query_user, subfile):
+    'get subuids or subgids for a user'
     with open(subfile) as f:
         read = f.readline()
         user, start, count = read.split(':')
         if user == query_user:
             return int(start), int(count)
 
-
 parent = os.getpid()
 child = os.fork()
 if not child:
-        with open(fifo_name, 'r') as f:
-            f.read()
-        # has to be called from outside the namespace we want to create
+    with open(fifo_name, 'r') as f:
+        f.read()
+    # has to be called from outside the namespace we want to create
 
-        # setup uid mapping
-        uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
-        subprocess.check_call([
-        'newuidmap',
-        str(parent),
-        '0', str(os.getuid()), '1',
-        '1', str(uid_start), str(uid_count)])
+    # setup uid mapping
+    uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
+    subprocess.check_call([
+    'newuidmap',
+    str(parent),
+    '0', str(os.getuid()), '1',
+    '1', str(uid_start), str(uid_count)])
 
-        # setup guid mapping
-        gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
-        subprocess.check_call([
-        'newgidmap',
-        str(parent),
-        '0', str(os.getgid()), '1',
-        '1', str(gid_start), str(gid_count)])
+    # setup guid mapping
+    gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
+    subprocess.check_call([
+    'newgidmap',
+    str(parent),
+    '0', str(os.getgid()), '1',
+    '1', str(gid_start), str(gid_count)])
 
-        with open(fifo_name, 'w') as f: # open and clone the file for sync
-            pass
-        sys.exit(0)
+    with open(fifo_name, 'w') as f: # open and clone the file for sync
+        pass
+    sys.exit(0)
 
 
 os.environ['PLASH_DATA'] = get_plash_data()
