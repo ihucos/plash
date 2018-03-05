@@ -21,8 +21,10 @@ try:
 except ValueError:
     die_with_usage() 
 
+changesdir = os.environ.get('PLASH_RUN_CHANGEDIR', None)
+changesdir = [] if not changesdir else [changesdir]
 mountpoint = mkdtemp(dir='/var/tmp', prefix='plash-run-')
-check_call(['plash-mount', str(container_id), mountpoint])
+check_call(['plash-mount', str(container_id), mountpoint] + changesdir)
 
 mounts = os.environ.get('PLASH_RUN_RBIND', DEFAULT_RBIND).split(':')
 

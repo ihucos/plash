@@ -53,21 +53,13 @@ if not container:
 
 nodepath_or_die(container)
 
-upperdir = mkdtemp(dir=join(plash_data, 'tmp'))
-workdir = mkdtemp(dir=join(plash_data, 'tmp'))
+changesdir = mkdtemp(dir=join(plash_data, 'tmp'))
 
+os.environ['PLASH_RUN_CHANGEDIR'] = changesdir
 p = subprocess.Popen(
     [
         'plash-run',
         container,
-        '--upperdir-workdir-pair',
-        upperdir,
-        workdir,
-        #'plash-runc',
-        #container,
-        #'--upperdir-workdir-pair',
-        #upperdir,
-        #workdir,
     ] + list(shell_with_args),
     stdout=2
 )  # redirect stdout to stderr because we are passing the container id through stdout
@@ -77,7 +69,7 @@ if exit:
     die("build returned exit status {}".format(exit), exit=4)
 
 #with catch_and_die([CalledProcessError]):
-#cont = check_output(['plash-add-layer', container, upperdir]).decode().strip('\n')
+#cont = check_output(['plash-add-layer', container, changesdir]).decode().strip('\n')
 #print(cont)
 
-os.execlp('plash-add-layer', 'plash-add-layer', container, upperdir)
+os.execlp('plash-add-layer', 'plash-add-layer', container, os.path.join(changesdir, 'changes'))
