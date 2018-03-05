@@ -6,118 +6,24 @@ import os
 import sys
 if os.getuid(): # not root
     os.execlp('plash-noroot', 'plash-noroot', *sys.argv)
-from time import sleep
-import tempfile
 import argparse
-import signal
-from os.path import join, isdir
-from shutil import rmtree
-from subprocess import CalledProcessError, call, check_call
-
-from plashlib.utils import catch_and_die, deescalate_sudo, die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell, get_plash_data
-from plashlib import ux
-
-PLASH_TMP = join(get_plash_data(), 'tmp')
-MOUNTPOINT_DIR = '/var/tmp/'
-DEFAULT_MOUNTS = ['default']
-
-# SECURITY: noexec and so on in / mounts?
-PSEUDO_FSTAB = '''
-proc ./proc proc rw,nosuid,nodev,noexec,relatime
-devtmpfs ./dev devtmpfs rw,relatime,size=498860k,nr_inodes=124715,mode=755
-sysfs ./sys sysfs rw,nosuid,nodev,noexec,relatime
-tmpfs ./dev/shm tmpfs rw,nosuid,nodev
-devpts ./dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000
-tmpfs ./run tmpfs rw,nosuid,nodev,mode=755
-tmpfs ./run/lock tmpfs rw,nosuid,nodev,noexec,relatime,size=5120k
-tmpfs ./sys/fs/cgroup tmpfs nosuid,nodev,noexec,mode=755
-cgroup ./sys/fs/cgroup/pids cgroup rw,nosuid,nodev,noexec,relatime,pids
-cgroup ./sys/fs/cgroup/debug cgroup rw,nosuid,nodev,noexec,relatime,debug
-cgroup ./sys/fs/cgroup/cpuset cgroup rw,nosuid,nodev,noexec,relatime,cpuset
-cgroup ./sys/fs/cgroup/freezer cgroup rw,nosuid,nodev,noexec,relatime,freezer
-cgroup ./sys/fs/cgroup/memory cgroup rw,nosuid,nodev,noexec,relatime,memory
-cgroup ./sys/fs/cgroup/rdma cgroup rw,nosuid,nodev,noexec,relatime,rdma
-cgroup ./sys/fs/cgroup/perf_event cgroup rw,nosuid,nodev,noexec,relatime,perf_event
-cgroup ./sys/fs/cgroup/devices cgroup rw,nosuid,nodev,noexec,relatime,devices
-cgroup ./sys/fs/cgroup/net_cls,net_prio cgroup rw,nosuid,nodev,noexec,relatime,net_cls,net_prio
-cgroup ./sys/fs/cgroup/blkio cgroup rw,nosuid,nodev,noexec,relatime,blkio
-cgroup ./sys/fs/cgroup/cpu,cpuacct cgroup rw,nosuid,nodev,noexec,relatime,cpu,cpuacct
-debugfs ./sys/kernel/debug debugfs rw,relatime
-mqueue ./dev/mqueue mqueue rw,relatime
-configfs ./sys/kernel/config configfs rw,relatime
-fusectl ./sys/fs/fuse/connections fusectl rw,relatime
-binfmt_misc ./proc/sys/fs/binfmt_misc binfmt_misc rw,relatime
-/home ./home none defaults,bind
-/tmp ./tmp none defaults,rbind
-/etc/passwd ./etc/passwd none defaults,bind
-/etc/group ./etc/group none defaults,bind
-/etc/hosts ./etc/hosts none defaults,bind
-/etc/resolv.conf ./etc/resolv.conf none defaults,bind
-'''
-
-MOUNT_GROUPS = {
-    'cgroup': [
-        '/sys/fs/cgroup', '/sys/fs/cgroup/pids', '/sys/fs/cgroup/debug',
-        '/sys/fs/cgroup/cpuset', '/sys/fs/cgroup/freezer',
-        '/sys/fs/cgroup/memory', '/sys/fs/cgroup/rdma',
-        '/sys/fs/cgroup/perf_event', '/sys/fs/cgroup/devices',
-        '/sys/fs/cgroup/net_cls,net_prio', '/sys/fs/cgroup/blkio',
-        '/sys/fs/cgroup/cpu,cpuacct'
-    ],
-    'debugfs': ['/sys/kernel/debug'],
-    'mqueue': ['/dev/mqueue'],
-    'configfs': ['/sys/kernel/config'],
-    'fusectl': ['/sys/fs/fuse/connections'],
-    'binfmt_misc': ['/proc/sys/fs/binfmt_misc'],
-    'default': ['/proc', '/etc/resolv.conf', '/home', '/tmp'],
-    'host': ['/tmp', '/home'],
-    'none': [],
-}
+from plashlib.utils import handle_help_flag, get_default_shell, die
+from subprocess import check_call
 
 handle_help_flag()
 
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('mountpoint')
 parser.add_argument('cmd', nargs='*')
-parser.add_argument('--deescalate-sudo')
-parser.add_argument('--mount', default='none')
+parser.add_argument('--rbind', action='append', default=[], nargs='*')
 args = parser.parse_args()
 
-
-def expand_mount_groups(arg_parts):
-    for i in arg_parts:
-        if i.startswith('/'):
-            yield i
-        else:
-            try:
-                for a in MOUNT_GROUPS[i]:
-                    yield a
-            except KeyError:
-                die('invalid mount group {}, available: {}'.format(
-                    repr(i), ' '.join(MOUNT_GROUPS.keys())))
+for mounts in args.rbind:
+    for mount in mounts:
+        check_call(['mount', '--rbind', mount, os.path.join(args.mountpoint, mount.lstrip('/'))])
 
 pwd_at_start = os.getcwd()
-os.chdir(args.mountpoint)
-unused_mounts = set(expand_mount_groups(args.mount.split(',')))
-for line in PSEUDO_FSTAB.splitlines():
-    if not line or line.startswith('#'):
-        continue
-    device, dir, type, options = line.split()
-    assert dir.startswith('./'), 'PSEUDO_FSTAB mountpoints must be relative'
-    try:
-        unused_mounts.remove(dir[1:])
-    except KeyError:
-        continue
-    try:
-        os.makedirs(dir, exist_ok=True)
-    except FileExistsError:
-        pass
-    check_call(['mount', '-t', type, '-o', options, device, dir])
-if unused_mounts:
-    die('unknown mount point(s): {}'.format(' '.join(unused_mounts)))
-
 os.chroot(args.mountpoint)
-os.chdir('/')
 
 if not args.cmd:
     default_root_shell = get_default_shell('/etc/passwd')
@@ -125,9 +31,6 @@ if not args.cmd:
 else:
     cmd = args.cmd
 
-#os.chmod('/', 0o755)  # not so sure if this here or more to the top
-if args.deescalate_sudo:
-    deescalate_sudo()
 try:
     os.chdir(pwd_at_start)
 except (ValueError, PermissionError,
