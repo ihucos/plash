@@ -77,9 +77,7 @@ git version 2.15.0
 ## Other topics
 
 ### Security
-Plash's default container runtime does come with a security concept. It does not try to reinvent any security layer but to only rely on traditional UNIX security mechanisms. Figuratively speaking plash does not try to barricade processes with tape. Inside a container a user is what he was outside of it. As far as the kernel cares the only difference between a container and a "normal" process is that the container is chrooted. Access rights established outside of the container are still valid inside. So in fact to install software with a package manager inside a container you need root, but to later run it not. It can be seen as a one to one mapping between host and container.
-
-~~There is some fine print: Root access is needed for container setup. In the future the plan is to use suid binaries to archive this. At the moment this is done with sudo. To allow a user to use plash put this is the suoders file `joe ALL=NOPASSWD: /usr/local/bin/plash-run`. This should be considered unsafe until version `1.0`.~~
+Complete unprivileged containers comming soon (branch user-mode)
 
 ### Plashfiles
 TODO
