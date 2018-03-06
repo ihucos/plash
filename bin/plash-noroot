@@ -8,7 +8,6 @@ import sys
 import subprocess
 import tempfile
 from getpass import getuser
-from plashlib.utils import get_plash_data, catch_and_die
 
 tmp = tempfile.mkdtemp()
 fifo_name = os.path.join(tmp, 'fifo')
@@ -49,17 +48,11 @@ if not child:
         pass
     sys.exit(0)
 
-
-os.environ['PLASH_DATA'] = get_plash_data()
 os.execlp(
 'unshare',
 'unshare',
 '--user',
 '--mount',
-'--pid',
-'--fork',
-'--propagation',
-'shared',
 'sh',
 '-c',
 'echo "" > {0}; cat {0}; exec $@'.format(fifo_name),
