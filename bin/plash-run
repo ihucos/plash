@@ -8,32 +8,25 @@
 
 import os
 import sys
-from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args
+from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data
 from subprocess import check_call
 from tempfile import mkdtemp
-
-DEFAULT_RBIND = '/tmp:/home:/etc/resolv.conf:/sys:/dev:/proc'
 
 handle_build_args()
 handle_help_flag()
 try:
-    container_id, *cmds = sys.argv[1:]
+    container_id, *cmd = sys.argv[1:]
 except ValueError:
     die_with_usage() 
 
-changesdir = os.environ.get('PLASH_RUN_CHANGEDIR', None)
-changesdir = [] if not changesdir else [changesdir]
-mountpoint = mkdtemp(dir='/var/tmp', prefix='plash-run-')
-check_call(['plash-mount', str(container_id), mountpoint] + changesdir)
+plash_tmp = os.path.join(get_plash_data(), 'tmp')
+mountpoint = mkdtemp(dir=plash_tmp, prefix='plash-run-mountpoint-')
+changesdir = mkdtemp(dir=plash_tmp, prefix='plash-run-changesdir-')
+check_call(['plash-mount', str(container_id), mountpoint, changesdir])
 
-mounts = os.environ.get('PLASH_RUN_RBIND', DEFAULT_RBIND).split(':')
-
-cmd = [
+os.execlp(
 'plash-chroot',
 'plash-chroot',
-'--rbind']
-cmd.extend(mounts)
-cmd.append('--')
-cmd.append(mountpoint)
-cmd.extend(cmds)
-os.execlp(*cmd)
+'--',
+mountpoint,
+*cmd)

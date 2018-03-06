@@ -17,7 +17,7 @@
 # $ sudo plash-create 3
 # /home/fulano # echo 'hello' > /file
 # /home/fulano # exit 0
-# 71
+#No 71
 #
 # $ plash-create -i ubuntu -- touch /myfile
 # 44
@@ -35,7 +35,7 @@ from tempfile import mkdtemp
 
 from plashlib.utils import die, die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 
-plash_data = get_plash_data()
+plash_tmp = join(get_plash_data(), 'tmp')
 
 ux.assert_initialized()
 
@@ -44,7 +44,7 @@ handle_build_args()
 
 try:
     container = sys.argv[1]
-    shell_with_args = sys.argv[2:]
+    cmd = sys.argv[2:]
 except IndexError:
     die_with_usage()
 
@@ -53,23 +53,26 @@ if not container:
 
 nodepath_or_die(container)
 
-changesdir = mkdtemp(dir=join(plash_data, 'tmp'))
-
-os.environ['PLASH_RUN_CHANGEDIR'] = changesdir
+mountpoint = mkdtemp(dir=plash_tmp, prefix='plash-create-mountpoint-')
+changesdir = mkdtemp(dir=plash_tmp, prefix='plash-create-changesdir-')
+check_call(['plash-mount', str(container), mountpoint, changesdir], stdout=2)
 p = subprocess.Popen(
     [
-        'plash-run',
-        container,
-    ] + list(shell_with_args),
+        'plash-chroot',
+        '--no-default-binds',
+        '-b', '/home',
+        '-b', '/etc/resolv.conf',
+        '-b', '/sys',
+        '-b', '/dev',
+        '-b', '/proc',
+        '--',
+        mountpoint,
+    ] + cmd,
     stdout=2
 )  # redirect stdout to stderr because we are passing the container id through stdout
 
 exit = p.wait()
 if exit:
     die("build returned exit status {}".format(exit), exit=4)
-
-#with catch_and_die([CalledProcessError]):
-#cont = check_output(['plash-add-layer', container, changesdir]).decode().strip('\n')
-#print(cont)
 
 os.execlp('plash-add-layer', 'plash-add-layer', container, os.path.join(changesdir, 'changes'))

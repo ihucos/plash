@@ -15,12 +15,22 @@ handle_help_flag()
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('mountpoint')
 parser.add_argument('cmd', nargs='*')
-parser.add_argument('--rbind', action='append', default=[], nargs='*')
+parser.add_argument('-b', '--bind', action='append')
+parser.add_argument('-n', '--no-default-binds', action='store_true')
 args = parser.parse_args()
 
-for mounts in args.rbind:
-    for mount in mounts:
-        check_call(['mount', '--rbind', mount, os.path.join(args.mountpoint, mount.lstrip('/'))])
+DEFAULT_BIND = ['/tmp', '/home', '/etc/resolv.conf', '/sys', '/dev', '/proc']
+
+def rbind(mount):
+    check_call(['mount', '--rbind', mount, os.path.join(args.mountpoint, mount.lstrip('/'))])
+
+if not args.no_default_binds:
+    for mount in DEFAULT_BIND:
+        rbind(mount)
+
+if args.bind:
+    for mount in args.bind:
+        rbind(mount)
 
 pwd_at_start = os.getcwd()
 os.chroot(args.mountpoint)
