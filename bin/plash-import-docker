@@ -11,12 +11,12 @@ import sys
 import atexit
 from time import sleep
 import tempfile
-from plashlib.utils import die, catch_and_die, die_with_usage, handle_not_root
+from plashlib.utils import die, catch_and_die, die_with_usage, setup_namespace
 from plashlib import ux
 
 DOCKER_START_TIMEOUT = 40
 
-handle_not_root()
+setup_namespace()
 ux.assert_initialized()
 
 try:

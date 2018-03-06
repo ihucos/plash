@@ -8,11 +8,11 @@ from os import execlp
 from urllib.request import urlretrieve
 from urllib.error import URLError
 from subprocess import CalledProcessError, check_call, check_output
-from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die, handle_not_root
+from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die, setup_namespace
 from plashlib import ux
 from tempfile import mkstemp
 
-handle_not_root()
+setup_namespace()
 handle_help_flag()
 ux.assert_initialized()
 

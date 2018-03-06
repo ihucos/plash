@@ -8,7 +8,7 @@ import sys
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from plashlib.utils import die, catch_and_die, die_with_usage, handle_help_flag, handle_not_root
+from plashlib.utils import die, catch_and_die, die_with_usage, handle_help_flag, setup_namespace
 from plashlib import ux
 from subprocess import CalledProcessError, check_call
 
@@ -24,7 +24,7 @@ DEBIAN_RELESES = [
     'wheezy'
 ]
 
-handle_not_root()
+setup_namespace()
 handle_help_flag()
 ux.assert_initialized()
 

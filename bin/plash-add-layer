@@ -20,10 +20,10 @@
 from tempfile import mkdtemp
 import os
 import sys
-from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data, handle_not_root
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data, setup_namespace
 from os.path import join
 
-handle_not_root()
+setup_namespace()
 handle_help_flag()
 handle_build_args()
 

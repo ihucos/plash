@@ -5,10 +5,10 @@
 import os
 import sys
 import argparse
-from plashlib.utils import handle_help_flag, get_default_shell, die, handle_not_root
+from plashlib.utils import handle_help_flag, get_default_shell, die, setup_namespace
 from subprocess import check_call
 
-handle_not_root()
+setup_namespace()
 handle_help_flag()
 
 parser = argparse.ArgumentParser(add_help=False)
