@@ -5,11 +5,12 @@
 # It exports the file system of a container to the given file as a compressed tar archive.
 # If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
 
-from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, handle_not_root
 from plashlib import ux
 from os import execlp
 import sys
 
+handle_not_root()
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()

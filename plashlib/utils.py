@@ -96,6 +96,11 @@ def handle_help_flag():
                     print(line[2:], end='')
         sys.exit(0)
 
+def handle_not_root():
+   if os.getuid():
+       os.environ['PLASH_DATA'] = get_plash_data()
+       os.execlp('plash-rootless', 'plash-rootless', *sys.argv)
+
 
 def filter_positionals(args):
     positional = []

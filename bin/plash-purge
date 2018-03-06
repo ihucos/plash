@@ -5,9 +5,10 @@
 
 import os
 from shutil import rmtree
-from plashlib.utils import handle_help_flag, get_plash_data
+from plashlib.utils import handle_help_flag, get_plash_data, handle_not_root
 from plashlib import ux
 
+handle_not_root()
 handle_help_flag()
 
 plash_data = get_plash_data()

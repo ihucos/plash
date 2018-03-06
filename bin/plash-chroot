@@ -4,12 +4,11 @@
     
 import os
 import sys
-if os.getuid(): # not root
-    os.execlp('plash-noroot', 'plash-noroot', *sys.argv)
 import argparse
-from plashlib.utils import handle_help_flag, get_default_shell, die
+from plashlib.utils import handle_help_flag, get_default_shell, die, handle_not_root
 from subprocess import check_call
 
+handle_not_root()
 handle_help_flag()
 
 parser = argparse.ArgumentParser(add_help=False)

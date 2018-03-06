@@ -20,13 +20,14 @@
 from tempfile import mkdtemp
 import os
 import sys
-from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data, handle_not_root
 from os.path import join
 
-plash_data = get_plash_data()
-
+handle_not_root()
 handle_help_flag()
 handle_build_args()
+
+plash_data = get_plash_data()
 
 try:
     base_container = sys.argv[1]

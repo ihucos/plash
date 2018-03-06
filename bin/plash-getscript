@@ -9,10 +9,10 @@
 import sys
 
 from plashlib import eval, stdlib
-from plashlib.utils import catch_and_die, deescalate_sudo, die
+from plashlib.utils import catch_and_die, die, handle_not_root
 
 # try not to be root
-deescalate_sudo()
+handle_not_root
 
 tokens = sys.argv[1:]
 

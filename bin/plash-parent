@@ -10,8 +10,9 @@
 from os.path import basename, dirname
 from sys import argv
 
-from plashlib.utils import die, handle_help_flag, die_with_usage, nodepath_or_die
+from plashlib.utils import die, handle_help_flag, die_with_usage, nodepath_or_die, handle_not_root
 
+handle_not_root()
 handle_help_flag()
 
 try:

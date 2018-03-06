@@ -22,6 +22,7 @@ except ValueError:
 plash_tmp = os.path.join(get_plash_data(), 'tmp')
 mountpoint = mkdtemp(dir=plash_tmp, prefix='plash-run-mountpoint-')
 changesdir = mkdtemp(dir=plash_tmp, prefix='plash-run-changesdir-')
+import os
 check_call(['plash-mount', str(container_id), mountpoint, changesdir])
 
 os.execlp(

@@ -27,7 +27,7 @@ import subprocess
 import sys
 from os.path import join
 from plashlib import ux
-from plashlib.utils import get_plash_data
+from plashlib.utils import get_plash_data, handle_not_root
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 from sys import exit
@@ -35,12 +35,12 @@ from tempfile import mkdtemp
 
 from plashlib.utils import die, die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 
-plash_tmp = join(get_plash_data(), 'tmp')
-
+handle_not_root
 ux.assert_initialized()
-
 handle_help_flag()
 handle_build_args()
+
+plash_tmp = join(get_plash_data(), 'tmp')
 
 try:
     container = sys.argv[1]
