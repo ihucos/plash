@@ -12,8 +12,9 @@ from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, ha
 from subprocess import check_call
 from tempfile import mkdtemp
 
-handle_build_args()
 handle_help_flag()
+handle_build_args()
+
 try:
     container_id, *cmd = sys.argv[1:]
 except ValueError:
