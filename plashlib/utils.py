@@ -96,10 +96,12 @@ def handle_help_flag():
                     print(line[2:], end='')
         sys.exit(0)
 
-def setup_namespace():
+def setup_namespace(fork_child=False):
     if not os.environ.get('_PLASH_NAMESPACE_SETUP'):
         os.environ['PLASH_DATA'] = get_plash_data()
         os.environ['_PLASH_NAMESPACE_SETUP'] = '1'
+        if fork_child and not os.fork():
+            return True
         os.execlp('plash-rootless', 'plash-rootless', *sys.argv)
 
 
@@ -178,3 +180,27 @@ def plash_map(*args):
     if out == '':
         return None
     return out.decode().strip('\n')
+
+
+class IPCLock():
+    'a simple primitive named lock'
+    def __init__(self, id):
+        envkey = '_PLASH_IPC_LOCK_{}'.format(id)
+        existing = os.environ.get(envkey)
+        if not existing:
+            self._r, self._w = os.pipe()
+            os.set_inheritable(self._r, True)
+            os.set_inheritable(self._w, True)
+            os.environ[envkey] = '{},{}'.format(self._r, self._w)
+        else:
+            self._r, self._w = (int(i) for i in existing.split(','))
+
+    def aquire(self):
+        os.close(self._w)
+        os.read(self._r, 1)
+        os.close(self._r)
+
+    def release(self):
+        os.close(self._r)
+        os.write(self._w, b'A')
+        os.close(self._w)

@@ -5,10 +5,9 @@
 import os
 import sys
 import argparse
-from plashlib.utils import handle_help_flag, get_default_shell, die, setup_namespace
-from subprocess import check_call
+from plashlib.utils import handle_help_flag, get_default_shell, die, setup_namespace, IPCLock, catch_and_die
+from subprocess import check_call, CalledProcessError
 
-setup_namespace()
 handle_help_flag()
 
 parser = argparse.ArgumentParser(add_help=False)
@@ -16,7 +15,22 @@ parser.add_argument('mountpoint')
 parser.add_argument('cmd', nargs='*')
 parser.add_argument('-b', '--bind', action='append')
 parser.add_argument('-n', '--no-default-binds', action='store_true')
+parser.add_argument('--setup-namespace-cmd')
 args = parser.parse_args()
+
+lock1 = IPCLock('lock1')
+lock2 = IPCLock('lock2')
+if setup_namespace(fork_child=True):
+    lock1.aquire()
+    if args.setup_namespace_cmd:
+        with catch_and_die([CalledProcessError], debug='forked child'):
+            check_call(['sh', '-c', args.setup_namespace_cmd])
+    lock2.release()
+    sys.exit(1)
+lock1.release()
+lock2.aquire()
+
+# TODO die here if child also dies
 
 DEFAULT_BIND = ['/tmp', '/home', '/etc/resolv.conf', '/sys', '/dev', '/proc']
 
