@@ -26,6 +26,18 @@ changesdir = mkdtemp(dir=plash_tmp, prefix='plash-run-changesdir-')
 import os
 check_call(['plash-mount', str(container_id), mountpoint, changesdir])
 
+
+fifo_name = os.path.join(mkdtemp(), 'pipe')
+os.mkfifo(fifo_name)
+child = os.fork()
+if not child:
+    from time import sleep
+    with open(fifo_name, 'r') as f: pass
+    check_call(['fusermount', '-u', mountpoint])
+    with open(fifo_name, 'w') as f: pass
+    sys.exit(0)
+
+os.environ['PLASH_ROOTLESS_SYNC_FIFO'] = fifo_name
 os.execlp(
 'plash-chroot',
 'plash-chroot',

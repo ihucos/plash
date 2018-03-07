@@ -5,6 +5,7 @@
 import os
 from time import sleep
 import sys
+import signal
 import subprocess
 import tempfile
 from getpass import getuser
@@ -12,6 +13,8 @@ from getpass import getuser
 tmp = tempfile.mkdtemp()
 fifo_name = os.path.join(tmp, 'fifo')
 os.mkfifo(fifo_name)
+
+sync_fifo_name = os.environ.get('PLASH_ROOTLESS_SYNC_FIFO', '')
 
 def get_subs(query_user, subfile):
     'get subuids or subgids for a user'
@@ -26,6 +29,7 @@ child = os.fork()
 if not child:
     with open(fifo_name, 'r') as f:
         f.read()
+
     # has to be called from outside the namespace we want to create
 
     # setup uid mapping
@@ -44,6 +48,10 @@ if not child:
     '0', str(os.getgid()), '1',
     '1', str(gid_start), str(gid_count)])
 
+    if sync_fifo_name:
+        with open(sync_fifo_name, 'w') as f: pass
+        with open(sync_fifo_name, 'r') as f: pass
+
     with open(fifo_name, 'w') as f: # open and clone the file for sync
         pass
     sys.exit(0)
@@ -55,6 +63,6 @@ os.execlp(
 '--mount',
 'sh',
 '-c',
-'echo "" > {0}; cat {0}; exec "$@"'.format(fifo_name),
+'echo "" > {0}; cat {0}; wait; exec "$@"'.format(fifo_name),
 '--',
 *sys.argv[1:])
