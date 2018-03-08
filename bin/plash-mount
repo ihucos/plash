@@ -55,8 +55,8 @@ lowerdir_list = [
 def mount_unionfs(lowerdir_list, mountpoint, changedir):
     lowerdirs_str = ':'.join('{}=RO'.format(i) for i in lowerdir_list)
     if changedir:
-        upperdir = os.path.join(changedir, 'changes')
-        os.mkdir(upperdir)
+        upperdir = os.path.join(changedir, 'data')
+        os.makedirs(upperdir, exist_ok=True)
         upperdir_str = '{}=RW:'.format(upperdir)
     else:
         upperdir_str = ''
@@ -74,9 +74,9 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
 
 def mount_overlay(lowerdirs_list, mountpoint, changedir):
     workdir = os.path.join(changedir, 'work')
-    upperdir = os.path.join(upperdir, 'changes')
-    os.mkdir(workdir)
-    os.mkdir(upperdir)
+    upperdir = os.path.join(changedir, 'data')
+    os.makedirs(workdir, exist_ok=True)
+    os.makedirs(upperdir, exist_ok=True)
     with catch_and_die([CalledProcessError]):
         check_call([
             'mount', '-t', 'overlay', 'overlay', '-o',

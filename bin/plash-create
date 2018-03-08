@@ -53,26 +53,25 @@ if not container:
 
 nodepath_or_die(container)
 
-mountpoint = mkdtemp(dir=plash_tmp, prefix='plash-create-mountpoint-')
 changesdir = mkdtemp(dir=plash_tmp, prefix='plash-create-changesdir-')
-check_call(['plash-mount', str(container), mountpoint, changesdir], stdout=2)
 p = subprocess.Popen(
     [
-        'plash-chroot',
+        'plash-runopts',
         '--no-default-binds',
-        '-b', '/home',
-        '-b', '/etc/resolv.conf',
-        '-b', '/sys',
-        '-b', '/dev',
-        '-b', '/proc',
+        '--bind', '/home',
+        '--bind', '/etc/resolv.conf',
+        '--bind', '/sys',
+        '--bind', '/dev',
+        '--bind', '/proc',
+        '--changes', changesdir,
         '--',
-        mountpoint,
+        container,
     ] + cmd,
     stdout=2
 )  # redirect stdout to stderr because we are passing the container id through stdout
 
 exit = p.wait()
 if exit:
-    die("build returned exit status {}".format(exit), exit=4)
+    die("building returned exit status {}".format(exit), exit=4)
 
-os.execlp('plash-add-layer', 'plash-add-layer', container, os.path.join(changesdir, 'changes'))
+os.execlp('plash-add-layer', 'plash-add-layer', container, os.path.join(changesdir, 'data'))

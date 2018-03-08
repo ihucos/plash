@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-run CONTAINER [--upperdir-workdir-pair WORKDIR UPPERDIR] [--mount MOUNTS] [--deescalate-sudo] [CMD1 [CMD2 [CMD3 ...]]
+# usage: plash-run CONTAINER [CMDS]
 # Run a command inside a container. If no command is specified a shell is
 # started.  The workdir and upperdir parameters can be used to save file system
 # changes made inside the container.
@@ -21,15 +21,9 @@ try:
 except ValueError:
     die_with_usage() 
 
-plash_tmp = os.path.join(get_plash_data(), 'tmp')
-mountpoint = mkdtemp(dir=plash_tmp, prefix='plash-run-mountpoint-')
-changesdir = mkdtemp(dir=plash_tmp, prefix='plash-run-changesdir-')
-check_call(['plash-mount', str(container_id), mountpoint, changesdir])
-
-os.environ['PLASH_ROOTLESS_SETUP_CMD'] = 'fusermount -u {}'.format(shlex.quote(mountpoint))
 os.execlp(
-'plash-chroot',
-'plash-chroot',
+'plash-runopts',
+'plash-runopts',
 '--',
-mountpoint,
+container_id,
 *cmd)

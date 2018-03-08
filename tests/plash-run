@@ -26,11 +26,11 @@ set -e
 out=$(MYENV=123 plash-run 1 sh -c 'echo $MYENV')
 test $out = 123
 
-: test a mount
-tmp=$(mktemp)
-plash-run 1 --mount /etc/passwd cat /etc/passwd > $tmp
-cat $tmp
-cmp /etc/passwd $tmp
+#: test a mount
+#tmp=$(mktemp)
+#plash-run 1 --mount /etc/passwd cat /etc/passwd > $tmp
+#cat $tmp
+#cmp /etc/passwd $tmp
 
 : test auto build
 plash-run -i 1 --bust-cache -- ls
