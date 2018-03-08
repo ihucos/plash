@@ -6,15 +6,13 @@ import os
 from time import sleep
 import sys
 import signal
-import subprocess
+from subprocess import check_call, CalledProcessError
+from plashlib.utils import catch_and_die
 import tempfile
 from getpass import getuser
 
-tmp = tempfile.mkdtemp()
-fifo_name = os.path.join(tmp, 'fifo')
-os.mkfifo(fifo_name)
 
-sync_fifo_name = os.environ.get('PLASH_ROOTLESS_SYNC_FIFO', '')
+user_setup_cmd = os.environ.get('PLASH_ROOTLESS_SETUP_CMD')
 
 def get_subs(query_user, subfile):
     'get subuids or subgids for a user'
@@ -23,34 +21,46 @@ def get_subs(query_user, subfile):
         user, start, count = read.split(':')
         if user == query_user:
             return int(start), int(count)
+    die('blah blah not sub(g|u)id found')
 
-parent = os.getpid()
+uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
+gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
+
+setup_cmds = []
+# setup uid mapping
+setup_cmds.append([
+'newuidmap',
+str(os.getpid()),
+'0', str(os.getuid()), '1',
+'1', str(uid_start), str(uid_count)])
+
+# setup guid mapping
+setup_cmds.append([
+'newgidmap',
+str(os.getpid()),
+'0', str(os.getgid()), '1',
+'1', str(gid_start), str(gid_count)])
+
+if user_setup_cmd:
+    setup_cmds.append(['sh', '-c', user_setup_cmd])
+
+tmp = tempfile.mkdtemp()
+fifo_name = os.path.join(tmp, 'fifo')
+os.mkfifo(fifo_name)
+
 child = os.fork()
 if not child:
     with open(fifo_name, 'r') as f:
         f.read()
 
-    # has to be called from outside the namespace we want to create
-
-    # setup uid mapping
-    uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
-    subprocess.check_call([
-    'newuidmap',
-    str(parent),
-    '0', str(os.getuid()), '1',
-    '1', str(uid_start), str(uid_count)])
-
-    # setup guid mapping
-    gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
-    subprocess.check_call([
-    'newgidmap',
-    str(parent),
-    '0', str(os.getgid()), '1',
-    '1', str(gid_start), str(gid_count)])
-
-    if sync_fifo_name:
-        with open(sync_fifo_name, 'w') as f: pass
-        with open(sync_fifo_name, 'r') as f: pass
+    for cmd in setup_cmds:
+        with catch_and_die([CalledProcessError], debug='forked child'):
+            try:
+                check_call(cmd)
+            except CalledProcessError:
+                with open(fifo_name, 'w') as f: # open and clone the file for sync
+                    f.write('error')
+                raise
 
     with open(fifo_name, 'w') as f: # open and clone the file for sync
         pass
@@ -63,6 +73,11 @@ os.execlp(
 '--mount',
 'sh',
 '-c',
-'echo "" > {0}; cat {0}; wait; exec "$@"'.format(fifo_name),
+'''
+set -e
+echo "" > {0}
+status=$(cat {0})
+test "$status" != "error" && exec "$@"
+'''.format(fifo_name),
 '--',
 *sys.argv[1:])

@@ -5,34 +5,20 @@
 import os
 import sys
 import argparse
-from plashlib.utils import handle_help_flag, get_default_shell, die, setup_namespace, IPCLock, catch_and_die
+from plashlib.utils import handle_help_flag, get_default_shell, die, setup_namespace, catch_and_die
 from subprocess import check_call, CalledProcessError
 
+DEFAULT_BIND = ['/tmp', '/home', '/etc/resolv.conf', '/sys', '/dev', '/proc']
+
 handle_help_flag()
+setup_namespace()
 
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('mountpoint')
 parser.add_argument('cmd', nargs='*')
 parser.add_argument('-b', '--bind', action='append')
 parser.add_argument('-n', '--no-default-binds', action='store_true')
-parser.add_argument('--setup-namespace-cmd')
 args = parser.parse_args()
-
-lock1 = IPCLock('lock1')
-lock2 = IPCLock('lock2')
-if setup_namespace(fork_child=True):
-    lock1.aquire()
-    if args.setup_namespace_cmd:
-        with catch_and_die([CalledProcessError], debug='forked child'):
-            check_call(['sh', '-c', args.setup_namespace_cmd])
-    lock2.release()
-    sys.exit(1)
-lock1.release()
-lock2.aquire()
-
-# TODO die here if child also dies
-
-DEFAULT_BIND = ['/tmp', '/home', '/etc/resolv.conf', '/sys', '/dev', '/proc']
 
 def rbind(mount):
     check_call(['mount', '--rbind', mount, os.path.join(args.mountpoint, mount.lstrip('/'))])
@@ -41,9 +27,8 @@ if not args.no_default_binds:
     for mount in DEFAULT_BIND:
         rbind(mount)
 
-if args.bind:
-    for mount in args.bind:
-        rbind(mount)
+for mount in args.bind or []:
+    rbind(mount)
 
 pwd_at_start = os.getcwd()
 os.chroot(args.mountpoint)

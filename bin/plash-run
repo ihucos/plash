@@ -26,11 +26,10 @@ mountpoint = mkdtemp(dir=plash_tmp, prefix='plash-run-mountpoint-')
 changesdir = mkdtemp(dir=plash_tmp, prefix='plash-run-changesdir-')
 check_call(['plash-mount', str(container_id), mountpoint, changesdir])
 
+os.environ['PLASH_ROOTLESS_SETUP_CMD'] = 'fusermount -u {}'.format(shlex.quote(mountpoint))
 os.execlp(
 'plash-chroot',
 'plash-chroot',
-'--setup-namespace-cmd',
-'fusermount -u {}'.format(shlex.quote(mountpoint)),
 '--',
 mountpoint,
 *cmd)
