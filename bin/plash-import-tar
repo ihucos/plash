@@ -27,16 +27,30 @@ if tar_file == '-':
     t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')
 else:
     t = tarfile.open(tar_file)
+ignored_devs = []
+changed_root = None
 def filter_dev(members):
-    for m in members:
+    for counter, m in enumerate(members):
+        if not counter % 1000:
+            sys.stderr.write('#')
+            sys.stderr.flush()
         if m.name == '.' and not m.mode == 0o755:
-            print('plash-import-tar: using different mode for root folder: {} -> 755'.format(oct(m.mode)), file=sys.stderr)
+            changed_root = m.mode, 0o755
             m.mode = 0o755
         if m.isdev():
-            print('plash-import-tar: ignoring dev file: {}'.format(m.name), file=sys.stderr)
+            ignored_devs.append(m.name.lstrip('.'))
             continue
         yield m
+
+sys.stderr.write('Unpack [')
+sys.stderr.flush()
 t.extractall(rootfs, members=filter_dev(t.getmembers()))
+
+print(']', file=sys.stderr)
+if ignored_devs:
+    print('Ignored {} dev files'.format(len(ignored_devs)), file=sys.stderr)
+if changed_root:
+    print('Changed root dir mode {} -> {}'.format(oct(i)[2:] for i in changed_root), file=sys.stderr)
 
 # we want /etc/resolv to not by a symlink or not to not exist - that makes the later mount not work #FIXME: add a layer for that
 resolvconf = join(rootfs, 'etc/resolv.conf')
