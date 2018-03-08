@@ -66,6 +66,12 @@ if not child:
         pass
     sys.exit(0)
 
+SETUP_SCRIPT = '''
+set -e
+fifo=$1; shift
+echo "" > "$fifo"; status=$(cat "$fifo")
+test "$status" != "error" && exec "$@"'''
+
 os.execlp(
 'unshare',
 'unshare',
@@ -73,11 +79,7 @@ os.execlp(
 '--mount',
 'sh',
 '-c',
-'''
-set -e
-echo "" > {0}
-status=$(cat {0})
-test "$status" != "error" && exec "$@"
-'''.format(fifo_name),
+SETUP_SCRIPT,
 '--',
+fifo_name,
 *sys.argv[1:])
