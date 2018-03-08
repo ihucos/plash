@@ -3,12 +3,12 @@
 # usage: plash-init
 # Initialize build data. Run this on a new system before anything else.
 
-from plashlib.utils import handle_help_flag, hashstr, get_plash_data, setup_namespace
+from plashlib.utils import handle_help_flag, hashstr, get_plash_data
 from plashlib import ux
+import platform
 import os
 from os.path import join
 
-setup_namespace()
 handle_help_flag()
 
 plash_data = get_plash_data()
@@ -26,6 +26,17 @@ os.makedirs(join(plash_data, 'layers', '0', '_data', 'root'), exist_ok=True)
 try:
     with open(join(plash_data, 'id'), 'x') as f:
         f.write(hashstr(os.urandom(128)))
+except FileExistsError:
+    pass
+
+try:
+    with open(join(plash_data, 'union_taste'), 'x') as f:
+        if not os.getuid() and platform.system() == 'Linux':
+            # overlay is only in the Linux kernel and accesible by root          
+            f.write('overlay')
+        else:
+            # unionfs is fuse based and available in Linux, Mac and FreeBSD    
+            f.write('unionfs-fuse')
 except FileExistsError:
     pass
 

@@ -73,10 +73,14 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
         die('{} (HINT: install unionfs-fuse and proot)'.format(exc))
 
 def mount_overlay(lowerdirs_list, mountpoint, changedir):
-    workdir = os.path.join(changedir, 'work')
-    upperdir = os.path.join(changedir, 'data')
-    os.makedirs(workdir, exist_ok=True)
-    os.makedirs(upperdir, exist_ok=True)
+    if changedir:
+        workdir = os.path.join(changedir, 'work')
+        upperdir = os.path.join(changedir, 'data')
+        os.makedirs(workdir, exist_ok=True)
+        os.makedirs(upperdir, exist_ok=True)
+    else:
+        workdir = None
+        upperdir = None
     with catch_and_die([CalledProcessError]):
         check_call([
             'mount', '-t', 'overlay', 'overlay', '-o',
@@ -86,11 +90,20 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
                 workdir=',workdir=' + workdir if workdir else ''),
 	 	mountpoint
 	])
-    
-#if not os.getuid() and platform.system() == 'Linux':
-if False:
+
+known_union_tastes = {
+    'overlay': mount_overlay,
+    'unionfs-fuse': mount_unionfs}
+
+with open(os.path.join(get_plash_data(), 'union_taste')) as f:
+    union_taste = f.read()
+
+try:
+    mount_func = known_union_tastes[union_taste]
+except KeyError:
+    die('unexpected union taste: {}'.format(union_taste))
+
+mount_func(lowerdir_list, mountpoint, changedir)
+
     # overlay is only in the Linux kernel and accesible by root
-    mount_overlay(lowerdir_list, mountpoint, changedir)
-else:
     # unionfs is fuse based and available in Linux, Mac and FreeBSD
-    mount_unionfs(lowerdir_list, mountpoint, changedir)

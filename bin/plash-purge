@@ -28,5 +28,10 @@ if input('Delete all build data? [y/N] ') == 'y':
     except FileNotFoundError:
         pass
 
+    try:
+        os.unlink(os.path.join(plash_data, 'union_taste'))
+    except FileNotFoundError:
+        pass
+
     for dir in os.listdir(plash_data):
         rmtree(os.path.join(plash_data, dir))
