@@ -7,7 +7,7 @@ python:
 
 install:
   # install plash
-  - sudo apt-get install python3 python3-pip
+  - sudo apt-get install python3 python3-pip unionfs-fuse
   - sudo pip3 install plash
 
 cache:
