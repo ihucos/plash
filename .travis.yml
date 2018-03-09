@@ -25,7 +25,6 @@ deploy:
 
   - provider: script
     script:
-      - plash plash-init
       - plash misc/pretty
       - git commit -am "prettify cron job"
       - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
