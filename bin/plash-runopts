@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+#
+# usage: plash-runopts blah
+
+import argparse
+import os
+import sys
+import shlex
+from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die
+from plashlib import ux
+from subprocess import check_call, CalledProcessError
+from tempfile import mkdtemp
+
+ux.assert_initialized()
+
+setup_mount_namespace = not os.environ.get('PLASH_RUNOPTS_SKIP_MOUNT_NAMESPACE')
+if not os.getuid() and setup_mount_namespace:
+    os.environ['PLASH_RUNOPTS_SKIP_MOUNT_NAMESPACE'] = '1'
+    os.execlp('unshare', 'unshare', '--mount', *sys.argv)
+
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument('container')
+parser.add_argument('cmd', nargs='*')
+parser.add_argument('-b', '--bind', action='append')
+parser.add_argument('-n', '--no-default-binds', action='store_true')
+parser.add_argument('-c', '--changes')
+args = parser.parse_args()
+
+plash_chroot_extra = []
+for mount in args.bind or []:
+    plash_chroot_extra.extend(['--bind', mount])
+if args.no_default_binds:
+    plash_chroot_extra.append('--no-default-binds')
+
+plash_tmp = os.path.join(get_plash_data(), 'tmp')
+
+# create mountpoint
+user_tmp = '/var/tmp/plash-run-{}'.format(os.getuid())
+try:
+    os.mkdir(user_tmp, mode=0o700)
+except FileExistsError:
+    pass
+mountpoint = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(os.getpid()))
+
+if args.changes:
+    changesdir = args.changes
+else:
+
+    # create changedir
+    user_tmp = '/tmp/plash-run-{}'.format(os.getuid())
+    try:
+        os.mkdir(user_tmp, mode=0o700)
+    except FileExistsError:
+        pass
+    changesdir = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(os.getpid()))
+
+with catch_and_die([CalledProcessError]):
+    check_call(['plash-mount', args.container, mountpoint, changesdir])
+
+
+os.environ['PLASH_ROOTLESS_SETUP_CMD'] = 'fusermount -u {}'.format(shlex.quote(mountpoint))
+os.execlp(*([
+'plash-chroot',
+'plash-chroot'] +
+plash_chroot_extra),
+'--',
+mountpoint,
+*args.cmd)
