@@ -17,7 +17,7 @@
 # $ sudo plash-create 3
 # /home/fulano # echo 'hello' > /file
 # /home/fulano # exit 0
-#No 71
+# 71
 #
 # $ plash-create -i ubuntu -- touch /myfile
 # 44

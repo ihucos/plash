@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # usage: plash-exec file [arg1 [arg2 [arg3 ...]]]
 # Used as shebang. It runs a plash buildfile.
@@ -40,6 +40,4 @@ cmd = [
     'plash-run',
 ] + build_args + ['--'] + plash_run_extra_args + ['--'] + run_args
 
-# some path to use, TODO: find a better solution
-os.environ['PATH'] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 os.execlp(*cmd)
