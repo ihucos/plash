@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -xeu
 
 # usage: plash test [TEST-PREFIX]
 # Run unit tests
