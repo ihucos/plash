@@ -18,6 +18,7 @@ git:
   depth: 1
 
 script:
+  - unshare --version
   - misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 
