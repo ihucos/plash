@@ -14,6 +14,10 @@ tmp=$(mktemp -d ~/.plashdata/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp (wh
 export PLASH_DATA=$tmp
 export PATH=$DIR/../bin:$PATH
 export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
+echo $PATH
+echo $PYTHONPATH
+pwd
+ls
 plash-init
 
 BUSYBOX=$(plash-import-tar $DIR/../misc/busybox.tar busybox 2> /dev/null)
