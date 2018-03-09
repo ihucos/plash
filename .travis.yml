@@ -19,9 +19,8 @@ git:
 
 script:
   - uname -a
-  - man unshare
   - unshare --version
-  - misc/runtests
+  - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 
 deploy:
