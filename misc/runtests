@@ -9,8 +9,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PS4='+ ${BASH_SOURCE}:${LINENO} '
 
 #mkdir -p /var/lib/plash/tmp
-tmp=$(mktemp -d ~/.plashdata/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp (why?)
 plash-init
+tmp=$(mktemp -d ~/.plashdata/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp (why?)
 export PLASH_DATA=$tmp
 plash-init
 
