@@ -9,15 +9,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PS4='+ ${BASH_SOURCE}:${LINENO} '
 
 #mkdir -p /var/lib/plash/tmp
+export PATH=$DIR/../bin:$PATH
+export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
 plash-init
 tmp=$(mktemp -d ~/.plashdata/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp (why?)
 export PLASH_DATA=$tmp
-export PATH=$DIR/../bin:$PATH
-export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
-echo $PATH
-echo $PYTHONPATH
-pwd
-ls
 plash-init
 
 BUSYBOX=$(plash-import-tar $DIR/../misc/busybox.tar busybox 2> /dev/null)
