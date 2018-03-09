@@ -10,13 +10,13 @@ PS4='+ ${BASH_SOURCE}:${LINENO} '
 
 #mkdir -p /var/lib/plash/tmp
 tmp=$(mktemp -d ~/.plashdata/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp (why?)
+plash-init
 export PLASH_DATA=$tmp
 plash-init
 
 export PATH=$DIR/../bin:$PATH
 export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
 
-plash-init
 BUSYBOX=$(plash-import-tar $DIR/../misc/busybox.tar busybox 2> /dev/null)
 export BUSYBOX
 

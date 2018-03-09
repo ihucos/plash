@@ -70,7 +70,7 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
                 lowerdirs=lowerdirs_str, upperdir=upperdir_str),
                 mountpoint])
     except FileNotFoundError as exc:
-        die('{} (HINT: install unionfs-fuse and proot)'.format(exc))
+        die('{} (HINT: install unionfs-fuse)'.format(exc))
 
 def mount_overlay(lowerdirs_list, mountpoint, changedir):
     if changedir:
