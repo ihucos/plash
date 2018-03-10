@@ -10,7 +10,7 @@ install:
   - sudo apt-get install python3 python3-pip unionfs-fuse
   - sudo pip3 install plash
   - wget https://busybox.net/downloads/binaries/1.28.1-defconfig-multiarch/busybox-i686
-  - mv busybusybox-i686 /usr/local/bin/unshare
+  - mv busybox-i686 /usr/local/bin/unshare
   - chmod +x /usr/local/bin/unshare       
 
 
