@@ -11,7 +11,8 @@ install:
   - sudo pip3 install plash
   - wget https://busybox.net/downloads/binaries/1.28.1-defconfig-multiarch/busybox-i686
   - sudo mv busybox-i686 /usr/local/bin/unshare
-  - sudo chmod +x /usr/local/bin/unshare       
+  - sudo chmod +x /usr/local/bin/unshare
+  - sudo ln -s /usr/bin/unionfs-fuse /usr/local/bin/unionfs
 
 
 cache:
