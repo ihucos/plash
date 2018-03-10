@@ -72,14 +72,29 @@ fifo=$1; shift
 echo "" > "$fifo"; status=$(cat "$fifo")
 test "$status" != "error" && exec "$@"'''
 
-os.execlp(
-'unshare',
-'unshare',
-'--user',
-'--mount',
-'sh',
-'-c',
-SETUP_SCRIPT,
-'--',
-fifo_name,
-*sys.argv[1:])
+
+run = [
+    'sh',
+    '-c',
+    SETUP_SCRIPT,
+    '--',
+    fifo_name] + sys.argv[1:]
+
+if not os.environ.get('PLASH_NO_CTYPES'):
+    # what we archieve by calling the unshare binary
+    import ctypes
+    CLONE_NEWNS = 0x00020000
+    CLONE_NEWUSER = 0x10000000
+    MS_REC = 0x4000
+    MS_PRIVATE = 1<<18
+    libc = ctypes.CDLL('libc.so.6')
+    libc.unshare(CLONE_NEWNS | CLONE_NEWUSER)
+    libc.mount("none", "/", 0, MS_REC|MS_PRIVATE, 0)
+    os.execlp('sh', *run)
+else:
+    os.execlp(
+    'unshare',
+    'unshare',
+    '--user',
+    '--mount',
+    *run)
