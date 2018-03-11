@@ -13,6 +13,7 @@ from multiprocessing import Lock # that takes way too long to load
 import signal
 import ctypes
 
+# I do believe this libc constants are stable and pray every day for that
 CLONE_NEWNS = 0x00020000
 CLONE_NEWUSER = 0x10000000
 MS_REC = 0x4000
