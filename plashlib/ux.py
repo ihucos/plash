@@ -8,11 +8,5 @@ def assert_initialized():
     if not os.path.exists(last_inited):
         die('run plash-init first')
 
-
-def assert_is_root():
-    if not os.getuid() == 0:
-        die('you are not root')
-
-
 def assert_container_exists(cont):
     nodepath_or_die(cont)
