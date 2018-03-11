@@ -21,11 +21,11 @@ git:
   depth: 1
 
 script:
-  - if test "$ROOT" = true; then
-  -   sudo misc/runtests
-  - else
-  -   misc/runtests
-  - fi
+  - if test "$ROOT" = true; then;
+      sudo misc/runtests;
+    else;
+      misc/runtests;
+    fi;
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 
 deploy:
