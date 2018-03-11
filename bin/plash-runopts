@@ -6,17 +6,16 @@ import argparse
 import os
 import sys
 import shlex
-from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die
+import platform
+from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die, get_default_shell
 from plashlib import ux
+from plashlib.unshare import unshare
 from subprocess import check_call, CalledProcessError
 from tempfile import mkdtemp
 
-ux.assert_initialized()
+DEFAULT_BIND = ['/tmp', '/home', '/etc/resolv.conf', '/sys', '/dev', '/proc']
 
-setup_mount_namespace = not os.environ.get('PLASH_RUNOPTS_SKIP_MOUNT_NAMESPACE')
-if not os.getuid() and setup_mount_namespace:
-    os.environ['PLASH_RUNOPTS_SKIP_MOUNT_NAMESPACE'] = '1'
-    os.execlp('unshare', 'unshare', '--mount', *sys.argv)
+ux.assert_initialized()
 
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('container')
@@ -26,14 +25,6 @@ parser.add_argument('-n', '--no-default-binds', action='store_true')
 parser.add_argument('-c', '--changes')
 args = parser.parse_args()
 
-plash_chroot_extra = []
-for mount in args.bind or []:
-    plash_chroot_extra.extend(['--bind', mount])
-if args.no_default_binds:
-    plash_chroot_extra.append('--no-default-binds')
-
-plash_tmp = os.path.join(get_plash_data(), 'tmp')
-
 # create mountpoint
 user_tmp = '/var/tmp/plash-run-{}'.format(os.getuid())
 try:
@@ -42,10 +33,10 @@ except FileExistsError:
     pass
 mountpoint = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(os.getpid()))
 
+# mount container filesystem
 if args.changes:
     changesdir = args.changes
 else:
-
     # create changedir
     user_tmp = '/tmp/plash-run-{}'.format(os.getuid())
     try:
@@ -53,16 +44,36 @@ else:
     except FileExistsError:
         pass
     changesdir = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(os.getpid()))
-
 with catch_and_die([CalledProcessError]):
     check_call(['plash-mount', args.container, mountpoint, changesdir])
 
+if os.getuid() and platform.system() == 'Linux':
+    # fake root
+    unshare(extra_setup_cmd=['fusermount', '-u', mountpoint])
 
-os.environ['PLASH_ROOTLESS_SETUP_CMD'] = 'fusermount -u {}'.format(shlex.quote(mountpoint))
-os.execlp(*([
-'plash-chroot',
-'plash-chroot'] +
-plash_chroot_extra),
-'--',
-mountpoint,
-*args.cmd)
+# mount /proc and so on
+def rbind(mount):
+    check_call(['mount', '--rbind', mount, os.path.join(mountpoint, mount.lstrip('/'))])
+if not args.no_default_binds:
+    for mount in DEFAULT_BIND:
+        rbind(mount)
+for mount in args.bind or []:
+    rbind(mount)
+
+# setup chroot and exec
+pwd_at_start = os.getcwd()
+os.chroot(mountpoint)
+try:
+    os.chdir(pwd_at_start)
+except (ValueError, PermissionError,
+        FileNotFoundError):  # TODO: put more exceptions here
+    os.chdir('/')
+if not args.cmd:
+    default_root_shell = get_default_shell('/etc/passwd')
+    cmd = [default_root_shell]
+else:
+    cmd = args.cmd
+try:
+    os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    die('Command not found: {}'.format(cmd[0]))
