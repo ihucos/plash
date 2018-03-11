@@ -3,7 +3,6 @@ sudo: enabled
 python:
   - "3.5"
   - "3.6"
-  - "pypy3.5"
 
 install:
   # install plash
