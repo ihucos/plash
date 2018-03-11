@@ -65,11 +65,11 @@ def unshare_if_user(extra_setup_cmd=None):
         lock.acquire()
         prepare_unshared_proccess()
         sys.exit(0)
-    
     # what the unshare binary does do
     libc = ctypes.CDLL('libc.so.6')
-    libc.unshare(CLONE_NEWNS | CLONE_NEWUSER)
-    libc.mount("none", "/", None, MS_REC|MS_PRIVATE, None)
+    assert libc.unshare(CLONE_NEWNS | CLONE_NEWUSER) != -1
+    assert libc.mount("none", "/", None, MS_REC|MS_PRIVATE, None) != -1
+
     lock.release()
     os.wait()
 
@@ -77,5 +77,6 @@ def unshare_if_root():
     if os.getuid():
         return
     libc = ctypes.CDLL('libc.so.6')
-    libc.unshare(CLONE_NEWNS)
-    libc.mount("none", "/", None, MS_REC|MS_PRIVATE, None)
+    assert libc.unshare(CLONE_NEWNS) != -1
+    assert libc.mount("none", "/", None, MS_REC|MS_PRIVATE, None) != -1
+

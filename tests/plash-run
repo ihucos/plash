@@ -43,5 +43,4 @@ new=$(plash-create 1 ls)
 before=$(mount | grep "/index/$new" | wc -l)
 plash-run $new ls
 after=$(mount | grep "index/$new" | wc -l)
-mount
 test $before = $after
