@@ -23,8 +23,8 @@ git:
   depth: 1
 
 script:
-  - export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
-  - export PATH=$DIR/../bin:$PATH
+  - export PYTHONPATH=.:${PYTHONPATH:-}
+  - export PATH=./bin:$PATH
   - plash-init
   - plash-import-tar misc/busybox.tar
   - misc/runtests
