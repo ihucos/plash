@@ -11,7 +11,7 @@ PS4='+ ${BASH_SOURCE}:${LINENO} '
 #mkdir -p /var/lib/plash/tmp
 export PATH=$DIR/../bin:$PATH
 export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
-tmp=$(mktemp -d /var/tmp/plashtest-XXXXXXXX) # we can't use /tmp or /var/tmp (why?)
+tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
 export PLASH_DATA=$tmp
 plash-init
 
