@@ -23,7 +23,7 @@ git:
   depth: 1
 
 script:
-  - uname -a
+  - plash-import-tar misc/busybox.tar
   - misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 

@@ -16,7 +16,7 @@ tmp=$(mktemp -d ~/.plashdata/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp (wh
 export PLASH_DATA=$tmp
 plash-init
 
-BUSYBOX=$(plash-import-tar $DIR/../misc/busybox.tar busybox 2> /dev/null)
+BUSYBOX=$(plash-import-tar $DIR/../misc/busybox.tar 2> /dev/null)
 export BUSYBOX
 
 
