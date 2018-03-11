@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xeu
+set -eu
 
 # usage: plash test [TEST-PREFIX]
 # Run unit tests
@@ -26,7 +26,7 @@ last_arg="${@: -1}"
 testfiles=$(find ./tests/ -type f ! -iname "*.sw*" -iname "${1:-}*")
 for script in $testfiles ; do
   printf ${script:8} # magic 8 is the length of "./tests/"
-  "$script"
+  "$script" > $log 2>&1 &
   if wait $!; then
     echo ' OK'
   else
