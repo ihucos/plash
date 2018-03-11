@@ -42,8 +42,7 @@ except FileExistsError:
     pass
 mountpoint = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(master_pid))
 
-if not os.getuid():
-    unshare_if_root()
+unshare_if_root()
 
 # mount container filesystem
 if args.changes:

@@ -79,4 +79,3 @@ def unshare_if_root():
     libc = ctypes.CDLL('libc.so.6')
     assert libc.unshare(CLONE_NEWNS) != -1
     assert libc.mount("none", "/", None, MS_REC|MS_PRIVATE, None) != -1
-
