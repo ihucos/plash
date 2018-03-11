@@ -4,6 +4,10 @@ python:
   - "3.5"
   - "3.6"
 
+env:
+  - ROOT=true
+  - ROOT=false
+
 install:
   # install plash
   - sudo apt-get install python3 python3-pip unionfs-fuse uidmap
@@ -17,8 +21,8 @@ git:
   depth: 1
 
 script:
-  - misc/runtests
-  - sudo misc/runtests
+  - test "$ROOT" = true && sudo misc/runtests
+  - test "$ROOT" = false && misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 
 deploy:
