@@ -4,10 +4,9 @@
 # Used as shebang. It runs a plash buildfile.
 
 import os, sys
-from plashlib.utils import handle_help_flag, die_with_usage, die, setup_namespace
+from plashlib.utils import handle_help_flag, die_with_usage, die
 from plashlib import ux
 
-setup_namespace()
 handle_help_flag()
 ux.assert_initialized()
 

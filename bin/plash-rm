@@ -7,10 +7,9 @@ import os
 import sys
 from shutil import rmtree
 from tempfile import mkdtemp
-from plashlib.utils import handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data, setup_namespace
+from plashlib.utils import handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data
 from plashlib import ux
 
-setup_namespace()
 handle_help_flag()
 handle_build_args()
 

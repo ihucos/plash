@@ -9,10 +9,7 @@
 import sys
 
 from plashlib import eval, stdlib
-from plashlib.utils import catch_and_die, die, setup_namespace
-
-# try not to be root
-setup_namespace
+from plashlib.utils import catch_and_die, die
 
 tokens = sys.argv[1:]
 

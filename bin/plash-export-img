@@ -4,14 +4,13 @@
 # Export a container as ext4 file system
 
 import sys
-from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die, handle_build_args, setup_namespace
+from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die, handle_build_args
 from plashlib import ux
 from subprocess import check_call, CalledProcessError, check_output, DEVNULL
 from tempfile import mkdtemp, mktemp
 import os
 from shutil import move
 
-setup_namespace()
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()

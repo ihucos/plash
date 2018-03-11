@@ -96,11 +96,6 @@ def handle_help_flag():
                     print(line[2:], end='')
         sys.exit(0)
 
-def setup_namespace():
-    if os.getuid():
-        os.environ['PLASH_DATA'] = get_plash_data()
-        os.execlp('plash-rootless', 'plash-rootless', *sys.argv)
-
 def filter_positionals(args):
     positional = []
     filtered_args = []
@@ -176,30 +171,3 @@ def plash_map(*args):
     if out == '':
         return None
     return out.decode().strip('\n')
-
-def daemonized_fork():
-    if not os.fork():
-        import syslog
-        import signal
-
-        class My:
-            def write(self, msg): syslog.syslog(msg)
-            def flush(self): pass
-        sys.stderr = My()
-        sys.stdout = My()
-
-        #os.close(0)
-        #os.close(1)
-        #os.close(2)
-
-        os.setsid(
-        )  # makes this is kind of a standalone "daemon" process, not more inherit the signal processing
-        os.chdir('/')  # don't lock the directory we where started
-        # os.setpgrp()  # that fixes that the called process waits for all its childs to finish
-        # fork and exit so the child gets 1 as the parent id, which solves blocking if the main process exec waits for its children.
-        signal.signal(signal.SIGHUP, signal.SIG_IGN
-                      )  # don't die if the user closes the terminal (untested)
-        if os.fork():
-            sys.exit(0)
-        else:
-            return True
