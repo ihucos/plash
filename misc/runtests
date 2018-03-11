@@ -11,8 +11,7 @@ PS4='+ ${BASH_SOURCE}:${LINENO} '
 #mkdir -p /var/lib/plash/tmp
 export PATH=$DIR/../bin:$PATH
 export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
-plash-init
-tmp=$(mktemp -d ~/.plashdata/tmp/XXXXXXXXXX) # we can't use /tmp or /var/tmp (why?)
+tmp=$(mktemp -d /var/tmp/plashtest-XXXXXXXX) # we can't use /tmp or /var/tmp (why?)
 export PLASH_DATA=$tmp
 plash-init
 
