@@ -22,7 +22,7 @@ git:
 
 script:
   - mount
-  - sudo unshare --mount mount --rbind /tmp /mnt
+  - sudo unshare --mount -- mount --rbind /tmp /mnt
   - mount
   - if test "$ROOT" = true; then
       sudo misc/runtests;
