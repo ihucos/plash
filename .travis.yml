@@ -8,11 +8,6 @@ install:
   # install plash
   - sudo apt-get install python3 python3-pip unionfs-fuse uidmap
   - sudo pip3 install plash
-  - wget https://busybox.net/downloads/binaries/1.28.1-defconfig-multiarch/busybox-i686
-  - sudo mv busybox-i686 /usr/local/bin/unshare
-  - sudo chmod +x /usr/local/bin/unshare
-  - sudo ln -s /usr/bin/unionfs-fuse /usr/local/bin/unionfs
-
 
 cache:
   directories:
@@ -22,11 +17,8 @@ git:
   depth: 1
 
 script:
-  - export PYTHONPATH=.:${PYTHONPATH:-}
-  - export PATH=./bin:$PATH
-  - plash-init
-  - plash-import-tar misc/busybox.tar
   - misc/runtests
+  - sudo misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 
 deploy:
