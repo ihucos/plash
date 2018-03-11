@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
-# usage: plash-runopts blah
+# usage: plash-runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
+# Run a container specifing some extra options, see --help
 
 import argparse
 import os
