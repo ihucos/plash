@@ -156,6 +156,19 @@ def namespace(ns):
     return eval([['layer'], ['run', ': new namespace {}'.format(ns)],
                  ['layer']])
 
+@action()
+def fix_apt():
+    script = '''echo 'Dir::Log::Terminal "/dev/null";' > /etc/apt/apt.conf.d/unionfs_workaround
+echo 'APT::Sandbox::User "root";' >> /etc/apt/apt.conf.d/unionfs_workarounds
+: may fail but have effect: https://github.com/rpodgorny/unionfs-fuse/issues/78
+chown root:root /var/cache/apt/archives/partial || true
+'''
+    return eval([['run', script]])
+
+# def magic_unionfs_workarounds
+@action()
+def fix_yum():
+    yield 'echo "%_netsharedpath /usr" >> /etc/rpm/macros'
 
 @action()
 def list():
