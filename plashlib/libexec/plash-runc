@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+#
+# usage: plash runc container [ARG1 [ARG2 [ARG3 ...]]]
+# Run a container with runc.
+# See the runc project page: https://github.com/opencontainers/runc
+
+import json
+import os
+import sys
+import tempfile
+from os.path import join
+from subprocess import CalledProcessError, check_call
+from uuid import uuid4
+
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell, get_plash_data
+from plashlib import ux
+
+handle_help_flag()
+handle_build_args()
+ux.assert_initialized()
+
+try:
+    container, *cmd = sys.argv[1:]
+    if cmd and cmd[0] == '--upperdir-workdir-pair':
+        cmd.pop(0)
+        upperdir, workdir = cmd.pop(0), cmd.pop(0)
+    else:
+        workdir = upperdir = None
+except ValueError:
+    die_with_usage()
+
+# fail here instead of inside plash mount if container does not exists
+ux.assert_container_exists(container)
+
+clean_dirs = []
+if not upperdir or not workdir:
+    plash_tmp = join(get_plash_data(), 'tmp')
+    upperdir = tempfile.mkdtemp(
+        dir=plash_tmp, prefix='upperdir-{}-'.format(os.getpid()))
+    workdir = tempfile.mkdtemp(
+        dir=plash_tmp, prefix='workdir-{}-'.format(os.getpid()))
+    cleanup_dirs = [upperdir, workdir]
+else:
+    cleanup_dirs = []
+
+tmp = tempfile.mkdtemp()
+os.chdir(tmp)
+os.mkdir('./rootfs')
+with catch_and_die([CalledProcessError]):
+    check_call([
+        'plash-mount', container, '--upperdir', upperdir, '--workdir', workdir,
+        './rootfs'
+    ])
+    check_call(['runc', 'spec'])
+
+default_shell = get_default_shell(join('./rootfs/etc/passwd'))
+
+with open(join(tmp, 'config.json')) as f:
+    bundle = json.loads(f.read())
+
+bundle['hostname'] = container
+bundle['root']['readonly'] = False
+bundle['mounts'].append({
+    'destination': '/etc/resolv.conf',
+    'source': '/etc/resolv.conf',
+    'type': 'bind',
+    'options': ['bind']
+})
+bundle['process']['args'] = cmd or [default_shell]
+# runc seems to need to be told when stdin is not from a terminal,
+# but that will also make stdout and and stderr per reported as not being ttys to the program being runned
+bundle['process']['terminal'] = os.isatty(0)
+bundle['linux']['namespaces'].remove({'type': 'network'})
+bundle.setdefault('hooks', {})
+bundle['hooks'].setdefault('poststop', [])
+bundle['hooks']['poststop'].append({
+    "path": "/bin/umount",
+    "args": ['umount', join(tmp, 'rootfs')]  # also cleanup the dirs!!
+})
+# from pprint import pprint; pprint(bundle)
+
+with open(join(tmp, 'config.json'), 'w') as f:
+    f.write(json.dumps(bundle))
+
+cmd = ['runc', 'run', str(uuid4())]
+os.execlp(cmd[0], *cmd)

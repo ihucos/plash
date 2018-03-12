@@ -11,27 +11,27 @@ trap cleanup EXIT
 echo '=BEGINMARK='
 
 # don't forget to run init first.
-plash-init
+plash init
 
 # build a simple image
-plash-build --image alpine --run 'touch /file'
+plash build --image alpine --run 'touch /file'
 
 # second build is cached
-plash-build --image alpine --run 'touch /file'
+plash build --image alpine --run 'touch /file'
 
-# run something inside a container (or use plash-runc)
-plash-run 2 ls /file
+# run something inside a container (or use plash runc)
+plash run 2 ls /file
 
 # layering is explicit
-plash-build --image alpine --run 'touch /file' --layer --run 'touch /file2'
+plash build --image alpine --run 'touch /file' --layer --run 'touch /file2'
 
 # delete a container
-plash-rm 3
+plash rm 3
 
 # build and run in one command
-plash-run --image alpine --run 'touch /file' -- ls /file
+plash run --image alpine --run 'touch /file' -- ls /file
 
 # plash actually includes some configuration management 
-plash-run --image alpine --apk git -- git --version
+plash run --image alpine --apk git -- git --version
 
 exit
