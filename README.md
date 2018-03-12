@@ -17,7 +17,7 @@ Plash's only requirements are python3, a linux kernel (>= 3.18) and a rudimentar
 Plash can be used by unprivileged users (with unionfs-fuse and newuidmap as dependencies)
 
 #### Its just processes
-Plash containers are processes exactly like you know them. They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in groups with `supervisord` and `runit` or simply access files in your home directory. Only parts of the filesystem are isolated. If you need more isolation, use another tool just for that or run containers "traditionally" with `plash-runc`.
+Plash containers are processes exactly like you know them. They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in groups with `supervisord` and `runit` or simply access files in your home directory. Only parts of the filesystem are isolated. If you need more isolation, use another tool just for that or run containers "traditionally" with `plash runc`.
 
 #### Plashfiles
 Plashfiles are executable build files featuring optional lightweight configuration management capabilities.
@@ -30,10 +30,10 @@ Plashfiles are executable build files featuring optional lightweight configurati
 
 ```
 # don't forget to run init first.
-$ plash-init
+$ plash init
 
 # build a simple image
-$ plash-build --image alpine --run 'touch /file'
+$ plash build --image alpine --run 'touch /file'
 [0%|10%|20%|30%|40%|50%|60%|70%|80%|90%|100%]
 extracting...
 --> touch /file
@@ -41,28 +41,28 @@ extracting...
 2
 
 # second build is cached
-$ plash-build --image alpine --run 'touch /file'
+$ plash build --image alpine --run 'touch /file'
 2
 
-# run something inside a container (or use plash-runc)
-$ plash-run 2 ls /file
+# run something inside a container (or use plash runc)
+$ plash run 2 ls /file
 /file
 
 # layering is explicit
-$ plash-build --image alpine --run 'touch /file' --layer --run 'touch /file2'
+$ plash build --image alpine --run 'touch /file' --layer --run 'touch /file2'
 --> touch /file2
 --:
 3
 
 # delete a container
-$ plash-rm 3
+$ plash rm 3
 
 # build and run in one command
-$ plash-run --image alpine --run 'touch /file' -- ls /file
+$ plash run --image alpine --run 'touch /file' -- ls /file
 /file
 
 # plash actually includes some configuration management
-$ plash-run --image alpine --apk git -- git --version
+$ plash run --image alpine --apk git -- git --version
 --> apk update
 fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/APKINDEX.tar.gz
 <snip>
