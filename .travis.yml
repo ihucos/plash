@@ -28,7 +28,7 @@ script:
       sudo plash test;
     else
       python3 setup.py bdist_wheel;
-      pip3 install ./dist/*.whl
+      pip3 install ./dist/*.whl;
       plash test;
     fi;
 
