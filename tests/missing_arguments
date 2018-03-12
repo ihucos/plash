@@ -14,7 +14,6 @@ plash-mount
 plash-nodepath
 plash-run
 plash-runc
-plash-use
 plash-with-mount
 )
 for prog in "${array[@]}"
