@@ -63,7 +63,7 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
         upperdir_str = ''
 
     unionfs = shutil.which('unionfs') or shutil.which('unionfs-fuse') or die(
-        'Install unionfs-fuse')
+        'unionfs-fuse seems not to be installed')
     with catch_and_die([CalledProcessError]):
         check_call([
             unionfs,

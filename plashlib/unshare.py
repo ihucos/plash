@@ -27,7 +27,7 @@ def get_subs(query_user, subfile):
         user, start, count = read.split(':')
         if user == query_user:
             return int(start), int(count)
-    die('blah blah not sub(g|u)id found')
+    die('The user {} does not havy any subuids or subgids, please add some'.format(query_user))
 
 def unshare_if_user(extra_setup_cmd=None):
     if not os.getuid():
