@@ -74,13 +74,13 @@ elif image_hint.startswith('@'):
         die('image map could not be resolved: {}'.format(image_hint))
 else:
     if image_hint.startswith('https://') or image_hint.startswith('http://'):
-        cmd = ['plash import-url', image_hint]
+        cmd = ['plash-import-url', image_hint]
     elif image_hint.startswith('/') or image_hint.startswith('./'):
-        cmd = ['plash import-tar', image_hint]
+        cmd = ['plash-import-tar', image_hint]
     elif image_hint.startswith('docker://'):
-        cmd = ['plash import-docker', image_hint[9:]]
+        cmd = ['plash-import-docker', image_hint[9:]]
     else:
-        cmd = ['plash import-lxcimages', image_hint]
+        cmd = ['plash-import-lxcimages', image_hint]
     cache_key = ':'.join(cmd)
     base_container = plash_map(cache_key.encode())
     if not base_container:
