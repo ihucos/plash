@@ -29,7 +29,7 @@ setup(
     description='Container build and run tool',
     url='https://github.com/ihucos/plash',
     packages=['plashlib'],
-    scripts=bin_files,
+    data_files=[("/usr/local/bin", bin_files)],
 
     # extra stuff
     python_requires='>=3',
