@@ -26,8 +26,11 @@ try:
 except IndexError:
     value = None
 
+def escape_cache_key(unescaped_cache_key):
+    return unescaped_cache_key.replace('/', '%')
 
-def cache_set(cache_key, container_id):
+def cache_set(unescaped_cache_key, container_id):
+    cache_key = escape_cache_key(unescaped_cache_key)
     nodepath = nodepath_or_die(container_id)
     with catch_and_die([OSError], debug='mkdtemp'):
         tmpdir = mkdtemp(dir=join(plash_data, 'tmp'))
@@ -39,7 +42,8 @@ def cache_set(cache_key, container_id):
             join(tmpdir, 'link'), join(plash_data, 'cache_keys', cache_key))
 
 
-def cache_rm(cache_key):
+def cache_rm(unescaped_cache_key):
+    cache_key = escape_cache_key(unescaped_cache_key)
     try:
         with catch_and_die([OSError], debug='unlink'):
             os.unlink(join(plash_data, 'cache_keys', cache_key))
@@ -48,7 +52,8 @@ def cache_rm(cache_key):
         return False
 
 
-def cache_get(cache_key):
+def cache_get(unescaped_cache_key):
+    cache_key = escape_cache_key(unescaped_cache_key)
     try:
         nodepath = os.readlink(join(plash_data, 'cache_keys', cache_key))
     except FileNotFoundError:

@@ -65,3 +65,7 @@ stdout=$(mktemp)
 
 : bad option causes bad exit status
 ! plash build --my-bad-opiton
+
+: build from hard drive
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+plash-build -i $DIR/../testdata/busybox.tar
