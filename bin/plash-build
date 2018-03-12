@@ -107,6 +107,8 @@ for layer in layers:
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             cwd='/')
+        # for some reason in ubuntu the path is not exported
+        p.stdin.write(b'export PATH\n')
         p.stdin.write(b'set -ex\n')
         p.stdin.write(layer.encode())
         p.stdin.close()
