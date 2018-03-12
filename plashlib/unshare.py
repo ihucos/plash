@@ -6,7 +6,7 @@ import os
 import sys
 import signal
 from subprocess import check_call, CalledProcessError
-from plashlib.utils import catch_and_die, get_plash_data
+from plashlib.utils import catch_and_die, get_plash_data, die
 import tempfile
 from getpass import getuser
 from multiprocessing import Lock # that takes way too long to load
