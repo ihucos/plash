@@ -1,6 +1,10 @@
 #!/bin/bash
 set -xeu
 
+# skip if in user mode because this takes
+# too long on the fuse filesystem
+test "$(id -u)" != 0 && exit 0
+
 : specifying - as a file
 tmp=$(mktemp)
 plash-export-tar 1 - > $tmp

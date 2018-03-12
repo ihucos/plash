@@ -5,13 +5,14 @@
 
 import os
 from shutil import rmtree
-from plashlib.utils import handle_help_flag
+from plashlib.utils import handle_help_flag, get_plash_data
+from plashlib.unshare import unshare_if_user
 from plashlib import ux
 
 handle_help_flag()
-ux.assert_is_root()
+plash_data = get_plash_data()
+unshare_if_user()
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 if input('Delete all build data? [y/N] ') == 'y':
 
     #
@@ -19,14 +20,19 @@ if input('Delete all build data? [y/N] ') == 'y':
     #
 
     try:
-        os.unlink(os.path.join(PLASH_DATA, 'id_counter'))
+        os.unlink(os.path.join(plash_data, 'id_counter'))
     except FileNotFoundError:
         pass
 
     try:
-        os.unlink(os.path.join(PLASH_DATA, 'id'))
+        os.unlink(os.path.join(plash_data, 'id'))
     except FileNotFoundError:
         pass
 
-    for dir in os.listdir(PLASH_DATA):
-        rmtree(os.path.join(PLASH_DATA, dir))
+    try:
+        os.unlink(os.path.join(plash_data, 'union_taste'))
+    except FileNotFoundError:
+        pass
+
+    for dir in os.listdir(plash_data):
+        rmtree(os.path.join(plash_data, dir))

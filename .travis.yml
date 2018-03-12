@@ -3,12 +3,15 @@ sudo: enabled
 python:
   - "3.5"
   - "3.6"
-  - "pypy3.5"
+
+env:
+  - ROOT=true
+  - ROOT=false
 
 install:
   # install plash
-  - sudo apt-get install python3 python3-pip
-  - sudo pip3 install plash
+  - sudo apt-get install python3 python3-pip unionfs-fuse uidmap
+  # sudo pip3 install plash
 
 cache:
   directories:
@@ -18,15 +21,18 @@ git:
   depth: 1
 
 script:
-  - sudo misc/runtests
+  - if test "$ROOT" = true; then
+      sudo misc/runtests;
+    else
+      misc/runtests;
+    fi;
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
 
 deploy:
 
   - provider: script
     script:
-      - sudo plash plash-init
-      - sudo plash misc/pretty
+      - plash misc/pretty
       - git commit -am "prettify cron job"
       - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
     on:

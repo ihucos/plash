@@ -11,12 +11,9 @@ from tempfile import mkdtemp, mktemp
 import os
 from shutil import move
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     container, out = sys.argv[1:3]

@@ -14,7 +14,6 @@ from tempfile import mkstemp
 
 handle_help_flag()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     url = sys.argv[1]
@@ -36,7 +35,7 @@ def reporthook(count, block_size, total_size):
             sys.stderr.flush()
 
 
-sys.stderr.write('[0%|')
+sys.stderr.write('Fetch  [0%|')
 sys.stderr.flush()
 with catch_and_die([URLError], debug=url):
     try:
@@ -48,6 +47,5 @@ with catch_and_die([URLError], debug=url):
 
 sys.stderr.write('100%]\n')
 sys.stderr.flush()
-print('extracting...', file=sys.stderr)
 
 execlp('plash-import-tar', 'plash-import-tar', tmpfile)

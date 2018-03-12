@@ -10,26 +10,48 @@ from os.path import join
 from tempfile import mkdtemp
 from subprocess import check_call, CalledProcessError
 
-from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, get_plash_data
 from plashlib import ux
+from plashlib.unshare import unshare_if_user
 
 handle_help_flag()
 ux.assert_initialized()
-ux.assert_is_root()
-
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
 
 try:
     tar_file = sys.argv[1]
 except IndexError:
     die_with_usage()
 
-rootfs = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+rootfs = mkdtemp(dir=join(get_plash_data(), 'tmp'))
 if tar_file == '-':
     t = tarfile.open(fileobj=sys.stdin.buffer, mode='r|')
 else:
     t = tarfile.open(tar_file)
-t.extractall(rootfs)
+ignored_devs = []
+changed_root = None
+def filter_dev(members):
+    for counter, m in enumerate(members):
+        if not counter % 1000:
+            sys.stderr.write('#')
+            sys.stderr.flush()
+        if m.name == '.' and not m.mode == 0o755:
+            changed_root = m.mode, 0o755
+            m.mode = 0o755
+        if m.isdev():
+            ignored_devs.append(m.name.lstrip('.'))
+            continue
+        yield m
+
+sys.stderr.write('Unpack [')
+sys.stderr.flush()
+unshare_if_user()
+t.extractall(rootfs, members=filter_dev(t.getmembers()))
+
+print(']', file=sys.stderr)
+if ignored_devs:
+    print('Ignored {} dev files'.format(len(ignored_devs)), file=sys.stderr)
+if changed_root:
+    print('Changed root dir mode {} -> {}'.format(oct(i)[2:] for i in changed_root), file=sys.stderr)
 
 # we want /etc/resolv to not by a symlink or not to not exist - that makes the later mount not work #FIXME: add a layer for that
 resolvconf = join(rootfs, 'etc/resolv.conf')

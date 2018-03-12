@@ -11,7 +11,6 @@ import sys
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     container, out = sys.argv[1:3]

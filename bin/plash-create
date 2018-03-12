@@ -27,6 +27,7 @@ import subprocess
 import sys
 from os.path import join
 from plashlib import ux
+from plashlib.utils import get_plash_data
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 from sys import exit
@@ -34,17 +35,15 @@ from tempfile import mkdtemp
 
 from plashlib.utils import die, die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-
 ux.assert_initialized()
-ux.assert_is_root()
-
 handle_help_flag()
 handle_build_args()
 
+plash_tmp = join(get_plash_data(), 'tmp')
+
 try:
     container = sys.argv[1]
-    shell_with_args = sys.argv[2:]
+    cmd = sys.argv[2:]
 except IndexError:
     die_with_usage()
 
@@ -53,33 +52,25 @@ if not container:
 
 nodepath_or_die(container)
 
-upperdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-workdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
-
+changesdir = mkdtemp(dir=plash_tmp, prefix='plash-create-changesdir-')
 p = subprocess.Popen(
     [
-        'plash-run',
+        'plash-runopts',
+        '--no-default-binds',
+        '--bind', '/home',
+        '--bind', '/etc/resolv.conf',
+        '--bind', '/sys',
+        '--bind', '/dev',
+        '--bind', '/proc',
+        '--changes', changesdir,
+        '--',
         container,
-        '--mount',
-        '/proc,/dev/pts,/etc/resolv.conf,/home',
-        '--upperdir-workdir-pair',
-        upperdir,
-        workdir,
-        #'plash-runc',
-        #container,
-        #'--upperdir-workdir-pair',
-        #upperdir,
-        #workdir,
-    ] + list(shell_with_args),
+    ] + cmd,
     stdout=2
 )  # redirect stdout to stderr because we are passing the container id through stdout
 
 exit = p.wait()
 if exit:
-    die("build returned exit status {}".format(exit), exit=4)
+    die("building returned exit status {}".format(exit), exit=4)
 
-#with catch_and_die([CalledProcessError]):
-#cont = check_output(['plash-add-layer', container, upperdir]).decode().strip('\n')
-#print(cont)
-
-os.execlp('plash-add-layer', 'plash-add-layer', container, upperdir)
+os.execlp('plash-add-layer', 'plash-add-layer', container, os.path.join(changesdir, 'data'))

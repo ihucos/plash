@@ -8,13 +8,13 @@ import os
 from os.path import join
 from tempfile import mkdtemp
 
-from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, nodepath_or_die
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, nodepath_or_die, get_plash_data
+from plashlib import ux
 
 handle_help_flag()
-#ux.assert_is_root()
-# ux.assert_initialized()
+ux.assert_initialized()
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
+plash_data = get_plash_data()
 
 try:
     key = sys.argv[1]
@@ -30,19 +30,19 @@ except IndexError:
 def cache_set(cache_key, container_id):
     nodepath = nodepath_or_die(container_id)
     with catch_and_die([OSError], debug='mkdtemp'):
-        tmpdir = mkdtemp(dir=join(PLASH_DATA, 'tmp'))
+        tmpdir = mkdtemp(dir=join(plash_data, 'tmp'))
         os.symlink(nodepath, join(tmpdir, 'link'))
 
         # rename will overwrite atomically the cache key if it already exists,
         # just symlink would not
         os.rename(
-            join(tmpdir, 'link'), join(PLASH_DATA, 'cache_keys', cache_key))
+            join(tmpdir, 'link'), join(plash_data, 'cache_keys', cache_key))
 
 
 def cache_rm(cache_key):
     try:
         with catch_and_die([OSError], debug='unlink'):
-            os.unlink(join(PLASH_DATA, 'cache_keys', cache_key))
+            os.unlink(join(plash_data, 'cache_keys', cache_key))
         return True
     except FileNotFoundError:
         return False
@@ -50,7 +50,7 @@ def cache_rm(cache_key):
 
 def cache_get(cache_key):
     try:
-        nodepath = os.readlink(join(PLASH_DATA, 'cache_keys', cache_key))
+        nodepath = os.readlink(join(plash_data, 'cache_keys', cache_key))
     except FileNotFoundError:
         return
     if os.path.exists(nodepath):

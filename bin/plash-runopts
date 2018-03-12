@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+#
+# usage: plash-runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
+# Run a container specifing some extra options, see --help
+
+import argparse
+import os
+import sys
+import shlex
+import platform
+from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die, get_default_shell
+from plashlib import ux
+from plashlib.unshare import unshare_if_user, unshare_if_root
+from subprocess import check_call, CalledProcessError
+from tempfile import mkdtemp
+
+DEFAULT_BIND = ['/tmp', '/home', '/etc/resolv.conf', '/sys', '/dev', '/proc']
+
+ux.assert_initialized()
+
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument('container')
+parser.add_argument('cmd', nargs='*')
+parser.add_argument('-b', '--bind', action='append')
+parser.add_argument('-n', '--no-default-binds', action='store_true')
+parser.add_argument('-c', '--changes')
+args = parser.parse_args()
+
+
+requested_mounts = []
+if not args.no_default_binds:
+    requested_mounts.extend(DEFAULT_BIND)
+requested_mounts.extend(args.bind or [])
+
+master_pid = os.getpid()
+
+# create mountpoint
+user_tmp = '/var/tmp/plash-run-{}'.format(master_pid)
+try:
+    os.mkdir(user_tmp, mode=0o700)
+except FileExistsError:
+    pass
+mountpoint = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(master_pid))
+
+unshare_if_root()
+
+# mount container filesystem
+if args.changes:
+    changesdir = args.changes
+else:
+    # create changedir
+    user_tmp = '/tmp/plash-run-{}'.format(os.getuid())
+    try:
+        os.mkdir(user_tmp, mode=0o700)
+    except FileExistsError:
+        pass
+    changesdir = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(master_pid))
+with catch_and_die([CalledProcessError]):
+    check_call(['plash-mount', args.container, mountpoint, changesdir])
+
+unshare_if_user(extra_setup_cmd=['fusermount', '-u', mountpoint])
+
+# mount /proc and so on
+for mount in requested_mounts:
+    check_call(['mount', '--rbind', mount, os.path.join(mountpoint, mount.lstrip('/'))])
+
+# setup chroot and exec
+pwd_at_start = os.getcwd()
+os.chroot(mountpoint)
+try:
+    os.chdir(pwd_at_start)
+except (ValueError, PermissionError,
+        FileNotFoundError):  # TODO: put more exceptions here
+    os.chdir('/')
+if not args.cmd:
+    default_root_shell = get_default_shell('/etc/passwd')
+    cmd = [default_root_shell]
+else:
+    cmd = args.cmd
+try:
+    os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    die('Command not found: {}'.format(cmd[0]))

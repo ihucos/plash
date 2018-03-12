@@ -12,15 +12,12 @@ from os.path import join
 from subprocess import CalledProcessError, check_call
 from uuid import uuid4
 
-from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, handle_build_args, get_default_shell, get_plash_data
 from plashlib import ux
-
-PLASH_TMP = join(os.environ.get('PLASH_DATA', '/var/lib/plash'), 'tmp')
 
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     container, *cmd = sys.argv[1:]
@@ -37,10 +34,11 @@ ux.assert_container_exists(container)
 
 clean_dirs = []
 if not upperdir or not workdir:
+    plash_tmp = join(get_plash_data(), 'tmp')
     upperdir = tempfile.mkdtemp(
-        dir=PLASH_TMP, prefix='upperdir-{}-'.format(os.getpid()))
+        dir=plash_tmp, prefix='upperdir-{}-'.format(os.getpid()))
     workdir = tempfile.mkdtemp(
-        dir=PLASH_TMP, prefix='workdir-{}-'.format(os.getpid()))
+        dir=plash_tmp, prefix='workdir-{}-'.format(os.getpid()))
     cleanup_dirs = [upperdir, workdir]
 else:
     cleanup_dirs = []

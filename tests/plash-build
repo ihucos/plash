@@ -42,7 +42,7 @@ np=$(plash-nodepath $cont)
 cmp $np/_data/root/tmp/out <(ls -1 /home)
 
 : tmp is not mounted when building
-touch /tmp/mark
+mktemp /tmp/XXXXXXXXXXX
 cont=$(plash-build -i 1 -x 'test -z $(ls /tmp)')
 
 : build error returns bad exit code
