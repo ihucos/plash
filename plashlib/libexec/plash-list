@@ -24,4 +24,5 @@ for prog in sorted(progs):
                 first_sentence = next_next_line[2:-1].split('.')[0]
 
     assert first_sentence
-    print(prog.ljust(max_prog_lenght), first_sentence)
+    subcommand = prog[len('plash-'):]
+    print('plash ' + subcommand.ljust(max_prog_lenght), first_sentence)

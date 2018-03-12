@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
 import sys, os
-subcommand = sys.argv[1]
 import plashlib
+from plashlib.utils import die
+
+def die_helping():
+    print('Plash is a lean container build and run engine, try `plash list`', file=sys.stderr)
+    sys.exit(1)
+try:
+    subcommand = sys.argv[1]
+except IndexError:
+    die_helping()
+if subcommand in ('-h', '--help'):
+    die_helping()
 libdir = os.path.dirname(plashlib.__file__)
 libexec = os.path.join(libdir, 'libexec')
 binfile = 'plash-{}'.format(subcommand)
 binfilepath = os.path.join(libexec, binfile)
 os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
-os.execlp(binfilepath, binfile, *sys.argv[2:])
+try:
+    os.execlp(binfilepath, binfile, *sys.argv[2:])
+except:
+    die('no such subcommand: {} (try `plash list`)'.format(subcommand))
