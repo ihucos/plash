@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-export-squashfs CONTAINER FILE
+# usage: plash export-squashfs CONTAINER FILE
 # Export a container as squashfs
 
 from plashlib.utils import handle_help_flag, die_with_usage, handle_build_args
@@ -17,5 +17,5 @@ try:
 except ValueError:
     die_with_usage()
 
-os.execlp('plash-with-mount', 'plash-with-mount', container, 'mksquashfs', '.',
+os.execlp('plash-with-mount', 'plash with-mount', container, 'mksquashfs', '.',
           out)

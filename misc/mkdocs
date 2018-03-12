@@ -16,7 +16,7 @@ def render(tpl_path, **context):
             DOCDIR, 'templs'))).get_template(filename).render(context)
 
 
-out = check_output('plash-list')
+out = check_output('plash list')
 out = out.decode()
 progs = sorted((i.split(None, 1) for i in out.splitlines()))
 
@@ -25,7 +25,7 @@ with open(path.join(DOCDIR, 'index.html'), 'w') as f:
 
 filedocs = []
 binfiles = [
-    i.split()[0] for i in check_output('plash-list').decode().splitlines()
+    i.split()[0] for i in check_output('plash list').decode().splitlines()
 ]
 for binfile in binfiles:
     if binfile.startswith('.'):

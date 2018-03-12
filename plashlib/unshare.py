@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-noroot CMD
+# usage: plash noroot CMD
 
 import os
 import sys

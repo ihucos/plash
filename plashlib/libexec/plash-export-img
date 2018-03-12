@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-export-img CONTAINER FILE
+# usage: plash export-img CONTAINER FILE
 # Export a container as ext4 file system
 
 import sys
@@ -31,7 +31,7 @@ with catch_and_die([CalledProcessError, FileNotFoundError]):
     check_call(['fallocate', '-l', '{}K'.format(image_size), tmp])
     check_call(['mkfs.ext4', '-q', tmp])
     check_call(['mount', tmp, mnt])
-    check_call(['plash-with-mount', container, 'cp', '-r', '.', mnt])
+    check_call(['plash with-mount', container, 'cp', '-r', '.', mnt])
     check_call(['umount', mnt])
     check_call(['e2fsck', '-fp', tmp], stdout=DEVNULL)
     check_call(['resize2fs', '-M', tmp], stderr=DEVNULL)

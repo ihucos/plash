@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-export-tar CONTAINER [FILE | - ]
+# usage: plash export-tar CONTAINER [FILE | - ]
 # Export container as tar archive.
 # It exports the file system of a container to the given file as a compressed tar archive.
 # If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
@@ -19,5 +19,5 @@ try:
 except IndexError:
     die_with_usage()
 
-execlp('plash-with-mount', 'plash-with-mount', container, 'tar', '-czf',
+execlp('plash-with-mount', 'plash with-mount', container, 'tar', '-czf',
        sys.argv[2] if len(sys.argv) > 2 else '-', '.')

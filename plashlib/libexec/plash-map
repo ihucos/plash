@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-map KEY [CONTAINER]
+# usage: plash map KEY [CONTAINER]
 # Get or set a container by a key. Empty container to delete a key.
 
 import sys

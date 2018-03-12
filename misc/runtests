@@ -9,13 +9,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PS4='+ ${BASH_SOURCE}:${LINENO} '
 
 #mkdir -p /var/lib/plash/tmp
-export PATH=$DIR/../bin:$PATH
+export PATH=$DIR/../plashlib/libexec:$PATH
 export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
 tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
 export PLASH_DATA=$tmp
-plash-init
+plash init
 
-BUSYBOX=$(plash-import-tar $DIR/../misc/busybox.tar 2> /dev/null)
+BUSYBOX=$(plash import-tar $DIR/../misc/busybox.tar 2> /dev/null)
 export BUSYBOX
 
 

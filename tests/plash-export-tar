@@ -7,15 +7,15 @@ test "$(id -u)" != 0 && exit 0
 
 : specifying - as a file
 tmp=$(mktemp)
-plash-export-tar 1 - > $tmp
+plash export-tar 1 - > $tmp
 tar --list -f $tmp >/dev/null
 
 : only one argument
 tmp=$(mktemp)
-plash-export-tar 1 > $tmp
+plash export-tar 1 > $tmp
 tar --list -f $tmp >/dev/null
 
 : specifying a real file
 tmp=$(mktemp)
-plash-export-tar 1 $tmp
+plash export-tar 1 $tmp
 tar --list -f $tmp >/dev/null

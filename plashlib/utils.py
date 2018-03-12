@@ -166,7 +166,7 @@ def get_default_shell(passwd_file):
 
 def plash_map(*args):
     from subprocess import check_output
-    'thin wrapper around plash-map'
+    'thin wrapper around plash map'
     out = check_output(['plash-map'] + list(args))
     if out == '':
         return None

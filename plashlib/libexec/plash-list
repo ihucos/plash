@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-list
+# usage: plash list
 # Lists all available plash commands
 
 from os.path import dirname, join
@@ -24,5 +24,5 @@ for prog in sorted(progs):
                 first_sentence = next_next_line[2:-1].split('.')[0]
 
     assert first_sentence
-    subcommand = prog[len('plash-'):]
+    subcommand = prog[len('plash '):]
     print('plash ' + subcommand.ljust(max_prog_lenght), first_sentence)

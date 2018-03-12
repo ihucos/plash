@@ -2,22 +2,23 @@
 set -xu
 
 array=(
-plash-add-layer
-# plash-build
-plash-export-img
-plash-export-squashfs
-plash-export-tar
-plash-import-lxcimages
-plash-import-tar
-plash-import-url
-plash-mount
-plash-nodepath
-plash-run
-plash-runc
-plash-with-mount
+add-layer
+# plash build
+export-img
+export-squashfs
+export-tar
+import-lxcimages
+import-tar
+import-url
+mount
+nodepath
+run
+runc
+with-mount
 )
-for prog in "${array[@]}"
+for subcommand in "${array[@]}"
 do
+  prog="plash $subcommand"
   $prog 2>/dev/null >/dev/null
   exit=$?
   [ $exit -eq 2 ] || {

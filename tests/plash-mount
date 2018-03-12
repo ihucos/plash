@@ -2,7 +2,7 @@
 set -xeu
 
 tmp=$(mktemp -d)
-plash-mount 1 $tmp
+plash mount 1 $tmp
 grep  $tmp' '  /proc/mounts >/dev/null || {
   echo 'Could not find mountpoint in /proc/mounts '
   exit 1

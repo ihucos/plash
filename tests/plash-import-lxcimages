@@ -1,4 +1,4 @@
 set -xeu
-cont=$(plash-import-lxcimages alpine:edge)
-plash-run $cont ls
-! plash-import-lxcimages unknownos
+cont=$(plash import-lxcimages alpine:edge)
+plash run $cont ls
+! plash import-lxcimages unknownos

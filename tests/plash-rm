@@ -1,6 +1,6 @@
 set -xeu
 # vim: set filetype=sh:
-newcont=$(plash-build -i 1 --bust-cache)
-plash-nodepath $newcont
-plash-rm $newcont
-! plash-nodepath $newcont
+newcont=$(plash build -i 1 --bust-cache)
+plash nodepath $newcont
+plash rm $newcont
+! plash nodepath $newcont

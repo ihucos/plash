@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
+# usage: plash add-layer PARENT-CONTAINER IMPORT-DIR
 # Stack a layer on top of a container.  Please note that it uses the rename
 # syscall, this means your IMPORT-DIR will be moved into the plash data
 # directory.  The container "0" is the empty root container, use that to start
@@ -10,11 +10,11 @@
 # Examples:
 #
 # Create a container from a complete root file system:
-# $ plash-add-layer 0 /tmp/rootfs
+# $ plash add-layer 0 /tmp/rootfs
 # 66
 #
 # Add a new layer on top of an existing container:
-# $ plash-add-layer 33 /tmp/mylayer
+# $ plash add-layer 33 /tmp/mylayer
 # 67
 
 from tempfile import mkdtemp

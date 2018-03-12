@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash-build <ACTIONS>
+# usage: plash build <ACTIONS>
 # Builds a container. Any command line options is interpreted as action,
 # Use `--list` to list all available action.
 #
@@ -13,17 +13,17 @@
 #
 # Examples:
 #
-# $ plash-build -i ubuntu --run 'touch a'
+# $ plash build -i ubuntu --run 'touch a'
 # --> touch a
 # --:
 # 66
 #
-# $ plash-build -i ubuntu --run 'touch a' --layer --run 'touch b'
+# $ plash build -i ubuntu --run 'touch a' --layer --run 'touch b'
 # --> touch b
 # --:
 # 67
 #
-# $ plash-build -i ubuntu --apt nmap
+# $ plash build -i ubuntu --apt nmap
 # --> apt-get update
 # Hit:1 http://security.ubuntu.com/ubuntu bionic-security InRelease
 # Get:2 http://archive.ubuntu.com/ubuntu bionic InRelease [235 kB]
@@ -39,8 +39,7 @@ import os
 import sys
 from plashlib.utils import hashstr, nodepath_or_die
 from plashlib import ux
-from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
-                        check_output)
+from subprocess import (DEVNULL, CalledProcessError, Popen, check_output)
 
 from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import IMAGE_HINT_TEMPL
@@ -75,13 +74,13 @@ elif image_hint.startswith('@'):
         die('image map could not be resolved: {}'.format(image_hint))
 else:
     if image_hint.startswith('https://') or image_hint.startswith('http://'):
-        cmd = ['plash-import-url', image_hint]
+        cmd = ['plash import-url', image_hint]
     elif image_hint.startswith('/') or image_hint.startswith('./'):
-        cmd = ['plash-import-tar', image_hint]
+        cmd = ['plash import-tar', image_hint]
     elif image_hint.startswith('docker://'):
-        cmd = ['plash-import-docker', image_hint[9:]]
+        cmd = ['plash import-docker', image_hint[9:]]
     else:
-        cmd = ['plash-import-lxcimages', image_hint]
+        cmd = ['plash import-lxcimages', image_hint]
     cache_key = ':'.join(cmd)
     base_container = plash_map(cache_key.encode())
     if not base_container:

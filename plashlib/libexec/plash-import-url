@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 #
-# usage: plash-import-url-as URL
+# usage: plash import-url-as URL
 # Import a url as a container
 
 import sys
 from os import execlp
 from urllib.request import urlretrieve
 from urllib.error import URLError
-from subprocess import CalledProcessError, check_call, check_output
+from subprocess import CalledProcessError, check_call
 from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
 from plashlib import ux
 from tempfile import mkstemp
@@ -48,4 +48,4 @@ with catch_and_die([URLError], debug=url):
 sys.stderr.write('100%]\n')
 sys.stderr.flush()
 
-execlp('plash-import-tar', 'plash-import-tar', tmpfile)
+execlp('plash-import-tar', 'plash import-tar', tmpfile)
