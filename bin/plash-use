@@ -58,7 +58,6 @@ query_container = check_output(
         '--arch',
         '--namespace',
         'plash-use',
-        '--devinit',
         '--layer',
         '--pacman',
         'pkgfile',
@@ -79,7 +78,7 @@ except CalledProcessError:
 #
 final_container = check_output(
     [
-        'plash-build', '--arch', '--namespace', 'plash-use', '--devinit',
+        'plash-build', '--arch', '--namespace', 'plash-use',
         '--layer', '--pacman', install_package
     ],
     stderr=log)
