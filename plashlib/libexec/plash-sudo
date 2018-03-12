@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+#
+# usage: plash sudo [CMD1 [CMD2 ..]]
+# Setup uid and gid mapped namespace,
+# the execute command or start shell if not command supplied
+
+import os
+import sys
+from plashlib.utils import get_default_shell
+from plashlib.unshare import unshare_if_user
+
+unshare_if_user()
+cmd = sys.argv[1:]
+if not cmd:
+    cmd = [get_default_shell('/etc/passwd')]
+os.execlp(cmd[0], *cmd)

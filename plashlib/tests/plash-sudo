@@ -1,0 +1,2 @@
+
+test $(plash sudo id -u) = 0
