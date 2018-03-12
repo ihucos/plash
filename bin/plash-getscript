@@ -19,10 +19,9 @@ for token in tokens:
         die('invalid option: --')
     elif token.startswith('--'):
         lsp.append([token[2:]])
-    elif token.startswith('-'):
-        if not len(token) == 2:
-            die('invalid option: {}'.format(token))
-        lsp.append([token[1:]])
+    elif token.startswith('-') and not token == '-':
+        for single_letter_opt in token[1:]:
+            lsp.append([single_letter_opt])
     elif token:
         lsp[-1].append(token)
 
