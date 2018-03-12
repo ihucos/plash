@@ -1,2 +1,3 @@
 recursive-include plashlib/libexec *
 recursive-include plashlib/tests *
+recursive-include plashlib/testdata *

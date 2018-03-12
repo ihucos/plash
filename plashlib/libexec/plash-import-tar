@@ -31,9 +31,9 @@ ignored_devs = []
 changed_root = None
 def filter_dev(members):
     for counter, m in enumerate(members):
-        if not counter % 1000:
-            sys.stderr.write('#')
-            sys.stderr.flush()
+        #if not counter % 1000:
+            #sys.stderr.write('#')
+            #sys.stderr.flush()
         if m.name == '.' and not m.mode == 0o755:
             changed_root = m.mode, 0o755
             m.mode = 0o755
@@ -42,12 +42,12 @@ def filter_dev(members):
             continue
         yield m
 
-sys.stderr.write('Unpack [')
-sys.stderr.flush()
+#sys.stderr.write('Unpack [')
+#sys.stderr.flush()
 unshare_if_user()
 t.extractall(rootfs, members=filter_dev(t.getmembers()))
 
-print(']', file=sys.stderr)
+# print(']', file=sys.stderr)
 if ignored_devs:
     print('Ignored {} dev files'.format(len(ignored_devs)), file=sys.stderr)
 if changed_root:
