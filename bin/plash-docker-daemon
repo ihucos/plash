@@ -1,5 +1,5 @@
 #!/usr/bin/env plash-exec
-# plash-exec: exec=/entrypoint root=true mount=default,cgroup
+# plash-exec: exec=/entrypoint
 # usage: plash-docker-daemon <DOCKER-ARGS>
 # Run the docker daemon inside alpine linux. Use the PLASH_DOCKER_SOCKET
 # environment variable to select the docker socket, the default is
