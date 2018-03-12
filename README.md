@@ -20,7 +20,7 @@ Plash containers are processes exactly like you know them. They can be listed wi
 You can mount a container filesystem, export/import docker images, run containers as chrooted processes or with runc, directly add a layers o top of a containers, save containers by a cache key and much more.
 
 #### Security
-Plash can be used by others users without root privileges (with unionfs-fuse and newuidmap as dependencies)
+Plash can be used by other users without root privileges (with unionfs-fuse and newuidmap as dependencies)
 
 #### Plashfiles
 Plashfiles are executable build files featuring optional lightweight configuration management capabilities.
@@ -78,9 +78,6 @@ git version 2.15.0
 ```
 
 ## Other topics
-
-### Security
-Complete unprivileged containers comming soon (branch user-mode)
 
 ### Plashfiles
 TODO
