@@ -156,6 +156,18 @@ def namespace(ns):
     return eval([['layer'], ['run', ': new namespace {}'.format(ns)],
                  ['layer']])
 
+@action('f')
+@action()
+def workaround_unionfs():
+    'workaround apt so it works despite this issue: https://github.com/rpodgorny/unionfs-fuse/issues/78'
+    script = '''if [ -d /etc/apt/apt.conf.d ]; then
+echo 'Dir::Log::Terminal "/dev/null";' > /etc/apt/apt.conf.d/unionfs_workaround
+echo 'APT::Sandbox::User "root";' >> /etc/apt/apt.conf.d/unionfs_workarounds
+: See https://github.com/rpodgorny/unionfs-fuse/issues/78
+chown root:root /var/cache/apt/archives/partial || true
+fi'''
+    return eval([['run', script]])
+
 
 @action()
 def list():
