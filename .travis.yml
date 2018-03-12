@@ -23,11 +23,11 @@ git:
 script:
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
   - echo $PATH
+  - python3 setup.py bdist_wheel
   - if test "$ROOT" = true; then
-      sudo python3 setup.py install;
+      sudo pip3 install ./dist/*.whl;
       sudo plash test;
     else
-      python3 setup.py bdist_wheel;
       pip3 install ./dist/*.whl;
       plash test;
     fi;
