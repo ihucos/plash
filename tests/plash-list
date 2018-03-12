@@ -1,5 +1,0 @@
-!/bin/bash
-set -xeu
-
-: calling it returns success
-plash list
