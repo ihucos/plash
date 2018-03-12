@@ -86,7 +86,6 @@ Example: plash with-mount alpine mv . /tmp/rootfs
 # Execute a command inside the container filesystem
 # Example: plash with-mount alpine mv . /tmp/rootfs
 
-import os
 import shlex
 import sys
 import subprocess
@@ -98,7 +97,6 @@ from plashlib import ux
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     container = sys.argv[1]
@@ -109,13 +107,13 @@ ux.assert_container_exists(container)
 
 mountpoint = mkdtemp()
 with catch_and_die([CalledProcessError]):
-    check_call([&#39;plash-mount&#39;, container, mountpoint],
-    stdout=2) # pipe any stdout to stderr
+    check_call(
+        [&#39;plash-mount&#39;, container, mountpoint],
+        stdout=2)  # pipe any stdout to stderr
 p = subprocess.Popen([&#39;sh&#39;, &#39;-c&#39;, user_sh], cwd=mountpoint)
 user_exit = p.wait()
 with catch_and_die([CalledProcessError]):
-    check_call([&#39;umount&#39;, mountpoint],
-    stdout=2) # pipe any stdout to stderr
+    check_call([&#39;fusermount&#39;, &#39;-u&#39;, mountpoint], stdout=2)  # pipe any stdout to stderr
 if user_exit:
     die(&#39;Exit status {}: {}&#39;.format(user_exit, user_sh))
 sys.exit(user_exit)

@@ -144,23 +144,18 @@ Processing triggers for libc-bin (2.26-0ubuntu2) ...
 # --:
 # 68
 
-
 import re
 import subprocess
 import os
 import sys
-from plashlib.utils import hashstr, get_nodepath, nodepath_or_die
+from plashlib.utils import hashstr, nodepath_or_die
 from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
                         check_output)
 
 from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import IMAGE_HINT_TEMPL
-from os.path import join
 from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, plash_map
-from tempfile import mkdtemp
-
-PLASH_DATA = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 
 handle_help_flag()
 ux.assert_initialized()
@@ -197,7 +192,7 @@ else:
     elif image_hint.startswith(&#39;docker://&#39;):
         cmd = [&#39;plash-import-docker&#39;, image_hint[9:]]
     else:
-        cmd = [&#39;plash-import-lxc&#39;, image_hint]
+        cmd = [&#39;plash-import-lxcimages&#39;, image_hint]
     cache_key = &#39;:&#39;.join(cmd)
     base_container = plash_map(cache_key.encode())
     if not base_container:

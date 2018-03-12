@@ -1,0 +1,170 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+  margin: 0px;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+pre {
+  margin: 0px;
+}
+#doc {
+  min-height: 66.66vh;
+  font-size: 1.25em;
+  text-align: left;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  margin-bottom: 4em;
+  color: #212845;
+}
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
+}
+</style>
+</head>
+<body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/plash-runopts"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
+<center>
+
+<div id='doc'>
+<pre>
+<h1>plash-runopts</h1>
+usage: plash-runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
+Run a container specifing some extra options, see --help
+
+
+<a href='index.html' id='command-index'>&larr; Command index</a>
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>#!/usr/bin/env python3
+#
+# usage: plash-runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
+# Run a container specifing some extra options, see --help
+
+import argparse
+import os
+import sys
+import shlex
+import platform
+from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die, get_default_shell
+from plashlib import ux
+from plashlib.unshare import unshare_if_user, unshare_if_root
+from subprocess import check_call, CalledProcessError
+from tempfile import mkdtemp
+
+DEFAULT_BIND = [&#39;/tmp&#39;, &#39;/home&#39;, &#39;/etc/resolv.conf&#39;, &#39;/sys&#39;, &#39;/dev&#39;, &#39;/proc&#39;]
+
+ux.assert_initialized()
+
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument(&#39;container&#39;)
+parser.add_argument(&#39;cmd&#39;, nargs=&#39;*&#39;)
+parser.add_argument(&#39;-b&#39;, &#39;--bind&#39;, action=&#39;append&#39;)
+parser.add_argument(&#39;-n&#39;, &#39;--no-default-binds&#39;, action=&#39;store_true&#39;)
+parser.add_argument(&#39;-c&#39;, &#39;--changes&#39;)
+args = parser.parse_args()
+
+
+requested_mounts = []
+if not args.no_default_binds:
+    requested_mounts.extend(DEFAULT_BIND)
+requested_mounts.extend(args.bind or [])
+
+master_pid = os.getpid()
+
+# create mountpoint
+user_tmp = &#39;/var/tmp/plash-run-{}&#39;.format(master_pid)
+try:
+    os.mkdir(user_tmp, mode=0o700)
+except FileExistsError:
+    pass
+mountpoint = mkdtemp(dir=user_tmp, prefix=&#39;pid-{}-&#39;.format(master_pid))
+
+unshare_if_root()
+
+# mount container filesystem
+if args.changes:
+    changesdir = args.changes
+else:
+    # create changedir
+    user_tmp = &#39;/tmp/plash-run-{}&#39;.format(os.getuid())
+    try:
+        os.mkdir(user_tmp, mode=0o700)
+    except FileExistsError:
+        pass
+    changesdir = mkdtemp(dir=user_tmp, prefix=&#39;pid-{}-&#39;.format(master_pid))
+with catch_and_die([CalledProcessError]):
+    check_call([&#39;plash-mount&#39;, args.container, mountpoint, changesdir])
+
+unshare_if_user(extra_setup_cmd=[&#39;fusermount&#39;, &#39;-u&#39;, mountpoint])
+
+# mount /proc and so on
+for mount in requested_mounts:
+    check_call([&#39;mount&#39;, &#39;--rbind&#39;, mount, os.path.join(mountpoint, mount.lstrip(&#39;/&#39;))])
+
+# setup chroot and exec
+pwd_at_start = os.getcwd()
+os.chroot(mountpoint)
+try:
+    os.chdir(pwd_at_start)
+except (ValueError, PermissionError,
+        FileNotFoundError):  # TODO: put more exceptions here
+    os.chdir(&#39;/&#39;)
+if not args.cmd:
+    default_root_shell = get_default_shell(&#39;/etc/passwd&#39;)
+    cmd = [default_root_shell]
+else:
+    cmd = args.cmd
+try:
+    os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    die(&#39;Command not found: {}&#39;.format(cmd[0]))
+</code></pre>
+</div>
+
+</center>
+</body>
+</html>

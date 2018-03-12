@@ -89,16 +89,12 @@ from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die, hand
 from plashlib import ux
 from subprocess import check_call, CalledProcessError, check_output, DEVNULL
 from tempfile import mkdtemp, mktemp
-from os.path import join
 import os
 from shutil import move
-
-PLASH_DATA = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     container, out = sys.argv[1:3]

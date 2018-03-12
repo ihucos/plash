@@ -123,8 +123,15 @@ docker
 --write-script
 /entrypoint
 #!/bin/sh
+
+# we need to &#34;encapsulate&#34; the socket. Docker creates it accesible by the docker
+# group, but the gid inside the guest could be anything in the host (closes #8)
+mkdir -p /tmp/plash-docker-wrap/
+chown root:root /tmp/plash-docker-wrap/
+chmod 700 /tmp/plash-docker-wrap/
+
 export DOCKER_RAMDISK=1
-exec dockerd -H unix://${PLASH_DOCKER_SOCKET:-/tmp/docker.sock}
+exec dockerd -H unix://${PLASH_DOCKER_SOCKET:-/tmp/plash-docker-wrap/docker.sock}
 </code></pre>
 </div>
 

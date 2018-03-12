@@ -92,7 +92,10 @@ from plashlib.utils import handle_help_flag
 handle_help_flag()
 
 bin = dirname(sys.argv[0])
-progs = [prog for prog in listdir(bin) if prog.startswith(&#39;plash-&#39;) and prog != &#39;plash-pun&#39;]
+progs = [
+    prog for prog in listdir(bin)
+    if prog.startswith(&#39;plash-&#39;) and prog != &#39;plash-pun&#39;
+]
 
 max_prog_lenght = max(len(prog) for prog in progs)
 for prog in sorted(progs):
@@ -102,10 +105,9 @@ for prog in sorted(progs):
     for line, next_line, next_next_line in zip(lines, lines[1:], lines[2:]):
         if line.startswith(&#39;# usage:&#39;):
             first_sentence = next_line[2:-1].split(&#39;.&#39;)[0]
-            if not first_sentence: # try the next line
+            if not first_sentence:  # try the next line
                 first_sentence = next_next_line[2:-1].split(&#39;.&#39;)[0]
 
-                
     assert first_sentence
     print(prog.ljust(max_prog_lenght), first_sentence)
 </code></pre>

@@ -89,14 +89,11 @@ Example: `plash-nodepath mycontainer | xargs tree`
 import os
 import sys
 
-from plashlib.utils import die, handle_help_flag, die_with_usage, catch_and_die, handle_build_args, nodepath_or_die
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 from plashlib import ux
-
-PLASH_DATA = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 
 handle_help_flag()
 handle_build_args()
-ux.assert_is_root()
 
 try:
     container = sys.argv[1]
