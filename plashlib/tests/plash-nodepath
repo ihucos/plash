@@ -1,0 +1,12 @@
+#!/bin/bash
+set -exu
+! plash nodepath mynoexistentcontainer
+
+newcont=$(plash build -i 1 --bust-cache)
+nodepath=$(plash nodepath $newcont)
+echo $nodepath | grep $newcont
+
+layerup=$(plash build -i $newcont --layer --bust-cache)
+nodepath=$(plash nodepath $layerup)
+echo $nodepath | grep $newcont
+echo $nodepath | grep $layerup
