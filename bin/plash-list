@@ -11,9 +11,10 @@ from plashlib.utils import handle_help_flag
 handle_help_flag()
 
 bin = dirname(sys.argv[0])
-progs = listdir(bin)
+progs = [i for i in listdir(bin) if not i.startswith('.')]
 max_prog_lenght = max(len(prog) for prog in progs)
 for prog in sorted(progs):
+    print(prog)
     first_sentence = '<empty>'
     with open(join(bin, prog)) as f:
         lines = f.readlines()
