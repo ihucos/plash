@@ -14,10 +14,10 @@ python3 -m pip install plash
 Plash's only requirements are python3, a linux kernel (>= 3.18) and a rudimentary mount binary in `$PATH`. It does not need an extra daemon and can be easily run in infrastructure not meant to support containers like virtually any ci environment, embedded systems or even docker containers.
 
 #### Security
-Plash can be used completely unprivileged (with unionfs-fuse and newuidmap as dependencies)
+Plash can be used completely unprivileged (with `unionfs-fuse` and `newuidmap` as dependencies)
 
 #### Its just processes
-Plash containers are processes exactly like you know them. They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in groups with `supervisord` and `runit` or simply access files in your home directory. Only parts of the filesystem are isolated. More isoalition could be provided by sperate tools.
+Plash containers are processes exactly like you know them. They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in groups with `supervisord` and `runit` or simply access files in your home directory. Only parts of the filesystem are isolated. More isoalition could be provided by seperate tools.
 
 #### Plashfiles
 Plashfiles are executable build files featuring optional lightweight configuration management capabilities.
