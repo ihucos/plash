@@ -105,7 +105,7 @@ No. Not yet.
 #### When will be the >= 1.0 release?
 Will still take some time, after this:
 - [ ] Better documentation
-- [ ] ~~ Security audit - no suid binaries anymore ~~
+- [ ] ~~Security audit - no suid binaries anymore~~
 - [ ] API worth staying
 - [ ] Some little real-world usage
 - [ ] More unit tests
