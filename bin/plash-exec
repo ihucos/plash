@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash exec file [arg1 [arg2 [arg3 ...]]]
+# usage: plash-exec file [arg1 [arg2 [arg3 ...]]]
 # Used as shebang. It runs a plash buildfile.
 
 import os, sys
@@ -20,10 +20,10 @@ with open(file) as f:
     f.readline()
     for i in range(5):
         line = f.readline()
-        if line.startswith('# plash exec: '):
+        if line.startswith('# plash-exec: '):
             file_args = dict(i.split('=', 1) for i in line[14:-1].split())
 if not file_args:
-    die("file must have a comment on the top: '# plash exec: exec=<exec>'")
+    die("file must have a comment on the top: '# plash-exec: exec=<exec>'")
 
 build_args = ['--include', file]
 run_args = [file_args['exec']] + args
@@ -35,8 +35,9 @@ else:
     plash_run_extra_args = []
 
 cmd = [
-    'plash-run',
-    'plash-run',
+    'plash',
+    'plash',
+    'run',
 ] + build_args + ['--'] + plash_run_extra_args + ['--'] + run_args
 
 os.execlp(*cmd)
