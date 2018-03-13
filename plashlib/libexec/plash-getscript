@@ -4,7 +4,7 @@
 # Prints build script. It prints the shell script generated from actions passed
 # as command line parameters.  Call with --help to see available actions.
 # plash build passes its arguments to this script to generate the shell script
-# with the build instruction.
+# with the build instructions.
 
 import sys
 
@@ -27,6 +27,6 @@ for token in tokens:
 
 with catch_and_die([eval.ActionNotFoundError]):
     script = eval.eval(lsp)
-if script:
+if script and not script.endswith('\n'):
     script += '\n'  # that '\n' is right
 print(script, end='')
