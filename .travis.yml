@@ -25,7 +25,7 @@ script:
   - cat .coveragerc
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
   - python3 setup.py bdist_wheel
-  - export PYTHONPATH=${PWD}/misc/sitecustomize_for_codecoverage
+  - export PYTHONPATH=${PWD}/misc/sitecustomize_for_codecoverage;
     if test "$ROOT" = true; then
       sudo pip3 install ./dist/*.whl;
       sudo plash test;
