@@ -46,7 +46,6 @@ deploy:
   - provider: pypi
     user: $PYPI_USER
     password: $PYPI_PASSWORD
-    distributions: "sdist"
     skip_cleanup: true
     on:
       branch: master
