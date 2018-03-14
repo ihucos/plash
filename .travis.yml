@@ -21,6 +21,10 @@ git:
   depth: 1
 
 script:
+  - ls ~/misc/sitecustomize_for_codecoverage
+  - file ~/misc/sitecustomize_for_codecoverage
+  - ls
+  - pwd
   - echo "data_file=${PWD}/.coverage" >> .coveragerc
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
   - python3 setup.py bdist_wheel
