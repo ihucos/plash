@@ -1,0 +1,46 @@
+set -xeu
+
+: create an empty file
+plash run 1 touch /a
+
+: run a program on the base layer of a container
+plash build -i 1
+out=$(plash run 1 -- echo hellow)
+test "$out" == hellow
+
+: run something with an layer
+new=$(plash create 1 true)
+out=$(plash run $new -- echo hi)
+test "$out" == hi
+
+: check the current dir is mapped
+cd /tmp
+out=$(plash run 1 pwd)
+test "$out" == $(pwd)
+cd -
+
+: check that exit status get propagaded to the outside
+set +e
+plash run 1 sh -c 'exit 42'
+test $? -eq 42 || exit 1
+set -e
+
+: check that environment variables are exported to the container
+out=$(MYENV=123 plash run 1 sh -c 'echo $MYENV')
+test $out = 123
+
+#: test a mount
+#tmp=$(mktemp)
+#plash run 1 --mount /etc/passwd cat /etc/passwd > $tmp
+#cat $tmp
+#cmp /etc/passwd $tmp
+
+: test auto build
+plash run -i 1 --bust-cache -- ls
+
+: mounts get cleanuped
+new=$(plash create 1 ls)
+before=$(cat /proc/mounts | grep "/index/$new" | wc -l)
+plash run $new ls
+after=$(cat /proc/mounts | grep "index/$new" | wc -l)
+test $before = $after

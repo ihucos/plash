@@ -86,6 +86,7 @@ Import an image from the docker cloud
 
 import subprocess
 import os
+import shutil
 from os.path import join
 import sys
 import atexit
@@ -97,7 +98,6 @@ from plashlib import ux
 DOCKER_START_TIMEOUT = 40
 
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     pull = sys.argv[1]
@@ -115,19 +115,20 @@ os.environ[&#39;PLASH_DOCKER_SOCKET&#39;] = socket_file
 daemon_log = open(join(tmpdir, &#39;docker-daemon.log&#39;), &#39;w&#39;)
 client_log = open(join(tmpdir, &#39;docker.log&#39;), &#39;w&#39;)
 
+#
+# build daemon if not done yet
+#
 debug(&#39;ensuring docker is builded&#39;)
+buildfile = shutil.which(&#39;plash-docker-daemon&#39;)
 with catch_and_die([subprocess.CalledProcessError]):
-    subprocess.check_output(
-        [&#39;plash-build&#39;, &#39;-A&#39;,
-         &#39;docker&#39;])  # ensure it is builded showing build logs
-debug(&#39;starting docker&#39;)
+    subprocess.check_output([&#39;plash-build&#39;, &#39;--include&#39;, buildfile])
 
 #
 # start daemon and wait for it to start
 #
-with catch_and_die([subprocess.CalledProcessError]):
-    p = subprocess.Popen(
-        [&#39;plash-docker-daemon&#39;], stderr=daemon_log, stdout=daemon_log)
+debug(&#39;starting docker&#39;)
+p = subprocess.Popen(
+    [&#39;plash-docker-daemon&#39;], stderr=2, stdout=2)
 atexit.register(lambda: p.kill())
 c = 0
 while True:

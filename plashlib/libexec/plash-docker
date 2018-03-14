@@ -1,0 +1,24 @@
+#!/usr/bin/env plash-exec
+# plash-exec: exec=/entrypoint
+# usage: plash-docker <DOCKER-ARGS>
+# Run the docker client inside alpine linux. Use the PLASH_DOCKER_SOCKET
+# environment variable to select the docker socket, the default is
+# '/tmp/docker.sock'. Note that '/var/run/docker.sock' is not shared between
+# containers and host and may not be appropriate as a socket.
+
+--namespace
+docker
+
+--image
+alpine
+
+--apk
+docker
+
+--layer
+
+--write-script
+/entrypoint
+#!/bin/sh
+export DOCKER_HOST=unix://${PLASH_DOCKER_SOCKET:-/tmp/plash docker-wrap/docker.sock}
+exec docker $@

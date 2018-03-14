@@ -86,13 +86,14 @@ Prompts to delete all build data.
 
 import os
 from shutil import rmtree
-from plashlib.utils import handle_help_flag
+from plashlib.utils import handle_help_flag, get_plash_data
+from plashlib.unshare import unshare_if_user
 from plashlib import ux
 
 handle_help_flag()
-ux.assert_is_root()
+plash_data = get_plash_data()
+unshare_if_user()
 
-PLASH_DATA = os.environ.get(&#39;PLASH_DATA&#39;, &#39;/var/lib/plash&#39;)
 if input(&#39;Delete all build data? [y/N] &#39;) == &#39;y&#39;:
 
     #
@@ -100,17 +101,22 @@ if input(&#39;Delete all build data? [y/N] &#39;) == &#39;y&#39;:
     #
 
     try:
-        os.unlink(os.path.join(PLASH_DATA, &#39;id_counter&#39;))
+        os.unlink(os.path.join(plash_data, &#39;id_counter&#39;))
     except FileNotFoundError:
         pass
 
     try:
-        os.unlink(os.path.join(PLASH_DATA, &#39;id&#39;))
+        os.unlink(os.path.join(plash_data, &#39;id&#39;))
     except FileNotFoundError:
         pass
 
-    for dir in os.listdir(PLASH_DATA):
-        rmtree(os.path.join(PLASH_DATA, dir))
+    try:
+        os.unlink(os.path.join(plash_data, &#39;union_taste&#39;))
+    except FileNotFoundError:
+        pass
+
+    for dir in os.listdir(plash_data):
+        rmtree(os.path.join(plash_data, dir))
 </code></pre>
 </div>
 

@@ -7,13 +7,6 @@ from os.path import join
 ERROR_COLOR = 1
 INFO_COLOR = 4
 
-PLASH_DATA = os.environ.get('PLASH_DATA', '/var/lib/plash')
-TMP_DIR = join(PLASH_DATA, 'tmp')
-BUILDS_DIR = join(PLASH_DATA, 'builds')
-INDEX_DIR = join(PLASH_DATA, 'index')
-CACHE_KEYS_DIR = join(PLASH_DATA, 'cache_keys')
-
-
 def hashstr(stri):
     import hashlib
     return hashlib.sha1(stri).hexdigest()
@@ -33,11 +26,21 @@ def catch_and_die(exceptions, debug=None, ignore=None):
             msg = '{debug}: {message}'.format(debug=debug, message=msg)
         die(msg)
 
+def get_plash_data():
+    if os.getuid():
+        default = '~/.plashdata'
+    else:
+        default = '/var/lib/plash'
+    dir = os.environ.get('PLASH_DATA', default)
+    return os.path.expanduser(dir)
 
 def deescalate_sudo():
-    uid = os.environ.get('SUDO_UID')
-    gid = os.environ.get('SUDO_GID')
-    if uid and gid:
+    try:
+        uid = os.environ.pop('SUDO_UID')
+        gid = os.environ.pop('SUDO_GID')
+    except KeyError:
+        pass
+    else:
         uid = int(uid)
         gid = int(gid)
         # username = pwd.getpwuid(uid).pw_name
@@ -93,7 +96,6 @@ def handle_help_flag():
                     print(line[2:], end='')
         sys.exit(0)
 
-
 def filter_positionals(args):
     positional = []
     filtered_args = []
@@ -131,7 +133,7 @@ def nodepath_or_die(container):
         # FIXME: security check that container does not contain bad chars
         with catch_and_die(
             [OSError], ignore=FileNotFoundError, debug='readlink'):
-            nodepath = os.readlink(os.path.join(INDEX_DIR, container))
+            nodepath = os.readlink(os.path.join(get_plash_data(), 'index', container))
         with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
             os.stat(nodepath)
         return nodepath
@@ -164,7 +166,7 @@ def get_default_shell(passwd_file):
 
 def plash_map(*args):
     from subprocess import check_output
-    'thin wrapper around plash-map'
+    'thin wrapper around plash map'
     out = check_output(['plash-map'] + list(args))
     if out == '':
         return None

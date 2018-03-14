@@ -88,7 +88,7 @@ If no file is supplied or the file is &#39;-&#39; the tar archive wil be printed
 # It exports the file system of a container to the given file as a compressed tar archive.
 # If no file is supplied or the file is &#39;-&#39; the tar archive wil be printed to stdout instead.
 
-from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage, handle_build_args
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag
 from plashlib import ux
 from os import execlp
 import sys
@@ -96,7 +96,6 @@ import sys
 handle_help_flag()
 handle_build_args()
 ux.assert_initialized()
-ux.assert_is_root()
 
 try:
     container = sys.argv[1]

@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+#
+# usage: plash with-mount CONTAINER EVAL1 [EVAL2 [EVAL3 ...]]
+# Execute a command inside the container filesystem
+# Example: plash with-mount alpine mv . /tmp/rootfs
+
+import shlex
+import sys
+import subprocess
+from tempfile import mkdtemp
+from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage, die, handle_build_args
+from subprocess import check_call, CalledProcessError
+from plashlib import ux
+
+handle_help_flag()
+handle_build_args()
+ux.assert_initialized()
+
+try:
+    container = sys.argv[1]
+    user_sh = ' '.join(shlex.quote(i) for i in sys.argv[2:])
+except IndexError:
+    die_with_usage()
+ux.assert_container_exists(container)
+
+mountpoint = mkdtemp()
+with catch_and_die([CalledProcessError]):
+    check_call(
+        ['plash-mount', container, mountpoint],
+        stdout=2)  # pipe any stdout to stderr
+p = subprocess.Popen(['sh', '-c', user_sh], cwd=mountpoint)
+user_exit = p.wait()
+with catch_and_die([CalledProcessError]):
+    check_call(['fusermount', '-u', mountpoint], stdout=2)  # pipe any stdout to stderr
+if user_exit:
+    die('Exit status {}: {}'.format(user_exit, user_sh))
+sys.exit(user_exit)

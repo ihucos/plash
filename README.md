@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash)
+[![Travis branch](https://img.shields.io/travis/ihucos/plash/master.svg?style=flat-square)](https://travis-ci.org/ihucos/plash#)
+[![PyPI](https://img.shields.io/pypi/v/plash.svg?style=flat-square)](https://pypi.org/project/plash/)
 # plash
 is a container build and runtime system.
 
@@ -12,27 +13,26 @@ python3 -m pip install plash
 #### Runs anywhere
 Plash's only requirements are python3, a linux kernel (>= 3.18) and a rudimentary mount binary in `$PATH`. It does not need an extra daemon and can be easily run in infrastructure not meant to support containers like virtually any ci environment, embedded systems or even docker containers.
 
-#### Its just processes
-Plash containers are processes exactly like you know them. They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in groups with `supervisord` and `runit` or simply access files in your home directory. Only parts of the filesystem are isolated. If you need more isolation, use another tool just for that or run containers "traditionally" with `plash-runc`.
+#### Security
+Plash can be used completely unprivileged (with `unionfs-fuse` and `newuidmap` as dependencies)
 
-#### Flexibility
-You can mount a container filesystem, export/import docker images, run containers as chrooted processes or with runc, directly add a layers o top of a containers, save containers by a cache key and much more.
+#### Its just processes
+Plash containers are processes exactly like you know them. They can be listed with ps, `kill`ed, you can filter for stderr or pipe to stdin, manage them in groups with `supervisord` and `runit` or simply access files in your home directory. Only parts of the filesystem are isolated. More isoalition could be provided by seperate tools.
 
 #### Plashfiles
 Plashfiles are executable build files featuring optional lightweight configuration management capabilities.
 
 ## Documentation
 * Reference: https://ihucos.github.io/plash
-* Wiki pages in progress.
 
 ## Example session
 
 ```
 # don't forget to run init first.
-$ plash-init
+$ plash init
 
 # build a simple image
-$ plash-build --image alpine --run 'touch /file'
+$ plash build --image alpine --run 'touch /file'
 [0%|10%|20%|30%|40%|50%|60%|70%|80%|90%|100%]
 extracting...
 --> touch /file
@@ -40,28 +40,24 @@ extracting...
 2
 
 # second build is cached
-$ plash-build --image alpine --run 'touch /file'
+$ plash build --image alpine --run 'touch /file'
 2
 
-# run something inside a container (or use plash-runc)
-$ plash-run 2 ls /file
-/file
-
 # layering is explicit
-$ plash-build --image alpine --run 'touch /file' --layer --run 'touch /file2'
+$ plash build --image alpine --run 'touch /file' --layer --run 'touch /file2'
 --> touch /file2
 --:
 3
 
 # delete a container
-$ plash-rm 3
+$ plash rm 3
 
 # build and run in one command
-$ plash-run --image alpine --run 'touch /file' -- ls /file
+$ plash run --image alpine --run 'touch /file' -- ls /file
 /file
 
 # plash actually includes some configuration management
-$ plash-run --image alpine --apk git -- git --version
+$ plash run --image alpine --apk git -- git --version
 --> apk update
 fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/APKINDEX.tar.gz
 <snip>
@@ -74,11 +70,6 @@ git version 2.15.0
 ```
 
 ## Other topics
-
-### Security
-Plash's default container runtime does come with a security concept. It does not try to reinvent any security layer but to only rely on traditional UNIX security mechanisms. Figuratively speaking plash does not try to barricade processes with tape. Inside a container a user is what he was outside of it. As far as the kernel cares the only difference between a container and a "normal" process is that the container is chrooted. Access rights established outside of the container are still valid inside. So in fact to install software with a package manager inside a container you need root, but to later run it not. It can be seen as a one to one mapping between host and container.
-
-~~There is some fine print: Root access is needed for container setup. In the future the plan is to use suid binaries to archive this. At the moment this is done with sudo. To allow a user to use plash put this is the suoders file `joe ALL=NOPASSWD: /usr/local/bin/plash-run`. This should be considered unsafe until version `1.0`.~~
 
 ### Plashfiles
 TODO
@@ -113,8 +104,8 @@ No. Not yet.
 
 #### When will be the >= 1.0 release?
 Will still take some time, after this:
-- [ ]  Better documentation
-- [ ] Security audit
+- [ ] Better documentation
+- [ ] ~~Security audit - no suid binaries anymore~~
 - [ ] API worth staying
 - [ ] Some little real-world usage
 - [ ] More unit tests

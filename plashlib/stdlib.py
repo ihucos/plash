@@ -5,6 +5,8 @@ import stat
 import sys
 import uuid
 from itertools import dropwhile
+from plashlib.utils import catch_and_die
+import subprocess
 
 from .eval import ArgError, action, eval, get_actions
 from .utils import hashstr
@@ -65,23 +67,20 @@ def write_script(fname, *lines):
 
 
 @action(escape=False)
-def include(*files):
+def include(file):
     'include parameters from file'
-    for file in files:
-        fname = os.path.realpath(os.path.expanduser(file))
-        with open(fname) as f:
-            lsp = []
-            tokens = dropwhile(lambda l: l.startswith('#'),
-                               (i[:-1] for i in f.readlines()))
-            for line0, token in enumerate(tokens):
-                if line0 == 0 and token.startswith('#!'):
-                    continue
-                if token.startswith('--'):
-                    lsp.append([token[2:]])
-                elif token:
-                    lsp[-1].append(token)
-        yield eval(lsp)
+    fname = os.path.realpath(os.path.expanduser(file))
+    with open(fname) as f:
+        tokens = dropwhile(lambda l: l.startswith('#'),
+                        (i[:-1] for i in f.readlines()))
+    with catch_and_die([subprocess.CalledProcessError], debug='include'):
+        return subprocess.check_output(('plash-getscript',) + tuple(tokens)).decode()
 
+@action(escape=False)
+def include_string(stri):
+    tokens = shlex.split(stri)
+    with catch_and_die([subprocess.CalledProcessError], debug='include-string'):
+        return subprocess.check_output(['plash-getscript'] + tokens).decode()
 
 def hash_paths(paths):
     collect_files = []
@@ -157,22 +156,17 @@ def namespace(ns):
     return eval([['layer'], ['run', ': new namespace {}'.format(ns)],
                  ['layer']])
 
-
+@action('f')
 @action()
-def devinit():
-    'ensure a minimal /dev setup'
-    # using this: from http://www.tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter06/devices.html
-    return '''
-    test -e /dev/console || mknod -m 622 /dev/console c 5 1
-    test -e /dev/null || mknod -m 666 /dev/null c 1 3
-    test -e /dev/zero || mknod -m 666 /dev/zero c 1 5
-    test -e /dev/ptmx || mknod -m 666 /dev/ptmx c 5 2
-    test -e /dev/tty || mknod -m 666 /dev/tty c 5 0
-    test -e /dev/random || mknod -m 444 /dev/random c 1 8
-    test -e /dev/urandom || mknod -m 444 /dev/urandom c 1 9
-    chown -v root:tty /dev/console
-    chown -v root:tty /dev/ptmx
-    chown -v root:tty /dev/tty'''
+def workaround_unionfs():
+    'workaround apt so it works despite this issue: https://github.com/rpodgorny/unionfs-fuse/issues/78'
+    script = '''if [ -d /etc/apt/apt.conf.d ]; then
+echo 'Dir::Log::Terminal "/dev/null";' > /etc/apt/apt.conf.d/unionfs_workaround
+echo 'APT::Sandbox::User "root";' >> /etc/apt/apt.conf.d/unionfs_workarounds
+: See https://github.com/rpodgorny/unionfs-fuse/issues/78
+chown root:root /var/cache/apt/archives/partial || true
+fi'''
+    return eval([['run', script]])
 
 
 @action()
