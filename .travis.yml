@@ -31,9 +31,9 @@ script:
       pip3 install ./dist/*.whl;
       plash test;
     fi;
-   - coverage combine
-   - coverage html
-   - coverage report
+  - coverage combine
+  - coverage html
+  - coverage report
 
 deploy:
 

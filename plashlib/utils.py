@@ -122,7 +122,7 @@ def handle_build_args():
         except subprocess.CalledProcessError as exc:
             die('build failed')
         container_id = out[:-1]
-        os.execlp(sys.argv[0], sys.argv[0], container_id, cmd)
+        os.execlp(sys.argv[0], sys.argv[0], container_id, *cmd)
 
 
 def nodepath_or_die(container):
