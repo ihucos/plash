@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+  margin: 0px;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+pre {
+  margin: 0px;
+}
+#doc {
+  min-height: 66.66vh;
+  font-size: 1.25em;
+  text-align: left;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  margin-bottom: 4em;
+  color: #212845;
+}
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
+}
+</style>
+</head>
+<body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/export-tar"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
+<center>
+
+<div id='doc'>
+<pre>
+<h1>export-tar</h1>
+usage: plash export-tar CONTAINER [FILE | - ]
+Export container as tar archive.
+It exports the file system of a container to the given file as a compressed tar archive.
+If no file is supplied or the file is &#39;-&#39; the tar archive wil be printed to stdout instead.
+
+
+<a href='index.html' id='command-index'>&larr; Command index</a>
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>#!/usr/bin/env python3
+#
+# usage: plash export-tar CONTAINER [FILE | - ]
+# Export container as tar archive.
+# It exports the file system of a container to the given file as a compressed tar archive.
+# If no file is supplied or the file is &#39;-&#39; the tar archive wil be printed to stdout instead.
+
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag
+from plashlib import ux
+from os import execlp
+import sys
+
+handle_help_flag()
+handle_build_args()
+ux.assert_initialized()
+
+try:
+    container = sys.argv[1]
+except IndexError:
+    die_with_usage()
+
+execlp(&#39;plash-with-mount&#39;, &#39;plash with-mount&#39;, container, &#39;tar&#39;, &#39;-czf&#39;,
+       sys.argv[2] if len(sys.argv) &gt; 2 else &#39;-&#39;, &#39;.&#39;)
+</code></pre>
+</div>
+
+</center>
+</body>
+</html>

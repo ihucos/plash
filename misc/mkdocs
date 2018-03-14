@@ -42,7 +42,8 @@ for binfile in binfiles:
         if not line.startswith('#'):
             break
         doc.append(line[2:])
-    filedocs.append({'code': read, 'doc': '\n'.join(doc), 'prog': binfile})
+    subcommand = binfile.split('-', 1)[1]
+    filedocs.append({'code': read, 'doc': '\n'.join(doc), 'prog': subcommand})
 
 for item in filedocs:
     with open(path.join(DOCDIR, item['prog'] + '.html'), 'w') as f:
