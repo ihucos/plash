@@ -5,8 +5,11 @@ python:
   - "3.6"
 
 env:
-  - ROOT=true
-  - ROOT=false
+  global:
+    - COVERAGE_PROCESS_START=.coveragerc
+  matrix:
+    - ROOT=true
+    - ROOT=false
 
 install:
   # install plash
@@ -21,9 +24,7 @@ git:
   depth: 1
 
 script:
-  - sudo env COVERAGE_PROCESS_START=.coveragerc misc/runtests
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-  - echo $PATH
   - python3 setup.py bdist_wheel
   - if test "$ROOT" = true; then
       sudo pip3 install ./dist/*.whl;
