@@ -7,7 +7,7 @@ python:
 env:
   global:
     - COVERAGE_PROCESS_START=.coveragerc
-    - PYTHONPATH=${TRAVIS_BUILD_DIR}/misc/sitecustomize_for_codecoverage
+    - PYTHONPATH=./misc/sitecustomize_for_codecoverage
   matrix:
     - ROOT=true
     - ROOT=false
