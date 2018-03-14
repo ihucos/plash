@@ -26,9 +26,7 @@ script:
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
   - python3 setup.py bdist_wheel
   - export PYTHONPATH=${PWD}/misc/sitecustomize_for_codecoverage
-  - pip3 install ./dist/*.whl;
-  - plash test;
-  - python bin/plash test;
+  - plash -A -- id
   - if test "$ROOT" = true; then
       sudo -E pip3 install ./dist/*.whl;
       sudo -E plash test;
