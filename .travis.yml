@@ -7,7 +7,7 @@ python:
 env:
   global:
     - COVERAGE_PROCESS_START=.coveragerc
-    - PYTHONPATH=./misc/sitecustomize_for_codecoverage
+    #- PYTHONPATH=./misc/sitecustomize_for_codecoverage
   matrix:
     - ROOT=true
     - ROOT=false
@@ -22,9 +22,11 @@ git:
 
 script:
   - echo "data_file=${PWD}/.coverage" >> .coveragerc
+  - cat .coveragerc
   - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
   - python3 setup.py bdist_wheel
-  - if test "$ROOT" = true; then
+  - export PYTHONPATH=${PWD}/misc/sitecustomize_for_codecoverage
+    if test "$ROOT" = true; then
       sudo pip3 install ./dist/*.whl;
       sudo plash test;
     else
