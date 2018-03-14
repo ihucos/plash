@@ -79,6 +79,10 @@ Plash thrives to not be more than a useful tool. There is no monetization strate
 Plash tries to be very maintainable and is designed to still securely run without any changes in 5 or 10 years. This software tries to be in every aspect of the word lightweight. For example by covering less complicated use cases for
 containers, like letting a user quickly use a newer software package from another distribution in a sane way. Or being easy to install. Last but not least in a new and fast-moving container world the focus is on boring long term stability and backwards compatibility, starting from version 1.0.
 
+### Examples
+* https://github.com/ihucos/plash-travis-example
+* https://github.com/ihucos/noapt
+
 ## FAQ
 
 #### Can I contribute?
