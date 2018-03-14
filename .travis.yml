@@ -27,8 +27,8 @@ script:
   - python3 setup.py bdist_wheel
   - export PYTHONPATH=${PWD}/misc/sitecustomize_for_codecoverage;
     if test "$ROOT" = true; then
-      sudo pip3 install ./dist/*.whl;
-      sudo plash test;
+      sudo -E pip3 install ./dist/*.whl;
+      sudo -E plash test;
     else
       pip3 install ./dist/*.whl;
       plash test;
