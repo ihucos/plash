@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-export-img</h1>
-usage: plash-export-img CONTAINER FILE
+usage: plash export-img CONTAINER FILE
 Export a container as ext4 file system
 
 
@@ -81,7 +81,7 @@ Export a container as ext4 file system
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-export-img CONTAINER FILE
+# usage: plash export-img CONTAINER FILE
 # Export a container as ext4 file system
 
 import sys
@@ -112,7 +112,7 @@ with catch_and_die([CalledProcessError, FileNotFoundError]):
     check_call([&#39;fallocate&#39;, &#39;-l&#39;, &#39;{}K&#39;.format(image_size), tmp])
     check_call([&#39;mkfs.ext4&#39;, &#39;-q&#39;, tmp])
     check_call([&#39;mount&#39;, tmp, mnt])
-    check_call([&#39;plash-with-mount&#39;, container, &#39;cp&#39;, &#39;-r&#39;, &#39;.&#39;, mnt])
+    check_call([&#39;plash with-mount&#39;, container, &#39;cp&#39;, &#39;-r&#39;, &#39;.&#39;, mnt])
     check_call([&#39;umount&#39;, mnt])
     check_call([&#39;e2fsck&#39;, &#39;-fp&#39;, tmp], stdout=DEVNULL)
     check_call([&#39;resize2fs&#39;, &#39;-M&#39;, tmp], stderr=DEVNULL)

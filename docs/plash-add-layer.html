@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-add-layer</h1>
-usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
+usage: plash add-layer PARENT-CONTAINER IMPORT-DIR
 Stack a layer on top of a container.  Please note that it uses the rename
 syscall, this means your IMPORT-DIR will be moved into the plash data
 directory.  The container &#34;0&#34; is the empty root container, use that to start
@@ -79,11 +79,11 @@ a container from scratch.
 Examples:
 
 Create a container from a complete root file system:
-$ plash-add-layer 0 /tmp/rootfs
+$ plash add-layer 0 /tmp/rootfs
 66
 
 Add a new layer on top of an existing container:
-$ plash-add-layer 33 /tmp/mylayer
+$ plash add-layer 33 /tmp/mylayer
 67
 
 
@@ -95,7 +95,7 @@ $ plash-add-layer 33 /tmp/mylayer
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-add-layer PARENT-CONTAINER IMPORT-DIR
+# usage: plash add-layer PARENT-CONTAINER IMPORT-DIR
 # Stack a layer on top of a container.  Please note that it uses the rename
 # syscall, this means your IMPORT-DIR will be moved into the plash data
 # directory.  The container &#34;0&#34; is the empty root container, use that to start
@@ -105,11 +105,11 @@ $ plash-add-layer 33 /tmp/mylayer
 # Examples:
 #
 # Create a container from a complete root file system:
-# $ plash-add-layer 0 /tmp/rootfs
+# $ plash add-layer 0 /tmp/rootfs
 # 66
 #
 # Add a new layer on top of an existing container:
-# $ plash-add-layer 33 /tmp/mylayer
+# $ plash add-layer 33 /tmp/mylayer
 # 67
 
 from tempfile import mkdtemp

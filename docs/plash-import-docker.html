@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-import-docker</h1>
-usage: plash-import-docker CONTAINER
+usage: plash import-docker CONTAINER
 Import an image from the docker cloud
 
 
@@ -81,7 +81,7 @@ Import an image from the docker cloud
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-import-docker CONTAINER
+# usage: plash import-docker CONTAINER
 # Import an image from the docker cloud
 
 import subprocess
@@ -119,7 +119,7 @@ client_log = open(join(tmpdir, &#39;docker.log&#39;), &#39;w&#39;)
 # build daemon if not done yet
 #
 debug(&#39;ensuring docker is builded&#39;)
-buildfile = shutil.which(&#39;plash-docker-daemon&#39;)
+buildfile = shutil.which(&#39;plash docker-daemon&#39;)
 with catch_and_die([subprocess.CalledProcessError]):
     subprocess.check_output([&#39;plash-build&#39;, &#39;--include&#39;, buildfile])
 
@@ -128,7 +128,7 @@ with catch_and_die([subprocess.CalledProcessError]):
 #
 debug(&#39;starting docker&#39;)
 p = subprocess.Popen(
-    [&#39;plash-docker-daemon&#39;], stderr=2, stdout=2)
+    [&#39;plash docker-daemon&#39;], stderr=2, stdout=2)
 atexit.register(lambda: p.kill())
 c = 0
 while True:
@@ -139,7 +139,7 @@ while True:
         die(&#39;timeout for docker start: server log: {}, client log: {}&#39;.format(
             daemon_log.name, client_log.name))
     if daemon_exit is not None:
-        die(&#39;plash-docker-daemon died with exit status {} (logs at {})&#39;.format(
+        die(&#39;plash docker-daemon died with exit status {} (logs at {})&#39;.format(
             daemon_exit, daemon_log.name))
 
     # check if daemon is up yet
@@ -160,13 +160,13 @@ debug(&#39;pulled&#39;)
 debug(&#39;exporting image into plash&#39;)
 
 with catch_and_die([subprocess.CalledProcessError]):
-    container = subprocess.check_output([&#39;plash-docker&#39;, &#39;create&#39;, pull,
+    container = subprocess.check_output([&#39;plash docker&#39;, &#39;create&#39;, pull,
                                          &#39;sh&#39;]).decode().rstrip(&#39;\n&#39;)
     docker_export = subprocess.Popen(
-        [&#39;plash-docker&#39;, &#39;export&#39;, container], stdout=subprocess.PIPE)
+        [&#39;plash docker&#39;, &#39;export&#39;, container], stdout=subprocess.PIPE)
     atexit.register(lambda: docker_export.kill())
     subprocess.check_call(
-        [&#39;plash-import-tar&#39;, &#39;-&#39;], stdin=docker_export.stdout)
+        [&#39;plash import-tar&#39;, &#39;-&#39;], stdin=docker_export.stdout)
 </code></pre>
 </div>
 

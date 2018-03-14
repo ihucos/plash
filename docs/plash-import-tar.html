@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-import-tar</h1>
-usage: plash-import-tar-as TARFILE
+usage: plash import-tar-as TARFILE
 Create a container from a tar file
 
 
@@ -81,7 +81,7 @@ Create a container from a tar file
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-import-tar-as TARFILE
+# usage: plash import-tar-as TARFILE
 # Create a container from a tar file
 
 import os
@@ -112,9 +112,9 @@ ignored_devs = []
 changed_root = None
 def filter_dev(members):
     for counter, m in enumerate(members):
-        if not counter % 1000:
-            sys.stderr.write(&#39;#&#39;)
-            sys.stderr.flush()
+        #if not counter % 1000:
+            #sys.stderr.write(&#39;#&#39;)
+            #sys.stderr.flush()
         if m.name == &#39;.&#39; and not m.mode == 0o755:
             changed_root = m.mode, 0o755
             m.mode = 0o755
@@ -123,12 +123,12 @@ def filter_dev(members):
             continue
         yield m
 
-sys.stderr.write(&#39;Unpack [&#39;)
-sys.stderr.flush()
+#sys.stderr.write(&#39;Unpack [&#39;)
+#sys.stderr.flush()
 unshare_if_user()
 t.extractall(rootfs, members=filter_dev(t.getmembers()))
 
-print(&#39;]&#39;, file=sys.stderr)
+# print(&#39;]&#39;, file=sys.stderr)
 if ignored_devs:
     print(&#39;Ignored {} dev files&#39;.format(len(ignored_devs)), file=sys.stderr)
 if changed_root:

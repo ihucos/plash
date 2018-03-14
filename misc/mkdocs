@@ -6,7 +6,7 @@ from os import path
 import jinja2
 
 DOCDIR = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'docs')
-BINDIR = path.join(path.dirname(DOCDIR), 'bin')
+BINDIR = path.join(path.dirname(DOCDIR), 'plashlib/libexec')
 
 
 def render(tpl_path, **context):
@@ -16,17 +16,15 @@ def render(tpl_path, **context):
             DOCDIR, 'templs'))).get_template(filename).render(context)
 
 
-out = check_output('plash list')
+out = check_output(['plash', 'list'])
 out = out.decode()
-progs = sorted((i.split(None, 1) for i in out.splitlines()))
+progs = sorted((i.split(None, 2)[1:] for i in out.splitlines()))
 
 with open(path.join(DOCDIR, 'index.html'), 'w') as f:
     f.write(render('index.html', progs=progs))
 
 filedocs = []
-binfiles = [
-    i.split()[0] for i in check_output('plash list').decode().splitlines()
-]
+binfiles = [i for i in os.listdir(BINDIR) if not i.startswith('.')]
 for binfile in binfiles:
     if binfile.startswith('.'):
         continue

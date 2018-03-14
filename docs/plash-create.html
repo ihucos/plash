@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-create</h1>
-usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
+usage: plash create CONTAINER [CMD1 [CMD2 ...]]
 
 Creates a new container from a command. If no command is passed, a shell is
 started.  The new container is printed to stdout, all other output goes to
@@ -80,15 +80,15 @@ higher level interface.
 
 Examples:
 
-$ plash-create 7 ./buildscript.sh
+$ plash create 7 ./buildscript.sh
 42
 
-$ sudo plash-create 3
+$ sudo plash create 3
 /home/fulano # echo &#39;hello&#39; &gt; /file
 /home/fulano # exit 0
 71
 
-$ plash-create -i ubuntu -- touch /myfile
+$ plash create -i ubuntu -- touch /myfile
 44
 
 
@@ -100,7 +100,7 @@ $ plash-create -i ubuntu -- touch /myfile
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-create CONTAINER [CMD1 [CMD2 ...]]
+# usage: plash create CONTAINER [CMD1 [CMD2 ...]]
 #
 # Creates a new container from a command. If no command is passed, a shell is
 # started.  The new container is printed to stdout, all other output goes to
@@ -111,15 +111,15 @@ $ plash-create -i ubuntu -- touch /myfile
 #
 # Examples:
 #
-# $ plash-create 7 ./buildscript.sh
+# $ plash create 7 ./buildscript.sh
 # 42
 #
-# $ sudo plash-create 3
+# $ sudo plash create 3
 # /home/fulano # echo &#39;hello&#39; &gt; /file
 # /home/fulano # exit 0
 # 71
 #
-# $ plash-create -i ubuntu -- touch /myfile
+# $ plash create -i ubuntu -- touch /myfile
 # 44
 
 import os
@@ -128,8 +128,7 @@ import sys
 from os.path import join
 from plashlib import ux
 from plashlib.utils import get_plash_data
-from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
-                        check_output)
+from subprocess import (DEVNULL, CalledProcessError, Popen)
 from sys import exit
 from tempfile import mkdtemp
 
@@ -173,7 +172,7 @@ exit = p.wait()
 if exit:
     die(&#34;building returned exit status {}&#34;.format(exit), exit=4)
 
-os.execlp(&#39;plash-add-layer&#39;, &#39;plash-add-layer&#39;, container, os.path.join(changesdir, &#39;data&#39;))
+os.execlp(&#39;plash-add-layer&#39;, &#39;plash add-layer&#39;, container, os.path.join(changesdir, &#39;data&#39;))
 </code></pre>
 </div>
 

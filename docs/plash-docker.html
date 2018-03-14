@@ -83,7 +83,7 @@ containers and host and may not be appropriate as a socket.
 <div id="container">
 <pre>
 <code>#!/usr/bin/env plash-exec
-# plash-exec: exec=/entrypoint root=true
+# plash-exec: exec=/entrypoint
 # usage: plash-docker &lt;DOCKER-ARGS&gt;
 # Run the docker client inside alpine linux. Use the PLASH_DOCKER_SOCKET
 # environment variable to select the docker socket, the default is
@@ -104,7 +104,7 @@ docker
 --write-script
 /entrypoint
 #!/bin/sh
-export DOCKER_HOST=unix://${PLASH_DOCKER_SOCKET:-/tmp/plash-docker-wrap/docker.sock}
+export DOCKER_HOST=unix://${PLASH_DOCKER_SOCKET:-/tmp/plash docker-wrap/docker.sock}
 exec docker $@
 </code></pre>
 </div>

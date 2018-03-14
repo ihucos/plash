@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-import-url</h1>
-usage: plash-import-url-as URL
+usage: plash import-url-as URL
 Import a url as a container
 
 
@@ -81,14 +81,14 @@ Import a url as a container
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-import-url-as URL
+# usage: plash import-url-as URL
 # Import a url as a container
 
 import sys
 from os import execlp
 from urllib.request import urlretrieve
 from urllib.error import URLError
-from subprocess import CalledProcessError, check_call, check_output
+from subprocess import CalledProcessError, check_call
 from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
 from plashlib import ux
 from tempfile import mkstemp
@@ -129,7 +129,7 @@ with catch_and_die([URLError], debug=url):
 sys.stderr.write(&#39;100%]\n&#39;)
 sys.stderr.flush()
 
-execlp(&#39;plash-import-tar&#39;, &#39;plash-import-tar&#39;, tmpfile)
+execlp(&#39;plash-import-tar&#39;, &#39;plash import-tar&#39;, tmpfile)
 </code></pre>
 </div>
 

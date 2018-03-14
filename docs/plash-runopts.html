@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-runopts</h1>
-usage: plash-runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
+usage: plash runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
 Run a container specifing some extra options, see --help
 
 
@@ -81,7 +81,7 @@ Run a container specifing some extra options, see --help
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
+# usage: plash runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
 # Run a container specifing some extra options, see --help
 
 import argparse
@@ -89,7 +89,7 @@ import os
 import sys
 import shlex
 import platform
-from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die, get_default_shell
+from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die, get_default_shell, die
 from plashlib import ux
 from plashlib.unshare import unshare_if_user, unshare_if_root
 from subprocess import check_call, CalledProcessError

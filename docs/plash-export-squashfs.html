@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-export-squashfs</h1>
-usage: plash-export-squashfs CONTAINER FILE
+usage: plash export-squashfs CONTAINER FILE
 Export a container as squashfs
 
 
@@ -81,7 +81,7 @@ Export a container as squashfs
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-export-squashfs CONTAINER FILE
+# usage: plash export-squashfs CONTAINER FILE
 # Export a container as squashfs
 
 from plashlib.utils import handle_help_flag, die_with_usage, handle_build_args
@@ -98,7 +98,7 @@ try:
 except ValueError:
     die_with_usage()
 
-os.execlp(&#39;plash-with-mount&#39;, &#39;plash-with-mount&#39;, container, &#39;mksquashfs&#39;, &#39;.&#39;,
+os.execlp(&#39;plash-with-mount&#39;, &#39;plash with-mount&#39;, container, &#39;mksquashfs&#39;, &#39;.&#39;,
           out)
 </code></pre>
 </div>

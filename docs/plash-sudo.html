@@ -61,17 +61,17 @@ h1 {
 </head>
 <body>
 
-<a href="https://github.com/ihucos/plash/blob/master/bin/plash-nodepath"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+<a href="https://github.com/ihucos/plash/blob/master/bin/plash-sudo"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
 
 
 <center>
 
 <div id='doc'>
 <pre>
-<h1>plash-nodepath</h1>
-usage: plash nodepath CONTAINER
-Prints the path of a given container
-Example: `plash nodepath mycontainer | xargs tree`
+<h1>plash-sudo</h1>
+usage: plash sudo [CMD1 [CMD2 ..]]
+Setup uid and gid mapped namespace,
+the execute command or start shell if not command supplied
 
 
 <a href='index.html' id='command-index'>&larr; Command index</a>
@@ -82,26 +82,20 @@ Example: `plash nodepath mycontainer | xargs tree`
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash nodepath CONTAINER
-# Prints the path of a given container
-# Example: `plash nodepath mycontainer | xargs tree`
+# usage: plash sudo [CMD1 [CMD2 ..]]
+# Setup uid and gid mapped namespace,
+# the execute command or start shell if not command supplied
 
 import os
 import sys
+from plashlib.utils import get_default_shell
+from plashlib.unshare import unshare_if_user
 
-from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
-from plashlib import ux
-
-handle_help_flag()
-handle_build_args()
-
-try:
-    container = sys.argv[1]
-except IndexError:
-    die_with_usage()
-
-nodepath = nodepath_or_die(container)
-print(nodepath)
+unshare_if_user()
+cmd = sys.argv[1:]
+if not cmd:
+    cmd = [get_default_shell(&#39;/etc/passwd&#39;)]
+os.execlp(cmd[0], *cmd)
 </code></pre>
 </div>
 

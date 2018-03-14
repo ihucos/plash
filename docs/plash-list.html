@@ -69,7 +69,7 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-list</h1>
-usage: plash-list
+usage: plash list
 Lists all available plash commands
 
 
@@ -81,7 +81,7 @@ Lists all available plash commands
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-list
+# usage: plash list
 # Lists all available plash commands
 
 from os.path import dirname, join
@@ -92,11 +92,7 @@ from plashlib.utils import handle_help_flag
 handle_help_flag()
 
 bin = dirname(sys.argv[0])
-progs = [
-    prog for prog in listdir(bin)
-    if prog.startswith(&#39;plash-&#39;) and prog != &#39;plash-pun&#39;
-]
-
+progs = [i for i in listdir(bin) if not i.startswith(&#39;.&#39;)]
 max_prog_lenght = max(len(prog) for prog in progs)
 for prog in sorted(progs):
     first_sentence = &#39;&lt;empty&gt;&#39;
@@ -109,7 +105,8 @@ for prog in sorted(progs):
                 first_sentence = next_next_line[2:-1].split(&#39;.&#39;)[0]
 
     assert first_sentence
-    print(prog.ljust(max_prog_lenght), first_sentence)
+    subcommand = prog[len(&#39;plash &#39;):]
+    print(&#39;plash &#39; + subcommand.ljust(max_prog_lenght), first_sentence)
 </code></pre>
 </div>
 

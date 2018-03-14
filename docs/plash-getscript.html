@@ -69,11 +69,11 @@ h1 {
 <div id='doc'>
 <pre>
 <h1>plash-getscript</h1>
-usage: plash-getscript &lt;ACTIONS&gt;
+usage: plash getscript &lt;ACTIONS&gt;
 Prints build script. It prints the shell script generated from actions passed
 as command line parameters.  Call with --help to see available actions.
-plash-build passes its arguments to this script to generate the shell script
-with the build instruction.
+plash build passes its arguments to this script to generate the shell script
+with the build instructions.
 
 
 <a href='index.html' id='command-index'>&larr; Command index</a>
@@ -84,11 +84,11 @@ with the build instruction.
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-getscript &lt;ACTIONS&gt;
+# usage: plash getscript &lt;ACTIONS&gt;
 # Prints build script. It prints the shell script generated from actions passed
 # as command line parameters.  Call with --help to see available actions.
-# plash-build passes its arguments to this script to generate the shell script
-# with the build instruction.
+# plash build passes its arguments to this script to generate the shell script
+# with the build instructions.
 
 import sys
 
@@ -103,16 +103,15 @@ for token in tokens:
         die(&#39;invalid option: --&#39;)
     elif token.startswith(&#39;--&#39;):
         lsp.append([token[2:]])
-    elif token.startswith(&#39;-&#39;):
-        if not len(token) == 2:
-            die(&#39;invalid option: {}&#39;.format(token))
-        lsp.append([token[1:]])
+    elif token.startswith(&#39;-&#39;) and not token == &#39;-&#39;:
+        for single_letter_opt in token[1:]:
+            lsp.append([single_letter_opt])
     elif token:
         lsp[-1].append(token)
 
 with catch_and_die([eval.ActionNotFoundError]):
     script = eval.eval(lsp)
-if script:
+if script and not script.endswith(&#39;\n&#39;):
     script += &#39;\n&#39;  # that &#39;\n&#39; is right
 print(script, end=&#39;&#39;)
 </code></pre>
