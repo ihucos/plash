@@ -61,16 +61,16 @@ h1 {
 </head>
 <body>
 
-<a href="https://github.com/ihucos/plash/blob/master/bin/plash-rm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+<a href="https://github.com/ihucos/plash/blob/master/bin/export-squashfs"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
 
 
 <center>
 
 <div id='doc'>
 <pre>
-<h1>plash-rm</h1>
-usage: plash-rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
-Deletes the given containers.
+<h1>plash export-squashfs</h1>
+usage: plash export-squashfs CONTAINER FILE
+Export a container as squashfs
 
 
 <a href='index.html' id='command-index'>&larr; Command index</a>
@@ -81,24 +81,25 @@ Deletes the given containers.
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
-# Deletes the given containers.
+# usage: plash export-squashfs CONTAINER FILE
+# Export a container as squashfs
 
+from plashlib.utils import handle_help_flag, die_with_usage, handle_build_args
+from plashlib import ux
 import os
 import sys
-from shutil import rmtree
-from tempfile import mkdtemp
-from plashlib.utils import handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data
-from plashlib import ux
 
 handle_help_flag()
 handle_build_args()
+ux.assert_initialized()
 
-for container in sys.argv[1:]:
-    node = nodepath_or_die(container)
-    tmp = mkdtemp(dir=get_plash_data())
-    os.rename(node, tmp)
-    rmtree(tmp)
+try:
+    container, out = sys.argv[1:3]
+except ValueError:
+    die_with_usage()
+
+os.execlp(&#39;plash-with-mount&#39;, &#39;plash with-mount&#39;, container, &#39;mksquashfs&#39;, &#39;.&#39;,
+          out)
 </code></pre>
 </div>
 

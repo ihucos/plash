@@ -61,15 +61,15 @@ h1 {
 </head>
 <body>
 
-<a href="https://github.com/ihucos/plash/blob/master/bin/plash-runopts"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+<a href="https://github.com/ihucos/plash/blob/master/bin/runopts"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
 
 
 <center>
 
 <div id='doc'>
 <pre>
-<h1>plash-runopts</h1>
-usage: plash-runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
+<h1>plash runopts</h1>
+usage: plash runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
 Run a container specifing some extra options, see --help
 
 
@@ -81,7 +81,7 @@ Run a container specifing some extra options, see --help
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
+# usage: plash runopts [-b BIND] [-n] [-c CHANGES] CONTAINER [CMD [CMD ...]]
 # Run a container specifing some extra options, see --help
 
 import argparse
@@ -89,7 +89,7 @@ import os
 import sys
 import shlex
 import platform
-from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die, get_default_shell
+from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die, get_default_shell, die
 from plashlib import ux
 from plashlib.unshare import unshare_if_user, unshare_if_root
 from subprocess import check_call, CalledProcessError

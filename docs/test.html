@@ -1,0 +1,129 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+  margin: 0px;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+pre {
+  margin: 0px;
+}
+#doc {
+  min-height: 66.66vh;
+  font-size: 1.25em;
+  text-align: left;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  margin-bottom: 4em;
+  color: #212845;
+}
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
+}
+</style>
+</head>
+<body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/test"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
+<center>
+
+<div id='doc'>
+<pre>
+<h1>plash test</h1>
+Run unit tests
+
+
+<a href='index.html' id='command-index'>&larr; Command index</a>
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>#!/bin/bash
+# usage: plash test [TEST-PREFIX]
+# Run unit tests
+
+set -eu
+
+DIR=&#34;$( cd &#34;$( dirname &#34;${BASH_SOURCE[0]}&#34; )&#34; &amp;&amp; pwd )&#34;
+
+PS4=&#39;+ ${BASH_SOURCE}:${LINENO} &#39;
+
+#mkdir -p /var/lib/plash/tmp
+export PATH=$DIR/libexec:$PATH
+export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
+tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
+export PLASH_DATA=$tmp
+plash init
+
+plash import-tar $DIR/../testdata/busybox.tar &gt; /dev/null
+
+log=$(mktemp)
+program_exit=0
+last_arg=&#34;${@: -1}&#34;
+cd $DIR/../tests
+testfiles=$(find . -type f ! -iname &#34;*.sw*&#34; -iname &#34;${1:-}*&#34;)
+for script in $testfiles ; do
+  printf ${script:2} # magic 2 is the length of &#34;./&#34;
+  &#34;$script&#34; &gt; $log 2&gt;&amp;1 &amp;
+  if wait $!; then
+    echo &#39; OK&#39;
+  else
+    echo &#39; ERROR&#39;
+    program_exit=1
+    test_mark_line=$(grep -n &#39;^+ : &#39; $log | tail -n1 | cut -d: -f1)
+    if [[ $test_mark_line =~ ^-?[0-9]+$ ]]; then
+        tail -n +$test_mark_line $log | sed &#39;s/^/  | /&#39;  &gt;&amp;2 
+    else
+        cat $log | sed &#39;s/^/  | /&#39;  &gt;&amp;2 
+    fi
+    echo
+  fi
+done
+
+exit $program_exit
+</code></pre>
+</div>
+
+</center>
+</body>
+</html>

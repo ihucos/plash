@@ -1,0 +1,334 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<style>
+body {
+  /* flamingos are not open source and hosted privately for licencing reasons */
+  /* do you know how to draw flamingos? */
+  background-image: url("https://irae.me/static/flamingo.jpg");
+  background-color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 100vh;
+  background-size: 400px;
+}
+#container {
+  display: inline-block;
+  background-color: white;
+  margin-bottom: 0px;
+  padding: 2em;
+  transform: rotate(0.2deg);
+  font-family: 'Inconsolata', monospace;
+  border: solid 4px #E48C93;
+  border-radius: 3px;
+  text-align: left;
+}
+#inner {
+  transform: rotate(-0.1deg);
+}
+pre {
+  margin: 0px;
+  font-family: 'Inconsolata', monospace;
+}
+a {
+  color: black;
+  text-decoration: none;
+}
+a:link {
+  color: black;
+  text-decoration: none;
+}
+a:visited {
+  color: black;
+  text-decoration: none;
+}
+a:hover {
+  color: black;
+  text-decoration: none;
+}
+a:active {
+  color: black;
+  text-decoration: none;
+}
+
+tr:hover {
+  background: #E4AAAB;
+}
+td {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+td a {
+     display: block;
+}
+
+</style>
+</head>
+<body>
+<a href="https://github.com/you"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+<center>
+
+<div id="container">
+<div id="inner">
+<pre>
+$ echo 'plash reference' | plash run -i ubuntu --apt figlet -- figlet
+       _           _                 __
+ _ __ | | __ _ ___| |__    _ __ ___ / _| ___ _ __ ___ _ __   ___ ___
+| '_ \| |/ _` / __| '_ \  | '__/ _ \ |_ / _ \ '__/ _ \ '_ \ / __/ _ \
+| |_) | | (_| \__ \ | | | | | |  __/  _|  __/ | |  __/ | | | (_|  __/
+| .__/|_|\__,_|___/_| |_| |_|  \___|_|  \___|_|  \___|_| |_|\___\___|
+|_|
+$
+$ plash list
+</pre>
+<table cellspacing="0">
+
+<tr>
+  <td>
+    <a href="add-layer.html"><nobr>plash add-layer&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="add-layer.html"><nobr>Stack a layer on top of a container</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="build.html"><nobr>plash build&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="build.html"><nobr>Builds a container</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="create.html"><nobr>plash create&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="create.html"><nobr>Creates a new container from a command</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="docker.html"><nobr>plash docker&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="docker.html"><nobr>Run the docker client inside alpine linux</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="docker-daemon.html"><nobr>plash docker-daemon&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="docker-daemon.html"><nobr>Run the docker daemon inside alpine linux</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="export-img.html"><nobr>plash export-img&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="export-img.html"><nobr>Export a container as ext4 file system</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="export-squashfs.html"><nobr>plash export-squashfs&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="export-squashfs.html"><nobr>Export a container as squashfs</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="export-tar.html"><nobr>plash export-tar&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="export-tar.html"><nobr>Export container as tar archive</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="getscript.html"><nobr>plash getscript&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="getscript.html"><nobr>Prints build script</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="import-docker.html"><nobr>plash import-docker&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="import-docker.html"><nobr>Import an image from the docker cloud</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="import-lxcimages.html"><nobr>plash import-lxcimages&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="import-lxcimages.html"><nobr>Import an image from linuxcontainers</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="import-tar.html"><nobr>plash import-tar&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="import-tar.html"><nobr>Create a container from a tar file</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="import-url.html"><nobr>plash import-url&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="import-url.html"><nobr>Import a url as a container</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="init.html"><nobr>plash init&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="init.html"><nobr>Initialize build data</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="list.html"><nobr>plash list&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="list.html"><nobr>Lists all available plash commands</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="map.html"><nobr>plash map&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="map.html"><nobr>Get or set a container by a key</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="mount.html"><nobr>plash mount&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="mount.html"><nobr>Mounts the filsystem of a container</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="nodepath.html"><nobr>plash nodepath&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="nodepath.html"><nobr>Prints the path of a given container</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="parent.html"><nobr>plash parent&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="parent.html"><nobr>Prints the parent container of a given container</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="purge.html"><nobr>plash purge&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="purge.html"><nobr>Prompts to delete all build data</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="rm.html"><nobr>plash rm&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="rm.html"><nobr>Deletes the given containers</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="run.html"><nobr>plash run&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="run.html"><nobr>Run a command inside a container</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="runc.html"><nobr>plash runc&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="runc.html"><nobr>Run a container with runc</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="runopts.html"><nobr>plash runopts&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="runopts.html"><nobr>Run a container specifing some extra options, see --help</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="sudo.html"><nobr>plash sudo&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="sudo.html"><nobr>Setup uid and gid mapped namespace,</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="test.html"><nobr>plash test&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="test.html"><nobr>Run unit tests</nobr></a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="with-mount.html"><nobr>plash with-mount&nbsp;</nobr></a>
+  </td>
+  <td>
+    <a href="with-mount.html"><nobr>Execute a command inside the container filesystem</nobr></a>
+  </td>
+</tr>
+
+</table>
+</div>
+</div>
+
+</center>
+</body>
+</html>

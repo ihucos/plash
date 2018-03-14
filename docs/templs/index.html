@@ -70,7 +70,7 @@ td a {
 <div id="container">
 <div id="inner">
 <pre>
-$ echo 'plash reference' | plash-run -i ubuntu --apt figlet -- figlet
+$ echo 'plash reference' | plash run -i ubuntu --apt figlet -- figlet
        _           _                 __
  _ __ | | __ _ ___| |__    _ __ ___ / _| ___ _ __ ___ _ __   ___ ___
 | '_ \| |/ _` / __| '_ \  | '__/ _ \ |_ / _ \ '__/ _ \ '_ \ / __/ _ \
@@ -78,13 +78,13 @@ $ echo 'plash reference' | plash-run -i ubuntu --apt figlet -- figlet
 | .__/|_|\__,_|___/_| |_| |_|  \___|_|  \___|_|  \___|_| |_|\___\___|
 |_|
 $
-$ plash-list
+$ plash list
 </pre>
 <table cellspacing="0">
 {% for prog, short in progs %}
 <tr>
   <td>
-    <a href="{{ prog }}.html"><nobr>{{ prog }}&nbsp;</nobr></a>
+    <a href="{{ prog }}.html"><nobr>plash {{ prog }}&nbsp;</nobr></a>
   </td>
   <td>
     <a href="{{ prog }}.html"><nobr>{{ short }}</nobr></a>

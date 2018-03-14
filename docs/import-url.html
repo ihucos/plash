@@ -61,15 +61,15 @@ h1 {
 </head>
 <body>
 
-<a href="https://github.com/ihucos/plash/blob/master/bin/plash-import-url"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+<a href="https://github.com/ihucos/plash/blob/master/bin/import-url"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
 
 
 <center>
 
 <div id='doc'>
 <pre>
-<h1>plash-import-url</h1>
-usage: plash-import-url-as URL
+<h1>plash import-url</h1>
+usage: plash import-url-as URL
 Import a url as a container
 
 
@@ -81,14 +81,14 @@ Import a url as a container
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-import-url-as URL
+# usage: plash import-url-as URL
 # Import a url as a container
 
 import sys
 from os import execlp
 from urllib.request import urlretrieve
 from urllib.error import URLError
-from subprocess import CalledProcessError, check_call, check_output
+from subprocess import CalledProcessError, check_call
 from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
 from plashlib import ux
 from tempfile import mkstemp
@@ -129,7 +129,7 @@ with catch_and_die([URLError], debug=url):
 sys.stderr.write(&#39;100%]\n&#39;)
 sys.stderr.flush()
 
-execlp(&#39;plash-import-tar&#39;, &#39;plash-import-tar&#39;, tmpfile)
+execlp(&#39;plash-import-tar&#39;, &#39;plash import-tar&#39;, tmpfile)
 </code></pre>
 </div>
 

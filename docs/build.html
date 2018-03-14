@@ -61,15 +61,15 @@ h1 {
 </head>
 <body>
 
-<a href="https://github.com/ihucos/plash/blob/master/bin/plash-build"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+<a href="https://github.com/ihucos/plash/blob/master/bin/build"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
 
 
 <center>
 
 <div id='doc'>
 <pre>
-<h1>plash-build</h1>
-usage: plash-build &lt;ACTIONS&gt;
+<h1>plash build</h1>
+usage: plash build &lt;ACTIONS&gt;
 Builds a container. Any command line options is interpreted as action,
 Use `--list` to list all available action.
 
@@ -82,17 +82,17 @@ exit status:
 
 Examples:
 
-$ plash-build -i ubuntu --run &#39;touch a&#39;
+$ plash build -i ubuntu --run &#39;touch a&#39;
 --&gt; touch a
 --:
 66
 
-$ plash-build -i ubuntu --run &#39;touch a&#39; --layer --run &#39;touch b&#39;
+$ plash build -i ubuntu --run &#39;touch a&#39; --layer --run &#39;touch b&#39;
 --&gt; touch b
 --:
 67
 
-$ plash-build -i ubuntu --apt nmap
+$ plash build -i ubuntu --apt nmap
 --&gt; apt-get update
 Hit:1 http://security.ubuntu.com/ubuntu bionic-security InRelease
 Get:2 http://archive.ubuntu.com/ubuntu bionic InRelease [235 kB]
@@ -111,7 +111,7 @@ Processing triggers for libc-bin (2.26-0ubuntu2) ...
 <pre>
 <code>#!/usr/bin/env python3
 #
-# usage: plash-build &lt;ACTIONS&gt;
+# usage: plash build &lt;ACTIONS&gt;
 # Builds a container. Any command line options is interpreted as action,
 # Use `--list` to list all available action.
 #
@@ -124,17 +124,17 @@ Processing triggers for libc-bin (2.26-0ubuntu2) ...
 #
 # Examples:
 #
-# $ plash-build -i ubuntu --run &#39;touch a&#39;
+# $ plash build -i ubuntu --run &#39;touch a&#39;
 # --&gt; touch a
 # --:
 # 66
 #
-# $ plash-build -i ubuntu --run &#39;touch a&#39; --layer --run &#39;touch b&#39;
+# $ plash build -i ubuntu --run &#39;touch a&#39; --layer --run &#39;touch b&#39;
 # --&gt; touch b
 # --:
 # 67
 #
-# $ plash-build -i ubuntu --apt nmap
+# $ plash build -i ubuntu --apt nmap
 # --&gt; apt-get update
 # Hit:1 http://security.ubuntu.com/ubuntu bionic-security InRelease
 # Get:2 http://archive.ubuntu.com/ubuntu bionic InRelease [235 kB]
@@ -150,8 +150,7 @@ import os
 import sys
 from plashlib.utils import hashstr, nodepath_or_die
 from plashlib import ux
-from subprocess import (DEVNULL, CalledProcessError, Popen, check_call,
-                        check_output)
+from subprocess import (DEVNULL, CalledProcessError, Popen, check_output)
 
 from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import IMAGE_HINT_TEMPL
@@ -218,6 +217,8 @@ for layer in layers:
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             cwd=&#39;/&#39;)
+        # for some reason in ubuntu the path is not exported
+        p.stdin.write(b&#39;export PATH\n&#39;)
         p.stdin.write(b&#39;set -ex\n&#39;)
         p.stdin.write(layer.encode())
         p.stdin.close()
