@@ -7,6 +7,7 @@ python:
 env:
   global:
     - COVERAGE_PROCESS_START=.coveragerc
+    - PYTHONPATH=~/misc/sitecustomize_for_codecoverage
   matrix:
     - ROOT=true
     - ROOT=false
@@ -14,7 +15,7 @@ env:
 install:
   # install plash
   - sudo apt-get install python3 python3-pip unionfs-fuse uidmap
-  - sudo pip3 install codecov
+  - sudo pip3 install coverage
 
 cache:
   directories:
@@ -33,6 +34,9 @@ script:
       pip3 install ./dist/*.whl;
       plash test;
     fi;
+   - coverage combine
+   - coverage html
+   - coverage report
 
 deploy:
 
