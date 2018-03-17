@@ -32,15 +32,8 @@ if not args.no_default_binds:
     requested_mounts.extend(DEFAULT_BIND)
 requested_mounts.extend(args.bind or [])
 
-master_pid = os.getpid()
 
-# create mountpoint
-user_tmp = '/var/tmp/plash-run-{}'.format(master_pid)
-try:
-    os.mkdir(user_tmp, mode=0o700)
-except FileExistsError:
-    pass
-mountpoint = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(master_pid))
+mountpoint = mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
 
 unshare_if_root()
 
@@ -48,13 +41,7 @@ unshare_if_root()
 if args.changes:
     changesdir = args.changes
 else:
-    # create changedir
-    user_tmp = '/tmp/plash-run-{}'.format(os.getuid())
-    try:
-        os.mkdir(user_tmp, mode=0o700)
-    except FileExistsError:
-        pass
-    changesdir = mkdtemp(dir=user_tmp, prefix='pid-{}-'.format(master_pid))
+    changesdir = mkdtemp(prefix='plash-changedata-{}-'.format(os.getpid()))
 with catch_and_die([CalledProcessError]):
     check_call(['plash-mount', args.container, mountpoint, changesdir])
 
