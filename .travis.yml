@@ -49,11 +49,10 @@ deploy:
     skip_cleanup: true
     on:
       branch: master
-      condition: $TRAVIS_PYTHON_VERSION = 3.6 AND $ROOT = False
-      condition: $ROOT = false
+      condition: $TRAVIS_PYTHON_VERSION = 3.6 AND $ROOT = false
 
   - provider: script
     script: git tag 0.$TRAVIS_BUILD_NUMBER -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
     on:
       branch: master
-      condition: $TRAVIS_PYTHON_VERSION = 3.6 AND $ROOT = False
+      condition: $TRAVIS_PYTHON_VERSION = 3.6 AND $ROOT = false
