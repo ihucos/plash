@@ -82,8 +82,9 @@ Plash tries to be very maintainable and is designed to still securely run withou
 containers, like letting a user quickly use a newer software package from another distribution in a sane way. Or being easy to install. Last but not least in a new and fast-moving container world the focus is on boring long term stability and backwards compatibility, starting from version 1.0.
 
 ### Examples
-* https://github.com/ihucos/plash-travis-example
 * https://github.com/ihucos/noapt
+* https://github.com/ihucos/plash-travis-example
+* https://github.com/ihucos/plash-python-example/
 
 ## FAQ
 
