@@ -1,6 +1,6 @@
 [![Travis branch](https://img.shields.io/travis/ihucos/plash/master.svg?style=flat-square)](https://travis-ci.org/ihucos/plash#)
 [![PyPI](https://img.shields.io/pypi/v/plash.svg?style=flat-square)](https://pypi.org/project/plash/)
-![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/plash-containers)
 
 # plash
 is a container build and runtime system.
