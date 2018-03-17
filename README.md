@@ -1,6 +1,8 @@
 [![Travis branch](https://img.shields.io/travis/ihucos/plash/master.svg?style=flat-square)](https://travis-ci.org/ihucos/plash#)
 [![PyPI](https://img.shields.io/pypi/v/plash.svg?style=flat-square)](https://pypi.org/project/plash/)
 # plash
+
+[![Join the chat at https://gitter.im/plash-containers/Lobby](https://badges.gitter.im/plash-containers/Lobby.svg)](https://gitter.im/plash-containers/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 is a container build and runtime system.
 
 ## Install
