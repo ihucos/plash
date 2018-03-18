@@ -15,9 +15,10 @@ install:
 script:
 
   # load the plash cache
-  - sudo tar -xf ~/plashcache/data.tar -C / || plash init
+  - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
 
-  - sudo plash init
+  - ls
+  - file .travis.sh
   - sudo -E plash run --include-string " $BUILD" --  sh -xc .travis.sh
 
   # save the plash cache
