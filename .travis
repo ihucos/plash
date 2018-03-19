@@ -65,7 +65,7 @@ tmp=$(mktemp)
 echo '[distutils]' >> $tmp
 echo 'index-servers=pypi' >> $tmp
 echo '[pypi]' >> $tmp
-echo 'repository=https://pypi.org/legacy/' >> $tmp
+#echo 'repository=https://pypi.org/legacy/' >> $tmp
 
 if test "$deploy" = yes; then
   twine upload --config-file $tmp -r pypi -u $PYPI_USER -p $PYPI_PASSWORD dist/*
