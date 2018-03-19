@@ -1,5 +1,5 @@
 #!/usr/bin/env plash-exec
-# plash-exec: exec=/entrypoint bind=/etc/passwd,/etc/subuid,/etc/subgid
+# plash-exec: exec=/entrypoint
 --image
 ubuntu
 --apt

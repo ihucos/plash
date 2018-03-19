@@ -15,9 +15,6 @@ script:
   # load the plash cache
   - sudo -E ./ci
 
-
-  - ls
-  - file ./ci
   - sudo -E plash run --include-string " $BUILD" -- ./ci
 
   # save the plash cache
