@@ -13,9 +13,8 @@ cache:
 script:
 
   # load the plash cache
+  - sudo plash init
   - sudo -E ./ci
-
-  - sudo -E plash run --include-string " $BUILD" -- ./ci
 
   # save the plash cache
   - sudo tar -cf ~/plashcache/data.tar /var/lib/plash
