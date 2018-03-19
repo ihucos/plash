@@ -20,7 +20,7 @@ script:
   - sudo plash-exec
   - sudo -E plash-exec
   - plash-exec
-  - sudo -E plash run --include-string " $BUILD" -- ./ci
+  - sudo -E env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin plash run --include-string " $BUILD" -- ./ci
 
   # save the plash cache
   - sudo tar -cf ~/plashcache/data.tar /var/lib/plash
