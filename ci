@@ -28,7 +28,7 @@ git
 #!/bin/sh
 set -eux
 
-! test -z "$TRAVIS" && sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
+! test -z "$TRAVIS" && sed -i -e "s/VERSION = '0.1dev'/VERSION = 'build-$TRAVIS_BUILD_NUMBER'/g" setup.py
 python3 setup.py --quiet develop
 
 for f in /usr/lib/python3.*; do
@@ -56,5 +56,5 @@ git commit -m 'deploy docs [skip ci]' --allow-empty
 git push https://${GH_TOKEN}@github.com/ihucos/plash-docs-deploy.git HEAD:master --force
 
 python3 setup.py --quiet bdist_wheel
-#twine upload dist/* --repository-url https://test.pypi.org/legacy/ --username "$PYPI_USER" --password "$PYPI_PASSWORD"
-#git tag 0.$TRAVIS_BUILD_NUMBER -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
+twine upload dist/* --repository-url https://test.pypi.org/legacy/ --username "$PYPI_USER" --password "$PYPI_PASSWORD"
+git tag build-$TRAVIS_BUILD_NUMBER -m "https://test.pypi.org/project/plash/build-$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags

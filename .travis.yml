@@ -13,6 +13,8 @@ cache:
 script:
 
   # load the plash cache
+  - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
+
   - sudo plash init
   - sudo -E ./ci
 
