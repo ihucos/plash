@@ -1,2 +1,5 @@
+[report]
+include=
+    *plash*
 [run]
 parallel=true

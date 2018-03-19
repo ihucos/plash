@@ -2,7 +2,6 @@ import coverage; coverage.process_startup()
 
 import os
 
-asdfasdf
 orig = os.execlp
 def patched_execlp(*args):
     from coverage import process_startup
