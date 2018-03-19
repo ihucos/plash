@@ -1,6 +1,4 @@
 language: generic
-env:
-  - BUILD='-i ubuntu --apt python3-pip'
 
 install:
 
@@ -15,7 +13,7 @@ cache:
 script:
 
   # load the plash cache
-  - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
+  - sudo -E ./ci
 
 
   - ls
