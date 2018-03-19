@@ -17,6 +17,8 @@ script:
   # load the plash cache
   - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
 
+  - sudo plash-exec
+  - plash-exec
   - sudo -E plash run --include-string " $BUILD" -- ./ci
 
   # save the plash cache
