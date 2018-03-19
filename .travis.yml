@@ -1,58 +1,22 @@
-language: python
-sudo: enabled
-python:
-  - "3.5"
-  - "3.6"
-
-env:
-  - ROOT=true
-  - ROOT=false
+language: generic
 
 install:
-  # install plash
-  - sudo apt-get install python3 python3-pip unionfs-fuse uidmap
-  # sudo pip3 install plash
+
+  # install plash and dependencies
+  - sudo apt-get install python3-pip
+  - sudo pip3 install plash
 
 cache:
   directories:
-    - ~/plashdata/mydata.tar
-
-git:
-  depth: 1
+    - ~/plashcache
 
 script:
-  - sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
-  - echo $PATH
-  - python3 setup.py bdist_wheel
-  - if test "$ROOT" = true; then
-      sudo pip3 install ./dist/*.whl;
-      sudo plash test;
-    else
-      pip3 install ./dist/*.whl;
-      plash test;
-    fi;
 
-deploy:
+  # load the plash cache
+  - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
 
-  - provider: script
-    script:
-      - plash misc/pretty
-      - git commit -am "prettify cron job"
-      - git push https://${GH_TOKEN}@github.com/ihucos/plash.git
-    on:
-      condition: $TRAVIS_PYTHON_VERSION = 3.6
-      condition: $TRAVIS_EVENT_TYPE = cron
+  - sudo plash init
+  - sudo -E ./.travis
 
-  - provider: pypi
-    user: $PYPI_USER
-    password: $PYPI_PASSWORD
-    skip_cleanup: true
-    on:
-      branch: master
-      condition: $TRAVIS_PYTHON_VERSION = 3.6 AND $ROOT = false
-
-  - provider: script
-    script: git tag 0.$TRAVIS_BUILD_NUMBER -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
-    on:
-      branch: master
-      condition: $TRAVIS_PYTHON_VERSION = 3.6 AND $ROOT = false
+  # save the plash cache
+  - sudo tar -cf ~/plashcache/data.tar /var/lib/plash

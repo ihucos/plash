@@ -6,6 +6,7 @@
 
 import shlex
 import sys
+import os
 import subprocess
 from tempfile import mkdtemp
 from plashlib.utils import handle_help_flag, catch_and_die, die_with_usage, die, handle_build_args
@@ -31,7 +32,11 @@ with catch_and_die([CalledProcessError]):
 p = subprocess.Popen(['sh', '-c', user_sh], cwd=mountpoint)
 user_exit = p.wait()
 with catch_and_die([CalledProcessError]):
-    check_call(['fusermount', '-u', mountpoint], stdout=2)  # pipe any stdout to stderr
+    if os.getuid():
+        cmd = ['fusermount', '-u', mountpoint]
+    else:
+        cmd = ['umount', mountpoint]
+    check_call(cmd, stdout=2)  # pipe any stdout to stderr
 if user_exit:
     die('Exit status {}: {}'.format(user_exit, user_sh))
 sys.exit(user_exit)
