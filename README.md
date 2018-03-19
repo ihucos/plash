@@ -25,7 +25,7 @@ Plash containers are processes exactly like you know them. They can be listed wi
 Plashfiles are executable build files featuring optional lightweight configuration management capabilities.
 
 ## Documentation
-* Reference: https://ihucos.github.io/plash
+* Reference: https://ihucos.github.io/plash-docs-deploy/
 
 ## Example session
 
