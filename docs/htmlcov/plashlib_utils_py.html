@@ -341,7 +341,7 @@
 <p id="t122" class="stm mis">        <span class="key">except</span> <span class="nam">subprocess</span><span class="op">.</span><span class="nam">CalledProcessError</span> <span class="key">as</span> <span class="nam">exc</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
 <p id="t123" class="stm mis">            <span class="nam">die</span><span class="op">(</span><span class="str">'build failed'</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t124" class="stm mis">        <span class="nam">container_id</span> <span class="op">=</span> <span class="nam">out</span><span class="op">[</span><span class="op">:</span><span class="op">-</span><span class="num">1</span><span class="op">]</span><span class="strut">&nbsp;</span></p>
-<p id="t125" class="stm mis">        <span class="nam">os</span><span class="op">.</span><span class="nam">execvpe</span><span class="op">(</span><span class="nam">sys</span><span class="op">.</span><span class="nam">argv</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">,</span> <span class="op">[</span><span class="nam">sys</span><span class="op">.</span><span class="nam">argv</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">,</span> <span class="nam">container_id</span><span class="op">]</span> <span class="op">+</span> <span class="nam">cmd</span><span class="op">,</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
+<p id="t125" class="stm mis">        <span class="nam">os</span><span class="op">.</span><span class="nam">execlp</span><span class="op">(</span><span class="nam">sys</span><span class="op">.</span><span class="nam">argv</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">,</span> <span class="nam">sys</span><span class="op">.</span><span class="nam">argv</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">,</span> <span class="nam">container_id</span><span class="op">,</span> <span class="op">*</span><span class="nam">cmd</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t126" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t127" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t128" class="stm run hide_run"><span class="key">def</span> <span class="nam">nodepath_or_die</span><span class="op">(</span><span class="nam">container</span><span class="op">)</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
@@ -400,7 +400,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v4.5</a>,
-            created at 2018-03-19 14:14
+            created at 2018-03-19 16:14
         </p>
     </div>
 </div>
