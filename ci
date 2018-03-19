@@ -9,6 +9,8 @@ python3-coverage
 python3-jinja2
 git
 twine
+--pip3
+codecov
 --layer
 --write-script
 /entrypoint
@@ -37,13 +39,14 @@ export COVERAGE_PROCESS_START=$covtmp/.coveragerc
 python3 -m coverage erase
 cd /
 plash init
-#plash test
+plash test
 cd - 2> /dev/null
 
 rm /usr/lib/python3.*/sitecustomize.py
 
 python3 -m coverage combine
 python3 -m coverage report
+codecov
 
 misc/mkdocs
 python3 -m coverage html --directory ./docs/htmlcov 
