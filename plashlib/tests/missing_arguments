@@ -13,7 +13,6 @@ import-url
 mount
 nodepath
 run
-runc
 with-mount
 )
 for subcommand in "${array[@]}"
