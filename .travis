@@ -65,10 +65,11 @@ tmp=$(mktemp)
 echo '[distutils]' >> $tmp
 echo 'index-servers=pypi' >> $tmp
 echo '[pypi]' >> $tmp
-echo 'repository=https://upload.pypi.org/legacy/' >> $tmp
+echo 'username=$PYPI_USER' >> $tmp
+echo 'password=$PYPI_PASSWORD' >> $tmp
 
 if test "$deploy" = yes; then
-  twine upload --config-file $tmp -r pypi -u $PYPI_USER -p $PYPI_PASSWORD dist/*
+  twine upload --config-file $tmp -r pypi dist/*
   git tag "0.$TRAVIS_BUILD_NUMBER" -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER"
   git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
 fi
