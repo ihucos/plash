@@ -41,7 +41,7 @@ export COVERAGE_PROCESS_START=$covtmp/.coveragerc
 python3 -m coverage erase
 cd /
 plash init
-# plash test || true # FIXME: provis
+plash test
 cd - 2> /dev/null
 python3 -m coverage combine
 python3 -m coverage report
