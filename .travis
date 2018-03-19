@@ -45,6 +45,7 @@ cd - 2> /dev/null
 rm /usr/lib/python3.*/sitecustomize.py
 
 python3 -m coverage combine
+python3 -m coverage xml
 python3 -m coverage report
 codecov
 
