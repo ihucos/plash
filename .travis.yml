@@ -5,12 +5,12 @@ env:
 install:
 
   # install plash and dependencies
-  - sudo apt-get install python3 python3-pip unionfs-fuse uidmap
+  - sudo apt-get install python3-pip
   - sudo pip3 install plash
 
-#cache:
-  #directories:
-    #- ~/plashcache
+cache:
+  directories:
+    - ~/plashcache
 
 script:
 
