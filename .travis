@@ -65,8 +65,8 @@ tmp=$(mktemp)
 echo '[distutils]' >> $tmp
 echo 'index-servers=pypi' >> $tmp
 echo '[pypi]' >> $tmp
-echo 'username=$PYPI_USER' >> $tmp
-echo 'password=$PYPI_PASSWORD' >> $tmp
+echo "username=$PYPI_USER" >> $tmp
+echo "password=$PYPI_PASSWORD" >> $tmp
 
 if test "$deploy" = yes; then
   twine upload --config-file $tmp -r pypi dist/*
