@@ -1,0 +1,60 @@
+#!/usr/bin/env plash-exec
+# plash-exec: exec=/entrypoint bind=/etc/passwd,/etc/subuid,/etc/subgid
+--image
+ubuntu
+--apt
+python3-setuptools
+python3-pip
+python3-coverage
+python3-jinja2
+twine
+git
+--layer
+# deploy git 
+#git tag 0.$TRAVIS_BUILD_NUMBER -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
+#
+#
+#  - provider: pypi
+#    user: $PYPI_USER
+#    password: $PYPI_PASSWORD
+#    skip_cleanup: true
+#    on:
+#      branch: master
+#      condition: $TRAVIS_PYTHON_VERSION = 3.6 AND $ROOT = false
+
+--layer
+--write-script
+/entrypoint
+#!/bin/sh
+set -eux
+
+#sed -i -e "s/VERSION = '0.1dev'/VERSION = '0.$TRAVIS_BUILD_NUMBER'/g" setup.py
+python3 setup.py --quiet develop
+
+for f in /usr/lib/python3.*; do
+  cp ./misc/sitecustomize_for_codecoverage/sitecustomize.py $f
+done
+covtmp=$(mktemp -d)
+cp .coveragerc $covtmp
+echo "data_file=${PWD}/.coverage" >> $covtmp/.coveragerc
+export COVERAGE_PROCESS_START=$covtmp/.coveragerc
+python3 -m coverage erase
+cd /
+plash init
+plash test || true
+cd - 2> /dev/null
+python3 -m coverage combine
+python3 -m coverage report
+
+misc/mkdocs
+python3 -m coverage html --directory ./docs/htmlcov 
+
+git checkout -B ci-work-branch || exit 1
+git add docs
+git add -f docs/htmlcov
+git commit -m 'deploy docs [skip ci]' --allow-empty
+git push https://${GH_TOKEN}@github.com/ihucos/plash-docs-deploy.git HEAD:master --force
+
+python3 setup.py --quiet bdist_wheel
+twine upload dist/* --repository-url https://test.pypi.org/legacy/ --username "$PYPI_USER" --password "$PYPI_PASSWORD" || true
+git tag 0.$TRAVIS_BUILD_NUMBER -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER" && git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags || true

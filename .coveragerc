@@ -1,0 +1,6 @@
+[report]
+sort=Cover
+include=
+    *plash*
+[run]
+parallel=true
