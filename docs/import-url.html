@@ -1,0 +1,138 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+  margin: 0px;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+pre {
+  margin: 0px;
+}
+#doc {
+  min-height: 66.66vh;
+  font-size: 1.25em;
+  text-align: left;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  margin-bottom: 4em;
+  color: #212845;
+}
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
+}
+</style>
+</head>
+<body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/import-url"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
+<center>
+
+<div id='doc'>
+<pre>
+<h1>plash import-url</h1>
+usage: plash import-url-as URL
+Import a url as a container
+
+
+<a href='index.html' id='command-index'>&larr; Command index</a>
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>#!/usr/bin/env python3
+#
+# usage: plash import-url-as URL
+# Import a url as a container
+
+import sys
+from os import execlp
+from urllib.request import urlretrieve
+from urllib.error import URLError
+from subprocess import CalledProcessError, check_call
+from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
+from plashlib import ux
+from tempfile import mkstemp
+
+handle_help_flag()
+ux.assert_initialized()
+
+try:
+    url = sys.argv[1]
+except IndexError:
+    die_with_usage()
+
+tmpfile = mkstemp()[1]
+
+dots = [0]
+
+
+def reporthook(count, block_size, total_size):
+    percent = int(count * block_size * 100 / total_size)
+    #percent = min(int(count*block_size*100/total_size),100)
+    if percent // 10 &gt; dots[0] and not dots[0] &gt;= 9:
+        dots[0] += 1
+        if dots[0]:
+            sys.stderr.write(&#39;{}%|&#39;.format(dots[0] * 10))
+            sys.stderr.flush()
+
+
+sys.stderr.write(&#39;Fetch  [0%|&#39;)
+sys.stderr.flush()
+with catch_and_die([URLError], debug=url):
+    try:
+        urlretrieve(url, tmpfile, reporthook=reporthook)
+    except:
+        sys.stderr.write(&#39;\n&#39;)
+        sys.stderr.flush()
+        raise
+
+sys.stderr.write(&#39;100%]\n&#39;)
+sys.stderr.flush()
+
+execlp(&#39;plash-import-tar&#39;, &#39;plash import-tar&#39;, tmpfile)
+</code></pre>
+</div>
+
+</center>
+</body>
+</html>

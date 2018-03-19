@@ -1,0 +1,181 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+  margin: 0px;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+pre {
+  margin: 0px;
+}
+#doc {
+  min-height: 66.66vh;
+  font-size: 1.25em;
+  text-align: left;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  margin-bottom: 4em;
+  color: #212845;
+}
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
+}
+</style>
+</head>
+<body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/create"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
+<center>
+
+<div id='doc'>
+<pre>
+<h1>plash create</h1>
+usage: plash create CONTAINER [CMD1 [CMD2 ...]]
+
+Creates a new container from a command. If no command is passed, a shell is
+started.  The new container is printed to stdout, all other output goes to
+stderr. Note that a new container is only returned if the build command
+returns 0 (success) as exit code.  For most cases use `plash build` for a
+higher level interface.
+
+
+Examples:
+
+$ plash create 7 ./buildscript.sh
+42
+
+$ sudo plash create 3
+/home/fulano # echo &#39;hello&#39; &gt; /file
+/home/fulano # exit 0
+71
+
+$ plash create -i ubuntu -- touch /myfile
+44
+
+
+<a href='index.html' id='command-index'>&larr; Command index</a>
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>#!/usr/bin/env python3
+#
+# usage: plash create CONTAINER [CMD1 [CMD2 ...]]
+#
+# Creates a new container from a command. If no command is passed, a shell is
+# started.  The new container is printed to stdout, all other output goes to
+# stderr. Note that a new container is only returned if the build command
+# returns 0 (success) as exit code.  For most cases use `plash build` for a
+# higher level interface.
+#
+#
+# Examples:
+#
+# $ plash create 7 ./buildscript.sh
+# 42
+#
+# $ sudo plash create 3
+# /home/fulano # echo &#39;hello&#39; &gt; /file
+# /home/fulano # exit 0
+# 71
+#
+# $ plash create -i ubuntu -- touch /myfile
+# 44
+
+import os
+import subprocess
+import sys
+from os.path import join
+from plashlib import ux
+from plashlib.utils import get_plash_data
+from subprocess import (DEVNULL, CalledProcessError, Popen)
+from sys import exit
+from tempfile import mkdtemp
+
+from plashlib.utils import die, die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
+
+ux.assert_initialized()
+handle_help_flag()
+handle_build_args()
+
+plash_tmp = join(get_plash_data(), &#39;tmp&#39;)
+
+try:
+    container = sys.argv[1]
+    cmd = sys.argv[2:]
+except IndexError:
+    die_with_usage()
+
+if not container:
+    die(&#39;container arg can not be an empty string&#39;)
+
+nodepath_or_die(container)
+
+changesdir = mkdtemp(dir=plash_tmp, prefix=&#39;plash-create-changesdir-&#39;)
+p = subprocess.Popen(
+    [
+        &#39;plash-runopts&#39;,
+        &#39;--no-default-binds&#39;,
+        &#39;--bind&#39;, &#39;/home&#39;,
+        &#39;--bind&#39;, &#39;/etc/resolv.conf&#39;,
+        &#39;--bind&#39;, &#39;/sys&#39;,
+        &#39;--bind&#39;, &#39;/dev&#39;,
+        &#39;--bind&#39;, &#39;/proc&#39;,
+        &#39;--changes&#39;, changesdir,
+        &#39;--&#39;,
+        container,
+    ] + cmd,
+    stdout=2
+)  # redirect stdout to stderr because we are passing the container id through stdout
+
+exit = p.wait()
+if exit:
+    die(&#34;building returned exit status {}&#34;.format(exit), exit=4)
+
+os.execlp(&#39;plash-add-layer&#39;, &#39;plash add-layer&#39;, container, os.path.join(changesdir, &#39;data&#39;))
+</code></pre>
+</div>
+
+</center>
+</body>
+</html>

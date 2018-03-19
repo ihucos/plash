@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+  margin: 0px;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+pre {
+  margin: 0px;
+}
+#doc {
+  min-height: 66.66vh;
+  font-size: 1.25em;
+  text-align: left;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  margin-bottom: 4em;
+  color: #212845;
+}
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
+}
+</style>
+</head>
+<body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/import-docker"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
+<center>
+
+<div id='doc'>
+<pre>
+<h1>plash import-docker</h1>
+usage: plash import-docker CONTAINER
+Import an image from the docker cloud
+
+
+<a href='index.html' id='command-index'>&larr; Command index</a>
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>#!/usr/bin/env python3
+#
+# usage: plash import-docker CONTAINER
+# Import an image from the docker cloud
+
+import subprocess
+import os
+import shutil
+from os.path import join
+import sys
+import atexit
+from time import sleep
+import tempfile
+from plashlib.utils import die, catch_and_die, die_with_usage
+from plashlib import ux
+
+DOCKER_START_TIMEOUT = 40
+
+ux.assert_initialized()
+
+try:
+    pull = sys.argv[1]
+except IndexError:
+    die_with_usage()
+
+
+def debug(msg):
+    print(&#39;==&gt; {}&#39;.format(msg), file=sys.stderr)
+
+
+tmpdir = tempfile.mkdtemp(prefix=&#39;plash-import-docker-&#39;)
+socket_file = join(tmpdir, &#39;docker.sock&#39;)
+os.environ[&#39;PLASH_DOCKER_SOCKET&#39;] = socket_file
+daemon_log = open(join(tmpdir, &#39;docker-daemon.log&#39;), &#39;w&#39;)
+client_log = open(join(tmpdir, &#39;docker.log&#39;), &#39;w&#39;)
+
+#
+# build daemon if not done yet
+#
+debug(&#39;ensuring docker is builded&#39;)
+buildfile = shutil.which(&#39;plash docker-daemon&#39;)
+with catch_and_die([subprocess.CalledProcessError]):
+    subprocess.check_output([&#39;plash-build&#39;, &#39;--include&#39;, buildfile])
+
+#
+# start daemon and wait for it to start
+#
+debug(&#39;starting docker&#39;)
+p = subprocess.Popen(
+    [&#39;plash docker-daemon&#39;], stderr=2, stdout=2)
+atexit.register(lambda: p.kill())
+c = 0
+while True:
+
+    # check if daemon looks ok
+    daemon_exit = p.poll()
+    if c &gt;= DOCKER_START_TIMEOUT:
+        die(&#39;timeout for docker start: server log: {}, client log: {}&#39;.format(
+            daemon_log.name, client_log.name))
+    if daemon_exit is not None:
+        die(&#39;plash docker-daemon died with exit status {} (logs at {})&#39;.format(
+            daemon_exit, daemon_log.name))
+
+    # check if daemon is up yet
+    try:
+        subprocess.check_call(
+            [&#39;plash-docker&#39;, &#39;info&#39;], stderr=client_log, stdout=client_log)
+    except subprocess.CalledProcessError:
+        sleep(1)
+        c += 1
+    else:
+        break
+
+debug(&#39;docker is up&#39;)
+debug(&#39;pulling image&#39;)
+# docker pull shows progress in stdout by default, we must redirect it too stderr
+subprocess.check_call([&#39;plash-docker&#39;, &#39;pull&#39;, pull], stdout=2)
+debug(&#39;pulled&#39;)
+debug(&#39;exporting image into plash&#39;)
+
+with catch_and_die([subprocess.CalledProcessError]):
+    container = subprocess.check_output([&#39;plash docker&#39;, &#39;create&#39;, pull,
+                                         &#39;sh&#39;]).decode().rstrip(&#39;\n&#39;)
+    docker_export = subprocess.Popen(
+        [&#39;plash docker&#39;, &#39;export&#39;, container], stdout=subprocess.PIPE)
+    atexit.register(lambda: docker_export.kill())
+    subprocess.check_call(
+        [&#39;plash import-tar&#39;, &#39;-&#39;], stdin=docker_export.stdout)
+</code></pre>
+</div>
+
+</center>
+</body>
+</html>

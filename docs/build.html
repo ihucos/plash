@@ -1,0 +1,240 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+  margin: 0px;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+pre {
+  margin: 0px;
+}
+#doc {
+  min-height: 66.66vh;
+  font-size: 1.25em;
+  text-align: left;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  margin-bottom: 4em;
+  color: #212845;
+}
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
+}
+</style>
+</head>
+<body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/build"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
+<center>
+
+<div id='doc'>
+<pre>
+<h1>plash build</h1>
+usage: plash build &lt;ACTIONS&gt;
+Builds a container. Any command line options is interpreted as action,
+Use `--list` to list all available action.
+
+exit status:
+1: Generic error code
+2: Unrecognized arguments
+3: Returning container from cache, not building
+4: Build error - building returned non-zero exit status
+
+
+Examples:
+
+$ plash build -i ubuntu --run &#39;touch a&#39;
+--&gt; touch a
+--:
+66
+
+$ plash build -i ubuntu --run &#39;touch a&#39; --layer --run &#39;touch b&#39;
+--&gt; touch b
+--:
+67
+
+$ plash build -i ubuntu --apt nmap
+--&gt; apt-get update
+Hit:1 http://security.ubuntu.com/ubuntu bionic-security InRelease
+Get:2 http://archive.ubuntu.com/ubuntu bionic InRelease [235 kB]
+&lt;snip&gt;
+Setting up nmap (7.60-1ubuntu2) ...
+Processing triggers for libc-bin (2.26-0ubuntu2) ...
+--:
+68
+
+
+<a href='index.html' id='command-index'>&larr; Command index</a>
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>#!/usr/bin/env python3
+#
+# usage: plash build &lt;ACTIONS&gt;
+# Builds a container. Any command line options is interpreted as action,
+# Use `--list` to list all available action.
+#
+# exit status:
+# 1: Generic error code
+# 2: Unrecognized arguments
+# 3: Returning container from cache, not building
+# 4: Build error - building returned non-zero exit status
+#
+#
+# Examples:
+#
+# $ plash build -i ubuntu --run &#39;touch a&#39;
+# --&gt; touch a
+# --:
+# 66
+#
+# $ plash build -i ubuntu --run &#39;touch a&#39; --layer --run &#39;touch b&#39;
+# --&gt; touch b
+# --:
+# 67
+#
+# $ plash build -i ubuntu --apt nmap
+# --&gt; apt-get update
+# Hit:1 http://security.ubuntu.com/ubuntu bionic-security InRelease
+# Get:2 http://archive.ubuntu.com/ubuntu bionic InRelease [235 kB]
+# &lt;snip&gt;
+# Setting up nmap (7.60-1ubuntu2) ...
+# Processing triggers for libc-bin (2.26-0ubuntu2) ...
+# --:
+# 68
+
+import re
+import subprocess
+import os
+import sys
+from plashlib.utils import hashstr, nodepath_or_die
+from plashlib import ux
+from subprocess import (DEVNULL, CalledProcessError, Popen, check_output)
+
+from plashlib.eval import LAYER_MARKER
+from plashlib.stdlib import IMAGE_HINT_TEMPL
+from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, plash_map
+
+handle_help_flag()
+ux.assert_initialized()
+
+try:
+    script = check_output([&#39;plash-getscript&#39;] + sys.argv[1:])
+except CalledProcessError as exc:
+    die(&#34;getscript failed with exit {}&#34;.format(exc.returncode))
+script = script.decode()
+
+image_ir = re.compile(IMAGE_HINT_TEMPL.format(&#39;(.+)\n&#39;))
+matches = image_ir.findall(script)
+script = image_ir.sub(&#39;&#39;, script)
+if matches:
+    image_hint = matches[-1]
+else:
+    die(&#39;no image specified&#39;)
+
+#
+#  convert the image_hint into an container id, also use caching
+#
+if image_hint.isdigit():
+    base_container = image_hint
+    nodepath_or_die(base_container)
+elif image_hint.startswith(&#39;@&#39;):
+    base_container = plash_map(image_hint[1:])
+    if not base_container:
+        die(&#39;image map could not be resolved: {}&#39;.format(image_hint))
+else:
+    if image_hint.startswith(&#39;https://&#39;) or image_hint.startswith(&#39;http://&#39;):
+        cmd = [&#39;plash-import-url&#39;, image_hint]
+    elif image_hint.startswith(&#39;/&#39;) or image_hint.startswith(&#39;./&#39;):
+        cmd = [&#39;plash-import-tar&#39;, image_hint]
+    elif image_hint.startswith(&#39;docker://&#39;):
+        cmd = [&#39;plash-import-docker&#39;, image_hint[9:]]
+    else:
+        cmd = [&#39;plash-import-lxcimages&#39;, image_hint]
+    cache_key = &#39;:&#39;.join(cmd)
+    base_container = plash_map(cache_key.encode())
+    if not base_container:
+        with catch_and_die([CalledProcessError]):
+            base_container = check_output(cmd).decode().strip(&#39;\n&#39;)
+        plash_map(cache_key.encode(), base_container)
+
+# split the script in its layers
+layers = script.split(LAYER_MARKER + &#39;\n&#39;)
+layers = [l for l in layers if l]
+
+current_container = base_container
+os.environ[&#39;PS4&#39;] = color(&#39;--&gt; &#39;, 4)
+for layer in layers:
+    cache_key = hashstr(b&#39;:&#39;.join([current_container.encode(),
+                                   layer.encode()]))
+    next_container = plash_map(cache_key.encode())
+    if not next_container:
+
+        # build and cache it
+        p = Popen(
+            [&#39;plash-create&#39;, current_container, &#39;env&#39;, &#39;-i&#39;, &#39;sh&#39;, &#39;-l&#39;],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            cwd=&#39;/&#39;)
+        # for some reason in ubuntu the path is not exported
+        p.stdin.write(b&#39;export PATH\n&#39;)
+        p.stdin.write(b&#39;set -ex\n&#39;)
+        p.stdin.write(layer.encode())
+        p.stdin.close()
+        next_container = p.stdout.read().decode().strip(&#39;\n&#39;)
+        exit = p.wait()
+        if exit:
+            die(&#39;build died with exit status: {}&#39;.format(exit))
+        plash_map(cache_key.encode(), next_container)
+        info(&#39;--:&#39;)
+    current_container = next_container
+build_container = current_container
+
+print(current_container)
+</code></pre>
+</div>
+
+</center>
+</body>
+</html>

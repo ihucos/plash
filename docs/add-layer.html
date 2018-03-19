@@ -1,0 +1,181 @@
+<html>
+<head>
+<title>plash's command reference</title>
+<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+<style>
+body {
+  font-family: 'Inconsolata', monospace;
+  margin: 0px;
+}
+code {
+  font-size: 0.85em;
+  text-align: left;
+}
+pre {
+  margin: 0px;
+}
+#doc {
+  min-height: 66.66vh;
+  font-size: 1.25em;
+  text-align: left;
+  margin-top: 2.5em;
+  margin-left: 4em;
+  margin-bottom: 4em;
+  color: #212845;
+}
+
+a {
+  color: #212845;
+  text-decoration: none;
+}
+a:link {
+  color: #212845;
+  text-decoration: none;
+}
+a:visited {
+  color: #212845;
+  text-decoration: none;
+}
+a:hover {
+  color: #212845;
+  text-decoration: none;
+}
+a:active {
+  color: #212845;
+  text-decoration: none;
+}
+
+#command-index {
+  font-weight: bold;
+}
+h1 {
+  margin-bottom: 0em;
+}
+</style>
+</head>
+<body>
+
+<a href="https://github.com/ihucos/plash/blob/master/bin/add-layer"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+
+<center>
+
+<div id='doc'>
+<pre>
+<h1>plash add-layer</h1>
+usage: plash add-layer PARENT-CONTAINER IMPORT-DIR
+Stack a layer on top of a container.  Please note that it uses the rename
+syscall, this means your IMPORT-DIR will be moved into the plash data
+directory.  The container &#34;0&#34; is the empty root container, use that to start
+a container from scratch.
+
+
+Examples:
+
+Create a container from a complete root file system:
+$ plash add-layer 0 /tmp/rootfs
+66
+
+Add a new layer on top of an existing container:
+$ plash add-layer 33 /tmp/mylayer
+67
+
+
+<a href='index.html' id='command-index'>&larr; Command index</a>
+</pre>
+</div>
+
+<div id="container">
+<pre>
+<code>#!/usr/bin/env python3
+#
+# usage: plash add-layer PARENT-CONTAINER IMPORT-DIR
+# Stack a layer on top of a container.  Please note that it uses the rename
+# syscall, this means your IMPORT-DIR will be moved into the plash data
+# directory.  The container &#34;0&#34; is the empty root container, use that to start
+# a container from scratch.
+#
+#
+# Examples:
+#
+# Create a container from a complete root file system:
+# $ plash add-layer 0 /tmp/rootfs
+# 66
+#
+# Add a new layer on top of an existing container:
+# $ plash add-layer 33 /tmp/mylayer
+# 67
+
+from tempfile import mkdtemp
+import os
+import sys
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data
+from os.path import join
+
+handle_help_flag()
+handle_build_args()
+
+plash_data = get_plash_data()
+
+try:
+    base_container = sys.argv[1]
+    import_dir = sys.argv[2]
+except IndexError:
+    die_with_usage()
+
+#
+#  get a new id
+#
+with open(join(plash_data, &#39;id_counter&#39;), &#39;a&#39;) as f:
+    f.write(&#39;A&#39;)
+    node_id = str(f.tell())
+
+#
+# the location where to put the node, which will contain the layer dir
+#
+new_node_path = join(nodepath_or_die(base_container), node_id)
+
+#
+#  prepare the node with the dir being imported
+#  this is the payload data we want to put in the builds folder later
+#
+prepared_new_node = mkdtemp(dir=join(plash_data, &#39;tmp&#39;))
+# other users can see the build tree
+os.chmod(prepared_new_node, 0o755)
+# but other users can not see the layer data
+os.mkdir(join(prepared_new_node, &#39;_data&#39;), 0o700)
+
+# the next line will actually make the import_dir &#34;disappear&#34; for the user.
+# the &#34;root&#34; folder will hold the access rights, user rights and maybe other meta
+# data for the root folder (&#39;/&#39; after a chroot)
+os.rename(import_dir, join(prepared_new_node, &#39;_data&#39;, &#39;root&#39;))
+
+#
+#  Register that we are using this new_node_path,
+#  so it does not gets lost in the &#39;build&#39; folder tree if this program crashes.
+#  And actually also tries to find a shorter, nicer version of this id.
+#
+os.symlink(new_node_path, join(plash_data, &#39;index&#39;, node_id))
+
+#
+#  put our new node with the import directory in the builds folder
+#  with this we are so to speak saving the &#34;real data&#34;
+#
+os.rename(prepared_new_node, new_node_path)
+
+#
+#  inform the user about the new container
+#
+print(node_id)
+</code></pre>
+</div>
+
+</center>
+</body>
+</html>
