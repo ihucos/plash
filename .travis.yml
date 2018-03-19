@@ -19,6 +19,8 @@ script:
 
   - sudo plash-exec
   - sudo -E plash-exec
+  - whereis plash-exec
+  - sudo whereis plash-exec
   - plash-exec
   - sudo -E env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin plash run --include-string " $BUILD" -- ./ci
 
