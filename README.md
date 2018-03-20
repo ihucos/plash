@@ -1,5 +1,5 @@
 [![Travis branch](https://img.shields.io/travis/ihucos/plash/master.svg?style=flat-square)](https://travis-ci.org/ihucos/plash#)
-[![Codecov](https://img.shields.io/codecov/c/github/ihucos/plash.svg)](https://ihucos.github.io/plash-docs-deploy/htmlcov/)
+[![Codecov](https://img.shields.io/codecov/c/github/ihucos/plash.svg?style=flat-square)](https://ihucos.github.io/plash-docs-deploy/htmlcov/)
 [![PyPI](https://img.shields.io/pypi/v/plash.svg?style=flat-square)](https://pypi.org/project/plash/)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/plash-containers)
 
