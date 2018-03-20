@@ -52,8 +52,7 @@ codecov
 misc/mkdocs
 python3 -m coverage html --directory ./docs/htmlcov 
 
-git add docs
-git add -f docs/htmlcov
+git add -f docs
 git commit -m 'deploy docs [skip ci]' --allow-empty
 test "$deploy" = yes && git push https://${GH_TOKEN}@github.com/ihucos/plash-docs-deploy.git HEAD:master --force
 git reset --soft HEAD^ # undo da commit
