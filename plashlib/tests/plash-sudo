@@ -1,2 +1,7 @@
+set -eux
 
+: user inside plash sudo is root
 test $(plash sudo id -u) = 0
+
+: no arguments gives shell
+test $(echo 'echo itsbash' | plash sudo) = 'itsbash'
