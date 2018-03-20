@@ -86,6 +86,7 @@ containers, like letting a user quickly use a newer software package from anothe
 * https://github.com/ihucos/noapt
 * https://github.com/ihucos/plash-travis-example
 * https://github.com/ihucos/plash-python-example/
+* https://github.com/ihucos/plash/blob/master/.travis
 
 ## FAQ
 
