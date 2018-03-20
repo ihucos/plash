@@ -22,4 +22,4 @@ script:
 
   # save the plash cache
   - sudo tar -cf ~/plashcache/data.tar /var/lib/plash
-  - plash sudo tar -cf ~/plashcache/data.tar ~/.plashdata
+  - plash sudo tar -cf ~/plashcache/userdata.tar ~/.plashdata
