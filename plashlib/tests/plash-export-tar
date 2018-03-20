@@ -3,19 +3,24 @@ set -xeu
 
 # skip if in user mode because this takes
 # too long on the fuse filesystem
-test "$(id -u)" != 0 && exit 0
+test "$(id -u)" != 0 && {
+  echo "SKIP MARKER"
+  exit 1
+}
 
-: specifying - as a file
-tmp=$(mktemp)
-plash export-tar 1 - > $tmp
-tar --list -f $tmp >/dev/null
+plash build -i 1 --run 'touch /a'
 
 : only one argument
 tmp=$(mktemp)
-plash export-tar 1 > $tmp
+plash export-tar 2 > $tmp
 tar --list -f $tmp >/dev/null
 
 : specifying a real file
 tmp=$(mktemp)
-plash export-tar 1 $tmp
+plash export-tar 2 $tmp
+tar --list -f $tmp >/dev/null
+
+: specifying '-' as a file
+tmp=$(mktemp)
+plash export-tar 2 - > $tmp
 tar --list -f $tmp >/dev/null

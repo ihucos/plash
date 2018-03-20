@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eux
+
+tar=$(mktemp)
+plash export-tar -i 1 --run 'touch /myperson' -- $tar
+
+: import simple file
+new=$(plash import-tar $tar)
+plash with-mount $new ls ./myperson
+
+: import file from stdin
+cat $tar | plash import-tar -
+
+: invalid tar from stdin
+! echo 'invalid' | plash import-tar -
+
+: non existing file
+! plash import-tar /doesnotexistssssh_really_4423487
+
+badtar=$(mktemp)
+! plash import-tar $badtar

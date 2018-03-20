@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 #
-# usage: plash import-tar-as TARFILE
-# Create a container from a tar file
+# usage: plash import-tar TARFILE
+# Create a container from a tar file. 
+# Tar file can be '-' to read the file from stdin
 
 import os
 import sys
@@ -10,7 +11,7 @@ from os.path import join
 from tempfile import mkdtemp
 from subprocess import check_call, CalledProcessError
 
-from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, get_plash_data
+from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, get_plash_data, die
 from plashlib import ux
 from plashlib.unshare import unshare_if_user
 
@@ -30,10 +31,15 @@ class PlashTarFile(tarfile.TarFile):
             print('Ignoring dev file: {}'.format(tarinfo.path), file=sys.stderr)
 
 rootfs = mkdtemp(dir=join(get_plash_data(), 'tmp'))
-if tar_file == '-':
-    t = PlashTarFile.open(fileobj=sys.stdin.buffer, mode='r|')
-else:
-    t = PlashTarFile.open(tar_file)
+
+with catch_and_die([OSError]):
+    try:
+        if tar_file == '-':
+            t = PlashTarFile.open(fileobj=sys.stdin.buffer, mode='r|')
+        else:
+            t = PlashTarFile.open(tar_file)
+    except tarfile.TarError as exc:
+        die('{}: {}'.format(exc.__class__.__name__, exc))
 
 unshare_if_user()
 t.extractall(rootfs)
