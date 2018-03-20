@@ -5,30 +5,28 @@ import os
 from os import path
 import jinja2
 
-DOCDIR = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'docs')
-BINDIR = path.join(path.dirname(DOCDIR), 'plashlib/libexec')
-
+DOCOUT_DIR = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'docs')
+TEMPL_DIR = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'docs_templates')
+BIN_DIR = path.join(path.dirname(DOCOUT_DIR), 'plashlib/libexec')
 
 def render(tpl_path, **context):
     path, filename = os.path.split(tpl_path)
     return jinja2.Environment(
-        loader=jinja2.FileSystemLoader(os.path.join(
-            DOCDIR, 'templs'))).get_template(filename).render(context)
-
+        loader=jinja2.FileSystemLoader(TEMPL_DIR)).get_template(filename).render(context)
 
 out = check_output(['plash', 'list'])
 out = out.decode()
 progs = sorted((i.split(None, 2)[1:] for i in out.splitlines()))
 
-with open(path.join(DOCDIR, 'index.html'), 'w') as f:
+with open(path.join(DOCOUT_DIR, 'index.html'), 'w') as f:
     f.write(render('index.html', progs=progs))
 
 filedocs = []
-binfiles = [i for i in os.listdir(BINDIR) if not i.startswith('.')]
+binfiles = [i for i in os.listdir(BIN_DIR) if not i.startswith('.')]
 for binfile in binfiles:
     if binfile.startswith('.'):
         continue
-    fname = path.join(BINDIR, binfile)
+    fname = path.join(BIN_DIR, binfile)
     with open(fname) as f:
         read = f.read()
     lines = read.splitlines()
@@ -46,5 +44,5 @@ for binfile in binfiles:
     filedocs.append({'code': read, 'doc': '\n'.join(doc), 'prog': subcommand})
 
 for item in filedocs:
-    with open(path.join(DOCDIR, item['prog'] + '.html'), 'w') as f:
+    with open(path.join(DOCOUT_DIR, item['prog'] + '.html'), 'w') as f:
         f.write(render('command.html', **item))
