@@ -20,5 +20,5 @@ docker
 --write-script
 /entrypoint
 #!/bin/sh
-export DOCKER_HOST=unix://${PLASH_DOCKER_SOCKET:-/tmp/plash docker-wrap/docker.sock}
+export DOCKER_HOST=unix://${PLASH_DOCKER_SOCKET:-/tmp/plash-docker-wrap/docker.sock}
 exec docker $@

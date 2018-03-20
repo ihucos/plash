@@ -39,7 +39,7 @@ client_log = open(join(tmpdir, 'docker.log'), 'w')
 # build daemon if not done yet
 #
 debug('ensuring docker is builded')
-buildfile = shutil.which('plash docker-daemon')
+buildfile = shutil.which('plash-docker-daemon')
 with catch_and_die([subprocess.CalledProcessError]):
     subprocess.check_output(['plash-build', '--include', buildfile])
 
@@ -48,7 +48,7 @@ with catch_and_die([subprocess.CalledProcessError]):
 #
 debug('starting docker')
 p = subprocess.Popen(
-    ['plash docker-daemon'], stderr=2, stdout=2)
+    ['plash-docker-daemon'], stderr=2, stdout=2)
 atexit.register(lambda: p.kill())
 c = 0
 while True:
@@ -59,7 +59,7 @@ while True:
         die('timeout for docker start: server log: {}, client log: {}'.format(
             daemon_log.name, client_log.name))
     if daemon_exit is not None:
-        die('plash docker-daemon died with exit status {} (logs at {})'.format(
+        die('`plash-docker-daemon` died with exit status {} (logs at {})'.format(
             daemon_exit, daemon_log.name))
 
     # check if daemon is up yet
@@ -80,10 +80,10 @@ debug('pulled')
 debug('exporting image into plash')
 
 with catch_and_die([subprocess.CalledProcessError]):
-    container = subprocess.check_output(['plash docker', 'create', pull,
+    container = subprocess.check_output(['plash-docker', 'create', pull,
                                          'sh']).decode().rstrip('\n')
     docker_export = subprocess.Popen(
-        ['plash docker', 'export', container], stdout=subprocess.PIPE)
+        ['plash-docker', 'export', container], stdout=subprocess.PIPE)
     atexit.register(lambda: docker_export.kill())
     subprocess.check_call(
-        ['plash import-tar', '-'], stdin=docker_export.stdout)
+        ['plash-import-tar', '-'], stdin=docker_export.stdout)

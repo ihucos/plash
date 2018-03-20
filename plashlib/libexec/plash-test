@@ -33,6 +33,11 @@ for script in $testfiles ; do
   if wait $!; then
     echo ' OK'
   else
+    skip_marker=$(tail -n2 $log | head -n1)
+    if test "$skip_marker" = 'SKIP MARKER'; then
+      echo ' SKIP'
+      continue
+    fi
     echo ' ERROR'
     program_exit=1
     test_mark_line=$(grep -n '^+ : ' $log | tail -n1 | cut -d: -f1)
