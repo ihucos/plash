@@ -4,8 +4,6 @@ set -xu
 array=(
 add-layer
 # plash build
-export-img
-export-squashfs
 export-tar
 import-lxcimages
 import-tar
