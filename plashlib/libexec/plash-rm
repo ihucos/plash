@@ -13,8 +13,14 @@ from plashlib import ux
 handle_help_flag()
 handle_build_args()
 
-for container in sys.argv[1:]:
-    node = nodepath_or_die(container)
-    tmp = mkdtemp(dir=get_plash_data())
-    os.rename(node, tmp)
-    rmtree(tmp)
+try:
+    container = sys.argv[1]
+except IndexError:
+    sys.exit(0)
+
+node = nodepath_or_die(container)
+tmp = mkdtemp(dir=get_plash_data())
+os.rename(node, tmp)
+rmtree(tmp)
+
+os.execlp('plash-rm', 'plash-rm', *sys.argv[2:])

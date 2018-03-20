@@ -16,6 +16,7 @@ from tempfile import mkdtemp
 
 DEFAULT_BIND = ['/tmp', '/home', '/etc/resolv.conf', '/sys', '/dev', '/proc']
 
+handle_help_flag()
 ux.assert_initialized()
 
 parser = argparse.ArgumentParser(add_help=False)

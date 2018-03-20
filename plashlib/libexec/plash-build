@@ -60,7 +60,7 @@ script = image_ir.sub('', script)
 if matches:
     image_hint = matches[-1]
 else:
-    die('no image specified')
+    die('no image specified', exit=2)
 
 #
 #  convert the image_hint into an container id, also use caching

@@ -1,6 +1,27 @@
 set -xeu
 # vim: set filetype=sh:
+
+: delete one container
 newcont=$(plash build -i 1 --bust-cache)
 plash nodepath $newcont
 plash rm $newcont
 ! plash nodepath $newcont
+
+: error with nonexistent container
+! plash rm 9999999
+
+: delte by build instruction
+plash build -i 1 --run 'touch /plash-rm-test-file'
+plash rm  -i 1 --run 'touch /plash-rm-test-file'
+
+: delete two containers
+newcont1=$(plash build -i 1 --bust-cache)
+newcont2=$(plash build -i 1 --bust-cache)
+plash rm "$newcont1" "$newcont2"
+! plash nodepath $newcont1
+! plash nodepath $newcont2
+
+: delete by two build instruction
+plash build -i 1 --run 'touch /plash-rm-test-file1'
+plash build -i 1 --run 'touch /plash-rm-test-file2'
+plash rm -i 1 --run 'touch /plash-rm-test-file1' -- -i 1 --run 'touch /plash-rm-test-file2'

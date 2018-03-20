@@ -4,6 +4,11 @@
 
 set -eu
 
+test " ${1:-}" = ' --help' && {
+  echo 'usage: plash test [TEST-PREFIX]'
+  exit 2
+}
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 PS4='+ ${BASH_SOURCE}:${LINENO} '
