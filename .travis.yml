@@ -3,7 +3,7 @@ language: generic
 install:
 
   # install plash and dependencies
-  - sudo apt-get install python3-pip
+  - sudo apt-get install python3-pip unionfs-fuse uidmap
   - sudo pip3 install plash
 
 cache:
@@ -14,9 +14,12 @@ script:
 
   # load the plash cache
   - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
+  - plash sudo tar -xf ~/plashcache/userdata.tar -C / || plash init
 
-  - sudo plash init
+  - plash test
+
   - sudo -E ./.travis
 
   # save the plash cache
   - sudo tar -cf ~/plashcache/data.tar /var/lib/plash
+  - plash sudo tar -cf ~/plashcache/userdata.tar ~/.plashdata
