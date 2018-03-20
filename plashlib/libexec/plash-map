@@ -44,12 +44,12 @@ def cache_set(unescaped_cache_key, container_id):
 
 def cache_rm(unescaped_cache_key):
     cache_key = escape_cache_key(unescaped_cache_key)
-    try:
-        with catch_and_die([OSError], debug='unlink'):
+    with catch_and_die([OSError], debug='unlink'):
+        try:
             os.unlink(join(plash_data, 'cache_keys', cache_key))
-        return True
-    except FileNotFoundError:
-        return False
+            return True
+        except FileNotFoundError:
+            return False
 
 
 def cache_get(unescaped_cache_key):

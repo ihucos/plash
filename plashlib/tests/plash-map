@@ -21,3 +21,8 @@ plash map rkey 1
 plash map rkey ''
 out=$(plash map rkey)
 test "$out" = ""
+
+: remove a key two times
+plash map mkey 1
+plash map mkey ''
+plash map mkey ''
