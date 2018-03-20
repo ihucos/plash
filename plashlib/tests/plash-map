@@ -1,8 +1,7 @@
 #!/bin/bash
 set -xeu
 
-: create container 1, 2, and 3
-plash build -i 1 --bust-cache
+: create container 1, 2
 plash build -i 1 --bust-cache
 
 : simple cache set and get
