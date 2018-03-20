@@ -29,7 +29,7 @@ with catch_and_die([CalledProcessError]):
     check_call(
         ['plash-mount', container, mountpoint],
         stdout=2)  # pipe any stdout to stderr
-p = subprocess.Popen(['sh', '-c', user_sh], cwd=mountpoint)
+p = subprocess.Popen(['plash-sudo', 'sh', '-c', user_sh], cwd=mountpoint)
 user_exit = p.wait()
 with catch_and_die([CalledProcessError]):
     if os.getuid():
