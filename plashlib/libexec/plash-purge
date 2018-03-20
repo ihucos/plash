@@ -4,6 +4,7 @@
 # Prompts to delete all build data.
 
 import os
+import sys
 from shutil import rmtree
 from plashlib.utils import handle_help_flag, get_plash_data
 from plashlib.unshare import unshare_if_user
@@ -13,7 +14,8 @@ handle_help_flag()
 plash_data = get_plash_data()
 unshare_if_user()
 
-if input('Delete all build data? [y/N] ') == 'y':
+if sys.argv[1:2] == ['--yes'] or input(
+        'Delete all build data? [y/N] ') == 'y':
 
     #
     # don't delete the dir itself because it could be a mount

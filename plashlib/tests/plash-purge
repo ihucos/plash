@@ -1,0 +1,34 @@
+set -eux
+
+: check that purge works, confirm trough stdin
+export PLASH_DATA=$(mktemp -d)
+plash init
+echo 'yes' | plash purge
+out=$(ls -A $PLASH_DATA)
+test -n "$out"
+
+: purge two times
+export PLASH_DATA=$(mktemp -d)
+plash init
+plash purge --yes
+plash purge --yes
+
+: call plash purge on empty plash data
+export PLASH_DATA=$(mktemp -d)
+plash purge --yes
+
+: check that purge removes all data in the PLASH_DATA directory
+export PLASH_DATA=$(mktemp -d)
+plash init
+out=$(ls -A $PLASH_DATA)
+test -n "$out"
+plash purge --yes
+out=$(ls -A $PLASH_DATA)
+test -z "$out"
+
+: not confirming does not delete the data
+export PLASH_DATA=$(mktemp -d)
+plash init
+echo 'no' | plash purge
+out=$(ls -A $PLASH_DATA)
+test -n "$out"
