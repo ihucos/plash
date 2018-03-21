@@ -2,12 +2,19 @@
 
 from subprocess import check_output
 import os
+import sys
 from os import path
 import jinja2
 
-DOCOUT_DIR = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'docs')
-TEMPL_DIR = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'docs_templates')
-BIN_DIR = path.join(path.dirname(DOCOUT_DIR), 'plashlib/libexec')
+try:
+    docs_out = sys.argv[1]
+except IndexError:
+    print('need arg', file=sys.stderr)
+    sys.exit(1)
+
+PROJECT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
+TEMPL_DIR = path.join(PROJECT_DIR, 'docs_templates')
+BIN_DIR = path.join(PROJECT_DIR, 'plashlib/libexec')
 
 def render(tpl_path, **context):
     path, filename = os.path.split(tpl_path)
@@ -18,7 +25,7 @@ out = check_output(['plash', 'list'])
 out = out.decode()
 progs = sorted((i.split(None, 2)[1:] for i in out.splitlines()))
 
-with open(path.join(DOCOUT_DIR, 'index.html'), 'w') as f:
+with open(path.join(docs_out, 'index.html'), 'w') as f:
     f.write(render('index.html', progs=progs))
 
 filedocs = []
@@ -44,5 +51,5 @@ for binfile in binfiles:
     filedocs.append({'code': read, 'doc': '\n'.join(doc), 'prog': subcommand})
 
 for item in filedocs:
-    with open(path.join(DOCOUT_DIR, item['prog'] + '.html'), 'w') as f:
+    with open(path.join(docs_out, item['prog'] + '.html'), 'w') as f:
         f.write(render('command.html', **item))
