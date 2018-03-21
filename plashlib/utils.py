@@ -34,21 +34,6 @@ def get_plash_data():
     dir = os.environ.get('PLASH_DATA', default)
     return os.path.expanduser(dir)
 
-def deescalate_sudo():
-    try:
-        uid = os.environ.pop('SUDO_UID')
-        gid = os.environ.pop('SUDO_GID')
-    except KeyError:
-        pass
-    else:
-        uid = int(uid)
-        gid = int(gid)
-        # username = pwd.getpwuid(uid).pw_name
-        # groups = [g.gr_gid for g in grp.getgrall() if username in g.gr_mem]
-        os.setgroups([])  # for now loose supplementary groups
-        os.setregid(int(gid), int(gid))
-        os.setreuid(int(uid), int(uid))
-
 
 def color(stri, color, isatty_fd_check=2):
     if os.environ.get('TERM') != 'dumb' and os.isatty(isatty_fd_check):
@@ -139,20 +124,6 @@ def nodepath_or_die(container):
         return nodepath
     except FileNotFoundError:
         die('no container {}'.format(repr(container)), exit=3)
-
-
-def get_nodepath(container):
-    if not container.isdigit():
-        raise ValueError(
-            "container id must be an whole integer, not: {}".format(
-                repr(container)))
-    try:
-        nodepath = os.readlink(os.path.join(INDEX_DIR, container))
-        if os.path.exists(nodepath):
-            return nodepath
-        return False
-    except FileNotFoundError:
-        return False
 
 
 def get_default_shell(passwd_file):
