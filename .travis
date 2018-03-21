@@ -39,7 +39,7 @@ export COVERAGE_PROCESS_START=$covtmp/.coveragerc
 python3 -m coverage erase
 cd /
 plash init
-#plash test
+plash test
 cd - 2> /dev/null
 
 rm /usr/lib/python3.*/sitecustomize.py
