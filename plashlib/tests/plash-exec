@@ -6,10 +6,10 @@ stderr=$(mktemp)
 : basic test
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
-# plash-exec: exec=/usr/bin/printf
+# plash-exec: exec=/bin/printf
 --image
-1' >> $plashfile
-echo '1' >> $plashfile
+1
+' >> $plashfile
 chmod 700 $plashfile
 test $("$plashfile" printf_that) = printf_that
 
@@ -18,8 +18,8 @@ plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
 # plash-exec: exec=/usr/bin/notfoundxxxx
 --image
-1' >> $plashfile
-echo '1' >> $plashfile
+1
+' >> $plashfile
 chmod 700 $plashfile
 ! $plashfile 2>$stderr
 ! grep Traceback $stderr
