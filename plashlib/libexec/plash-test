@@ -16,11 +16,6 @@ PS4='+ ${BASH_SOURCE}:${LINENO} '
 #mkdir -p /var/lib/plash/tmp
 export PATH=$DIR/libexec:$PATH
 export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
-tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
-export PLASH_DATA=$tmp
-plash init
-
-plash import-tar $DIR/../testdata/busybox.tar > /dev/null
 
 log=$(mktemp)
 program_exit=0
@@ -28,6 +23,13 @@ last_arg="${@: -1}"
 cd $DIR/../tests
 testfiles=$(find . -type f ! -iname "*.sw*" -iname "${1:-}*")
 for script in $testfiles ; do
+
+  # setup test env
+  tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
+  export PLASH_DATA=$tmp
+  plash init
+  plash import-tar $DIR/../testdata/busybox.tar > /dev/null
+
   printf ${script:2} # magic 2 is the length of "./"
   "$script" > $log 2>&1 &
   if wait $!; then
