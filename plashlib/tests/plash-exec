@@ -1,0 +1,40 @@
+#!/bin/sh
+set -eux
+
+stderr=$(mktemp)
+
+: basic test
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+# plash-exec: exec=/usr/bin/printf
+--image
+1' >> $plashfile
+echo '1' >> $plashfile
+chmod 700 $plashfile
+test $("$plashfile" printf_that) = printf_that
+
+: exec not found
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+# plash-exec: exec=/usr/bin/notfoundxxxx
+--image
+1' >> $plashfile
+echo '1' >> $plashfile
+chmod 700 $plashfile
+! $plashfile 2>$stderr
+! grep Traceback $stderr
+
+: build error - no build args
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+# plash-exec: exec=/usr/bin/true' >> $plashfile
+chmod 700 $plashfile
+! $plashfile 2>$stderr
+! grep Traceback $stderr
+
+: no plash-exec comment
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec' > $plashfile
+chmod 700 $plashfile
+! $plashfile 2>$stderr
+! grep Traceback $stderr
