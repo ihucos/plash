@@ -25,4 +25,4 @@ for prog in sorted(progs):
 
     assert first_sentence
     subcommand = prog[len('plash '):]
-    print('plash ' + subcommand.ljust(max_prog_lenght), first_sentence)
+    print(('plash ' + subcommand).ljust(max_prog_lenght), first_sentence)
