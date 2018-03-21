@@ -16,9 +16,7 @@ script:
   - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
   - plash sudo tar -xf ~/plashcache/userdata.tar -C / || plash init
 
-  - plash test
-
-  - sudo -E ./.travis
+  - plash test && sudo -E ./.travis
 
   # save the plash cache
   - sudo tar -cf ~/plashcache/data.tar /var/lib/plash
