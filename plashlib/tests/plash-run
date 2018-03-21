@@ -6,17 +6,17 @@ plash run 1 touch /a
 : run a program on the base layer of a container
 plash build -i 1
 out=$(plash run 1 -- echo hellow)
-test "$out" == hellow
+test "$out" = hellow
 
 : run something with an layer
 new=$(plash create 1 true)
 out=$(plash run $new -- echo hi)
-test "$out" == hi
+test "$out" = hi
 
 : check the current dir is mapped
 cd /tmp
 out=$(plash run 1 pwd)
-test "$out" == $(pwd)
+test "$out" = $(pwd)
 cd -
 
 : check that exit status get propagaded to the outside

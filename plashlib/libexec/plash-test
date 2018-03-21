@@ -31,7 +31,7 @@ for script in $testfiles ; do
   plash import-tar $DIR/../testdata/busybox.tar > /dev/null
 
   printf ${script:2} # magic 2 is the length of "./"
-  "$script" > $log 2>&1 &
+  env "$script" > $log 2>&1 &
   if wait $!; then
     echo ' OK'
   else

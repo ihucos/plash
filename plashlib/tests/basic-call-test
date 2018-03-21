@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 set -xu
 
 SKIP_NO_ARGS_CHECK=(
