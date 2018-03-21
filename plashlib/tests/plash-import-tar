@@ -1,5 +1,5 @@
-#!/bin/bash
-set -eux
+#!/bin/sh
+set -ex
 
 tar=$(mktemp)
 plash export-tar -i 1 --run 'touch /myperson' -- $tar
