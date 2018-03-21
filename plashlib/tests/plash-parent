@@ -1,0 +1,7 @@
+set -eux
+
+: basic tests
+plash build -i 1 --bust-cache
+test $(plash parent 2) = 1
+test $(plash parent 1) = 0
+! $(plash parent 0)
