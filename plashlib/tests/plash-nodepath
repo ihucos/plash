@@ -1,5 +1,8 @@
 #!/bin/bash
 set -exu
+
+export PLASH_KILL_PARENT_ON_EXCEPTION=1
+
 ! plash nodepath mynoexistentcontainer
 
 newcont=$(plash build -i 1 --bust-cache)

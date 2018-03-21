@@ -1,6 +1,8 @@
 #!/bin/bash
 set -xeu
 
+export PLASH_KILL_PARENT_ON_EXCEPTION=1
+
 : create container 1, 2
 plash build -i 1 --bust-cache
 

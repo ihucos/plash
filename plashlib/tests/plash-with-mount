@@ -1,6 +1,8 @@
 #!/bin/bash
 set -xeu
 
+export PLASH_KILL_PARENT_ON_EXCEPTION=1
+
 : plash with-mount does not crash
 plash with-mount 1 printf hi
 

@@ -1,6 +1,8 @@
 set -xeu
 # vim: set filetype=sh:
 
+export PLASH_KILL_PARENT_ON_EXCEPTION=1
+
 : delete one container
 newcont=$(plash build -i 1 --bust-cache)
 plash nodepath $newcont

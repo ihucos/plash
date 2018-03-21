@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 
-stderr=$(mktemp)
+export PLASH_KILL_PARENT_ON_EXCEPTION=1
 
 : basic test
 plashfile=$(mktemp)
@@ -21,20 +21,17 @@ printf '#!/usr/bin/env plash-exec
 1
 ' >> $plashfile
 chmod 700 $plashfile
-! $plashfile 2>$stderr
-! grep Traceback $stderr
+! $plashfile
 
 : build error - no build args
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
 # plash-exec: exec=/usr/bin/true' >> $plashfile
 chmod 700 $plashfile
-! $plashfile 2>$stderr
-! grep Traceback $stderr
+! $plashfile
 
 : no plash-exec comment
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec' > $plashfile
 chmod 700 $plashfile
-! $plashfile 2>$stderr
-! grep Traceback $stderr
+! $plashfile

@@ -1,5 +1,7 @@
 set -eux
 
+export PLASH_KILL_PARENT_ON_EXCEPTION=1
+
 : basic tests
 plash build -i 1 --bust-cache
 test $(plash parent 2) = 1
