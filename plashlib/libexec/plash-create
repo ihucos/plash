@@ -53,12 +53,18 @@ p = subprocess.Popen(
     [
         'plash-runopts',
         '--no-default-binds',
-        '--bind', '/home',
-        '--bind', '/etc/resolv.conf',
-        '--bind', '/sys',
-        '--bind', '/dev',
-        '--bind', '/proc',
-        '--changes', changesdir,
+        '--bind',
+        '/home',
+        '--bind',
+        '/etc/resolv.conf',
+        '--bind',
+        '/sys',
+        '--bind',
+        '/dev',
+        '--bind',
+        '/proc',
+        '--changes',
+        changesdir,
         '--',
         container,
     ] + cmd,
@@ -69,4 +75,5 @@ exit = p.wait()
 if exit:
     die("building returned exit status {}".format(exit), exit=4)
 
-os.execlp('plash-add-layer', 'plash add-layer', container, os.path.join(changesdir, 'data'))
+os.execlp('plash-add-layer', 'plash add-layer', container,
+          os.path.join(changesdir, 'data'))

@@ -72,15 +72,19 @@ def include(file):
     fname = os.path.realpath(os.path.expanduser(file))
     with open(fname) as f:
         tokens = dropwhile(lambda l: l.startswith('#'),
-                        (i[:-1] for i in f.readlines()))
+                           (i[:-1] for i in f.readlines()))
     with catch_and_die([subprocess.CalledProcessError], debug='include'):
-        return subprocess.check_output(('plash-getscript',) + tuple(tokens)).decode()
+        return subprocess.check_output(
+            ('plash-getscript', ) + tuple(tokens)).decode()
+
 
 @action(escape=False)
 def include_string(stri):
     tokens = shlex.split(stri)
-    with catch_and_die([subprocess.CalledProcessError], debug='include-string'):
+    with catch_and_die(
+        [subprocess.CalledProcessError], debug='include-string'):
         return subprocess.check_output(['plash-getscript'] + tokens).decode()
+
 
 def hash_paths(paths):
     collect_files = []
@@ -155,6 +159,7 @@ def namespace(ns):
     'start a new build namespace'
     return eval([['layer'], ['run', ': new namespace {}'.format(ns)],
                  ['layer']])
+
 
 @action('f')
 @action()

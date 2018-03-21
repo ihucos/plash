@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # usage: plash import-tar TARFILE
-# Create a container from a tar file. 
+# Create a container from a tar file.
 # Tar file can be '-' to read the file from stdin
 
 import os
@@ -23,12 +23,15 @@ try:
 except IndexError:
     die_with_usage()
 
+
 class PlashTarFile(tarfile.TarFile):
     def makedev(self, tarinfo, targetpath):
         try:
             tarfile.TarFile.makedev(self, tarinfo, targetpath)
         except PermissionError as exc:
-            print('Ignoring dev file: {}'.format(tarinfo.path), file=sys.stderr)
+            print(
+                'Ignoring dev file: {}'.format(tarinfo.path), file=sys.stderr)
+
 
 rootfs = mkdtemp(dir=join(get_plash_data(), 'tmp'))
 

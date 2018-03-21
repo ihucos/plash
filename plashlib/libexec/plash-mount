@@ -5,7 +5,6 @@
 # The optional arguments are options passed to the overlay filesystem program:
 # `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
 
-import argparse
 import os
 import sys
 from os.path import join
@@ -14,7 +13,6 @@ from subprocess import CalledProcessError, check_call
 
 from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die, get_plash_data, die_with_usage
 from plashlib import ux
-import platform
 
 handle_help_flag()
 handle_build_args()
@@ -22,7 +20,7 @@ ux.assert_initialized()
 
 try:
     container, mountpoint = sys.argv[1:3]
-    if len(sys.argv) >=4:
+    if len(sys.argv) >= 4:
         changedir = sys.argv[3]
     else:
         changedir = None
@@ -35,7 +33,6 @@ nodepath = nodepath_or_die(container)
 if changedir and not changedir.replace('.', '').replace('/', '').replace(
         '_', '').replace('-', '').isalnum():
     die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(changedir))
-
 
 container_ids_path = []
 parts = nodepath.split('/')
@@ -53,6 +50,7 @@ lowerdir_list = [
     join(plash_data, 'index', i, '_data', 'root') for i in container_ids_path
 ]
 
+
 def mount_unionfs(lowerdir_list, mountpoint, changedir):
     lowerdirs_str = ':'.join('{}=RO'.format(i) for i in lowerdir_list)
     if changedir:
@@ -66,12 +64,10 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
         'unionfs-fuse seems not to be installed')
     with catch_and_die([CalledProcessError]):
         check_call([
-            unionfs,
-            '-o',
-            'nosuid,cow',
-            '{upperdir}{lowerdirs}'.format(
-            lowerdirs=lowerdirs_str, upperdir=upperdir_str),
-            mountpoint])
+            unionfs, '-o', 'nosuid,cow', '{upperdir}{lowerdirs}'.format(
+                lowerdirs=lowerdirs_str, upperdir=upperdir_str), mountpoint
+        ])
+
 
 def mount_overlay(lowerdirs_list, mountpoint, changedir):
     if changedir:
@@ -88,13 +84,11 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
             'lowerdir={lowerdir}{workdir}{upperdir},nosuid'.format(
                 lowerdir=':'.join(lowerdir_list),
                 upperdir=',upperdir=' + upperdir if upperdir else '',
-                workdir=',workdir=' + workdir if workdir else ''),
-	 	mountpoint
-	])
+                workdir=',workdir=' + workdir if workdir else ''), mountpoint
+        ])
 
-known_union_tastes = {
-    'overlay': mount_overlay,
-    'unionfs-fuse': mount_unionfs}
+
+known_union_tastes = {'overlay': mount_overlay, 'unionfs-fuse': mount_unionfs}
 
 with open(os.path.join(get_plash_data(), 'union_taste')) as f:
     union_taste = f.read()
@@ -106,5 +100,5 @@ except KeyError:
 
 mount_func(lowerdir_list, mountpoint, changedir)
 
-    # overlay is only in the Linux kernel and accesible by root
-    # unionfs is fuse based and available in Linux, Mac and FreeBSD
+# overlay is only in the Linux kernel and accesible by root
+# unionfs is fuse based and available in Linux, Mac and FreeBSD

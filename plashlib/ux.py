@@ -8,5 +8,6 @@ def assert_initialized():
     if not os.path.exists(last_inited):
         die('run plash init first')
 
+
 def assert_container_exists(cont):
     nodepath_or_die(cont)

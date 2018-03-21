@@ -5,10 +5,7 @@
 
 import argparse
 import os
-import sys
-import shlex
-import platform
-from plashlib.utils import nodepath_or_die, handle_help_flag, die_with_usage, handle_build_args, get_plash_data, catch_and_die, get_default_shell, die
+from plashlib.utils import catch_and_die, die, get_default_shell, handle_help_flag
 from plashlib import ux
 from plashlib.unshare import unshare_if_user, unshare_if_root
 from subprocess import check_call, CalledProcessError
@@ -27,14 +24,13 @@ parser.add_argument('-n', '--no-default-binds', action='store_true')
 parser.add_argument('-c', '--changes')
 args = parser.parse_args()
 
-
 requested_mounts = []
 if not args.no_default_binds:
     requested_mounts.extend(DEFAULT_BIND)
 requested_mounts.extend(args.bind or [])
 
-
-mountpoint = mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
+mountpoint = mkdtemp(
+    dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
 
 unshare_if_root()
 
@@ -50,7 +46,10 @@ unshare_if_user(extra_setup_cmd=['fusermount', '-u', mountpoint])
 
 # mount /proc and so on
 for mount in requested_mounts:
-    check_call(['mount', '--rbind', mount, os.path.join(mountpoint, mount.lstrip('/'))])
+    check_call([
+        'mount', '--rbind', mount,
+        os.path.join(mountpoint, mount.lstrip('/'))
+    ])
 
 # setup chroot and exec
 pwd_at_start = os.getcwd()

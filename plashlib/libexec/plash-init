@@ -4,7 +4,6 @@
 # Initialize build data. Run this on a new system before anything else.
 
 from plashlib.utils import handle_help_flag, hashstr, get_plash_data
-from plashlib import ux
 import platform
 import os
 from os.path import join
@@ -32,10 +31,10 @@ except FileExistsError:
 try:
     with open(join(plash_data, 'union_taste'), 'x') as f:
         if not os.getuid() and platform.system() == 'Linux':
-            # overlay is only in the Linux kernel and accesible by root          
+            # overlay is only in the Linux kernel and accesible by root
             f.write('overlay')
         else:
-            # unionfs is fuse based and available in Linux, Mac and FreeBSD    
+            # unionfs is fuse based and available in Linux, Mac and FreeBSD
             f.write('unionfs-fuse')
 except FileExistsError:
     pass

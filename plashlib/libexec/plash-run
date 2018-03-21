@@ -5,7 +5,6 @@
 # started.  The workdir and upperdir parameters can be used to save file system
 # changes made inside the container.
 
-
 import os
 import sys
 import shlex
@@ -19,11 +18,6 @@ handle_build_args()
 try:
     container_id, *cmd = sys.argv[1:]
 except ValueError:
-    die_with_usage() 
+    die_with_usage()
 
-os.execlp(
-'plash-runopts',
-'plash-runopts',
-'--',
-container_id,
-*cmd)
+os.execlp('plash-runopts', 'plash-runopts', '--', container_id, *cmd)

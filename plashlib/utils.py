@@ -7,6 +7,7 @@ from os.path import join
 ERROR_COLOR = 1
 INFO_COLOR = 4
 
+
 def hashstr(stri):
     import hashlib
     return hashlib.sha1(stri).hexdigest()
@@ -25,6 +26,7 @@ def catch_and_die(exceptions, debug=None, ignore=None):
         if debug:
             msg = '{debug}: {message}'.format(debug=debug, message=msg)
         die(msg)
+
 
 def get_plash_data():
     if os.getuid():
@@ -81,6 +83,7 @@ def handle_help_flag():
                     print(line[2:], end='')
         sys.exit(0)
 
+
 def filter_positionals(args):
     positional = []
     filtered_args = []
@@ -118,7 +121,8 @@ def nodepath_or_die(container):
         # FIXME: security check that container does not contain bad chars
         with catch_and_die(
             [OSError], ignore=FileNotFoundError, debug='readlink'):
-            nodepath = os.readlink(os.path.join(get_plash_data(), 'index', container))
+            nodepath = os.readlink(
+                os.path.join(get_plash_data(), 'index', container))
         with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
             os.stat(nodepath)
         return nodepath

@@ -47,8 +47,7 @@ with catch_and_die([subprocess.CalledProcessError]):
 # start daemon and wait for it to start
 #
 debug('starting docker')
-p = subprocess.Popen(
-    ['plash-docker-daemon'], stderr=2, stdout=2)
+p = subprocess.Popen(['plash-docker-daemon'], stderr=2, stdout=2)
 atexit.register(lambda: p.kill())
 c = 0
 while True:
@@ -59,8 +58,8 @@ while True:
         die('timeout for docker start: server log: {}, client log: {}'.format(
             daemon_log.name, client_log.name))
     if daemon_exit is not None:
-        die('`plash-docker-daemon` died with exit status {} (logs at {})'.format(
-            daemon_exit, daemon_log.name))
+        die('`plash-docker-daemon` died with exit status {} (logs at {})'.
+            format(daemon_exit, daemon_log.name))
 
     # check if daemon is up yet
     try:

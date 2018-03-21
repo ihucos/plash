@@ -26,8 +26,10 @@ try:
 except IndexError:
     value = None
 
+
 def escape_cache_key(unescaped_cache_key):
     return unescaped_cache_key.replace('/', '%')
+
 
 def cache_set(unescaped_cache_key, container_id):
     cache_key = escape_cache_key(unescaped_cache_key)

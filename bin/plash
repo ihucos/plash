@@ -3,9 +3,14 @@ import sys, os
 import plashlib
 from plashlib.utils import die
 
+
 def die_helping():
-    print('Plash is a lean container build and run engine, try `plash list`', file=sys.stderr)
+    print(
+        'Plash is a lean container build and run engine, try `plash list`',
+        file=sys.stderr)
     sys.exit(1)
+
+
 try:
     subcommand = sys.argv[1]
 except IndexError:

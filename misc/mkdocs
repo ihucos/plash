@@ -17,10 +17,12 @@ TEMPL_DIR = path.join(PROJECT_DIR, 'docs_templates')
 BIN_DIR = path.join(PROJECT_DIR, 'plashlib/libexec')
 TESTS_DIR = path.join(PROJECT_DIR, 'plashlib/tests')
 
+
 def render(tpl_path, **context):
     path, filename = os.path.split(tpl_path)
-    return jinja2.Environment(
-        loader=jinja2.FileSystemLoader(TEMPL_DIR)).get_template(filename).render(context)
+    return jinja2.Environment(loader=jinja2.FileSystemLoader(
+        TEMPL_DIR)).get_template(filename).render(context)
+
 
 out = check_output(['plash', 'list'])
 out = out.decode()
@@ -56,7 +58,12 @@ for binfile in binfiles:
             break
         doc.append(line[2:])
     subcommand = binfile.split('-', 1)[1]
-    filedocs.append({'test_code': test_code, 'code': read, 'doc': '\n'.join(doc), 'prog': subcommand})
+    filedocs.append({
+        'test_code': test_code,
+        'code': read,
+        'doc': '\n'.join(doc),
+        'prog': subcommand
+    })
 
 for item in filedocs:
     with open(path.join(docs_out, item['prog'] + '.html'), 'w') as f:

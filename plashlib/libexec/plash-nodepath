@@ -4,11 +4,9 @@
 # Prints the path of a given container
 # Example: `plash nodepath mycontainer | xargs tree`
 
-import os
 import sys
 
 from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
-from plashlib import ux
 
 handle_help_flag()
 handle_build_args()

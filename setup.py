@@ -1,7 +1,5 @@
 from setuptools import setup
-from os import path
 import os
-import sys
 
 VERSION = '0.1dev'
 
@@ -16,7 +14,7 @@ setup(
     packages=['plashlib'],
     scripts=['bin/plash', 'bin/plash-exec'],
     zip_safe=False,
-    include_package_data = True,
+    include_package_data=True,
 
     # extra stuff
     python_requires='>=3',
