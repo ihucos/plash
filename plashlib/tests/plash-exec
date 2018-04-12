@@ -1,44 +1,44 @@
 #!/bin/sh
 set -eux
 
-# skip if run as user because if mistery fail:
-# https://travis-ci.org/ihucos/plash/builds/365539516
-test "$(id -u)" != 0 && {
-  echo "SKIP MARKER"
-  exit 1
-}
-
-export PLASH_KILL_PARENT_ON_EXCEPTION=1
-
-: basic test
-plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
-# plash-exec: exec=/bin/printf
---image
-1
-' >> $plashfile
-chmod 700 $plashfile
-test $("$plashfile" printf_that) = printf_that
-
-: exec not found
-plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
-# plash-exec: exec=/usr/bin/notfoundxxxx
---image
-1
-' >> $plashfile
-chmod 700 $plashfile
-! $plashfile
-
-: build error - no build args
-plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
-# plash-exec: exec=/usr/bin/true' >> $plashfile
-chmod 700 $plashfile
-! $plashfile
-
-: no plash-exec comment
-plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec' > $plashfile
-chmod 700 $plashfile
-! $plashfile
+## skip if run as user because if mistery fail:
+## https://travis-ci.org/ihucos/plash/builds/365539516
+#test "$(id -u)" != 0 && {
+#  echo "SKIP MARKER"
+#  exit 1
+#}
+#
+#export PLASH_KILL_PARENT_ON_EXCEPTION=1
+#
+#: basic test
+#plashfile=$(mktemp)
+#printf '#!/usr/bin/env plash-exec
+## plash-exec: exec=/bin/printf
+#--image
+#1
+#' >> $plashfile
+#chmod 700 $plashfile
+#test $("$plashfile" printf_that) = printf_that
+#
+#: exec not found
+#plashfile=$(mktemp)
+#printf '#!/usr/bin/env plash-exec
+## plash-exec: exec=/usr/bin/notfoundxxxx
+#--image
+#1
+#' >> $plashfile
+#chmod 700 $plashfile
+#! $plashfile
+#
+#: build error - no build args
+#plashfile=$(mktemp)
+#printf '#!/usr/bin/env plash-exec
+## plash-exec: exec=/usr/bin/true' >> $plashfile
+#chmod 700 $plashfile
+#! $plashfile
+#
+#: no plash-exec comment
+#plashfile=$(mktemp)
+#printf '#!/usr/bin/env plash-exec' > $plashfile
+#chmod 700 $plashfile
+#! $plashfile
