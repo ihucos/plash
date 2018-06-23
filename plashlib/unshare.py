@@ -73,7 +73,7 @@ def unshare_if_user(extra_setup_cmd=None):
         prepare_unshared_proccess()
         sys.exit(0)
     # what the unshare binary does do
-    libc = ctypes.CDLL('libc.so.6')
+    libc = ctypes.CDLL('libc.so.6', use_errno=True)
     libc.unshare(CLONE_NEWNS | CLONE_NEWUSER) != -1 or die_with_errno(hint='unsharing')
     libc.mount("none", "/", None, MS_REC | MS_PRIVATE, None) != -1 or die_with_errno(hint='mounting')
 
