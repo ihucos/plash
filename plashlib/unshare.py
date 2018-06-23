@@ -4,6 +4,7 @@
 
 import os
 import sys
+import errno
 from subprocess import check_call, CalledProcessError
 from plashlib.utils import catch_and_die, get_plash_data, die
 from getpass import getuser
@@ -15,6 +16,11 @@ CLONE_NEWNS = 0x00020000
 CLONE_NEWUSER = 0x10000000
 MS_REC = 0x4000
 MS_PRIVATE = 1 << 18
+
+def die_with_errno(hint):
+    myerrno = ctypes.get_errno()
+    errno_str = errno.errorcode.get(myerrno, myerrno)
+    die('errno while {}: {}'.format(hint, errno_str))
 
 
 def get_subs(query_user, subfile):
@@ -68,8 +74,8 @@ def unshare_if_user(extra_setup_cmd=None):
         sys.exit(0)
     # what the unshare binary does do
     libc = ctypes.CDLL('libc.so.6')
-    assert libc.unshare(CLONE_NEWNS | CLONE_NEWUSER) != -1
-    assert libc.mount("none", "/", None, MS_REC | MS_PRIVATE, None) != -1
+    libc.unshare(CLONE_NEWNS | CLONE_NEWUSER) != -1 or die_with_errno(hint='unsharing')
+    libc.mount("none", "/", None, MS_REC | MS_PRIVATE, None) != -1 or die_with_errno(hint='mounting')
 
     lock.release()
     os.wait()
@@ -78,6 +84,7 @@ def unshare_if_user(extra_setup_cmd=None):
 def unshare_if_root():
     if os.getuid():
         return
-    libc = ctypes.CDLL('libc.so.6')
-    assert libc.unshare(CLONE_NEWNS) != -1
-    assert libc.mount("none", "/", None, MS_REC | MS_PRIVATE, None) != -1
+    libc = ctypes.CDLL('libc.so.6', use_errno=True)
+
+    libc.unshare(CLONE_NEWNS) != -1 or die_with_errno(hint='unsharing')
+    libc.mount("none", "/", None, MS_REC | MS_PRIVATE, None) != -1 or die_with_errno(hint='mounting')
