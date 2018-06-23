@@ -11,7 +11,7 @@ from plashlib.unshare import unshare_if_user, unshare_if_root
 from subprocess import check_call, CalledProcessError
 from tempfile import mkdtemp
 
-DEFAULT_BIND = ['/tmp', '/home', '/etc/resolv.conf', '/sys', '/dev', '/proc']
+DEFAULT_BIND = ['/tmp', '/home', '/root', '/etc/resolv.conf', '/sys', '/dev', '/proc']
 
 handle_help_flag()
 ux.assert_initialized()
