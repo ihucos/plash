@@ -1,37 +1,36 @@
-#!/usr/bin/env python3
-#set -eux
-#
-#export PLASH_KILL_PARENT_ON_EXCEPTION=1
-#
-#: basic test
-#plashfile=$(mktemp)
-#printf '#!/usr/bin/env plash-exec
-## plash-exec: exec=/bin/printf
-#--image
-#1
-#' >> $plashfile
-#chmod 700 $plashfile
-#test $("$plashfile" printf_that) = printf_that
-#
-#: exec not found
-#plashfile=$(mktemp)
-#printf '#!/usr/bin/env plash-exec
-## plash-exec: exec=/usr/bin/notfoundxxxx
-#--image
-#1
-#' >> $plashfile
-#chmod 700 $plashfile
-#! $plashfile
-#
-#: build error - no build args
-#plashfile=$(mktemp)
-#printf '#!/usr/bin/env plash-exec
-## plash-exec: exec=/usr/bin/true' >> $plashfile
-#chmod 700 $plashfile
-#! $plashfile
-#
-#: no plash-exec comment
-#plashfile=$(mktemp)
-#printf '#!/usr/bin/env plash-exec' > $plashfile
-#chmod 700 $plashfile
-#! $plashfile
+set -eux
+
+export PLASH_KILL_PARENT_ON_EXCEPTION=1
+
+: basic test
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+# plash-exec: exec=/bin/printf
+--image
+1
+' >> $plashfile
+chmod 700 $plashfile
+test $("$plashfile" printf_that) = printf_that
+
+: exec not found
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+# plash-exec: exec=/usr/bin/notfoundxxxx
+--image
+1
+' >> $plashfile
+chmod 700 $plashfile
+! $plashfile
+
+: build error - no build args
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+# plash-exec: exec=/usr/bin/true' >> $plashfile
+chmod 700 $plashfile
+! $plashfile
+
+: no plash-exec comment
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec' > $plashfile
+chmod 700 $plashfile
+! $plashfile
