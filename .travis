@@ -24,7 +24,6 @@ else
 fi
 
 test -n "${TRAVIS:-}" && sed -i -e "s/VERSION = '0.1dev'/VERSION = "0.$TRAVIS_BUILD_NUMBER"/g" setup.py
-sh
 python3 setup.py --quiet develop
 
 for f in /usr/lib/python3.*; do
