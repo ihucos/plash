@@ -55,7 +55,7 @@ for mount in requested_mounts:
 pwd_at_start = os.getcwd()
 
 # I had problems opening the files after the chroot (LookupError: unknown encoding: ascii)
-default_root_shell = get_default_shell('/etc/passwd')
+default_root_shell = get_default_shell(os.path.join(mountpoint, 'etc/passwd'))
 
 os.chroot(mountpoint)
 try:
