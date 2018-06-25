@@ -55,6 +55,7 @@ p = subprocess.Popen(
         '--no-default-binds',
         '--bind',
         '/home',
+        '/root',
         '--bind',
         '/etc/resolv.conf',
         '--bind',
