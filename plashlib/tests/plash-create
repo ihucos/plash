@@ -1,3 +1,4 @@
+#!/bin/sh
 set -eux
 
 : create container with a new file

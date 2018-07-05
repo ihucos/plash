@@ -1,3 +1,4 @@
+#!/bin/sh
 set -eux
 
 # skip if not root

@@ -1,3 +1,4 @@
+#!/bin/sh
 set eux
 
 export PLASH_KILL_PARENT_ON_EXCEPTION=1

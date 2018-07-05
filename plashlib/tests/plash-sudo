@@ -1,3 +1,4 @@
+#!/bin/sh
 set -eux
 
 : user inside plash sudo is root
