@@ -28,9 +28,9 @@ class PlashTarFile(tarfile.TarFile):
     def makedev(self, tarinfo, targetpath):
         try:
             tarfile.TarFile.makedev(self, tarinfo, targetpath)
-        except PermissionError as exc:
+        except OSError as exc:
             print(
-                'Ignoring dev file: {}'.format(tarinfo.path), file=sys.stderr)
+                'Ignoring dev file: {} ({})'.format(tarinfo.path, exc.strerror), file=sys.stderr)
 
 
 rootfs = mkdtemp(dir=join(get_plash_data(), 'tmp'))
