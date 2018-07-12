@@ -119,4 +119,5 @@ Will still take some time, after this:
 - [ ] ~~Security audit - no suid binaries anymore~~
 - [ ] API worth staying
 - [ ] Some little real-world usage
-- [ ] More unit tests
+- [X] More unit tests
+- [ ] Unit tests for the configuration managament language 
