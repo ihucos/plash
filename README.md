@@ -4,6 +4,7 @@
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/plash-containers)
 
 ~~**current status:** Currently my day job is keeping me busy...~~
+
 **current status:** I quit my day job, so I have time after the notice period.
 
 
