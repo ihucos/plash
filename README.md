@@ -117,11 +117,5 @@ No. There are no efforts to implement features like image distribution, process 
 #### Can I run this in production?
 No. Not yet.
 
-#### When will be the >= 1.0 release?
-Will still take some time, after this:
-- [ ] Better documentation
-- [ ] ~~Security audit - no suid binaries anymore~~
-- [ ] API worth staying
-- [ ] Some little real-world usage
-- [X] More unit tests
-- [ ] Unit tests for the configuration managament language 
+#### When will be the 1.0 release?
+There is a Github project for this: ttps://github.com/ihucos/plash/projects/1
