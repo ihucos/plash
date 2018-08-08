@@ -118,4 +118,4 @@ No. There are no efforts to implement features like image distribution, process 
 No. Not yet.
 
 #### When will be the 1.0 release?
-There is a Github project for this: ttps://github.com/ihucos/plash/projects/1
+There is a Github project for this: https://github.com/ihucos/plash/projects/1
