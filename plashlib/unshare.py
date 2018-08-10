@@ -11,11 +11,17 @@ from getpass import getuser
 from multiprocessing import Lock  # that takes way too long to load
 import ctypes
 
-# I do believe this libc constants are stable and pray every day for that
+# I do believe this libc constants are stable.
 CLONE_NEWNS = 0x00020000
 CLONE_NEWUSER = 0x10000000
 MS_REC = 0x4000
 MS_PRIVATE = 1 << 18
+
+
+# SystemExit because so the process dies if this is unhandled
+class CouldNotSetupUnshareError(SystemExit):
+    pass
+
 
 def die_with_errno(hint):
     myerrno = ctypes.get_errno()
@@ -60,7 +66,7 @@ def unshare_if_user(extra_setup_cmd=None):
 
     def prepare_unshared_proccess():
         for cmd in setup_cmds:
-            with catch_and_die([CalledProcessError], debug='forked child'):
+            with catch_and_die([CalledProcessError, FileNotFoundError], debug='forked child'):
                 check_call(cmd)
 
     # we need to call prepare_unshared_proccess
@@ -78,7 +84,10 @@ def unshare_if_user(extra_setup_cmd=None):
     libc.mount("none", "/", None, MS_REC | MS_PRIVATE, None) != -1 or die_with_errno(hint='mounting')
 
     lock.release()
-    os.wait()
+    pid, raw_exit_status =  os.wait()
+    exit_status =  raw_exit_status // 255
+    if exit_status:
+        raise CouldNotSetupUnshareError()
 
 
 def unshare_if_root():
