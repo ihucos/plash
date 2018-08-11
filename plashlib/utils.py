@@ -48,7 +48,7 @@ def color(stri, color, isatty_fd_check=2):
 
 
 def die(msg, exit=1):
-    prog = os.path.basename(sys.argv[0])
+    # prog = os.path.basename(sys.argv[0]).split('-', 1)[1]
     print(
         '{}: {}'.format(color('plash error', ERROR_COLOR), msg),
         file=sys.stderr)

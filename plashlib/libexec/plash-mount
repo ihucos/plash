@@ -27,7 +27,7 @@ try:
 except ValueError:
     die_with_usage()
 
-nodepath = nodepath_or_die(container)
+nodepath = nodepath_or_die(container, allow_root_container=True)
 
 # TODO have this line more generic
 if changedir and not changedir.replace('.', '').replace('/', '').replace(

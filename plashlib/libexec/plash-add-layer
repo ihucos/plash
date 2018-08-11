@@ -61,7 +61,7 @@ os.mkdir(join(prepared_new_node, '_data'), 0o700)
 # the next line will actually make the import_dir "disappear" for the user.
 # the "root" folder will hold the access rights, user rights and maybe other meta
 # data for the root folder ('/' after a chroot)
-with catch_and_die([FileNotFoundError], debug='rename'):
+with catch_and_die([FileNotFoundError, PermissionError], debug='rename'):
     os.rename(import_dir, join(prepared_new_node, '_data', 'root'))
 
 #

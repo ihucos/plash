@@ -1,0 +1,170 @@
+#!/bin/sh
+set -ex
+
+export PLASH_KILL_PARENT_ON_EXCEPTION=1
+
+tmp=$(mktemp -d)
+
+#
+# plash add-layer
+#
+
+: adding a nonexistent layer
+(! plash add-layer 0 /doesnotexists_asdf8)
+
+: nonexistent container
+(! plash add-layer 99999 $tmp)
+
+: bad container
+(! plash add-layer xxxx $tmp)
+
+#
+# plash build           
+#
+
+
+#
+# plash create          
+#
+: use the special root container
+(! plash create 0)
+
+: use nonexistent container
+(! plash create 99999)
+
+: use bad container id
+(! plash create xxx)
+
+: create with bad command
+(! plash create xxx)
+
+: create with unknown command
+(! plash create 1 unknown_command)
+
+: build error
+(! plash create 1 sh -c false)
+
+
+#
+# plash docker          
+#
+
+
+#
+# plash docker-daemon   
+#
+
+
+#
+# plash export-tar      
+#
+
+
+#
+# plash getscript       
+#
+
+
+#
+# plash import-docker   
+#
+
+
+#
+# plash import-lxcimages
+#
+
+
+#
+# plash import-tar      
+#
+
+
+#
+# plash import-url      
+#
+
+
+#
+# plash init            
+#
+
+
+#
+# plash list            
+#
+
+
+#
+# plash map             
+#
+: use the special root container
+(! plash map mykey 0)
+
+: use nonexistent container
+(! plash map mykey 99999)
+
+: use bad container id
+(! plash map mykey xxx)
+
+
+#
+# plash mount           
+#
+: use the special root container
+mountpoint=$(mktemp -d)
+plash mount 0 "$mountpoint"
+
+: use nonexistent container
+(! plash mount 99999 "$tmp")
+
+: use bad container id
+(! plash mount xxx "$tmp")
+
+: use non existent dir
+(! plash mount 1 /doesnotexists)
+
+
+#
+# plash nodepath        
+#
+
+
+#
+# plash parent          
+#
+
+
+#
+# plash purge           
+#
+
+
+#
+# plash rm              
+#
+
+
+#
+# plash run             
+#
+
+
+#
+# plash runopts         
+#
+
+
+#
+# plash sudo            
+#
+
+
+#
+# plash test            
+#
+
+
+#
+# plash with-mount      
+#

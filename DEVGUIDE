@@ -4,6 +4,7 @@
 = STILL A DRAFT =
 =================
 
+Be humble, don't oversell your abstraction layer.
 Keep the script charachter.
 Don't fall in love with the code, embrace its absence.
 Don't be a monolothit but don't try too hard not to be one.
@@ -27,4 +28,3 @@ All dependencies will get unmaintained at some point
 
 NEW ONES:
 For every functionality there is one path of execution and one unit test.
-Be humble, don't oversell your abstraction layer.

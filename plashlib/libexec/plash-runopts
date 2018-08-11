@@ -5,7 +5,8 @@
 
 import argparse
 import os
-from plashlib.utils import catch_and_die, die, get_default_shell, handle_help_flag
+import sys
+from plashlib.utils import catch_and_die, get_default_shell, handle_help_flag
 from plashlib import ux
 from plashlib.unshare import unshare_if_user, unshare_if_root
 from subprocess import check_call, CalledProcessError
@@ -70,4 +71,5 @@ else:
 try:
     os.execlp(cmd[0], *cmd)
 except FileNotFoundError:
-    die('Command not found: {}'.format(cmd[0]))
+    sys.stderr.write('{}: command not found\n'.format(cmd[0]))
+    sys.exit(127)
