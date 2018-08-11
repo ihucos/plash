@@ -5,8 +5,9 @@
 # Example: `plash nodepath mycontainer | xargs tree`
 
 import sys
+import os
 
-from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, catch_and_die, get_plash_data, die
 
 handle_help_flag()
 handle_build_args()
@@ -16,5 +17,24 @@ try:
 except IndexError:
     die_with_usage()
 
-nodepath = nodepath_or_die(container)
+    container = str(container)
+
+if not container.isdigit():
+    die("container id must be integer, not {}".format(
+        repr(container)))
+
+if container == '0' and not sys.argv[2:3] == ['--allow-root-container']:
+    die("container must not be the special root container ('0')")
+
+try:
+    # FIXME: security check that container does not contain bad chars
+    with catch_and_die(
+        [OSError], ignore=FileNotFoundError, debug='readlink'):
+        nodepath = os.readlink(
+            os.path.join(get_plash_data(), 'index', container))
+    with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
+        os.stat(nodepath)
+except FileNotFoundError:
+    die('no container {}'.format(repr(container)), exit=3)
+
 print(nodepath)

@@ -116,27 +116,14 @@ def handle_build_args():
 
 
 def nodepath_or_die(container, allow_root_container=False):
-    container = str(container)
+    import subprocess
 
-    if not container.isdigit():
-        die("container id must be an integer, not: {}".format(
-            repr(container)))
+    extra = [] if not allow_root_container else ['--allow-root-container']
+    with catch_and_die([subprocess.CalledProcessError], silent=True):
+        return subprocess.run(
+            ['plash', 'nodepath', str(container)] + extra,
+            stdout=subprocess.PIPE, check=True).stdout.decode().strip('\n')
 
-    if not allow_root_container:
-        if container == '0':
-            die("container must not be the special root container ('0')")
-
-    try:
-        # FIXME: security check that container does not contain bad chars
-        with catch_and_die(
-            [OSError], ignore=FileNotFoundError, debug='readlink'):
-            nodepath = os.readlink(
-                os.path.join(get_plash_data(), 'index', container))
-        with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
-            os.stat(nodepath)
-        return nodepath
-    except FileNotFoundError:
-        die('no container {}'.format(repr(container)), exit=3)
 
 
 def get_default_shell(passwd_file):
