@@ -83,16 +83,11 @@ tmp=$(mktemp -d)
 #
 # plash import-url
 #
+: bad formated url
+(! plash import-url blah)
 
-
-#
-# plash init
-#
-
-
-#
-# plash list
-#
+: bad protocoll
+(! plash import-url myproto://blah)
 
 
 #
@@ -154,11 +149,6 @@ mountpoint=$(mktemp -d)
 
 
 #
-# plash purge
-#
-
-
-#
 # plash rm
 #
 : use the special root container
@@ -203,14 +193,27 @@ mountpoint=$(mktemp -d)
 #
 # plash sudo
 #
+: nonexistent command
 (! plash sudo doesnotexists)
-
-
-#
-# plash test
-#
+: nonzero exit status
+(! plash sudo exit)
 
 
 #
 # plash with-mount
 #
+: use the special root container
+mountpoint=$(mktemp -d)
+(! plash with-mount 0 ls)
+
+: use nonexistent container
+(! plash with-mount 99999 ls)
+
+: use bad container id
+(! plash with-mount xxx ls)
+
+# non zero exit status for programm
+(! plash with-mount 1 false)
+
+# non existent command
+(! plash with-mount 1 does-not-exist-asdf)

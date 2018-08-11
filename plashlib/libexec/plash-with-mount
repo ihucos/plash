@@ -38,5 +38,5 @@ with catch_and_die([CalledProcessError]):
         cmd = ['umount', mountpoint]
     check_call(cmd, stdout=2)  # pipe any stdout to stderr
 if user_exit:
-    die('Exit status {}: {}'.format(user_exit, user_sh))
+    die('exit status {}: {}'.format(user_exit, user_sh))
 sys.exit(user_exit)
