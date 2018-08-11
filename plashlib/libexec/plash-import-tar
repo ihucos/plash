@@ -35,14 +35,12 @@ class PlashTarFile(tarfile.TarFile):
 
 rootfs = mkdtemp(dir=join(get_plash_data(), 'tmp'))
 
-with catch_and_die([OSError]):
-    try:
-        if tar_file == '-':
-            t = PlashTarFile.open(fileobj=sys.stdin.buffer, mode='r|')
-        else:
-            t = PlashTarFile.open(tar_file)
-    except tarfile.TarError as exc:
-        die('{}: {}'.format(exc.__class__.__name__, exc))
+with catch_and_die([tarfile.TarError], debug_class=True):
+    with catch_and_die([OSError]):
+       if tar_file == '-':
+           t = PlashTarFile.open(fileobj=sys.stdin.buffer, mode='r|')
+       else:
+           t = PlashTarFile.open(tar_file)
 
 unshare_if_user()
 t.extractall(rootfs)

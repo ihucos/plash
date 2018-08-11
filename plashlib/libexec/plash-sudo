@@ -6,7 +6,7 @@
 
 import os
 import sys
-from plashlib.utils import get_default_shell, handle_help_flag
+from plashlib.utils import get_default_shell, handle_help_flag, catch_and_die
 from plashlib.unshare import unshare_if_user
 
 handle_help_flag()
@@ -14,4 +14,5 @@ unshare_if_user()
 cmd = sys.argv[1:]
 if not cmd:
     cmd = [get_default_shell('/etc/passwd')]
-os.execlp(cmd[0], *cmd)
+with catch_and_die([FileNotFoundError], debug=cmd[0]):
+    os.execlp(cmd[0], *cmd)

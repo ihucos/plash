@@ -14,7 +14,7 @@ def hashstr(stri):
 
 
 @contextmanager
-def catch_and_die(exceptions, debug=None, ignore=None, silent=False):
+def catch_and_die(exceptions, debug=None, debug_class=False, ignore=None, silent=False):
     try:
         yield
     except tuple(exceptions) as exc:
@@ -25,6 +25,8 @@ def catch_and_die(exceptions, debug=None, ignore=None, silent=False):
         msg = str(exc)
         if msg.startswith('<') and msg.endswith('>'):
             msg = msg[1:-1]
+        if debug_class:
+            debug = '{}.{}'.format(exc.__class__.__module__, exc.__class__.__name__)
         if debug:
             msg = '{debug}: {message}'.format(debug=debug, message=msg)
         die(msg)
