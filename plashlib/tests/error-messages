@@ -21,6 +21,8 @@ tmp=$(mktemp -d)
 #
 # plash build
 #
+# arguments from plash build are directly passed to getscript
+# so there is not much to do on this one
 
 
 #
@@ -53,15 +55,12 @@ tmp=$(mktemp -d)
 : export to directory
 tmpdir=$(mktemp -d)
 (! plash export-tar 1 /tmp)
-: export to file
-tmpdir=$(mktemp)
-(! plash export-tar 1 $tmpdir)
 
 
 #
 # plash getscript
 #
-# echo "-i alpine" | plash getscript
+# TODO: well, that one will need a little bit more work
 
 
 #

@@ -124,7 +124,7 @@ def nodepath_or_die(container, allow_root_container=False):
 
     if not allow_root_container:
         if container == '0':
-            die('container must not be the special root container ("0")')
+            die("container must not be the special root container ('0')")
 
     try:
         # FIXME: security check that container does not contain bad chars
