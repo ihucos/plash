@@ -7,9 +7,16 @@ import sys
 from os import execlp
 from urllib.request import urlretrieve
 from urllib.error import URLError
+from http.client import HTTPException
 from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
 from plashlib import ux
 from tempfile import mkstemp
+
+#
+# the progress bar is a little buggy and quite a mess
+# maybe use tqdm after all (right now we have absolutly no dependencies)
+# there is just to much complexity here that could go away!
+#
 
 handle_help_flag()
 ux.assert_initialized()
@@ -22,9 +29,10 @@ except IndexError:
 tmpfile = mkstemp()[1]
 
 dots = [0]
-
-
+entered_reporthook = [False]
 def reporthook(count, block_size, total_size):
+    return
+    entered_reporthook[0] = True
     if not count:
         sys.stderr.write('Fetch  [0%|')
         sys.stderr.flush()
@@ -37,15 +45,18 @@ def reporthook(count, block_size, total_size):
             sys.stderr.flush()
 
 
-with catch_and_die([URLError, ValueError], debug=url):
+with catch_and_die([HTTPException, ValueError, URLError],
+        debug='geturl({})'.format(repr(url))):
     try:
         urlretrieve(url, tmpfile, reporthook=reporthook)
     except:
-        sys.stderr.write('\n')
-        sys.stderr.flush()
+        if entered_reporthook[0]:
+            sys.stderr.write('\n')
+            sys.stderr.flush()
         raise
 
-sys.stderr.write('100%]\n')
-sys.stderr.flush()
+if entered_reporthook[0]:
+    sys.stderr.write('100%]\n')
+    sys.stderr.flush()
 
 execlp('plash-import-tar', 'plash import-tar', tmpfile)

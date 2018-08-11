@@ -46,38 +46,43 @@ tmp=$(mktemp -d)
 
 
 #
-# plash docker
-#
-
-
-#
-# plash docker-daemon
-#
-
-
-#
 # plash export-tar
 #
+# export-tar is actually currently just a proxy to the tar command,
+# so there is not such much we can test now
+: export to directory
+tmpdir=$(mktemp -d)
+(! plash export-tar 1 /tmp)
+: export to file
+tmpdir=$(mktemp)
+(! plash export-tar 1 $tmpdir)
 
 
 #
 # plash getscript
 #
-
-
-#
-# plash import-docker
-#
+# echo "-i alpine" | plash getscript
 
 
 #
 # plash import-lxcimages
 #
+(! plash import-lxcimages doesnotexistsimagey)
 
 
 #
 # plash import-tar
 #
+: empty file
+tmpfile=$(mktemp)
+(! plash import-tar "$tmpfile")
+
+: non existent file
+(! plash import-tar /filedoesnotexists)
+
+: directory
+tmpdir=$(mktemp -d)
+(! plash import-tar "$tmpdir")
 
 
 #
@@ -88,6 +93,25 @@ tmp=$(mktemp -d)
 
 : bad protocoll
 (! plash import-url myproto://blah)
+
+: bad tar file
+(! plash import-url http://google.com)
+
+: nonumeric port
+(! plash import-url http://localhost:d)
+
+: socket error
+(! plash import-url http://localhost:-1)
+
+: empty file
+tmpfile=$(mktemp)
+(! plash import-url "file://$tmpfile")
+
+: non existent file
+(! plash import-url "file:///myfiledoesnotexists")
+
+: directory
+(! plash import-url "file:///tmp")
 
 
 #
@@ -106,10 +130,6 @@ tmp=$(mktemp -d)
 #
 # plash mount
 #
-: use the special root container
-mountpoint=$(mktemp -d)
-plash mount 0 "$mountpoint"
-
 : use nonexistent container
 (! plash mount 99999 "$tmp")
 

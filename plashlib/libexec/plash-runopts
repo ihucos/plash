@@ -25,9 +25,6 @@ parser.add_argument('-n', '--no-default-binds', action='store_true')
 parser.add_argument('-c', '--changes')
 args = parser.parse_args()
 
-if args.container == '0':
-    die('can not run the special root container')
-
 requested_mounts = []
 if not args.no_default_binds:
     requested_mounts.extend(DEFAULT_BIND)
