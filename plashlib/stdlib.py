@@ -69,13 +69,21 @@ def write_script(fname, *lines):
 @action(escape=False)
 def include(file):
     'include parameters from file'
+
     fname = os.path.realpath(os.path.expanduser(file))
     with open(fname) as f:
-        tokens = dropwhile(lambda l: l.startswith('#'),
-                           (i[:-1] for i in f.readlines()))
+
+        # remove only the first lines starting with comments
+        inscript = ''.join(dropwhile(lambda l: l.startswith('#'),
+                           (i for i in f.readlines())))
+
     with catch_and_die([subprocess.CalledProcessError], debug='include'):
-        return subprocess.check_output(
-            ('plash-getscript', ) + tuple(tokens)).decode()
+        return subprocess.run(
+            ['plash-getscript'],
+            input=''.join(inscript).encode(),
+            check=True,
+            stdout=subprocess.PIPE
+        ).stdout.decode()
 
 
 @action(escape=False)
@@ -83,7 +91,12 @@ def include_string(stri):
     tokens = shlex.split(stri)
     with catch_and_die(
         [subprocess.CalledProcessError], debug='include-string'):
-        return subprocess.check_output(['plash-getscript'] + tokens).decode()
+        return subprocess.run(
+            ['plash-getscript'],
+            input='\n'.join(tokens).encode(),
+            check=True,
+            stdout=subprocess.PIPE
+        ).stdout.decode()
 
 
 def hash_paths(paths):

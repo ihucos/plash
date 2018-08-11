@@ -39,7 +39,7 @@ import os
 import sys
 from plashlib.utils import hashstr, nodepath_or_die
 from plashlib import ux
-from subprocess import (DEVNULL, CalledProcessError, Popen, check_output)
+from subprocess import (DEVNULL, CalledProcessError, Popen, check_output, PIPE)
 
 from plashlib.eval import LAYER_MARKER
 from plashlib.stdlib import IMAGE_HINT_TEMPL
@@ -48,11 +48,16 @@ from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, pl
 handle_help_flag()
 ux.assert_initialized()
 
-try:
-    script = check_output(['plash-getscript'] + sys.argv[1:])
-except CalledProcessError as exc:
-    die("getscript failed with exit {}".format(exc.returncode))
-script = script.decode()
+with catch_and_die([CalledProcessError]):
+
+    tokens = sys.argv[1:]
+    inscript=('\n'.join(tokens) + '\n').encode()
+    script =  subprocess.run(
+        ['plash-getscript'],
+        input=inscript,
+        check=True,
+        stdout=subprocess.PIPE
+    ).stdout.decode()
 
 image_ir = re.compile(IMAGE_HINT_TEMPL.format('(.+)\n'))
 matches = image_ir.findall(script)

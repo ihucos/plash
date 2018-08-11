@@ -11,7 +11,7 @@ import sys
 from plashlib import eval, stdlib
 from plashlib.utils import catch_and_die, die
 
-tokens = sys.argv[1:]
+tokens = [line.rstrip('\n') for line in sys.stdin.readlines()]
 
 lsp = []
 for token in tokens:

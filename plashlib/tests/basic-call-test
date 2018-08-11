@@ -6,7 +6,7 @@ bash_syntax_no_empty_dummy
 docker
 docker-daemon
 rm
-plash getscript
+getscript
 init
 list
 purge
