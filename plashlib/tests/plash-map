@@ -16,7 +16,7 @@ plash map mykey2 2
 test $(plash map mykey2) == 2
 
 : attemptint to cache nonexistent container
-! plash map thisismykey 9999999999
+(! plash map thisismykey 9999999999)
 
 : remove key
 plash map rkey 1

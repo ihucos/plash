@@ -18,10 +18,10 @@ plash run $newcont stat /hellow
 : simple cache test
 cont=$(fresh)
 stderr=$(mktemp)
-cont=$(plash build -i $cont -x 'touch /a' 2> $stderr)
+plash build -i $cont -x 'touch /a' 2> $stderr
 test -s $stderr # its not empty
-cont=$(plash build -i $cont -x 'touch /a' 2> $stderr)
-! test -s $stderr # its empty
+plash build -i $cont -x 'touch /a' 2> $stderr
+test ! -s $stderr # its empty
 
 : multilayer caching
 cont=$(fresh)
@@ -55,18 +55,18 @@ test 1 -eq $? || exit 1
 set -e
 
 : nonexistent base container returns bad exit status
-! plash build -i 999
+(! plash build -i 999)
 
 : existent base container return success exit status
 plash build -i 1
 
-: build fail return bad exit status and not container
+: build fail returns bad exit status and not container
 stdout=$(mktemp)
-! plash build -i 1 -x false > $stdout
-! test -s $stderr # its empty
+(! plash build -i 1 -x false > $stdout)
+test ! -s $stderr # its empty
 
 : bad option causes bad exit status
-! plash build --my-bad-opiton
+(! plash build --my-bad-opiton)
 
 : build from hard drive
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

@@ -13,12 +13,12 @@ out=$(plash with-mount 1 ls | xargs)
 [[ " $out " == *' bin '* ]]
 
 : check bad exit gets propagated
-! plash with-mount 1 exit 7
+(! plash with-mount 1 exit 7)
 
 : mount gets unmounted
 before=$(cat /proc/mounts | grep "/index/1" | wc -l)
 plash with-mount 1 true
-! plash with-mount 1 false
+(! plash with-mount 1 false)
 after=$(cat /proc/mounts | grep "/index/1" | wc -l)
 test $before = $after
 

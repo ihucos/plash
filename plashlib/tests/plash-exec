@@ -21,17 +21,17 @@ printf '#!/usr/bin/env plash-exec
 1
 ' >> $plashfile
 chmod 700 $plashfile
-! $plashfile
+(! $plashfile)
 
 : build error - no build args
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
 # plash-exec: exec=/usr/bin/true' >> $plashfile
 chmod 700 $plashfile
-! $plashfile
+(! $plashfile)
 
 : no plash-exec comment
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec' > $plashfile
 chmod 700 $plashfile
-! $plashfile
+(! $plashfile)
