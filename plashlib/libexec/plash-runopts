@@ -6,7 +6,7 @@
 import argparse
 import os
 import sys
-from plashlib.utils import catch_and_die, get_default_shell, handle_help_flag
+from plashlib.utils import catch_and_die, get_default_shell, handle_help_flag, die
 from plashlib import ux
 from plashlib.unshare import unshare_if_user, unshare_if_root
 from subprocess import check_call, CalledProcessError
@@ -24,6 +24,9 @@ parser.add_argument('-b', '--bind', action='append')
 parser.add_argument('-n', '--no-default-binds', action='store_true')
 parser.add_argument('-c', '--changes')
 args = parser.parse_args()
+
+if args.container == '0':
+    die('can not run the special root container')
 
 requested_mounts = []
 if not args.no_default_binds:

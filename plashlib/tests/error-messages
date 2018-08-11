@@ -19,12 +19,12 @@ tmp=$(mktemp -d)
 (! plash add-layer xxxx $tmp)
 
 #
-# plash build           
+# plash build
 #
 
 
 #
-# plash create          
+# plash create
 #
 : use the special root container
 (! plash create 0)
@@ -46,27 +46,27 @@ tmp=$(mktemp -d)
 
 
 #
-# plash docker          
+# plash docker
 #
 
 
 #
-# plash docker-daemon   
+# plash docker-daemon
 #
 
 
 #
-# plash export-tar      
+# plash export-tar
 #
 
 
 #
-# plash getscript       
+# plash getscript
 #
 
 
 #
-# plash import-docker   
+# plash import-docker
 #
 
 
@@ -76,27 +76,27 @@ tmp=$(mktemp -d)
 
 
 #
-# plash import-tar      
+# plash import-tar
 #
 
 
 #
-# plash import-url      
+# plash import-url
 #
 
 
 #
-# plash init            
+# plash init
 #
 
 
 #
-# plash list            
+# plash list
 #
 
 
 #
-# plash map             
+# plash map
 #
 : use the special root container
 (! plash map mykey 0)
@@ -109,7 +109,7 @@ tmp=$(mktemp -d)
 
 
 #
-# plash mount           
+# plash mount
 #
 : use the special root container
 mountpoint=$(mktemp -d)
@@ -126,45 +126,91 @@ plash mount 0 "$mountpoint"
 
 
 #
-# plash nodepath        
+# plash nodepath
+#
+: use the special root container
+mountpoint=$(mktemp -d)
+(! plash nodepath 0)
+
+: use nonexistent container
+(! plash nodepath 99999)
+
+: use bad container id
+(! plash nodepath xxx)
+
+
+#
+# plash parent
+#
+: use the special root container
+mountpoint=$(mktemp -d)
+(! plash parent 0)
+
+: use nonexistent container
+(! plash parent 99999)
+
+: use bad container id
+(! plash parent xxx)
+
+
+#
+# plash purge
 #
 
 
 #
-# plash parent          
+# plash rm
+#
+: use the special root container
+mountpoint=$(mktemp -d)
+(! plash rm 0)
+
+: use nonexistent container
+(! plash rm 99999)
+
+: use bad container id
+(! plash rm xxx)
+
+
+#
+# plash run
+#
+: use the special root container
+mountpoint=$(mktemp -d)
+(! plash run 0)
+
+: use nonexistent container
+(! plash run 99999)
+
+: use bad container id
+(! plash run xxx)
+
+
+#
+# plash runopts
+#
+: use the special root container
+mountpoint=$(mktemp -d)
+(! plash runopts 0)
+
+: use nonexistent container
+(! plash runopts 99999)
+
+: use bad container id
+(! plash runopts xxx)
+
+
+#
+# plash sudo
+#
+(! plash sudo doesnotexists)
+
+
+#
+# plash test
 #
 
 
 #
-# plash purge           
-#
-
-
-#
-# plash rm              
-#
-
-
-#
-# plash run             
-#
-
-
-#
-# plash runopts         
-#
-
-
-#
-# plash sudo            
-#
-
-
-#
-# plash test            
-#
-
-
-#
-# plash with-mount      
+# plash with-mount
 #

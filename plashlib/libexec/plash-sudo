@@ -14,5 +14,9 @@ unshare_if_user()
 cmd = sys.argv[1:]
 if not cmd:
     cmd = [get_default_shell('/etc/passwd')]
-with catch_and_die([FileNotFoundError], debug=cmd[0]):
+
+try:
     os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    sys.stderr.write('{}: command not found\n'.format(cmd[0]))
+    sys.exit(127)
