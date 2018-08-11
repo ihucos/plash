@@ -17,8 +17,6 @@ try:
 except IndexError:
     die_with_usage()
 
-    container = str(container)
-
 if not container.isdigit():
     die("container id must be integer, not {}".format(
         repr(container)))
