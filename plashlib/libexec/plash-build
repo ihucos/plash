@@ -48,7 +48,7 @@ from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, pl
 handle_help_flag()
 ux.assert_initialized()
 
-with catch_and_die([CalledProcessError]):
+with catch_and_die([CalledProcessError], silent=True):
 
     tokens = sys.argv[1:]
     inscript=('\n'.join(tokens) + '\n').encode()
@@ -89,7 +89,7 @@ else:
     cache_key = ':'.join(cmd)
     base_container = plash_map(cache_key.encode())
     if not base_container:
-        with catch_and_die([CalledProcessError]):
+        with catch_and_die([CalledProcessError], silent=True):
             base_container = check_output(cmd).decode().strip('\n')
         plash_map(cache_key.encode(), base_container)
 

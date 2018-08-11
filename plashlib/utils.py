@@ -14,12 +14,14 @@ def hashstr(stri):
 
 
 @contextmanager
-def catch_and_die(exceptions, debug=None, ignore=None):
+def catch_and_die(exceptions, debug=None, ignore=None, silent=False):
     try:
         yield
     except tuple(exceptions) as exc:
         if ignore and isinstance(exc, ignore):
             raise
+        if silent:
+           sys.exit(1)
         msg = str(exc)
         if msg.startswith('<') and msg.endswith('>'):
             msg = msg[1:-1]
@@ -46,7 +48,7 @@ def color(stri, color, isatty_fd_check=2):
 def die(msg, exit=1):
     prog = os.path.basename(sys.argv[0])
     print(
-        '{}: {}: {}'.format(color('error', ERROR_COLOR), prog, msg),
+        '{}: {}'.format(color('plash error', ERROR_COLOR), msg),
         file=sys.stderr)
     sys.exit(exit)
 
@@ -105,18 +107,23 @@ def handle_build_args():
     import subprocess
     if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
         cmd, args = filter_positionals(sys.argv[1:])
-        try:
+        with catch_and_die([subprocess.CalledProcessError], silent=True):
             out = subprocess.check_output(['plash-build'] + args)
-        except subprocess.CalledProcessError as exc:
-            die('build failed')
         container_id = out[:-1]
         os.execlp(sys.argv[0], sys.argv[0], container_id, *cmd)
 
 
-def nodepath_or_die(container):
+def nodepath_or_die(container, allow_root_container=False):
+    container = str(container)
+
     if not container.isdigit():
-        die("container id must be an whole integer, not: {}".format(
+        die("container id must be an integer, not: {}".format(
             repr(container)))
+
+    if not allow_root_container:
+        if container == '0':
+            die('container must not be the special root container ("0")')
+
     try:
         # FIXME: security check that container does not contain bad chars
         with catch_and_die(

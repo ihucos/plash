@@ -40,7 +40,7 @@ client_log = open(join(tmpdir, 'docker.log'), 'w')
 #
 debug('ensuring docker is builded')
 buildfile = shutil.which('plash-docker-daemon')
-with catch_and_die([subprocess.CalledProcessError]):
+with catch_and_die([subprocess.CalledProcessError], silent=True):
     subprocess.check_output(['plash-build', '--include', buildfile])
 
 #
@@ -78,7 +78,7 @@ subprocess.check_call(['plash-docker', 'pull', pull], stdout=2)
 debug('pulled')
 debug('exporting image into plash')
 
-with catch_and_die([subprocess.CalledProcessError]):
+with catch_and_die([subprocess.CalledProcessError], silent=True):
     container = subprocess.check_output(['plash-docker', 'create', pull,
                                          'sh']).decode().rstrip('\n')
     docker_export = subprocess.Popen(

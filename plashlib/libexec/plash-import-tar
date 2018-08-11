@@ -57,5 +57,5 @@ with open(resolvconf, 'w') as f:
     f.seek(0)
     f.truncate()
 
-with catch_and_die([CalledProcessError]):
+with catch_and_die([CalledProcessError], silent=True):
     check_call(['plash-add-layer', '0', rootfs])

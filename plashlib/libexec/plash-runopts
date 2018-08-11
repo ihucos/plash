@@ -39,7 +39,7 @@ if args.changes:
     changesdir = args.changes
 else:
     changesdir = mkdtemp(prefix='plash-changedata-{}-'.format(os.getpid()))
-with catch_and_die([CalledProcessError]):
+with catch_and_die([CalledProcessError], silent=True):
     check_call(['plash-mount', args.container, mountpoint, changesdir])
 
 unshare_if_user(extra_setup_cmd=['fusermount', '-u', mountpoint])

@@ -101,5 +101,5 @@ except KeyError:
     die('Image not found: {}\nAvailable: {}'.format(
         repr(image_name), ' '.join(sorted(names))))
 
-with catch_and_die([CalledProcessError]):
+with catch_and_die([CalledProcessError], silent=True):
     check_call(['plash-import-url', url])

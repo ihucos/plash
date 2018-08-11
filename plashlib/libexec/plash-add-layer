@@ -20,7 +20,7 @@
 from tempfile import mkdtemp
 import os
 import sys
-from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data
+from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data, catch_and_die
 from os.path import join
 
 handle_help_flag()
@@ -44,7 +44,9 @@ with open(join(plash_data, 'id_counter'), 'a') as f:
 #
 # the location where to put the node, which will contain the layer dir
 #
-new_node_path = join(nodepath_or_die(base_container), node_id)
+new_node_path = join(
+    nodepath_or_die(base_container, allow_root_container=True),
+    node_id)
 
 #
 #  prepare the node with the dir being imported
@@ -59,7 +61,8 @@ os.mkdir(join(prepared_new_node, '_data'), 0o700)
 # the next line will actually make the import_dir "disappear" for the user.
 # the "root" folder will hold the access rights, user rights and maybe other meta
 # data for the root folder ('/' after a chroot)
-os.rename(import_dir, join(prepared_new_node, '_data', 'root'))
+with catch_and_die([FileNotFoundError], debug='rename'):
+    os.rename(import_dir, join(prepared_new_node, '_data', 'root'))
 
 #
 #  Register that we are using this new_node_path,

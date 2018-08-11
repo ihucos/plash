@@ -25,6 +25,9 @@ dots = [0]
 
 
 def reporthook(count, block_size, total_size):
+    if not count:
+        sys.stderr.write('Fetch  [0%|')
+        sys.stderr.flush()
     percent = int(count * block_size * 100 / total_size)
     #percent = min(int(count*block_size*100/total_size),100)
     if percent // 10 > dots[0] and not dots[0] >= 9:
@@ -34,9 +37,7 @@ def reporthook(count, block_size, total_size):
             sys.stderr.flush()
 
 
-sys.stderr.write('Fetch  [0%|')
-sys.stderr.flush()
-with catch_and_die([URLError], debug=url):
+with catch_and_die([URLError, ValueError], debug=url):
     try:
         urlretrieve(url, tmpfile, reporthook=reporthook)
     except:
