@@ -26,7 +26,7 @@ def catch_and_die(exceptions, debug=None, debug_class=False, ignore=None, silent
         if msg.startswith('<') and msg.endswith('>'):
             msg = msg[1:-1]
         if debug_class:
-            debug = '{}.{}'.format(exc.__class__.__module__, exc.__class__.__name__)
+            debug = exc.__class__.__name__
         if debug:
             msg = '{debug}: {message}'.format(debug=debug, message=msg)
         die(msg)
@@ -48,9 +48,9 @@ def color(stri, color, isatty_fd_check=2):
 
 
 def die(msg, exit=1):
-    # prog = os.path.basename(sys.argv[0]).split('-', 1)[1]
+    prog = os.path.basename(sys.argv[0]).split('-', 1)[1]
     print(
-        '{}: {}'.format(color('plash error', ERROR_COLOR), msg),
+        '{} {}: {}'.format(color('plash:', ERROR_COLOR), prog, msg),
         file=sys.stderr)
     sys.exit(exit)
 

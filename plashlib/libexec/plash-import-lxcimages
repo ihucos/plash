@@ -98,7 +98,7 @@ for distro, versions in distros.items():
 try:
     url = names[image_name]
 except KeyError:
-    die('Image not found: {}\nAvailable: {}'.format(
+    die('image not found: {}; Available images: {}'.format(
         repr(image_name), ' '.join(sorted(names))))
 
 with catch_and_die([CalledProcessError], silent=True):

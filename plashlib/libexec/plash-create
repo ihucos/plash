@@ -75,7 +75,7 @@ p = subprocess.Popen(
 
 exit = p.wait()
 if exit:
-    die("building returned exit status {}".format(exit), exit=4)
+    die("build failed with exit status {}".format(exit), exit=4)
 
 os.execlp('plash-add-layer', 'plash add-layer', container,
           os.path.join(changesdir, 'data'))
