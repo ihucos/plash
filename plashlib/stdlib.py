@@ -74,16 +74,15 @@ def include(file):
     with open(fname) as f:
 
         # remove only the first lines starting with comments
-        inscript = ''.join(dropwhile(lambda l: l.startswith('#'),
-                           (i for i in f.readlines())))
+        inscript = ''.join(
+            dropwhile(lambda l: l.startswith('#'), (i for i in f.readlines())))
 
     with catch_and_die([subprocess.CalledProcessError], debug='include'):
         return subprocess.run(
             ['plash-getscript'],
             input=''.join(inscript).encode(),
             check=True,
-            stdout=subprocess.PIPE
-        ).stdout.decode()
+            stdout=subprocess.PIPE).stdout.decode()
 
 
 @action(escape=False)
@@ -95,8 +94,7 @@ def include_string(stri):
             ['plash-getscript'],
             input='\n'.join(tokens).encode(),
             check=True,
-            stdout=subprocess.PIPE
-        ).stdout.decode()
+            stdout=subprocess.PIPE).stdout.decode()
 
 
 def hash_paths(paths):
@@ -233,8 +231,8 @@ for name, macro in ALIASES.items():
             args = [i for i in args]
             return eval(macro[:-1] + [macro[-1] + args])
 
-        func.__doc__ = 'macro for: {}[ARG1 [ARG2 [...]]]'.format(
-            ' '.join('--' + i[0] + ' ' + ' '.join(i[1:]) for i in macro))
+        func.__doc__ = 'macro for: {}[ARG1 [ARG2 [...]]]'.format(' '.join(
+            '--' + i[0] + ' ' + ' '.join(i[1:]) for i in macro))
         return func
 
     func = bounder()

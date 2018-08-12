@@ -45,8 +45,7 @@ with open(join(plash_data, 'id_counter'), 'a') as f:
 # the location where to put the node, which will contain the layer dir
 #
 new_node_path = join(
-    nodepath_or_die(base_container, allow_root_container=True),
-    node_id)
+    nodepath_or_die(base_container, allow_root_container=True), node_id)
 
 #
 #  prepare the node with the dir being imported

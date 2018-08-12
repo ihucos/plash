@@ -51,13 +51,12 @@ ux.assert_initialized()
 with catch_and_die([CalledProcessError], silent=True):
 
     tokens = sys.argv[1:]
-    inscript=('\n'.join(tokens) + '\n').encode()
-    script =  subprocess.run(
+    inscript = ('\n'.join(tokens) + '\n').encode()
+    script = subprocess.run(
         ['plash-getscript'],
         input=inscript,
         check=True,
-        stdout=subprocess.PIPE
-    ).stdout.decode()
+        stdout=subprocess.PIPE).stdout.decode()
 
 image_ir = re.compile(IMAGE_HINT_TEMPL.format('(.+)\n'))
 matches = image_ir.findall(script)
@@ -77,7 +76,8 @@ else:
     base_container = plash_map(image_hint.encode())
     if not base_container:
         with catch_and_die([CalledProcessError], silent=True):
-            base_container = check_output(['plash-import-lxcimages', image_hint]).decode().strip('\n')
+            base_container = check_output(
+                ['plash-import-lxcimages', image_hint]).decode().strip('\n')
         plash_map(image_hint.encode(), base_container)
 
 # split the script in its layers

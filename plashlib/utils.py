@@ -14,14 +14,18 @@ def hashstr(stri):
 
 
 @contextmanager
-def catch_and_die(exceptions, debug=None, debug_class=False, ignore=None, silent=False):
+def catch_and_die(exceptions,
+                  debug=None,
+                  debug_class=False,
+                  ignore=None,
+                  silent=False):
     try:
         yield
     except tuple(exceptions) as exc:
         if ignore and isinstance(exc, ignore):
             raise
         if silent:
-           sys.exit(1)
+            sys.exit(1)
         msg = str(exc)
         if msg.startswith('<') and msg.endswith('>'):
             msg = msg[1:-1]
@@ -127,8 +131,8 @@ def nodepath_or_die(container, allow_root_container=False):
     with catch_and_die([subprocess.CalledProcessError], silent=True):
         return subprocess.run(
             ['plash-nodepath', str(container)] + extra,
-            stdout=subprocess.PIPE, check=True).stdout.decode().strip('\n')
-
+            stdout=subprocess.PIPE,
+            check=True).stdout.decode().strip('\n')
 
 
 def get_default_shell(passwd_file):

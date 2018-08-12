@@ -66,7 +66,8 @@ def unshare_if_user(extra_setup_cmd=None):
 
     def prepare_unshared_proccess():
         for cmd in setup_cmds:
-            with catch_and_die([CalledProcessError, FileNotFoundError], debug='forked child'):
+            with catch_and_die(
+                [CalledProcessError, FileNotFoundError], debug='forked child'):
                 check_call(cmd)
 
     # we need to call prepare_unshared_proccess
@@ -80,12 +81,14 @@ def unshare_if_user(extra_setup_cmd=None):
         sys.exit(0)
     # what the unshare binary does do
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
-    libc.unshare(CLONE_NEWNS | CLONE_NEWUSER) != -1 or die_with_errno(hint='unsharing')
-    libc.mount("none", "/", None, MS_REC | MS_PRIVATE, None) != -1 or die_with_errno(hint='mounting')
+    libc.unshare(CLONE_NEWNS
+                 | CLONE_NEWUSER) != -1 or die_with_errno(hint='unsharing')
+    libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
+               None) != -1 or die_with_errno(hint='mounting')
 
     lock.release()
-    pid, raw_exit_status =  os.wait()
-    exit_status =  raw_exit_status // 255
+    pid, raw_exit_status = os.wait()
+    exit_status = raw_exit_status // 255
     if exit_status:
         raise CouldNotSetupUnshareError()
 
@@ -96,4 +99,5 @@ def unshare_if_root():
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
 
     libc.unshare(CLONE_NEWNS) != -1 or die_with_errno(hint='unsharing')
-    libc.mount("none", "/", None, MS_REC | MS_PRIVATE, None) != -1 or die_with_errno(hint='mounting')
+    libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
+               None) != -1 or die_with_errno(hint='mounting')

@@ -22,11 +22,14 @@ except IndexError:
 
 tmpfile = mkstemp()[1]
 
+
 def reporthook(count, block_size, total_size):
-    sys.stderr.write('Fetching... {}%\r'.format(round(100* count * block_size / total_size)))
+    sys.stderr.write('Fetching... {}%\r'.format(
+        round(100 * count * block_size / total_size)))
 
 
-with catch_and_die([HTTPException, ValueError, URLError],
+with catch_and_die(
+    [HTTPException, ValueError, URLError],
         debug='geturl({})'.format(repr(url))):
     urlretrieve(url, tmpfile, reporthook=reporthook)
 
