@@ -59,4 +59,4 @@ if entered_reporthook[0]:
     sys.stderr.write('100%]\n')
     sys.stderr.flush()
 
-execlp('plash-import-tar', 'plash import-tar', tmpfile)
+execlp('plash-import-tar', 'plash-import-tar', tmpfile)

@@ -121,7 +121,7 @@ def nodepath_or_die(container, allow_root_container=False):
     extra = [] if not allow_root_container else ['--allow-root-container']
     with catch_and_die([subprocess.CalledProcessError], silent=True):
         return subprocess.run(
-            ['plash', 'nodepath', str(container)] + extra,
+            ['plash-nodepath', str(container)] + extra,
             stdout=subprocess.PIPE, check=True).stdout.decode().strip('\n')
 
 

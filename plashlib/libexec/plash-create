@@ -77,5 +77,5 @@ exit = p.wait()
 if exit:
     die("build failed with exit status {}".format(exit), exit=4)
 
-os.execlp('plash-add-layer', 'plash add-layer', container,
+os.execlp('plash-add-layer', 'plash-add-layer', container,
           os.path.join(changesdir, 'data'))
