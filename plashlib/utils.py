@@ -48,7 +48,12 @@ def color(stri, color, isatty_fd_check=2):
 
 
 def die(msg, exit=1):
-    prog = os.path.basename(sys.argv[0]).split('-', 1)[1]
+    prog = os.path.basename(sys.argv[0])
+    if prog.startswith('plash-'):
+        prog = prog[6:]
+    elif prog == 'plash':
+        prog = 'main'
+
     print(
         '{} {}: {}'.format(color('plash:', ERROR_COLOR), prog, msg),
         file=sys.stderr)

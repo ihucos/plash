@@ -231,8 +231,14 @@ mountpoint=$(mktemp -d)
 : use bad container id
 (! plash with-mount xxx ls)
 
-# non zero exit status for programm
+: non zero exit status for programm
 (! plash with-mount 1 false)
 
-# non existent command
+: non existent command
 (! plash with-mount 1 does-not-exist-asdf)
+
+#
+# plash
+#
+: call plash with unknown command
+(! plash unknowncommand)
