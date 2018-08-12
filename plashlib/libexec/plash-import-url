@@ -13,7 +13,7 @@ from plashlib import ux
 from tempfile import mkstemp
 
 #
-# the progress bar is a little buggy and quite a mess
+# TODO: the progress bar is a little buggy and quite a mess
 # maybe use tqdm after all (right now we have absolutly no dependencies)
 # there is just to much complexity here that could go away!
 #
@@ -31,7 +31,6 @@ tmpfile = mkstemp()[1]
 dots = [0]
 entered_reporthook = [False]
 def reporthook(count, block_size, total_size):
-    return
     entered_reporthook[0] = True
     if not count:
         sys.stderr.write('Fetch  [0%|')
