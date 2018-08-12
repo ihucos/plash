@@ -32,6 +32,8 @@ dots = [0]
 entered_reporthook = [False]
 def reporthook(count, block_size, total_size):
     entered_reporthook[0] = True
+    if not total_size:
+        return
     if not count:
         sys.stderr.write('Fetch  [0%|')
         sys.stderr.flush()

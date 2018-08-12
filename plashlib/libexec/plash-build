@@ -73,25 +73,12 @@ else:
 if image_hint.isdigit():
     base_container = image_hint
     nodepath_or_die(base_container)
-elif image_hint.startswith('@'):
-    base_container = plash_map(image_hint[1:])
-    if not base_container:
-        die('image map could not be resolved: {}'.format(image_hint))
 else:
-    if image_hint.startswith('https://') or image_hint.startswith('http://'):
-        cmd = ['plash-import-url', image_hint]
-    elif image_hint.startswith('/') or image_hint.startswith('./'):
-        cmd = ['plash-import-tar', image_hint]
-    elif image_hint.startswith('docker://'):
-        cmd = ['plash-import-docker', image_hint[9:]]
-    else:
-        cmd = ['plash-import-lxcimages', image_hint]
-    cache_key = ':'.join(cmd)
-    base_container = plash_map(cache_key.encode())
+    base_container = plash_map(image_hint.encode())
     if not base_container:
         with catch_and_die([CalledProcessError], silent=True):
-            base_container = check_output(cmd).decode().strip('\n')
-        plash_map(cache_key.encode(), base_container)
+            base_container = check_output(['plash-import-lxcimages', image_hint]).decode().strip('\n')
+        plash_map(image_hint.encode(), base_container)
 
 # split the script in its layers
 layers = script.split(LAYER_MARKER + '\n')
