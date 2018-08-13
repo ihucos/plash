@@ -6,7 +6,7 @@ bash_syntax_no_empty_dummy
 docker
 docker-daemon
 rm
-getscript
+eval
 init
 list
 purge
@@ -18,7 +18,7 @@ SKIP_HELP_FLAG_CHECK=(
 bash_syntax_no_empty_dummy
 docker
 docker-daemon
-getscript
+eval
 )
 subcommands=$(plash list | cut -d' ' -f2)
 

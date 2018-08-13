@@ -79,7 +79,7 @@ def include(file):
 
     with catch_and_die([subprocess.CalledProcessError], debug='include'):
         return subprocess.run(
-            ['plash-getscript'],
+            ['plash-eval'],
             input=''.join(inscript).encode(),
             check=True,
             stdout=subprocess.PIPE).stdout.decode()
@@ -91,7 +91,7 @@ def include_string(stri):
     with catch_and_die(
         [subprocess.CalledProcessError], debug='include-string'):
         return subprocess.run(
-            ['plash-getscript'],
+            ['plash-eval'],
             input='\n'.join(tokens).encode(),
             check=True,
             stdout=subprocess.PIPE).stdout.decode()

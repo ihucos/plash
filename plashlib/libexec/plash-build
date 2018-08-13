@@ -53,7 +53,7 @@ with catch_and_die([CalledProcessError], silent=True):
     tokens = sys.argv[1:]
     inscript = ('\n'.join(tokens) + '\n').encode()
     script = subprocess.run(
-        ['plash-getscript'],
+        ['plash-eval'],
         input=inscript,
         check=True,
         stdout=subprocess.PIPE).stdout.decode()
