@@ -8,7 +8,7 @@ from itertools import dropwhile
 from plashlib.utils import catch_and_die
 import subprocess
 
-from .eval import ArgError, action, eval, get_actions
+from .eval import action, eval, get_actions
 from .utils import hashstr
 
 IMAGE_HINT_TEMPL = '### image hint: {}'

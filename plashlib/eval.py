@@ -1,3 +1,4 @@
+import sys
 import shlex
 from importlib import import_module
 from functools import wraps
@@ -6,13 +7,18 @@ LAYER_MARKER = '### start new layer'
 state = {'actions': {}}  # put that in state.py ?
 
 
-class ArgError(TypeError):
-    pass
-
-
 class ActionNotFoundError(Exception):
     pass
 
+class ActionTracebackError(Exception):
+    def __str__(self):
+        func, action_name, (type, value, traceback) = self.args
+        return '{action_module}: {action_name}: {value} ({type})'.format(
+            action_module=func.__module__,
+            action_name=action_name,
+            value=value,
+            type=type.__name__,
+            )
 
 class EvalError(Exception):
     pass
@@ -28,7 +34,7 @@ def action(name=None, keep_comments=False, escape=True, group=None):
         action = name or func.__name__.replace('_', '-')
 
         @wraps(func)
-        def function_wrapper(*args, **kw):
+        def function_wrapper(*args):
 
             if not keep_comments:
                 args = [i for i in args if not i.startswith('#')]
@@ -36,7 +42,7 @@ def action(name=None, keep_comments=False, escape=True, group=None):
             if escape:
                 args = [shlex.quote(i) for i in args]
 
-            res = func(*args, **kw)
+            res = func(*args)
 
             # allow actions to yield each line
             if not isinstance(res, str) and res is not None:
@@ -72,7 +78,13 @@ def eval(lisp):
             action = actions[name]
         except KeyError:
             raise ActionNotFoundError("action {} not found".format(repr(name)))
-        res = action(*args)
+        try:
+            res = action(*args)
+        except Exception as exc:
+            if isinstance(exc, ActionTracebackError):
+                # only raise that one time and don't have wrapper ActionTracebackError
+                raise
+            raise ActionTracebackError(action, name, sys.exc_info())
         if not isinstance(res, str) and res is not None:
             raise EvalError(
                 'eval action must return string or None ({} returned {})'.
