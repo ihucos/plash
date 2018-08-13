@@ -9,12 +9,16 @@ import sys
 
 from plashlib import eval, stdlib
 from plashlib.utils import catch_and_die, die, handle_help_flag
+from itertools import dropwhile
 
 handle_help_flag()
 
 tokens = sys.argv[1:]
 if not tokens:
     tokens = [line.rstrip('\n') for line in sys.stdin.readlines()]
+
+# little magic: remove the first lines starting with comments
+tokens = dropwhile(lambda l: l.startswith('#'), tokens)
 
 lsp = []
 for token in tokens:
@@ -29,7 +33,7 @@ for token in tokens:
         try:
             lsp[-1].append(token)
         except IndexError:
-            die('parse: first token must be an action prefixed by two dashes'.format(repr(token)))
+            die('parse: first token must be an action prefixed by two dashes (got {})'.format(repr(token)))
 
 with catch_and_die([eval.ActionNotFoundError, eval.ActionTracebackError]):
     script = eval.eval(lsp)

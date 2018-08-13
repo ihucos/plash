@@ -3,9 +3,10 @@
 # usage: plash-exec file [arg1 [arg2 [arg3 ...]]]
 # Used as shebang. It runs a plash buildfile.
 
-import os, sys
+import os, sys, subprocess
 from plashlib.utils import handle_help_flag, die_with_usage, die
 from plashlib import ux
+import plashlib
 
 handle_help_flag()
 ux.assert_initialized()
@@ -15,6 +16,11 @@ try:
 except ValueError:
     die_with_usage()
 
+
+libdir = os.path.dirname(plashlib.__file__)
+libexec = os.path.join(libdir, 'libexec')
+os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
+
 file_args = None
 with open(file) as f:
     f.readline()
@@ -22,10 +28,16 @@ with open(file) as f:
         line = f.readline()
         if line.startswith('# plash-exec: '):
             file_args = dict(i.split('=', 1) for i in line[14:-1].split())
-if not file_args:
-    die("file must have a comment on the top: '# plash-exec: exec=<exec>'")
+            break
+        elif not line.startswith('#'):
+            die("file must have a comment on the top: '# plash-exec: exec=<exec>'")
+    script = f.read()
 
-build_args = ['--include', file]
+run_container = subprocess.run(['plash-build'],
+    input=script.encode(), stdout=subprocess.PIPE, check=True
+    ).stdout.decode().strip('\n')
+
+
 run_args = [file_args['exec']] + args
 
 mount = file_args.get('mount')
@@ -35,9 +47,8 @@ else:
     plash_run_extra_args = []
 
 cmd = [
-    'plash',
-    'plash',
-    'run',
-] + build_args + ['--'] + plash_run_extra_args + ['--'] + run_args
+    'plash-run',
+    'plash-run',
+    run_container] + plash_run_extra_args + ['--'] + run_args
 
 os.execlp(*cmd)

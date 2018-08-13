@@ -4,7 +4,6 @@ import shlex
 import stat
 import sys
 import uuid
-from itertools import dropwhile
 import subprocess
 
 from .eval import action, eval, get_actions
@@ -71,14 +70,11 @@ def include(file):
 
     fname = os.path.realpath(os.path.expanduser(file))
     with open(fname) as f:
-
-        # little magic: remove the first lines starting with comments
-        inscript = ''.join(
-            dropwhile(lambda l: l.startswith('#'), (i for i in f.readlines())))
+        inscript = f.read()
 
     return subprocess.run(
         ['plash-eval'],
-        input=''.join(inscript).encode(),
+        input=inscript.encode(),
         check=True,
         stdout=subprocess.PIPE).stdout.decode()
 

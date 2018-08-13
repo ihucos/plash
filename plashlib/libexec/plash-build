@@ -52,7 +52,7 @@ ux.assert_initialized()
 with catch_and_die([CalledProcessError], silent=True):
     script = subprocess.run(
         ['plash-eval'] + sys.argv[1:],
-        stdin=1, # 1 is the fd for stdin
+        stdin=sys.stdin,
         check=True,
         stdout=subprocess.PIPE).stdout.decode()
 
