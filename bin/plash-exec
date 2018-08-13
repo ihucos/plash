@@ -25,7 +25,7 @@ os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
 with open(file) as f:
     script = f.read()
 
-with catch_and_die([subprocess.CalledProcessError]):
+with catch_and_die([subprocess.CalledProcessError], silent=True):
     build_shell_script = subprocess.run(['plash-eval'],
         input=script.encode(), stdout=subprocess.PIPE, check=True
         ).stdout.decode()
@@ -39,8 +39,8 @@ if exec is None:
 run_args = [exec] + args
 
 
-with catch_and_die([subprocess.CalledProcessError]):
-    run_container = subprocess.run(['plash-create-layered'],
+with catch_and_die([subprocess.CalledProcessError], silent=True):
+    run_container = subprocess.run(['plash-build-sh'],
         input=build_shell_script.encode(), stdout=subprocess.PIPE, check=True
         ).stdout.decode().strip('\n')
 

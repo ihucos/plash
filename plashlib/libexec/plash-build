@@ -57,6 +57,6 @@ with catch_and_die([CalledProcessError], silent=True):
 
 with catch_and_die([CalledProcessError], silent=True):
     script = subprocess.run(
-        ['plash-create-layered'],
+        ['plash-build-sh'],
         input=script,
         check=True)
