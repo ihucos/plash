@@ -5,7 +5,6 @@ import stat
 import sys
 import uuid
 from itertools import dropwhile
-from plashlib.utils import catch_and_die
 import subprocess
 
 from .eval import action, eval, get_actions
@@ -73,28 +72,25 @@ def include(file):
     fname = os.path.realpath(os.path.expanduser(file))
     with open(fname) as f:
 
-        # remove only the first lines starting with comments
+        # little magic: remove the first lines starting with comments
         inscript = ''.join(
             dropwhile(lambda l: l.startswith('#'), (i for i in f.readlines())))
 
-    with catch_and_die([subprocess.CalledProcessError], debug='include'):
-        return subprocess.run(
-            ['plash-eval'],
-            input=''.join(inscript).encode(),
-            check=True,
-            stdout=subprocess.PIPE).stdout.decode()
+    return subprocess.run(
+        ['plash-eval'],
+        input=''.join(inscript).encode(),
+        check=True,
+        stdout=subprocess.PIPE).stdout.decode()
 
 
 @action(escape=False)
 def include_string(stri):
     tokens = shlex.split(stri)
-    with catch_and_die(
-        [subprocess.CalledProcessError], debug='include-string'):
-        return subprocess.run(
-            ['plash-eval'],
-            input='\n'.join(tokens).encode(),
-            check=True,
-            stdout=subprocess.PIPE).stdout.decode()
+    return subprocess.run(
+        ['plash-eval'],
+        input='\n'.join(tokens).encode(),
+        check=True,
+        stdout=subprocess.PIPE).stdout.decode()
 
 
 def hash_paths(paths):
