@@ -41,8 +41,7 @@ from plashlib.utils import hashstr, nodepath_or_die
 from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_output, PIPE)
 
-from plashlib.eval import LAYER_MARKER
-from plashlib.stdlib import IMAGE_HINT_TEMPL
+from plashlib.eval import hint, get_hint_values
 from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, plash_map
 
 handle_help_flag()
@@ -54,64 +53,10 @@ with catch_and_die([CalledProcessError], silent=True):
         ['plash-eval'] + sys.argv[1:],
         stdin=sys.stdin,
         check=True,
-        stdout=subprocess.PIPE).stdout.decode()
+        stdout=subprocess.PIPE).stdout
 
-image_ir = re.compile(IMAGE_HINT_TEMPL.format('(.+)\n'))
-matches = image_ir.findall(script)
-script = image_ir.sub('', script)
-if matches:
-    image_hint = matches[-1]
-else:
-    die('no image specified', exit=2)
-
-#
-#  convert the image_hint into an container id, also use caching
-#
-if image_hint.isdigit():
-    base_container = image_hint
-    nodepath_or_die(base_container)
-else:
-    base_container = plash_map(image_hint.encode())
-    if not base_container:
-        with catch_and_die([CalledProcessError], silent=True):
-            base_container = check_output(
-                ['plash-import-lxcimages', image_hint]).decode().strip('\n')
-        plash_map(image_hint.encode(), base_container)
-
-# split the script in its layers
-layers = script.split(LAYER_MARKER + '\n')
-layers = [l for l in layers if l]
-
-current_container = base_container
-os.environ['PS4'] = color('--> ', 4)
-for layer in layers:
-    cache_key = hashstr(b':'.join([current_container.encode(),
-                                   layer.encode()]))
-    next_container = plash_map(cache_key.encode())
-    if not next_container:
-
-        # build and cache it
-        p = Popen(
-            ['plash-create', current_container, 'env', '-i', 'sh', '-l'],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            cwd='/')
-
-        # for some reason in ubuntu the path is not exported
-        # in a way this is a hack and should be fixed in ubuntu
-        p.stdin.write(b'export PATH\n')
-
-        p.stdin.write(b'set -ex\n')
-        p.stdin.write(layer.encode())
-        p.stdin.close()
-        next_container = p.stdout.read().decode().strip('\n')
-        exit = p.wait()
-        if exit:
-            # plash-create already prints a nice error message
-            sys.exit(1)
-        plash_map(cache_key.encode(), next_container)
-        info('--:')
-    current_container = next_container
-build_container = current_container
-
-print(current_container)
+with catch_and_die([CalledProcessError], silent=True):
+    script = subprocess.run(
+        ['plash-create-layered'],
+        input=script,
+        check=True)

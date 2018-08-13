@@ -4,7 +4,8 @@
 # Used as shebang. It runs a plash buildfile.
 
 import os, sys, subprocess
-from plashlib.utils import handle_help_flag, die_with_usage, die
+from plashlib.utils import handle_help_flag, die_with_usage, die, catch_and_die
+from plashlib.eval import get_hint_values
 from plashlib import ux
 import plashlib
 
@@ -21,34 +22,32 @@ libdir = os.path.dirname(plashlib.__file__)
 libexec = os.path.join(libdir, 'libexec')
 os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
 
-file_args = None
 with open(file) as f:
-    f.readline()
-    for i in range(5):
-        line = f.readline()
-        if line.startswith('# plash-exec: '):
-            file_args = dict(i.split('=', 1) for i in line[14:-1].split())
-            break
-        elif not line.startswith('#'):
-            die("file must have a comment on the top: '# plash-exec: exec=<exec>'")
     script = f.read()
 
-run_container = subprocess.run(['plash-build'],
-    input=script.encode(), stdout=subprocess.PIPE, check=True
-    ).stdout.decode().strip('\n')
+with catch_and_die([subprocess.CalledProcessError]):
+    build_shell_script = subprocess.run(['plash-eval'],
+        input=script.encode(), stdout=subprocess.PIPE, check=True
+        ).stdout.decode()
+
+hint_values = get_hint_values(build_shell_script)
+
+exec = hint_values.get('exec')
+if exec is None:
+    die("no hint named 'exec' found (maybe try adding `--hint exec /bin/sh`)")
+
+run_args = [exec] + args
 
 
-run_args = [file_args['exec']] + args
+with catch_and_die([subprocess.CalledProcessError]):
+    run_container = subprocess.run(['plash-create-layered'],
+        input=build_shell_script.encode(), stdout=subprocess.PIPE, check=True
+        ).stdout.decode().strip('\n')
 
-mount = file_args.get('mount')
-if mount:
-    plash_run_extra_args = ['--mount', mount]
-else:
-    plash_run_extra_args = []
 
 cmd = [
     'plash-run',
     'plash-run',
-    run_container] + plash_run_extra_args + ['--'] + run_args
+    run_container, '--'] + run_args
 
 os.execlp(*cmd)

@@ -1,9 +1,12 @@
 import sys
+import re
 import shlex
 from importlib import import_module
 from functools import wraps
 
-LAYER_MARKER = '### start new layer'
+FIND_HIND_HINT_VALUES_RE = re.compile(
+        '### plash hint: ([^=]+)=(.+)\n')
+
 state = {'actions': {}}  # put that in state.py ?
 
 
@@ -106,4 +109,16 @@ def import_plash_actions(*modules):
 @action('layer')
 def layer():
     'start a new layer'
-    return LAYER_MARKER
+    return hint('layer')
+
+@action('original-hint')
+@action('hint')
+def hint(name, value=None):
+    'hint something'
+    if value is None:
+        return '### plash hint: {}'.format(name)
+    else:
+        return '### plash hint: {}={}'.format(name, value)
+
+def get_hint_values(script):
+    return dict(FIND_HIND_HINT_VALUES_RE.findall(script))

@@ -6,10 +6,8 @@ import sys
 import uuid
 import subprocess
 
-from .eval import action, eval, get_actions
+from .eval import action, eval, get_actions, hint
 from .utils import hashstr
-
-IMAGE_HINT_TEMPL = '### image hint: {}'
 
 
 @action(escape=False)
@@ -154,7 +152,7 @@ def comment(*args):
 @action('image', escape=False)
 def image(os):
     'set the base image'
-    return IMAGE_HINT_TEMPL.format(os)
+    return hint('image', os)
 
 
 @action()
