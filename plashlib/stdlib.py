@@ -154,6 +154,11 @@ def image(os):
     'set the base image'
     return hint('image', os)
 
+@action('exec', escape=False)
+def exec(exec_path):
+    'hint what to run in this container'
+    return hint('exec', exec_path)
+
 
 @action()
 def namespace(ns):
