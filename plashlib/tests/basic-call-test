@@ -12,6 +12,7 @@ list
 purge
 sudo
 test
+build
 )
 
 SKIP_HELP_FLAG_CHECK=(

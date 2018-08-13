@@ -48,13 +48,11 @@ from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, pl
 handle_help_flag()
 ux.assert_initialized()
 
+# proxy stdin and argv to plash-eval to generate the build script 
 with catch_and_die([CalledProcessError], silent=True):
-
-    tokens = sys.argv[1:]
-    inscript = ('\n'.join(tokens) + '\n').encode()
     script = subprocess.run(
-        ['plash-eval'],
-        input=inscript,
+        ['plash-eval'] + sys.argv[1:],
+        stdin=1, # 1 is the fd for stdin
         check=True,
         stdout=subprocess.PIPE).stdout.decode()
 

@@ -12,7 +12,9 @@ from plashlib.utils import catch_and_die, die, handle_help_flag
 
 handle_help_flag()
 
-tokens = [line.rstrip('\n') for line in sys.stdin.readlines()]
+tokens = sys.argv[1:]
+if not tokens:
+    tokens = [line.rstrip('\n') for line in sys.stdin.readlines()]
 
 lsp = []
 for token in tokens:
