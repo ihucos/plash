@@ -70,8 +70,10 @@ if not args.cmd:
     cmd = [default_root_shell]
 else:
     cmd = args.cmd
-try:
-    os.execlp(cmd[0], *cmd)
-except FileNotFoundError:
-    sys.stderr.write('{}: command not found\n'.format(cmd[0]))
-    sys.exit(127)
+
+with catch_and_die([OSError]):
+    try:
+        os.execlp(cmd[0], *cmd)
+    except FileNotFoundError:
+        sys.stderr.write('{}: command not found\n'.format(cmd[0]))
+        sys.exit(127)
