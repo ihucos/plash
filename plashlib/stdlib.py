@@ -43,7 +43,7 @@ def import_envs(*envs):
 
 
 @register_macro()
-def bust_cache():
+def invalidate_cache():
     'Invalidate cache'
     return ': bust cache with {}'.format(uuid.uuid4())
 
@@ -66,7 +66,7 @@ def write_script(fname, *lines):
 
 
 @register_macro()
-def include(file):
+def eval_file(file):
     'include parameters from file'
 
     fname = os.path.realpath(os.path.expanduser(file))
@@ -80,8 +80,8 @@ def include(file):
         stdout=subprocess.PIPE).stdout.decode()
 
 
-@register_macro()
-def include_string(stri):
+@register_macro('eval')
+def eval_macro(stri):
     tokens = shlex.split(stri)
     return subprocess.run(
         ['plash-eval'],
@@ -185,7 +185,7 @@ fi'''
 
 
 @register_macro()
-def list():
+def list_macros():
     'list all macros'
     macros = get_macros()
     prev_group = None
@@ -205,20 +205,13 @@ ALIASES = dict(
     l=[['layer']],
     I=[['include']],
     i=[['image']],
-    alpine=[['image', 'alpine'], ['apk']],
-    A=[['alpine']],
-    ubuntu=[['image', 'ubuntu'], ['apt']],
-    U=[['ubuntu']],
-    fedora=[['image', 'fedora'], ['dnf']],
-    F=[['fedora']],
-    debian=[['image', 'debian'], ['apt']],
-    D=[['debian']],
-    centos=[['image', 'centos'], ['yum']],
-    C=[['centos']],
-    arch=[['image', 'arch'], ['pacman']],
-    R=[['arch']],
-    gentoo=[['image', 'gentoo'], ['emerge']],
-    G=[['gentoo']],
+    A=[['image', 'alpine'], ['apk']],
+    U=[['image', 'ubuntu'], ['apt']],
+    F=[['image', 'fedora'], ['dnf']],
+    D=[['image', 'debian'], ['apt']],
+    C=[['image', 'centos'], ['yum']],
+    R=[['image', 'arch'], ['pacman']],
+    G=[['image', 'gentoo'], ['emerge']],
 )
 
 for name, macro in ALIASES.items():
@@ -230,7 +223,7 @@ for name, macro in ALIASES.items():
             args = [i for i in args]
             return eval(macro[:-1] + [macro[-1] + args])
 
-        func.__doc__ = 'macro for: {}[ARG1 [ARG2 [...]]]'.format(' '.join(
+        func.__doc__ = 'alias for: {}[ARG1 [ARG2 [...]]]'.format(' '.join(
             '--' + i[0] + ' ' + ' '.join(i[1:]) for i in macro))
         return func
 

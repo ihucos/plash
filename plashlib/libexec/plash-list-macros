@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+
+from plashlib.eval import get_macros, eval
+
+
+eval([['import', 'plashlib.stdlib']])
+
+
+'list all macros'
+macros = get_macros()
+prev_group = None
+for name, func in sorted(
+        macros.items(), key=lambda i: (i[1].__module__, i[0])):
+    group = func.__module__
+    if group != prev_group:
+        prev_group is None or print()
+        print('[{}]'.format(group))
+    print('{: <16} = {}'.format(name, func.__doc__))
+    prev_group = group
