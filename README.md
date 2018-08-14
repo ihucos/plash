@@ -88,6 +88,21 @@ Plash thrives to not be more than a useful tool. There is no monetization strate
 Plash tries to be very maintainable and is designed to still securely run without any changes in 5 or 10 years. This software tries to be in every aspect of the word lightweight. For example by covering less complicated use cases for
 containers, like letting a user quickly use a newer software package from another distribution in a sane way. Or being easy to install. Last but not least in a new and fast-moving container world the focus is on boring long term stability and backwards compatibility, starting from version 1.0.
 
+### Development Guidelines
+- Keep the script character.
+- Don't fall in love with the code, embrace its absence.
+- All dependencies will get unmaintained at some point
+- Use honest thin wrappers, documented leaky abstractions are better then difficult promises
+- Don't be a monolith but don't try too hard not to be one.
+- Only be as smart as necessary and keep it simple and stupid (KISS)
+- Still be able to run this in five years without any maintenance work.
+- Find out what this program is and especially what it not is.
+- Say no to features, say yes to solved used cases.
+- Delay compromises.
+- Be as vanilla as you can be.
+- Be humble, don't oversell your abstraction layer.
+- The right guidelines for the right situation.
+
 ### Examples
 * https://github.com/ihucos/noapt
 * https://github.com/ihucos/plash-travis-example
