@@ -6,8 +6,7 @@
 import argparse
 import os
 import sys
-from plashlib.utils import catch_and_die, get_default_shell, handle_help_flag, die
-from plashlib import ux
+from plashlib.utils import catch_and_die, get_default_shell, handle_help_flag, die, assert_initialized
 from plashlib.unshare import unshare_if_user, unshare_if_root
 from subprocess import check_call, CalledProcessError
 from tempfile import mkdtemp
@@ -17,7 +16,7 @@ DEFAULT_BIND = [
 ]
 
 handle_help_flag()
-ux.assert_initialized()
+assert_initialized()
 
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('container')

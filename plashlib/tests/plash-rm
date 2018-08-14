@@ -4,7 +4,7 @@ set -xeu
 export PLASH_KILL_PARENT_ON_EXCEPTION=1
 
 : delete one container
-newcont=$(plash build -i 1 --bust-cache)
+newcont=$(plash build -i 1 --invalidate-cache)
 plash nodepath $newcont
 plash rm $newcont
 (! plash nodepath $newcont)
@@ -17,8 +17,8 @@ plash build -i 1 --run 'touch /plash-rm-test-file'
 plash rm  -i 1 --run 'touch /plash-rm-test-file'
 
 : delete two containers
-newcont1=$(plash build -i 1 --bust-cache)
-newcont2=$(plash build -i 1 --bust-cache)
+newcont1=$(plash build -i 1 --invalidate-cache)
+newcont2=$(plash build -i 1 --invalidate-cache)
 plash rm "$newcont1" "$newcont2"
 (! plash nodepath $newcont1)
 (! plash nodepath $newcont2)

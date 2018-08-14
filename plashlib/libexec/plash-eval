@@ -64,7 +64,7 @@ for token, token_is_escaped in zip(tokens, tokens_escape_status):
         except IndexError:
             die('parse: first token must be an action prefixed by two dashes (got {})'.format(repr(token)))
 
-with catch_and_die([eval.ActionNotFoundError, eval.ActionTracebackError]):
+with catch_and_die([eval.MacroNotFoundError, eval.MacroError]):
     script = eval.eval(lsp)
 if script and not script.endswith('\n'):
     script += '\n'  # that '\n' is right

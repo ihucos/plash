@@ -151,3 +151,9 @@ def plash_map(*args):
     if out == '':
         return None
     return out.decode().strip('\n')
+
+
+def assert_initialized():
+    last_inited = join(get_plash_data(), 'index', '0')
+    if not os.path.exists(last_inited):
+        die('run plash init first')

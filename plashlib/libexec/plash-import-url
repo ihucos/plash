@@ -8,12 +8,11 @@ from os import execlp
 from urllib.request import urlretrieve
 from urllib.error import URLError
 from http.client import HTTPException
-from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die
-from plashlib import ux
+from plashlib.utils import handle_help_flag, die_with_usage, catch_and_die, assert_initialized
 from tempfile import mkstemp
 
 handle_help_flag()
-ux.assert_initialized()
+assert_initialized()
 
 try:
     url = sys.argv[1]

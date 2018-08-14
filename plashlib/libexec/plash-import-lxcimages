@@ -8,8 +8,7 @@ import sys
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from plashlib.utils import die, catch_and_die, die_with_usage, handle_help_flag
-from plashlib import ux
+from plashlib.utils import die, catch_and_die, die_with_usage, handle_help_flag, assert_initialized
 from subprocess import CalledProcessError, check_call
 
 LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'
@@ -25,7 +24,7 @@ DEBIAN_RELESES = [
 ]
 
 handle_help_flag()
-ux.assert_initialized()
+assert_initialized()
 
 try:
     image_name = sys.argv[1]

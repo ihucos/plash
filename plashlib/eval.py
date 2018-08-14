@@ -10,10 +10,10 @@ FIND_HIND_HINT_VALUES_RE = re.compile(
 
 state = {'macros': {}}
 
-class ActionNotFoundError(Exception):
+class MacroNotFoundError(Exception):
     pass
 
-class ActionTracebackError(Exception):
+class MacroError(Exception):
     def __str__(self):
         func, macro_name, (type, value, traceback) = self.args
         return '{macro_module}: {macro_name}: {value} ({type})'.format(
@@ -69,16 +69,16 @@ def eval(lisp):
         try:
             macro = state['macros'][name]
         except KeyError:
-            raise ActionNotFoundError("macro {} not found".format(repr(name)))
+            raise MacroNotFoundError("macro {} not found".format(repr(name)))
         try:
             res = macro(*args)
         except Exception as exc:
             if os.getenv('PLASH_DEBUG_MACROS', '').lower() in ('1', 'yes', 'true'):
                 raise
-            if isinstance(exc, ActionTracebackError):
-                # only raise that one time and don't have multiple wrapped ActionTracebackError
+            if isinstance(exc, MacroError):
+                # only raise that one time and don't have multiple wrapped MacroError
                 raise
-            raise ActionTracebackError(macro, name, sys.exc_info())
+            raise MacroError(macro, name, sys.exc_info())
         if not isinstance(res, str) and res is not None:
             raise EvalError(
                 'eval macro must return string or None ({} returned {})'.

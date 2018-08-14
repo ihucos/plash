@@ -37,7 +37,7 @@ cat $tmp
 cmp /etc/passwd $tmp
 
 : test auto build
-plash run -i 1 --bust-cache -- ls
+plash run -i 1 --invalidate-cache -- ls
 
 : mounts get cleanuped
 new=$(plash create 1 ls)

@@ -5,14 +5,13 @@ import subprocess
 import os
 import sys
 from plashlib.utils import hashstr, nodepath_or_die
-from plashlib import ux
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_output, PIPE)
 
 from plashlib.eval import hint, get_hint_values
-from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, plash_map
+from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, plash_map, assert_initialized
 
 handle_help_flag()
-ux.assert_initialized()
+assert_initialized()
 
 script = sys.stdin.read()
 

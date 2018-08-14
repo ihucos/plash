@@ -6,13 +6,11 @@
 # If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
 
 from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag
-from plashlib import ux
 from os import execlp
 import sys
 
 handle_help_flag()
 handle_build_args()
-ux.assert_initialized()
 
 try:
     container = sys.argv[1]

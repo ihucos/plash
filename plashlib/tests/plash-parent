@@ -4,7 +4,7 @@ set -eux
 export PLASH_KILL_PARENT_ON_EXCEPTION=1
 
 : basic tests
-plash build -i 1 --bust-cache
+plash build -i 1 --invalidate-cache
 test $(plash parent 2) = 1
 test $(plash parent 1) = 0
 (! $(plash parent 0))

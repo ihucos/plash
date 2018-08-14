@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
 import sys
-from plashlib.eval import get_macros, eval
-
+from plashlib.eval import get_macros, eval, MacroError
+from plashlib.utils import catch_and_die
 
 try:
     import_macros = sys.argv[1]
 except IndexError:
     import_macros = 'plashlib.macros.all'
 
-eval([['import', import_macros]])
+with catch_and_die([MacroError]):
+    eval([['import', import_macros]])
 
 macros = get_macros()
 prev_group = None
