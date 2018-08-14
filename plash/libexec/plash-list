@@ -6,7 +6,7 @@
 from os.path import dirname, join
 from os import listdir
 import sys
-from plashlib.utils import handle_help_flag
+from plash.utils import handle_help_flag
 
 handle_help_flag()
 

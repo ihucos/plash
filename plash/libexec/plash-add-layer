@@ -20,7 +20,7 @@
 from tempfile import mkdtemp
 import os
 import sys
-from plashlib.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data, catch_and_die
+from plash.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data, catch_and_die
 from os.path import join
 
 handle_help_flag()

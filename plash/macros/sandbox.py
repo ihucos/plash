@@ -1,4 +1,4 @@
-from plashlib.eval import register_macro
+from plash.eval import register_macro
 
 
 @register_macro()

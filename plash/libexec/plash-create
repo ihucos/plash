@@ -26,12 +26,12 @@ import os
 import subprocess
 import sys
 from os.path import join
-from plashlib.utils import get_plash_data, assert_initialized
+from plash.utils import get_plash_data, assert_initialized
 from subprocess import (DEVNULL, CalledProcessError, Popen)
 from sys import exit
 from tempfile import mkdtemp
 
-from plashlib.utils import die, die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
+from plash.utils import die, die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die
 
 assert_initialized()
 handle_help_flag()

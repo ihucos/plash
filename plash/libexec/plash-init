@@ -3,7 +3,7 @@
 # usage: plash init
 # Initialize build data. Run this on a new system before anything else.
 
-from plashlib.utils import handle_help_flag, hashstr, get_plash_data
+from plash.utils import handle_help_flag, hashstr, get_plash_data
 import platform
 import os
 from os.path import join

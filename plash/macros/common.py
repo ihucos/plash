@@ -6,8 +6,8 @@ import sys
 import uuid
 import subprocess
 
-from plashlib.eval import register_macro, eval, get_macros, hint, shell_escape_args, join_result
-from plashlib.utils import hashstr
+from plash.eval import register_macro, eval, get_macros, hint, shell_escape_args, join_result
+from plash.utils import hashstr
 
 @register_macro()
 def layer(command=None, *args):

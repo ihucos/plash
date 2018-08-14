@@ -11,8 +11,8 @@ from os.path import join
 from tempfile import mkdtemp
 from subprocess import check_call, CalledProcessError
 
-from plashlib.utils import catch_and_die, die_with_usage, handle_help_flag, get_plash_data, die, assert_initialized
-from plashlib.unshare import unshare_if_user
+from plash.utils import catch_and_die, die_with_usage, handle_help_flag, get_plash_data, die, assert_initialized
+from plash.unshare import unshare_if_user
 
 handle_help_flag()
 assert_initialized()

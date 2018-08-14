@@ -6,8 +6,8 @@
 import argparse
 import os
 import sys
-from plashlib.utils import catch_and_die, get_default_shell, handle_help_flag, die, assert_initialized
-from plashlib.unshare import unshare_if_user, unshare_if_root
+from plash.utils import catch_and_die, get_default_shell, handle_help_flag, die, assert_initialized
+from plash.unshare import unshare_if_user, unshare_if_root
 from subprocess import check_call, CalledProcessError
 from tempfile import mkdtemp
 

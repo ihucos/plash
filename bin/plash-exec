@@ -4,9 +4,9 @@
 # Used as shebang. It runs a plash buildfile.
 
 import os, sys, subprocess
-from plashlib.utils import handle_help_flag, die_with_usage, die, catch_and_die, assert_initialized
-from plashlib.eval import get_hint_values
-import plashlib
+from plash.utils import handle_help_flag, die_with_usage, die, catch_and_die, assert_initialized
+from plash.eval import get_hint_values
+import plash
 
 handle_help_flag()
 assert_initialized()
@@ -17,7 +17,7 @@ except ValueError:
     die_with_usage()
 
 
-libdir = os.path.dirname(plashlib.__file__)
+libdir = os.path.dirname(plash.__file__)
 libexec = os.path.join(libdir, 'libexec')
 os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
 

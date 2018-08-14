@@ -11,7 +11,7 @@ setup(
     version=VERSION,
     description='Container build and run tool',
     url='https://github.com/ihucos/plash',
-    packages=['plashlib'],
+    packages=['plash'],
     scripts=['bin/plash', 'bin/plash-exec'],
     zip_safe=False,
     include_package_data=True,

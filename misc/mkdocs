@@ -14,8 +14,8 @@ except IndexError:
 
 PROJECT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 TEMPL_DIR = path.join(PROJECT_DIR, 'docs_templates')
-BIN_DIR = path.join(PROJECT_DIR, 'plashlib/libexec')
-TESTS_DIR = path.join(PROJECT_DIR, 'plashlib/tests')
+BIN_DIR = path.join(PROJECT_DIR, 'plash/libexec')
+TESTS_DIR = path.join(PROJECT_DIR, 'plash/tests')
 
 
 def render(tpl_path, **context):

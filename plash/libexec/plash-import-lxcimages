@@ -8,7 +8,7 @@ import sys
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from plashlib.utils import die, catch_and_die, die_with_usage, handle_help_flag, assert_initialized
+from plash.utils import die, catch_and_die, die_with_usage, handle_help_flag, assert_initialized
 from subprocess import CalledProcessError, check_call
 
 LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'

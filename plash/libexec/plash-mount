@@ -11,7 +11,7 @@ from os.path import join
 import shutil
 from subprocess import CalledProcessError, check_call
 
-from plashlib.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die, get_plash_data, die_with_usage, assert_initialized
+from plash.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die, get_plash_data, die_with_usage, assert_initialized
 
 handle_help_flag()
 handle_build_args()

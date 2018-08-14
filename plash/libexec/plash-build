@@ -37,11 +37,11 @@ import re
 import subprocess
 import os
 import sys
-from plashlib.utils import hashstr, nodepath_or_die, assert_initialized
+from plash.utils import hashstr, nodepath_or_die, assert_initialized
 from subprocess import (DEVNULL, CalledProcessError, Popen, check_output, PIPE)
 
-from plashlib.eval import hint, get_hint_values
-from plashlib.utils import catch_and_die, die, info, color, handle_help_flag, plash_map
+from plash.eval import hint, get_hint_values
+from plash.utils import catch_and_die, die, info, color, handle_help_flag, plash_map
 
 handle_help_flag()
 assert_initialized()

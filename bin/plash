@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys, os
-import plashlib
-from plashlib.utils import die
+import plash
+from plash.utils import die
 
 
 def die_helping():
@@ -18,7 +18,7 @@ except IndexError:
 if subcommand in ('-h', '--help'):
     die_helping()
 
-libdir = os.path.dirname(plashlib.__file__)
+libdir = os.path.dirname(plash.__file__)
 libexec = os.path.join(libdir, 'libexec')
 os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
 
