@@ -1,4 +1,1 @@
-from . import packagemanagers
-from . import shortcuts
-from . import common
-from . import sandbox
+from . import common, packagemanagers, sandbox, shortcuts

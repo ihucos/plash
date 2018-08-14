@@ -6,12 +6,14 @@
 # `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
 
 import os
+import shutil
 import sys
 from os.path import join
-import shutil
 from subprocess import CalledProcessError, check_call
 
-from plash.utils import catch_and_die, nodepath_or_die, handle_build_args, handle_help_flag, die, get_plash_data, die_with_usage, assert_initialized
+from plash.utils import (assert_initialized, catch_and_die, die,
+                         die_with_usage, get_plash_data, handle_build_args,
+                         handle_help_flag, nodepath_or_die)
 
 handle_help_flag()
 handle_build_args()

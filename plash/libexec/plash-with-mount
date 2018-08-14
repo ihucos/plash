@@ -4,13 +4,15 @@
 # Execute a command inside the container filesystem
 # Example: plash with-mount alpine mv . /tmp/rootfs
 
-import shlex
-import sys
 import os
+import shlex
 import subprocess
+import sys
+from subprocess import CalledProcessError, check_call
 from tempfile import mkdtemp
-from plash.utils import handle_help_flag, catch_and_die, die_with_usage, die, handle_build_args, assert_initialized
-from subprocess import check_call, CalledProcessError
+
+from plash.utils import (assert_initialized, catch_and_die, die,
+                         die_with_usage, handle_build_args, handle_help_flag)
 
 handle_help_flag()
 handle_build_args()

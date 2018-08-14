@@ -5,9 +5,10 @@
 # It exports the file system of a container to the given file as a compressed tar archive.
 # If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
 
-from plash.utils import die_with_usage, handle_build_args, handle_help_flag
-from os import execlp
 import sys
+from os import execlp
+
+from plash.utils import die_with_usage, handle_build_args, handle_help_flag
 
 handle_help_flag()
 handle_build_args()

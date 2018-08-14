@@ -2,11 +2,12 @@ import hashlib
 import os
 import shlex
 import stat
+import subprocess
 import sys
 import uuid
-import subprocess
 
-from plash.eval import register_macro, eval, get_macros, hint, shell_escape_args, join_result
+from plash.eval import (eval, get_macros, hint, join_result, register_macro,
+                        shell_escape_args)
 from plash.utils import hashstr
 
 

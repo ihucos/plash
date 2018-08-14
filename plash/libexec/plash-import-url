@@ -4,12 +4,14 @@
 # Import a url as a container
 
 import sys
-from os import execlp
-from urllib.request import urlretrieve
-from urllib.error import URLError
 from http.client import HTTPException
-from plash.utils import handle_help_flag, die_with_usage, catch_and_die, assert_initialized
+from os import execlp
 from tempfile import mkstemp
+from urllib.error import URLError
+from urllib.request import urlretrieve
+
+from plash.utils import (assert_initialized, catch_and_die, die_with_usage,
+                         handle_help_flag)
 
 handle_help_flag()
 assert_initialized()

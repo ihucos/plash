@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
-from plash.eval import get_macros, eval, MacroError
+
+from plash.eval import MacroError, eval, get_macros
 from plash.utils import catch_and_die
 
 try:

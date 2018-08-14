@@ -17,11 +17,13 @@
 # $ plash add-layer 33 /tmp/mylayer
 # 67
 
-from tempfile import mkdtemp
 import os
 import sys
-from plash.utils import die_with_usage, handle_build_args, handle_help_flag, nodepath_or_die, get_plash_data, catch_and_die
 from os.path import join
+from tempfile import mkdtemp
+
+from plash.utils import (catch_and_die, die_with_usage, get_plash_data,
+                         handle_build_args, handle_help_flag, nodepath_or_die)
 
 handle_help_flag()
 handle_build_args()

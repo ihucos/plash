@@ -2,14 +2,15 @@
 #
 # usage: plash noroot CMD
 
+import ctypes
+import errno
 import os
 import sys
-import errno
-from subprocess import check_call, CalledProcessError
-from plash.utils import catch_and_die, get_plash_data, die
 from getpass import getuser
 from multiprocessing import Lock  # that takes way too long to load
-import ctypes
+from subprocess import CalledProcessError, check_call
+
+from plash.utils import catch_and_die, die, get_plash_data
 
 # I do believe this libc constants are stable.
 CLONE_NEWNS = 0x00020000

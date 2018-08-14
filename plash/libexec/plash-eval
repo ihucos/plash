@@ -6,13 +6,12 @@
 # with the build instructions.
 
 import sys
-
-from plash import eval
-from plash.utils import catch_and_die, die, handle_help_flag
 from itertools import dropwhile
 
 # register the macros
 import plash.macros.all
+from plash import eval
+from plash.utils import catch_and_die, die, handle_help_flag
 
 handle_help_flag()
 

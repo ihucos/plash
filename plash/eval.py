@@ -1,8 +1,8 @@
-import sys
-import re
-import os
-import shlex
 import importlib
+import os
+import re
+import shlex
+import sys
 from functools import wraps
 
 FIND_HIND_HINT_VALUES_RE = re.compile('### plash hint: ([^=]+)=(.+)\n')

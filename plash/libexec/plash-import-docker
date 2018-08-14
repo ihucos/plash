@@ -3,15 +3,16 @@
 # usage: plash import-docker CONTAINER
 # Import an image from the docker cloud
 
-import subprocess
+import atexit
 import os
 import shutil
-from os.path import join
+import subprocess
 import sys
-import atexit
-from time import sleep
 import tempfile
-from plash.utils import die, catch_and_die, die_with_usage, handle_help_flag
+from os.path import join
+from time import sleep
+
+from plash.utils import catch_and_die, die, die_with_usage, handle_help_flag
 
 DOCKER_START_TIMEOUT = 40
 

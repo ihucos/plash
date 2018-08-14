@@ -3,9 +3,10 @@
 # usage: plash list
 # Lists all available plash commands
 
-from os.path import dirname, join
-from os import listdir
 import sys
+from os import listdir
+from os.path import dirname, join
+
 from plash.utils import handle_help_flag
 
 handle_help_flag()

@@ -1,4 +1,4 @@
-from plash.eval import register_macro, eval
+from plash.eval import eval, register_macro
 
 ALIASES = dict(
     x=[['run']],
