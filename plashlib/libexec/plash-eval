@@ -7,9 +7,12 @@
 
 import sys
 
-from plashlib import eval, stdlib
+from plashlib import eval
 from plashlib.utils import catch_and_die, die, handle_help_flag
 from itertools import dropwhile
+
+# register the macros
+import plashlib.macros.all
 
 handle_help_flag()
 

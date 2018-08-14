@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 
+import sys
 from plashlib.eval import get_macros, eval
 
 
-eval([['import', 'plashlib.stdlib']])
+try:
+    import_macros = sys.argv[1]
+except IndexError:
+    import_macros = 'plashlib.macros.all'
 
+eval([['import', import_macros]])
 
-'list all macros'
 macros = get_macros()
 prev_group = None
 for name, func in sorted(
