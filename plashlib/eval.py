@@ -1,70 +1,60 @@
 import sys
 import re
+import os
 import shlex
-from importlib import import_module
+import importlib
 from functools import wraps
 
 FIND_HIND_HINT_VALUES_RE = re.compile(
         '### plash hint: ([^=]+)=(.+)\n')
 
-state = {'actions': {}}  # put that in state.py ?
-
+state = {'macros': {}}
 
 class ActionNotFoundError(Exception):
     pass
 
 class ActionTracebackError(Exception):
     def __str__(self):
-        func, action_name, (type, value, traceback) = self.args
-        return '{action_module}: {action_name}: {value} ({type})'.format(
-            action_module=func.__module__,
-            action_name=action_name,
+        func, macro_name, (type, value, traceback) = self.args
+        return '{macro_module}: {macro_name}: {value} ({type})'.format(
+            macro_module=func.__module__,
+            macro_name=macro_name,
             value=value,
-            type=type.__name__,
-            )
+            type=type.__name__)
 
 class EvalError(Exception):
     pass
 
+def get_macros():
+    return state['macros']
 
-def get_actions():
-    return state['actions']
-
-
-def action(name=None, keep_comments=False, escape=True, group=None):
+def register_macro(name=None, group='main'):
     def decorator(func):
-
-        action = name or func.__name__.replace('_', '-')
-
-        @wraps(func)
-        def function_wrapper(*args):
-
-            if not keep_comments:
-                args = [i for i in args if not i.startswith('#')]
-
-            if escape:
-                args = [shlex.quote(i) for i in args]
-
-            res = func(*args)
-
-            # allow actions to yield each line
-            if not isinstance(res, str) and res is not None:
-                res = '\n'.join(res)
-
-            return res
-
-        state['actions'][action] = function_wrapper
-        function_wrapper._plash_group = group
-        return function_wrapper
+        macro = name or func.__name__.replace('_', '-')
+        state['macros'][macro] = func
+        return func
 
     return decorator
 
+def shell_escape_args(func):
+    @wraps(func)
+    def function_wrapper(*args):
+        args = [shlex.quote(i) for i in args]
+        return func(*args)
+    return function_wrapper
+
+def join_result(func):
+    @wraps(func)
+    def function_wrapper(*args):
+        res = func(*args)
+        return '\n'.join(res)
+    return function_wrapper
 
 def eval(lisp):
     '''
     plash lisp is one dimensional lisp.
     '''
-    action_values = []
+    macro_values = []
     if not isinstance(lisp, list):
         raise EvalError('eval root element must be a list')
     for item in lisp:
@@ -76,49 +66,48 @@ def eval(lisp):
                 format(item))
         name = item[0]
         args = item[1:]
-        actions = state['actions']
         try:
-            action = actions[name]
+            macro = state['macros'][name]
         except KeyError:
-            raise ActionNotFoundError("action {} not found".format(repr(name)))
+            raise ActionNotFoundError("macro {} not found".format(repr(name)))
         try:
-            res = action(*args)
+            res = macro(*args)
         except Exception as exc:
-            if isinstance(exc, ActionTracebackError):
-                # only raise that one time and don't have wrapper ActionTracebackError
+            if os.getenv('PLASH_DEBUG_MACROS', '').lower() in ('1', 'yes', 'true'):
                 raise
-            raise ActionTracebackError(action, name, sys.exc_info())
+            if isinstance(exc, ActionTracebackError):
+                # only raise that one time and don't have multiple wrapped ActionTracebackError
+                raise
+            raise ActionTracebackError(macro, name, sys.exc_info())
         if not isinstance(res, str) and res is not None:
             raise EvalError(
-                'eval action must return string or None ({} returned {})'.
+                'eval macro must return string or None ({} returned {})'.
                 format(name, type(res)))
         if res is not None:
-            action_values.append(res)
-    return '\n'.join(action_values)
+            macro_values.append(res)
+    return '\n'.join(macro_values)
 
+def get_hint_values(script):
+    return dict(FIND_HIND_HINT_VALUES_RE.findall(script))
 
-@action('original-import')
-@action('import')
-def import_plash_actions(*modules):
+@register_macro('import')
+def import_(*modules):
     output = []
     for module_name in modules:
-        import_module(module_name)
+        importlib.import_module(module_name)
 
+@register_macro()
+def reset_imports():
+    state['macros'] = {
+        'import': import_,
+        'hint': hint,
+        'reset_imports': reset_imports
+    }
 
-@action('original-layer')
-@action('layer')
-def layer():
-    'start a new layer'
-    return hint('layer')
-
-@action('original-hint')
-@action('hint')
+@register_macro()
 def hint(name, value=None):
     'hint something'
     if value is None:
         return '### plash hint: {}'.format(name)
     else:
         return '### plash hint: {}={}'.format(name, value)
-
-def get_hint_values(script):
-    return dict(FIND_HIND_HINT_VALUES_RE.findall(script))

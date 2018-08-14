@@ -6,15 +6,14 @@ import sys
 import uuid
 import subprocess
 
-from .eval import action, eval, get_actions, hint
-from .utils import hashstr
+from plashlib.eval import register_macro, eval, get_macros, hint, shell_escape_args, join_result
+from plashlib.utils import hashstr
 
-
-@action(escape=False)
+@register_macro()
 def layer(command=None, *args):
     'start a new layer'
     if not command:
-        return eval([['original-layer']])  # fall back to buildin layer action
+        return eval([['hint', 'layer']])  # fall back to buildin layer macro
     else:
         lst = [['layer']]
         for arg in args:
@@ -23,19 +22,15 @@ def layer(command=None, *args):
         return eval(lst)
 
 
-@action(escape=False, keep_comments=True)
+@register_macro()
 def run(*cmds):
     'run shell script'
     return '\n'.join(cmds)
 
 
-@action()
-def align_cwd():
-    'cd tho the pwd at the host'
-    yield 'cd {}'.format(shlex.quote(os.getcwd()))
-
-
-@action()
+@register_macro()
+@shell_escape_args
+@join_result
 def import_envs(*envs):
     'import environment variables from host'
     for env in envs:
@@ -47,22 +42,30 @@ def import_envs(*envs):
         yield '{}={}'.format(export_as, shlex.quote(os.environ[env]))
 
 
-@action()
+@register_macro()
 def bust_cache():
     'Invalidate cache'
     return ': bust cache with {}'.format(uuid.uuid4())
 
 
-@action(keep_comments=True)
-def write_script(fname, *lines):
+@register_macro()
+@shell_escape_args
+@join_result
+def write_file(fname, *lines):
     'write an executable file'
     yield 'touch {}'.format(fname)
     for line in lines:
         yield "echo {} >> {}".format(line, fname)
+
+@register_macro()
+@shell_escape_args
+@join_result
+def write_script(fname, *lines):
+    yield write_file(fname, *lines)
     yield 'chmod 755 {}'.format(fname)
 
 
-@action(escape=False)
+@register_macro()
 def include(file):
     'include parameters from file'
 
@@ -77,7 +80,7 @@ def include(file):
         stdout=subprocess.PIPE).stdout.decode()
 
 
-@action(escape=False)
+@register_macro()
 def include_string(stri):
     tokens = shlex.split(stri)
     return subprocess.run(
@@ -116,18 +119,19 @@ def all_files(dir):
             yield fname
 
 
-@action(escape=False)
-def watch(*paths):
+@register_macro()
+def hash(*paths):
     'only rebuild if anything in a path has changed'
     hash = hash_paths(paths)
-    return ": watch hash: {}".format(hash)
+    return ": hash: {}".format(hash)
 
 
-@action(escape=False, group='package managers')
+@register_macro(group='package managers')
 def defpm(name, *lines):
     'define a new package manager'
 
-    @action(name, group='package managers')
+    @register_macro(name, group='package managers')
+    @shell_escape_args
     def package_manager(*packages):
         if not packages:
             return
@@ -138,37 +142,37 @@ def defpm(name, *lines):
     package_manager.__doc__ = "install packages with {}".format(name)
 
 
-@action(escape=False)
+@register_macro()
 def map(command, *args):
-    'use first argument as action, map it to other arguments'
+    'use first argument as macro, map it to other arguments'
     return eval([[command, arg] for arg in args])
 
 
-@action()
+@register_macro()
 def comment(*args):
     'do nothing'
 
 
-@action('image', escape=False)
+@register_macro('image')
 def image(os):
     'set the base image'
     return hint('image', os)
 
-@action('exec', escape=False)
+@register_macro('exec')
 def exec(exec_path):
     'hint what to run in this container'
     return hint('exec', exec_path)
 
 
-@action()
+@register_macro()
 def namespace(ns):
     'start a new build namespace'
     return eval([['layer'], ['run', ': new namespace {}'.format(ns)],
                  ['layer']])
 
 
-@action('f')
-@action()
+@register_macro('f')
+@register_macro()
 def workaround_unionfs():
     'workaround apt so it works despite this issue: https://github.com/rpodgorny/unionfs-fuse/issues/78'
     script = '''if [ -d /etc/apt/apt.conf.d ]; then
@@ -180,13 +184,13 @@ fi'''
     return eval([['run', script]])
 
 
-@action()
+@register_macro()
 def list():
-    'list all actions'
-    actions = get_actions()
+    'list all macros'
+    macros = get_macros()
     prev_group = None
     for name, func in sorted(
-            actions.items(), key=lambda i: (i[1]._plash_group or '', i[0])):
+            macros.items(), key=lambda i: (i[1]._plash_group or '', i[0])):
         group = func._plash_group or 'main'
         if group != prev_group:
             prev_group is None or print()
@@ -221,7 +225,7 @@ for name, macro in ALIASES.items():
 
     def bounder(macro=macro):
         def func(*args):
-            # list(args) throws exception some really funny reason
+            # list(args) throws an exception exception for some really funny reason
             # therefore the list comprehension
             args = [i for i in args]
             return eval(macro[:-1] + [macro[-1] + args])
@@ -231,7 +235,7 @@ for name, macro in ALIASES.items():
         return func
 
     func = bounder()
-    action(name=name, group='macros', escape=False)(func)
+    register_macro(name=name, group='macros')(func)
 
 eval([[
     'defpm',
