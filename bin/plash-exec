@@ -4,13 +4,12 @@
 # Used as shebang. It runs a plash buildfile.
 
 import os, sys, subprocess
-from plashlib.utils import handle_help_flag, die_with_usage, die, catch_and_die
+from plashlib.utils import handle_help_flag, die_with_usage, die, catch_and_die, assert_initialized
 from plashlib.eval import get_hint_values
-from plashlib import ux
 import plashlib
 
 handle_help_flag()
-ux.assert_initialized()
+assert_initialized()
 
 try:
     file, args = sys.argv[1], sys.argv[2:]
