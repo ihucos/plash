@@ -90,41 +90,38 @@ def eval_macro(stri):
         stdout=subprocess.PIPE).stdout.decode()
 
 
-def hash_paths(paths):
-    collect_files = []
-    for path in paths:
-        if os.path.isdir(path):
-            collect_files.extend(all_files(path))
-        else:
-            collect_files.append(path)
+class HashPaths:
 
-    hasher = hashlib.sha1()
-    for fname in sorted(collect_files):
-        perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))).encode()
-        with open(fname, 'rb') as f:
-            fread = f.read()  # well, no buffering?
-        hasher.update(fname.encode())
-        hasher.update(perm)
+    def _list_all_files(self, dir):
+        for (dirpath, dirnames, filenames) in os.walk(dir):
+            for filename in filenames:
+                fname = os.sep.join([dirpath, filename])
+                yield fname
+    
+    def __call__(self, paths):
+        'only rebuild if anything in a path has changed'
 
-        hasher.update(hashstr(fread).encode())
+        collect_files = []
+        for path in paths:
+            if os.path.isdir(path):
+                collect_files.extend(self._list_all_files(path))
+            else:
+                collect_files.append(path)
+    
+        hasher = hashlib.sha1()
+        for fname in sorted(collect_files):
+            perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))).encode()
+            with open(fname, 'rb') as f:
+                fread = f.read()  # well, no buffering?
+            hasher.update(fname.encode())
+            hasher.update(perm)
+    
+            hasher.update(hashstr(fread).encode())
+    
+        hash = hasher.hexdigest()
+        return ": hash: {}".format(hash)
 
-    hash = hasher.hexdigest()
-    return hash
-
-
-def all_files(dir):
-    for (dirpath, dirnames, filenames) in os.walk(dir):
-        for filename in filenames:
-            fname = os.sep.join([dirpath, filename])
-            yield fname
-
-
-@register_macro()
-def hash_path(*paths):
-    'only rebuild if anything in a path has changed'
-    hash = hash_paths(paths)
-    return ": hash: {}".format(hash)
-
+register_macro('hash-path')(HashPaths().__call__)
 
 @register_macro('#')
 def comment(*args):
