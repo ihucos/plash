@@ -3,10 +3,9 @@ import os
 import shlex
 import stat
 import subprocess
-import sys
 import uuid
 
-from plash.eval import (eval, get_macros, hint, join_result, register_macro,
+from plash.eval import (eval, hint, join_result, register_macro,
                         shell_escape_args)
 from plash.utils import hashstr
 
