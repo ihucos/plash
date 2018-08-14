@@ -46,7 +46,7 @@ from plash.utils import catch_and_die, die, info, color, handle_help_flag, plash
 handle_help_flag()
 assert_initialized()
 
-# proxy stdin and argv to plash-eval to generate the build script 
+# proxy stdin and argv to plash-eval to generate the build script
 with catch_and_die([CalledProcessError], silent=True):
     script = subprocess.run(
         ['plash-eval'] + sys.argv[1:],
@@ -55,7 +55,4 @@ with catch_and_die([CalledProcessError], silent=True):
         stdout=subprocess.PIPE).stdout
 
 with catch_and_die([CalledProcessError], silent=True):
-    script = subprocess.run(
-        ['plash-build-sh'],
-        input=script,
-        check=True)
+    script = subprocess.run(['plash-build-sh'], input=script, check=True)

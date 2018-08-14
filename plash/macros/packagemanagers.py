@@ -16,7 +16,6 @@ def defpm(name, *lines):
     package_manager.__doc__ = "install packages with {}".format(name)
 
 
-
 eval([[
     'defpm',
     'apt',

@@ -5,13 +5,14 @@ import shlex
 import importlib
 from functools import wraps
 
-FIND_HIND_HINT_VALUES_RE = re.compile(
-        '### plash hint: ([^=]+)=(.+)\n')
+FIND_HIND_HINT_VALUES_RE = re.compile('### plash hint: ([^=]+)=(.+)\n')
 
 state = {'macros': {}}
 
+
 class MacroNotFoundError(Exception):
     pass
+
 
 class MacroError(Exception):
     def __str__(self):
@@ -22,11 +23,14 @@ class MacroError(Exception):
             value=value,
             type=type.__name__)
 
+
 class EvalError(Exception):
     pass
 
+
 def get_macros():
     return state['macros']
+
 
 def register_macro(name=None, group='main'):
     def decorator(func):
@@ -36,19 +40,24 @@ def register_macro(name=None, group='main'):
 
     return decorator
 
+
 def shell_escape_args(func):
     @wraps(func)
     def function_wrapper(*args):
         args = [shlex.quote(i) for i in args]
         return func(*args)
+
     return function_wrapper
+
 
 def join_result(func):
     @wraps(func)
     def function_wrapper(*args):
         res = func(*args)
         return '\n'.join(res)
+
     return function_wrapper
+
 
 def eval(lisp):
     '''
@@ -73,7 +82,8 @@ def eval(lisp):
         try:
             res = macro(*args)
         except Exception as exc:
-            if os.getenv('PLASH_DEBUG_MACROS', '').lower() in ('1', 'yes', 'true'):
+            if os.getenv('PLASH_DEBUG_MACROS', '').lower() in ('1', 'yes',
+                                                               'true'):
                 raise
             if isinstance(exc, MacroError):
                 # only raise that one time and don't have multiple wrapped MacroError
@@ -87,14 +97,17 @@ def eval(lisp):
             macro_values.append(res)
     return '\n'.join(macro_values)
 
+
 def get_hint_values(script):
     return dict(FIND_HIND_HINT_VALUES_RE.findall(script))
+
 
 @register_macro('import')
 def import_(*modules):
     output = []
     for module_name in modules:
         importlib.import_module(module_name)
+
 
 @register_macro()
 def reset_imports():
@@ -103,6 +116,7 @@ def reset_imports():
         'hint': hint,
         'reset_imports': reset_imports
     }
+
 
 @register_macro()
 def hint(name, value=None):

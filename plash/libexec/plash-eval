@@ -24,7 +24,6 @@ if not lines:
 if lines and lines[0].startswith('#!/'):
     lines.pop(0)
 
-
 tokens = []
 tokens_escape_status = []
 for line in lines:
@@ -52,7 +51,8 @@ for token, token_is_escaped in zip(tokens, tokens_escape_status):
         try:
             lsp[-1].append(token)
         except IndexError:
-            die('parse: first token can not be escaped (got {})'.format(repr(token)))
+            die('parse: first token can not be escaped (got {})'.format(
+                repr(token)))
     elif token.startswith('--'):
         lsp.append([token[2:]])
     elif token.startswith('-') and not token == '-':
@@ -62,7 +62,8 @@ for token, token_is_escaped in zip(tokens, tokens_escape_status):
         try:
             lsp[-1].append(token)
         except IndexError:
-            die('parse: first token must be an action prefixed by two dashes (got {})'.format(repr(token)))
+            die('parse: first token must be an action prefixed by two dashes (got {})'.
+                format(repr(token)))
 
 with catch_and_die([eval.MacroNotFoundError, eval.MacroError]):
     script = eval.eval(lsp)

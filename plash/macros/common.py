@@ -9,6 +9,7 @@ import subprocess
 from plash.eval import register_macro, eval, get_macros, hint, shell_escape_args, join_result
 from plash.utils import hashstr
 
+
 @register_macro()
 def layer(command=None, *args):
     'start a new layer'
@@ -57,6 +58,7 @@ def write_file(fname, *lines):
     for line in lines:
         yield "echo {} >> {}".format(line, fname)
 
+
 @register_macro()
 @shell_escape_args
 @join_result
@@ -91,13 +93,12 @@ def eval_macro(stri):
 
 
 class HashPaths:
-
     def _list_all_files(self, dir):
         for (dirpath, dirnames, filenames) in os.walk(dir):
             for filename in filenames:
                 fname = os.sep.join([dirpath, filename])
                 yield fname
-    
+
     def __call__(self, paths):
         'only rebuild if anything in a path has changed'
 
@@ -107,7 +108,7 @@ class HashPaths:
                 collect_files.extend(self._list_all_files(path))
             else:
                 collect_files.append(path)
-    
+
         hasher = hashlib.sha1()
         for fname in sorted(collect_files):
             perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))).encode()
@@ -115,13 +116,15 @@ class HashPaths:
                 fread = f.read()  # well, no buffering?
             hasher.update(fname.encode())
             hasher.update(perm)
-    
+
             hasher.update(hashstr(fread).encode())
-    
+
         hash = hasher.hexdigest()
         return ": hash: {}".format(hash)
 
+
 register_macro('hash-path')(HashPaths().__call__)
+
 
 @register_macro('#')
 def comment(*args):
@@ -132,6 +135,7 @@ def comment(*args):
 def image(os):
     'set the base image'
     return hint('image', os)
+
 
 @register_macro('exec')
 def exec(exec_path):
