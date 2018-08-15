@@ -35,8 +35,11 @@ np1=$(plash nodepath $layer1)
 np2=$(plash nodepath $layer2)
 test $(basename $np1) = $(basename $(dirname $np2))
 
-: working directory when builing is is /
-plash build -f 1 --invalidate-layer -x 'test $(pwd) == /'
+: working directory when builing is current workign directory at invocation 
+tmp=$(mktemp -d)
+cd /home
+plash build -f 1 --invalidate-layer -x 'test $(pwd) == /home'
+cd -
 
 : home is mounted when building
 cont=$(plash build -f 1 -x 'ls -1 /home > /tmp/out')

@@ -52,8 +52,7 @@ for layer in layers:
         p = Popen(
             ['plash-create', current_container, 'env', '-i', 'sh', '-l'],
             stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            cwd='/')
+            stdout=subprocess.PIPE)
 
         # for some reason in ubuntu the path is not exported
         # in a way this is a hack and should be fixed in ubuntu
