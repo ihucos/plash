@@ -29,4 +29,4 @@ binfilepath = os.path.join(libexec, binfile)
 try:
     os.execlp(binfilepath, binfile, *sys.argv[2:])
 except FileNotFoundError:
-    die('no such subcommand: {} (try `plash list`)'.format(subcommand))
+    die('no such command: {} (try `plash list`)'.format(subcommand))

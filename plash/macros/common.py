@@ -93,6 +93,8 @@ def eval_macro(stri):
 
 
 class HashPaths:
+    'only rebuild if anything in a path has changed'
+
     def _list_all_files(self, dir):
         for (dirpath, dirnames, filenames) in os.walk(dir):
             for filename in filenames:
@@ -100,7 +102,6 @@ class HashPaths:
                 yield fname
 
     def __call__(self, paths):
-        'only rebuild if anything in a path has changed'
 
         collect_files = []
         for path in paths:
@@ -123,7 +124,7 @@ class HashPaths:
         return ": hash: {}".format(hash)
 
 
-register_macro('hash-path')(HashPaths().__call__)
+register_macro('hash-path')(HashPaths())
 
 
 @register_macro('#')
