@@ -20,14 +20,14 @@ export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
 log=$(mktemp)
 program_exit=0
 cd $DIR/../tests
-testfiles=$(find . -type f ! -iname "*.sw*" -ipath "./${1:-}*")
+testfiles=$(find . -type f ! -iname "*.sw*" -ipath "./${1:-}*" | sort)
 for script in $testfiles ; do
 
   # setup test env
   tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
   export PLASH_DATA=$tmp
   plash init
-  plash import-tar $DIR/../tests/fixtures/busybox.tar > /dev/null
+  plash import-tar $DIR/../fixtures/busybox.tar > /dev/null
 
   printf ${script:2} # magic 2 is the length of "./"
   env "$script" > $log 2>&1 &

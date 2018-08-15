@@ -13,6 +13,8 @@ purge
 sudo
 test
 build
+build-sh
+list-macros
 )
 
 SKIP_HELP_FLAG_CHECK=(
@@ -20,6 +22,7 @@ bash_syntax_no_empty_dummy
 docker
 docker-daemon
 eval
+list-macros
 )
 subcommands=$(plash list | cut -d' ' -f2)
 
