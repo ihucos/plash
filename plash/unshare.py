@@ -43,9 +43,6 @@ def get_subs(query_user, subfile):
 
 def unshare_if_user(extra_setup_cmd=None):
     
-    # that can be simpler once kernel 4.18 is widely used
-    # then we should be able to mount with fuse inside the namespace
-
     if not os.getuid():
         return
     os.environ['PLASH_DATA'] = get_plash_data()
