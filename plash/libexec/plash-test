@@ -19,9 +19,8 @@ export PYTHONPATH=$DIR/..:${PYTHONPATH:-}
 
 log=$(mktemp)
 program_exit=0
-last_arg="${@: -1}"
 cd $DIR/../tests
-testfiles=$(find . -type f ! -iname "*.sw*" -iname "${1:-}*")
+testfiles=$(find . -type f ! -iname "*.sw*" -ipath "./${1:-}*")
 for script in $testfiles ; do
 
   # setup test env

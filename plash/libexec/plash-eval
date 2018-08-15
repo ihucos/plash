@@ -26,11 +26,13 @@ if lines and lines[0].startswith('#!/'):
 tokens = []
 tokens_escape_status = []
 for line in lines:
-    if line == '--':
+    if line.startswith('--#'):
+        continue
+    elif line == '--\\':
         tokens.append('')
         tokens_escape_status.append(True)
-    elif line.startswith('-- '):
-        tokens.append(line[3:])
+    elif line.startswith('--\\ '):
+        tokens.append(line[4:])
         tokens_escape_status.append(True)
     elif line.startswith('-'):
         fst, *rest = line.split()
