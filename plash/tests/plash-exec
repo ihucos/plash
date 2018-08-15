@@ -6,20 +6,20 @@ export PLASH_KILL_PARENT_ON_EXCEPTION=1
 : basic test
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
---exec
+--entrypoint
 /bin/printf
---image
+--from
 1
 ' >> $plashfile
 chmod 700 $plashfile
 test $("$plashfile" printf_that) = printf_that
 
-: exec not found
+: entrypoint not found
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
---exec
+--entrypoint
 /usr/bin/notfoundxxxx
---image
+--from
 1
 ' >> $plashfile
 chmod 700 $plashfile
@@ -28,9 +28,9 @@ chmod 700 $plashfile
 : build error - bad build args
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
---image
+--from
 1
---exec
+--entrypoint
 /bin/true
 --asdf
 ' >> $plashfile

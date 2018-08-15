@@ -5,7 +5,7 @@ set -xeu
 plash run 1 touch /a
 
 : run a program on the base layer of a container
-plash build -i 1
+plash build -f 1
 out=$(plash run 1 -- echo hellow)
 test "$out" = hellow
 
@@ -37,7 +37,7 @@ cat $tmp
 cmp /etc/passwd $tmp
 
 : test auto build
-plash run -i 1 --invalidate-cache -- ls
+plash run -f 1 --invalidate-cache -- ls
 
 : mounts get cleanuped
 new=$(plash create 1 ls)

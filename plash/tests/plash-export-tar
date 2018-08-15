@@ -8,7 +8,7 @@ test "$(id -u)" != 0 && {
   exit 1
 }
 
-plash build -i 1 --run 'touch /a'
+plash build -f 1 --run 'touch /a'
 
 : only one argument
 tmp=$(mktemp)

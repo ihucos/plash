@@ -5,7 +5,7 @@ import shlex
 import sys
 from functools import wraps
 
-FIND_HIND_HINT_VALUES_RE = re.compile('### plash hint: ([^=]+)=(.+)\n')
+FIND_HIND_HINT_VALUES_RE = re.compile('### plash hint: ([^=\n]+)=([^\n]+)\n')
 
 state = {'macros': {}}
 

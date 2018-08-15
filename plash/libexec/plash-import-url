@@ -26,7 +26,7 @@ tmpfile = mkstemp()[1]
 
 def reporthook(count, block_size, total_size):
     if total_size:
-        sys.stderr.write('Fetching... {}%\r'.format(
+        sys.stderr.write('plash: import-url: fetching... {}%\r'.format(
             round(100 * count * block_size / total_size)))
 
 

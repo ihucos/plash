@@ -5,11 +5,11 @@ export PLASH_KILL_PARENT_ON_EXCEPTION=1
 
 (! plash nodepath mynoexistentcontainer)
 
-newcont=$(plash build -i 1 --invalidate-cache)
+newcont=$(plash build -f 1 --invalidate-cache)
 nodepath=$(plash nodepath $newcont)
 echo $nodepath | grep $newcont
 
-layerup=$(plash build -i $newcont --layer --invalidate-cache)
+layerup=$(plash build -f $newcont --layer --invalidate-cache)
 nodepath=$(plash nodepath $layerup)
 echo $nodepath | grep $newcont
 echo $nodepath | grep $layerup

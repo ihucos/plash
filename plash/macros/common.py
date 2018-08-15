@@ -60,7 +60,6 @@ def write_file(fname, *lines):
 
 
 @register_macro()
-@shell_escape_args
 @join_result
 def write_script(fname, *lines):
     yield write_file(fname, *lines)
@@ -127,21 +126,23 @@ class HashPaths:
 register_macro('hash-path')(HashPaths())
 
 
-@register_macro('#')
-def comment(*args):
-    'do nothing'
-
-
-@register_macro('image')
-def image(os):
+@register_macro('from')
+def from_(os):
     'set the base image'
     return hint('image', os)
 
 
-@register_macro('exec')
-def exec(exec_path):
+@register_macro()
+def entrypoint(exec_path):
     'hint what to run in this container'
     return hint('exec', exec_path)
+
+@register_macro()
+def entrypoint_script(*lines):
+    lines = list(lines)
+    if lines and not lines[0].startswith('#!'):
+        lines.insert(0, '#!/bin/sh')
+    return eval([['entrypoint', '/entrypoint'], ['write-script', '/entrypoint'] + lines])
 
 
 @register_macro()
