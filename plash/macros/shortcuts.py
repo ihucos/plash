@@ -5,13 +5,13 @@ ALIASES = dict(
     l=[['layer']],
     I=[['include']],
     f=[['from']],
-    A=[['image', 'alpine'], ['apk']],
-    U=[['image', 'ubuntu'], ['apt']],
-    F=[['image', 'fedora'], ['dnf']],
-    D=[['image', 'debian'], ['apt']],
-    C=[['image', 'centos'], ['yum']],
-    R=[['image', 'arch'], ['pacman']],
-    G=[['image', 'gentoo'], ['emerge']],
+    A=[['from', 'alpine'], ['apk']],
+    U=[['from', 'ubuntu'], ['apt']],
+    F=[['from', 'fedora'], ['dnf']],
+    D=[['from', 'debian'], ['apt']],
+    C=[['from', 'centos'], ['yum']],
+    R=[['from', 'arch'], ['pacman']],
+    G=[['from', 'gentoo'], ['emerge']],
 )
 
 for name, macro in ALIASES.items():
