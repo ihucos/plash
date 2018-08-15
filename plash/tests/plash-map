@@ -4,7 +4,7 @@ set -xeu
 export PLASH_KILL_PARENT_ON_EXCEPTION=1
 
 : create container 1, 2
-plash build -f 1 --invalidate-cache
+plash build -f 1 --invalidate-layer
 
 : simple cache set and get
 plash map mykey 1

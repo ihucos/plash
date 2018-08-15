@@ -104,6 +104,7 @@ def get_hint_values(script):
 
 @register_macro('import')
 def import_(*modules):
+    'import macros from any python module'
     output = []
     for module_name in modules:
         importlib.import_module(module_name)
@@ -111,6 +112,7 @@ def import_(*modules):
 
 @register_macro()
 def reset_imports():
+    'unimport all imported macros but builtins'
     state['macros'] = {
         'import': import_,
         'hint': hint,
@@ -120,7 +122,7 @@ def reset_imports():
 
 @register_macro()
 def hint(name, value=None):
-    'hint something'
+    'write a hint for consumer programs'
     if value is None:
         return '### plash hint: {}'.format(name)
     else:

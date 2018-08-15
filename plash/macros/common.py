@@ -12,7 +12,7 @@ from plash.utils import hashstr
 
 @register_macro()
 def layer(command=None, *args):
-    'start a new layer'
+    'hint the start of a new layer'
     if not command:
         return eval([['hint', 'layer']])  # fall back to buildin layer macro
     else:
@@ -25,14 +25,14 @@ def layer(command=None, *args):
 
 @register_macro()
 def run(*cmds):
-    'run shell script'
+    'directly emit shell script'
     return '\n'.join(cmds)
 
 
 @register_macro()
 @shell_escape_args
 @join_result
-def import_envs(*envs):
+def import_env(*envs):
     'import environment variables from host'
     for env in envs:
         parts = env.split(':', 1)
@@ -44,16 +44,16 @@ def import_envs(*envs):
 
 
 @register_macro()
-def invalidate_cache():
-    'Invalidate cache'
-    return ': bust cache with {}'.format(uuid.uuid4())
+def invalidate_layer():
+    'invalidate the cache of the current layer'
+    return ': invalidate cache with {}'.format(uuid.uuid4())
 
 
 @register_macro()
 @shell_escape_args
 @join_result
 def write_file(fname, *lines):
-    'write an executable file'
+    'write lines to a file'
     yield 'touch {}'.format(fname)
     for line in lines:
         yield "echo {} >> {}".format(line, fname)
@@ -62,13 +62,14 @@ def write_file(fname, *lines):
 @register_macro()
 @join_result
 def write_script(fname, *lines):
+    'write an executable (755) file to the filesystem'
     yield write_file(fname, *lines)
     yield 'chmod 755 {}'.format(fname)
 
 
 @register_macro()
 def eval_file(file):
-    'include parameters from file'
+    'evaluate file content as expressions'
 
     fname = os.path.realpath(os.path.expanduser(file))
     with open(fname) as f:
@@ -83,6 +84,7 @@ def eval_file(file):
 
 @register_macro('eval')
 def eval_macro(stri):
+    'evaluate expressions passed as string'
     tokens = shlex.split(stri)
     return subprocess.run(
         ['plash-eval'],
@@ -92,7 +94,7 @@ def eval_macro(stri):
 
 
 class HashPaths:
-    'only rebuild if anything in a path has changed'
+    'recursively hash files and add as cache key'
 
     def _list_all_files(self, dir):
         for (dirpath, dirnames, filenames) in os.walk(dir):
@@ -128,17 +130,18 @@ register_macro('hash-path')(HashPaths())
 
 @register_macro('from')
 def from_(os):
-    'set the base image'
+    'hint the base image'
     return hint('image', os)
 
 
 @register_macro()
 def entrypoint(exec_path):
-    'hint what to run in this container'
+    'hint default command for this build'
     return hint('exec', exec_path)
 
 @register_macro()
 def entrypoint_script(*lines):
+    'write lines to /entrypoint and hint it as default command'
     lines = list(lines)
     if lines and not lines[0].startswith('#!'):
         lines.insert(0, '#!/bin/sh')
