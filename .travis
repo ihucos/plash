@@ -1,7 +1,6 @@
 #!/usr/bin/env plash-exec
-# plash-exec: exec=/entrypoint
---image
-ubuntu
+--from ubuntu
+
 --apt
 python3-setuptools
 python3-pip
@@ -11,10 +10,10 @@ git
 twine
 --pip3
 codecov
+
 --layer
---write-script
-/entrypoint
-#!/bin/sh
+
+--entrypoint-script
 set -eux
 
 if test ${TRAVIS_BRANCH:-} = master; then
