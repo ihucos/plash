@@ -9,6 +9,8 @@
 
 **current status:** Working on version 1.0
 
+**broke compability with docs and examples**
+
 
 # plash
 is a container build and runtime system.
