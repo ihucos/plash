@@ -10,7 +10,7 @@ import sys
 import plash
 from plash.eval import get_hint_values
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, handle_help_flag)
+                         die_with_usage, handle_help_flag, run_write_read)
 
 handle_help_flag()
 assert_initialized()
@@ -28,11 +28,7 @@ with open(file) as f:
     script = f.read()
 
 with catch_and_die([subprocess.CalledProcessError], silent=True):
-    build_shell_script = subprocess.run(
-        ['plash-eval'],
-        input=script.encode(),
-        stdout=subprocess.PIPE,
-        check=True).stdout.decode()
+    build_shell_script = run_write_read(['plash-eval'], script.encode()).decode()
 
 hint_values = get_hint_values(build_shell_script)
 
@@ -43,11 +39,7 @@ if exec is None:
 run_args = [exec] + args
 
 with catch_and_die([subprocess.CalledProcessError], silent=True):
-    run_container = subprocess.run(
-        ['plash-build-sh'],
-        input=build_shell_script.encode(),
-        stdout=subprocess.PIPE,
-        check=True).stdout.decode().strip('\n')
+    run_container = run_write_read(['plash-build-sh'], build_shell_script.encode()).decode().strip('\n')
 
 cmd = ['plash-run', 'plash-run', run_container, '--'] + run_args
 

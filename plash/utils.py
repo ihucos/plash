@@ -129,10 +129,9 @@ def nodepath_or_die(container, allow_root_container=False):
 
     extra = [] if not allow_root_container else ['--allow-root-container']
     with catch_and_die([subprocess.CalledProcessError], silent=True):
-        return subprocess.run(
+        return subprocess.check_output(
             ['plash-nodepath', str(container)] + extra,
-            stdout=subprocess.PIPE,
-            check=True).stdout.decode().strip('\n')
+            ).decode().strip('\n')
 
 
 def get_default_shell(passwd_file):
@@ -157,3 +156,13 @@ def assert_initialized():
     last_inited = join(get_plash_data(), 'index', '0')
     if not os.path.exists(last_inited):
         die('run plash init first')
+
+def run_write_read(cmd, input):
+    import subprocess
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    p.stdin.write(input)
+    p.stdin.close()
+    exit = p.wait()
+    if exit:
+        raise subprocess.CalledProcessError(exit, cmd)
+    return p.stdout.read()

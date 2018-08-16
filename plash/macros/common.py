@@ -7,7 +7,7 @@ import uuid
 
 from plash.eval import (eval, hint, join_result, register_macro,
                         shell_escape_args)
-from plash.utils import hashstr
+from plash.utils import hashstr, run_write_read
 
 
 @register_macro()
@@ -75,23 +75,19 @@ def eval_file(file):
     with open(fname) as f:
         inscript = f.read()
 
-    return subprocess.run(
-        ['plash-eval'],
-        input=inscript.encode(),
-        check=True,
-        stdout=subprocess.PIPE).stdout.decode()
+    return run_write_read(
+        ['plash-eval'], inscript.encode()
+        ).stdout.decode()
 
 
 @register_macro('eval')
 def eval_macro(stri):
     'evaluate expressions passed as string'
     tokens = shlex.split(stri)
-    return subprocess.run(
-        ['plash-eval'],
-        input='\n'.join(tokens).encode(),
-        check=True,
-        stdout=subprocess.PIPE).stdout.decode()
 
+    return run_write_read(
+        ['plash-eval'], '\n'.join(tokens).encode()
+        ).stdout.decode()
 
 class HashPaths:
     'recursively hash files and add as cache key'

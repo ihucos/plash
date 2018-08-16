@@ -42,18 +42,19 @@ from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output
 from plash.eval import get_hint_values, hint
 from plash.utils import (assert_initialized, catch_and_die, color, die,
                          handle_help_flag, hashstr, info, nodepath_or_die,
-                         plash_map)
+                         plash_map, run_write_read)
 
 handle_help_flag()
 assert_initialized()
 
 # proxy stdin and argv to plash-eval to generate the build script
 with catch_and_die([CalledProcessError], silent=True):
-    script = subprocess.run(
+    script = subprocess.check_output(
         ['plash-eval'] + sys.argv[1:],
-        stdin=sys.stdin,
-        check=True,
-        stdout=subprocess.PIPE).stdout
+        stdin=sys.stdin)
 
-with catch_and_die([CalledProcessError], silent=True):
-    script = subprocess.run(['plash-build-sh'], input=script, check=True)
+p = subprocess.Popen(['plash-build-sh'], stdin=subprocess.PIPE)
+p.stdin.write(script)
+p.stdin.close()
+exit = p.wait()
+sys.exit(exit)
