@@ -38,7 +38,7 @@ export COVERAGE_PROCESS_START=$covtmp/.coveragerc
 python3-coverage erase
 cd /
 plash init
-plash test plash-import-url
+plash test
 cd - 2> /dev/null
 
 rm /usr/lib/python3.*/sitecustomize.py
