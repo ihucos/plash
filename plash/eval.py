@@ -122,7 +122,7 @@ def reset_imports():
 
 @register_macro()
 def hint(name, value=None):
-    'write a hint for consumer programs'
+    'write a hint for consumer programms'
     if value is None:
         return '### plash hint: {}'.format(name)
     else:

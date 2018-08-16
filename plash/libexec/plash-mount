@@ -65,7 +65,7 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
         'unionfs-fuse seems not to be installed')
     with catch_and_die([CalledProcessError]):
         check_call([
-            unionfs, '-o', 'nosuid,cow', '{upperdir}{lowerdirs}'.format(
+            unionfs, '-o', 'cow', '{upperdir}{lowerdirs}'.format(
                 lowerdirs=lowerdirs_str, upperdir=upperdir_str), mountpoint
         ])
 
@@ -82,7 +82,7 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
     with catch_and_die([CalledProcessError]):
         check_call([
             'mount', '-t', 'overlay', 'overlay', '-o',
-            'lowerdir={lowerdir}{workdir}{upperdir},nosuid'.format(
+            'lowerdir={lowerdir}{workdir}{upperdir}'.format(
                 lowerdir=':'.join(lowerdir_list),
                 upperdir=',upperdir=' + upperdir if upperdir else '',
                 workdir=',workdir=' + workdir if workdir else ''), mountpoint
