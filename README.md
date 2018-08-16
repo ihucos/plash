@@ -133,5 +133,11 @@ No. There are no efforts to implement features like image distribution, process 
 #### Can I run this in production?
 No. Not yet.
 
+#### Is plash secure?
+Plash does not use any privileged daemons or have its own setuid helper binaries. Note that plash does not try to isolate containers (which are just normal processes). That means that running a program inside plash is *not* a security feature. Running any container software introduces more entities to trust, that is the root file system image with its additional linux distribution and its own package manager. Using a program from alpine edge could be considered less secure than a package from debian stable or vice versa. Also note that keeping containers updated is more difficult than keeping "normal" system software updated. Plash uses unmodified lxc images and checks their signatures with gpgv if available.
+As an example lets maybe compare installing and running `git` from a plash container and running it from your linux distribution.
+In the latter case you have to mainly trust your package manager, with the package maintainer and the git development. Now if you use git via plash or any other container software that program will run inside another operating system. So additionally you will also have to trust the new operating system and also the source from where your are getting this operating system.
+TODO: write about newuidmap and fuse dependencies (which are setuid)
+
 #### When will be the 1.0 release?
 There is a Github project for this: https://github.com/ihucos/plash/projects/1
