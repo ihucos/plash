@@ -77,7 +77,7 @@ def eval_file(file):
 
     return run_write_read(
         ['plash-eval'], inscript.encode()
-        ).stdout.decode()
+        ).decode()
 
 
 @register_macro('eval')

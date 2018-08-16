@@ -29,35 +29,35 @@ for f in /usr/lib/python3.*; do
   cp ./misc/sitecustomize_for_codecoverage/sitecustomize.py $f
 done
 
-# setup COVERAGE_PROCESS_START env
-covtmp=$(mktemp -d)
-cp .coveragerc $covtmp
-echo "data_file=${PWD}/.coverage" >> $covtmp/.coveragerc
-export COVERAGE_PROCESS_START=$covtmp/.coveragerc
+## setup COVERAGE_PROCESS_START env
+#covtmp=$(mktemp -d)
+#cp .coveragerc $covtmp
+#echo "data_file=${PWD}/.coverage" >> $covtmp/.coveragerc
+#export COVERAGE_PROCESS_START=$covtmp/.coveragerc
+#
+#python3-coverage erase
+#cd /
+#plash init
+#plash test
+#cd - 2> /dev/null
+#
+#rm /usr/lib/python3.*/sitecustomize.py
+#
+#python3-coverage combine
+#python3-coverage xml
+#python3-coverage report
+#codecov
 
-python3-coverage erase
-cd /
-plash init
-plash test
-cd - 2> /dev/null
-
-rm /usr/lib/python3.*/sitecustomize.py
-
-python3-coverage combine
-python3-coverage xml
-python3-coverage report
-codecov
-
-doctmp=$(mktemp -d)
-misc/mkdocs "$doctmp"
-python3-coverage html --directory "$doctmp/htmlcov"
-cd "$doctmp"
-echo -n 'plash.io' > CNAME # for github pages
-git init
-git add .
-git commit -m 'deploy docs [skip ci]'
-test "$deploy" = yes && git push https://${GH_TOKEN}@github.com/ihucos/plash-docs-deploy.git HEAD:master --force
-cd -
+#doctmp=$(mktemp -d)
+#misc/mkdocs "$doctmp"
+#python3-coverage html --directory "$doctmp/htmlcov"
+#cd "$doctmp"
+#echo -n 'plash.io' > CNAME # for github pages
+#git init
+#git add .
+#git commit -m 'deploy docs [skip ci]'
+#test "$deploy" = yes && git push https://${GH_TOKEN}@github.com/ihucos/plash-docs-deploy.git HEAD:master --force
+#cd -
 
 if test "$deploy" = yes; then
   python3 setup.py bdist_wheel
