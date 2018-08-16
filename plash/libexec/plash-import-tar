@@ -30,7 +30,7 @@ class PlashTarFile(tarfile.TarFile):
             tarfile.TarFile.makedev(self, tarinfo, targetpath)
         except OSError as exc:
             print(
-                'Ignoring dev file: {} ({})'.format(tarinfo.path,
+                'plash: import-tar: ignoring dev file: {} ({})'.format(tarinfo.path,
                                                     exc.strerror),
                 file=sys.stderr)
 

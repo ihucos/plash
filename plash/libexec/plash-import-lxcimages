@@ -101,5 +101,6 @@ except KeyError:
     die('image not found: {}; Available images: {}'.format(
         repr(image_name), ' '.join(sorted(names))))
 
+signature_url = '{}.asc'.format(url)
 with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash-import-url', url])
+    check_call(['plash-import-url', url, signature_url])
