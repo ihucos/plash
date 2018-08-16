@@ -40,7 +40,7 @@ client_log = open(join(tmpdir, 'docker.log'), 'w')
 debug('ensuring docker is builded')
 buildfile = shutil.which('plash-docker-daemon')
 with catch_and_die([subprocess.CalledProcessError], silent=True):
-    subprocess.check_output(['plash-build', '--include', buildfile])
+    subprocess.check_output(['plash-build', '--eval-file', buildfile])
 
 #
 # start daemon and wait for it to start

@@ -1,22 +1,21 @@
 #!/usr/bin/env plash-exec
-# plash-exec: exec=/entrypoint
-# usage: plash docker-daemon <DOCKER-ARGS>
-# Run the docker daemon inside alpine linux. Use the PLASH_DOCKER_SOCKET
-# environment variable to select the docker socket, the default is
-# '/tmp/docker.sock'. Note that '/var/run/docker.sock' is not shared between
-# containers and host, so it may not be appropriate as a socket
-#
-#
-# Example:
-#
-# $ sudo plash docker-daemon
-# INFO[2018-02-05T00:20:06.645188781Z] libcontainerd: new containerd process, pid: 19841
-# <snip>
-# INFO[2018-02-05T00:20:07.840933519Z] Daemon has completed initialization
-# INFO[2018-02-05T00:20:07.849471459Z] API listen on /tmp/docker.sock
+--# usage: plash docker-daemon <DOCKER-ARGS>
+--# Run the docker daemon inside alpine linux. Use the PLASH_DOCKER_SOCKET
+--# environment variable to select the docker socket, the default is
+--# '/tmp/docker.sock'. Note that '/var/run/docker.sock' is not shared between
+--# containers and host, so it may not be appropriate as a socket
+--#
+--#
+--# Example:
+--#
+--# $ sudo plash docker-daemon
+--# INFO[2018-02-05T00:20:06.645188781Z] libcontainerd: new containerd process, pid: 19841
+--# <snip>
+--# INFO[2018-02-05T00:20:07.840933519Z] Daemon has completed initialization
+--# INFO[2018-02-05T00:20:07.849471459Z] API listen on /tmp/docker.sock
 
 
---image
+--from
 alpine
 
 --namespace
@@ -27,8 +26,7 @@ docker
 
 --layer
 
---write-script
-/entrypoint
+--entrypoint-script
 #!/bin/sh
 
 # we need to "encapsulate" the socket. Docker creates it accesible by the docker

@@ -35,7 +35,7 @@ cp .coveragerc $covtmp
 echo "data_file=${PWD}/.coverage" >> $covtmp/.coveragerc
 export COVERAGE_PROCESS_START=$covtmp/.coveragerc
 
-python3 -m coverage erase
+python3-coverage erase
 cd /
 plash init
 plash test
@@ -43,14 +43,14 @@ cd - 2> /dev/null
 
 rm /usr/lib/python3.*/sitecustomize.py
 
-python3 -m coverage combine
-python3 -m coverage xml
-python3 -m coverage report
+python3-coverage combine
+python3-coverage xml
+python3-coverage report
 codecov
 
 doctmp=$(mktemp -d)
 misc/mkdocs "$doctmp"
-python3 -m coverage html --directory "$doctmp/htmlcov"
+python3-coverage html --directory "$doctmp/htmlcov"
 cd "$doctmp"
 echo -n 'plash.io' > CNAME # for github pages
 git init
