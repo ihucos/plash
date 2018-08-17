@@ -42,7 +42,7 @@ from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output
 from plash.eval import get_hint_values, hint
 from plash.utils import (assert_initialized, catch_and_die, color, die,
                          handle_help_flag, hashstr, info, nodepath_or_die,
-                         plash_map, run_write_read)
+                         plash_map)
 
 handle_help_flag()
 assert_initialized()

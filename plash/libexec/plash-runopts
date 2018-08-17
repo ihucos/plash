@@ -64,8 +64,7 @@ default_root_shell = get_default_shell(os.path.join(mountpoint, 'etc/passwd'))
 os.chroot(mountpoint)
 try:
     os.chdir(pwd_at_start)
-except (ValueError, PermissionError,
-        FileNotFoundError):  # TODO: put more exceptions here
+except (ValueError, OSError):
     os.chdir('/')
 if not args.cmd:
     cmd = [default_root_shell]

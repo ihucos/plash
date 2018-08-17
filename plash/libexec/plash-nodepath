@@ -25,7 +25,6 @@ if container == '0' and not sys.argv[2:3] == ['--allow-root-container']:
     die("container must not be the special root container ('0')")
 
 try:
-    # FIXME: security check that container does not contain bad chars
     with catch_and_die([OSError], ignore=FileNotFoundError, debug='readlink'):
         nodepath = os.readlink(
             os.path.join(get_plash_data(), 'index', container))

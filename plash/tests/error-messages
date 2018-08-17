@@ -60,7 +60,7 @@ tmpdir=$(mktemp -d)
 #
 # plash eval
 #
-# TODO: well, that one will need a little bit more work
+test $(plash eval --run hi) = hi
 
 
 #

@@ -30,7 +30,7 @@ except ValueError:
 
 nodepath = nodepath_or_die(container)
 
-# TODO have this line more generic
+# conservatly validate the changedir
 if changedir and not changedir.replace('.', '').replace('/', '').replace(
         '_', '').replace('-', '').isalnum():
     die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(changedir))
