@@ -47,7 +47,7 @@ with catch_and_die([tarfile.TarError], debug_class=True):
 unshare_if_user()
 t.extractall(rootfs)
 
-# we want /etc/resolv to not by a symlink or not to not exist - that makes the later mount not work #FIXME: add a layer for that
+# we want /etc/resolv to not be a symlink or to exist as a file - otherwise moutning over it later does not work
 resolvconf = join(rootfs, 'etc/resolv.conf')
 try:
     os.unlink(resolvconf)
