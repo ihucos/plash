@@ -1,5 +1,6 @@
 import hashlib
 import os
+import sys
 import shlex
 import stat
 import subprocess
@@ -87,7 +88,28 @@ def eval_macro(stri):
 
     return run_write_read(
         ['plash-eval'], '\n'.join(tokens).encode()
-        ).stdout.decode()
+        ).decode()
+
+@register_macro()
+def eval_stdin():
+    'evaluate expressions read from stdin'
+    cmd = ['plash-eval']
+    p = subprocess.Popen(
+        cmd, stdin=sys.stdin, stdout=sys.stdout)
+    exit = p.wait()
+    if exit:
+       raise subprocess.CalledProcessError(exit, cmd) 
+
+@register_macro()
+@join_result
+def run_stdin():
+    'run commands read from stdin'
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            break
+        yield line
+
 
 class HashPaths:
     'recursively hash files and add as cache key'

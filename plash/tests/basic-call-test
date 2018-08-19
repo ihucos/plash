@@ -13,7 +13,6 @@ purge
 sudo
 test
 build
-build-sh
 list-macros
 )
 
