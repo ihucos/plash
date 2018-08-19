@@ -61,6 +61,7 @@ cd -
 
 if test "$deploy" = yes; then
   python3 setup.py bdist_wheel
+  # note: TWINE_PASSWRD can not contain spaces for some reasons
   twine upload dist/*
   git tag "0.$TRAVIS_BUILD_NUMBER" -m "https://pypi.org/project/plash/0.$TRAVIS_BUILD_NUMBER"
   git push https://${GH_TOKEN}@github.com/ihucos/plash.git --tags
