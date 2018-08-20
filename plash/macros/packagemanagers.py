@@ -1,4 +1,4 @@
-from plash.eval import eval, register_macro
+from plash.eval import eval, register_macro, shell_escape_args
 
 
 @register_macro()
@@ -6,6 +6,7 @@ def defpm(name, *lines):
     'define a new package manager'
 
     @register_macro(name, group='package managers')
+    @shell_escape_args
     def package_manager(*packages):
         if not packages:
             return
