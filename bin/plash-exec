@@ -34,7 +34,7 @@ hint_values = get_hint_values(build_shell_script)
 
 exec = hint_values.get('exec')
 if exec is None:
-    die("no hint named 'exec' found (maybe try adding `--exec /bin/sh`)")
+    die("no hint named 'exec' found (maybe try adding `--entrypoint /bin/sh`)")
 
 run_args = [exec] + args
 

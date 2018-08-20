@@ -8,7 +8,7 @@ import uuid
 
 from plash.eval import (eval, hint, join_result, register_macro,
                         shell_escape_args)
-from plash.utils import hashstr, run_write_read
+from plash.utils import hashstr, run_write_read, plash_map, catch_and_die
 
 
 @register_macro()
@@ -149,9 +149,18 @@ register_macro('hash-path')(HashPaths())
 
 
 @register_macro('from')
-def from_(os):
+def from_(image):
     'hint the base image'
-    return hint('image', os)
+    if image.isdigit():
+        image_id = image
+    else:
+        image_id = plash_map(image)
+        if not image_id:
+            with catch_and_die([subprocess.CalledProcessError], silent=True):
+                image_id = subprocess.check_output(
+                    ['plash-import-lxcimages', image]).decode().strip('\n')
+            plash_map(image, image_id)
+    return hint('image', image_id)
 
 
 @register_macro()

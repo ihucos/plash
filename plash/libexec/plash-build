@@ -57,25 +57,11 @@ image_hint = hints.get('image')
 if not image_hint:
     die('no image specified', exit=2)
 
-#
-#  convert the image_hint into an container id, also use caching
-#
-if image_hint.isdigit():
-    base_container = image_hint
-    nodepath_or_die(base_container)
-else:
-    base_container = plash_map(image_hint.encode())
-    if not base_container:
-        with catch_and_die([CalledProcessError], silent=True):
-            base_container = check_output(
-                ['plash-import-lxcimages', image_hint]).decode().strip('\n')
-        plash_map(image_hint.encode(), base_container)
-
 # split the script in its layers
 layers = script.split(hint('layer') + '\n')
 layers = [l for l in layers if l]
 
-current_container = base_container
+current_container = image_hint
 os.environ['PS4'] = color('--> ', 4)
 for layer in layers:
     cache_key = hashstr(b':'.join([current_container.encode(),
