@@ -37,6 +37,14 @@ printf '#!/usr/bin/env plash-exec
 chmod 700 $plashfile
 (! $plashfile)
 
+: no --entrypoint
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1' >> $plashfile
+chmod 700 $plashfile
+(! $plashfile)
+
 : test entrypoint-script macro
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
