@@ -45,3 +45,11 @@ before=$(cat /proc/mounts | grep "/index/$new" | wc -l)
 plash run $new ls
 after=$(cat /proc/mounts | grep "index/$new" | wc -l)
 test $before = $after
+
+: behavior when the command was not found
+set +e
+out=$(plash run 1 mycmdnotfound 2>&1)
+exit=$?
+set -e
+set "$exit" = 127
+test "$out" = "mycmdnotfound: command not found"
