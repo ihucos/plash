@@ -8,9 +8,6 @@
 --from
 alpine
 
---namespace
-docker
-
 --apk
 docker
 

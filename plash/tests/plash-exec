@@ -36,3 +36,15 @@ printf '#!/usr/bin/env plash-exec
 ' >> $plashfile
 chmod 700 $plashfile
 (! $plashfile)
+
+: test entrypoint-script macro
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1
+--entrypoint-script
+#!/bin/sh
+echo hello
+' >> $plashfile
+chmod 700 $plashfile
+test "$($plashfile)" = "hello"

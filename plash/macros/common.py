@@ -166,10 +166,3 @@ def entrypoint_script(*lines):
     if lines and not lines[0].startswith('#!'):
         lines.insert(0, '#!/bin/sh')
     return eval([['entrypoint', '/entrypoint'], ['write-script', '/entrypoint'] + lines])
-
-
-@register_macro()
-def namespace(ns):
-    'start a new build namespace'
-    return eval([['layer'], ['run', ': new namespace {}'.format(ns)],
-                 ['layer']])

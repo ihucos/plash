@@ -1,0 +1,3 @@
+#!/bin/sh
+set -ex
+plash build -f 1 --run 'touch /a' --run 'ls /a'

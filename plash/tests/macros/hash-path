@@ -1,0 +1,24 @@
+#!/bin/sh
+set -ex
+tmp=$(mktemp -d)
+echo 'content' > $tmp/myfile
+
+: test that two calls with same dir give the same output
+out1=$(plash eval --hash-path $tmp)
+out2=$(plash eval --hash-path $tmp)
+test out1=out1
+
+: test that a changed file changes the hash
+echo 'changed content' > $tmp/myfile
+out3=$(plash eval --hash-path $tmp)
+(! test "$out1" = "$out3")
+
+: test that a new empty file changes the hash
+touch $tmp/myotherfile
+out4=$(plash eval --hash-path $tmp)
+(! test "$out3" = "$out4")
+
+: test that different access rights change the hash
+chmod 770 $tmp/myfile
+out5=$(plash eval --hash-path $tmp)
+(! test "$out4" = "$out5")

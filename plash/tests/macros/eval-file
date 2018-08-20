@@ -1,0 +1,6 @@
+#!/bin/sh
+set -ex
+tmpfile="$(mktemp)"
+echo '--run mytest' > $tmpfile
+out=$(plash eval --eval-file $tmpfile)
+test $out = mytest
