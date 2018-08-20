@@ -18,14 +18,15 @@ def catch_and_die(exceptions,
                   debug=None,
                   debug_class=False,
                   ignore=None,
-                  silent=False):
+                  silent=False,
+                  exit=1):
     try:
         yield
     except tuple(exceptions) as exc:
         if ignore and isinstance(exc, ignore):
             raise
         if silent:
-            sys.exit(1)
+            sys.exit(exit)
         msg = str(exc)
         if msg.startswith('<') and msg.endswith('>'):
             msg = msg[1:-1]
@@ -33,7 +34,7 @@ def catch_and_die(exceptions,
             debug = exc.__class__.__name__
         if debug:
             msg = '{debug}: {message}'.format(debug=debug, message=msg)
-        die(msg)
+        die(msg, exit=exit)
 
 
 def get_plash_data():

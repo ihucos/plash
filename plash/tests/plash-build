@@ -21,7 +21,7 @@ stderr=$(mktemp)
 plash build -f $cont -x 'touch /a' 2> $stderr
 test -s $stderr # its not empty
 plash build -f $cont -x 'touch /a' 2> $stderr
-test ! -s $stderr # its empty
+(! test -s $stderr) # its empty
 
 : multilayer caching
 cont=$(fresh)
@@ -66,7 +66,7 @@ plash build -f 1
 : build fail returns bad exit status and not container
 stdout=$(mktemp)
 (! plash build -f 1 -x false > $stdout)
-test ! -s $stderr # its empty
+(! test -s $stderr) # its empty
 
 : bad option causes bad exit status
 (! plash build --my-bad-opiton)

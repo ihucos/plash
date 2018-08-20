@@ -120,7 +120,7 @@ class HashPaths:
                 fname = os.sep.join([dirpath, filename])
                 yield fname
 
-    def __call__(self, paths):
+    def __call__(self, *paths):
 
         collect_files = []
         for path in paths:
@@ -130,6 +130,8 @@ class HashPaths:
                 collect_files.append(path)
 
         hasher = hashlib.sha1()
+        import sys
+        print(collect_files, file=sys.stderr)
         for fname in sorted(collect_files):
             perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))).encode()
             with open(fname, 'rb') as f:
