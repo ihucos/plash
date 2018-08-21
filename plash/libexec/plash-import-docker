@@ -12,7 +12,7 @@ import tempfile
 from os.path import join
 from time import sleep
 
-from plash.utils import catch_and_die, die, die_with_usage, handle_help_flag
+from plash.utils import catch_and_die, die, die_with_usage, handle_help_flag, register_tmp_cleanup
 
 DOCKER_START_TIMEOUT = 40
 
@@ -29,6 +29,7 @@ def debug(msg):
 
 
 tmpdir = tempfile.mkdtemp(prefix='plash-import-docker-')
+register_tmp_cleanup(tmpdir)
 socket_file = join(tmpdir, 'docker.sock')
 os.environ['PLASH_DOCKER_SOCKET'] = socket_file
 daemon_log = open(join(tmpdir, 'docker-daemon.log'), 'w')
@@ -84,4 +85,4 @@ with catch_and_die([subprocess.CalledProcessError], silent=True):
         ['plash-docker', 'export', container], stdout=subprocess.PIPE)
     atexit.register(lambda: docker_export.kill())
     subprocess.check_call(
-        ['plash-import-tar', '-'], stdin=docker_export.stdout)
+        ['plash-import-tar'], stdin=docker_export.stdout)
