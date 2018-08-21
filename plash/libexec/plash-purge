@@ -2,6 +2,7 @@
 #
 # usage: plash reset
 # Prompts to delete all build data.
+# This operation is not atomic and needs to run again if it fail
 
 import os
 import sys
