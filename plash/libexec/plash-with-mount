@@ -5,8 +5,6 @@
 # Example: plash with-mount alpine mv . /tmp/rootfs
 
 import os
-import shlex
-import subprocess
 import sys
 from subprocess import CalledProcessError, check_call
 from tempfile import mkdtemp
@@ -14,29 +12,25 @@ from tempfile import mkdtemp
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, handle_build_args, handle_help_flag)
 
+from plash.unshare import unshare_if_root, unshare_if_user
 handle_help_flag()
 handle_build_args()
 assert_initialized()
 
 try:
     container = sys.argv[1]
-    user_sh = ' '.join(shlex.quote(i) for i in sys.argv[2:])
+    cmd = sys.argv[2:]
 except IndexError:
     die_with_usage()
 
 mountpoint = mkdtemp()
+
+unshare_if_root()
 with catch_and_die([CalledProcessError], silent=True):
-    check_call(
-        ['plash-mount', container, mountpoint],
-        stdout=2)  # pipe any stdout to stderr
-p = subprocess.Popen(['plash-sudo', 'sh', '-c', user_sh], cwd=mountpoint)
-user_exit = p.wait()
-with catch_and_die([CalledProcessError]):
-    if os.getuid():
-        cmd = ['fusermount', '-u', mountpoint]
-    else:
-        cmd = ['umount', mountpoint]
-    check_call(cmd, stdout=2)  # pipe any stdout to stderr
-if user_exit:
-    die('bad exit status {}: {}'.format(user_exit, user_sh))
-sys.exit(user_exit)
+    check_call(['plash-mount', container, mountpoint])
+unshare_if_user(extra_setup_cmd=['fusermount', '-u', mountpoint])
+os.chdir(mountpoint)
+try:
+    os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    sys.stderr.write('{}: command not found'.format(cmd[0]))
