@@ -14,6 +14,7 @@ sudo
 test
 build
 list-macros
+import-tar
 )
 
 SKIP_HELP_FLAG_CHECK=(
@@ -22,6 +23,7 @@ docker
 docker-daemon
 eval
 list-macros
+import-tar
 )
 subcommands=$(plash list | cut -d' ' -f2)
 
