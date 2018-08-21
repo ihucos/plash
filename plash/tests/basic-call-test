@@ -25,9 +25,7 @@ list-macros
 )
 subcommands=$(plash list | cut -d' ' -f2)
 
-#
-# check that no arguments make the script exit with exit status 2
-#
+: check that no arguments make the script exit with exit status 2
 for subcommand in $subcommands
 do
   [[ " ${SKIP_NO_ARGS_CHECK[*]} " = *" $subcommand "* ]] && continue
@@ -40,9 +38,7 @@ do
   }
 done
 
-#
-# check that --help prints usage in desired format
-#
+: check that --help prints usage in desired format
 subcommands=$(plash list | cut -d' ' -f2)
 for subcommand in $subcommands
 do
@@ -56,3 +52,8 @@ do
     exit 1
   }
 done
+
+: call plash without executing a subcommand
+(! plash)
+(! plash --help)
+(! plash notfound)
