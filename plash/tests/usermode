@@ -1,0 +1,14 @@
+#!/bin/sh
+set -exu
+
+: reexec as non root user if launched as root
+uid=$(id -u)
+
+test -z "${SUDO_USER:-}" && {
+  echo 'SKIP MARKER'
+  exit 1
+}
+test "$uid" = 0 && exec su "$SUDO_USER" -- $0
+
+: just run plash build as non root user
+plash test plash-build
