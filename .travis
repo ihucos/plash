@@ -1,6 +1,9 @@
 #!/usr/bin/env plash-exec
 --from ubuntu
 
+--workaround-unionfs
+--layer
+
 --apt
 python3-setuptools
 python3-pip
