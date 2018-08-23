@@ -1,9 +1,5 @@
 language: generic
 
-env:
-  - USERMODE=false
-  - USERMODE=true
-
 install:
 
   # install plash and dependencies
@@ -19,8 +15,8 @@ script:
   # load the plash cache
   - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
   - plash sudo tar -xf ~/plashcache/userdata.tar -C / || plash init
-  - test "$USERMODE" = false && sudo -E ./.travis
-  - test "$USERMODE" = true &&  ./.travis
+
+  - sudo -E ./.travis
 
   # save the plash cache
   - sudo tar -cf ~/plashcache/data.tar /var/lib/plash

@@ -1,9 +1,6 @@
 #!/usr/bin/env plash-exec
 --from ubuntu
 
---workaround-unionfs
---layer
-
 --apt
 python3-setuptools
 python3-pip
@@ -11,7 +8,6 @@ python3-coverage
 python3-jinja2
 git
 twine
-
 --pip3
 codecov
 
@@ -60,8 +56,6 @@ echo -n 'plash.io' > CNAME # for github pages
 git init
 git add .
 git commit -m 'deploy docs [skip ci]'
-
-exit 0 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
 test "$deploy" = yes && git push https://${GH_TOKEN}@github.com/ihucos/plash-docs-deploy.git HEAD:master --force
 cd -
 
