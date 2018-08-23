@@ -1,9 +1,8 @@
 language: generic
 
 env:
-  matrix:
-    USERMODE=false
-    USERMODE=true
+  - USERMODE=false
+  - USERMODE=true
 
 install:
 
