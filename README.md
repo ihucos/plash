@@ -9,7 +9,7 @@
 
 **current status:** Working on version 1.0
 
-**broke compability with docs and examples**
+**broke compatibility with docs and examples**
 
 
 # plash
