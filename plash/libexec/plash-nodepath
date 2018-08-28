@@ -19,7 +19,7 @@ except IndexError:
     die_with_usage()
 
 if not container.isdigit():
-    die("container id must be integer, not {}".format(repr(container)))
+    die("container id must be integer, got {}".format(repr(container)))
 
 if container == '0' and not sys.argv[2:3] == ['--allow-root-container']:
     die("container must not be the special root container ('0')")

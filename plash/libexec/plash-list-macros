@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# usage: plash list-macros [ MACROLIB ]
+# Lists all defined macros in MACROLIB or the default macro library.
 
 import sys
 

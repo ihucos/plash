@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash eval
+# usage: plash eval *MACROS
 # Prints build script. It prints the shell script generated from actions passed in stdin.
 # plash build passes its arguments to this script to generate the shell script
 # with the build instructions.

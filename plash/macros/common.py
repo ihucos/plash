@@ -156,10 +156,24 @@ def from_(image):
     else:
         image_id = plash_map(image)
         if not image_id:
-            with catch_and_die([subprocess.CalledProcessError], silent=True):
-                image_id = subprocess.check_output(
-                    ['plash-import-lxcimages', image]).decode().strip('\n')
+            image_id = subprocess.check_output(
+                ['plash-import-lxcimages', image]).decode().strip('\n')
             plash_map(image, image_id)
+    return hint('image', image_id)
+
+
+class NoSuchMapError(Exception):
+    pass
+
+@register_macro()
+def from_map(map_key):
+    'resolve a map and use it as the base image'
+    with catch_and_die([subprocess.CalledProcessError], silent=True):
+        image_id = subprocess.check_output(
+            ['plash-map', map_key]).decode().strip('\n')
+    image_id = plash_map(map_key)
+    if not image_id:
+        raise NoSuchMapError('map {} not defined'.format(repr(map_key)))
     return hint('image', image_id)
 
 

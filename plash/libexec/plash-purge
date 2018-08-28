@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 #
-# usage: plash reset
-# Prompts to delete all build data.
-# This operation is not atomic and needs to run again if it fail
+# usage: plash purge [ --yes ]
+# Deletes all build data unatomically.
+# Running containers relying on the build data will enter an undefined state.
+# Plashs behaviour while this command did not finish running returning an non zero exit code is undefined.
 
 import os
 import sys

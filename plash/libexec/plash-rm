@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash rm [CONTAINER1 [CONTAINER2 [CONTAINER3 ...]]]
+# usage: plash rm CONTAINER
 # Deletes the given containers.
 
 import os
@@ -9,7 +9,7 @@ from shutil import rmtree
 from tempfile import mkdtemp
 
 from plash.utils import (get_plash_data, handle_build_args, handle_help_flag,
-                         nodepath_or_die)
+                         nodepath_or_die, die_with_usage)
 
 handle_help_flag()
 handle_build_args()
@@ -17,11 +17,9 @@ handle_build_args()
 try:
     container = sys.argv[1]
 except IndexError:
-    sys.exit(0)
+    die_with_usage()
 
 node = nodepath_or_die(container)
 tmp = mkdtemp(dir=get_plash_data())
 os.rename(node, tmp)
 rmtree(tmp)
-
-os.execlp('plash-rm', 'plash-rm', *sys.argv[2:])

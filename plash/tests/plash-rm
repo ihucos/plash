@@ -15,15 +15,3 @@ plash rm $newcont
 : delte by build instruction
 plash build -f 1 --run 'touch /plash-rm-test-file'
 plash rm  -f 1 --run 'touch /plash-rm-test-file'
-
-: delete two containers
-newcont1=$(plash build -f 1 --invalidate-layer)
-newcont2=$(plash build -f 1 --invalidate-layer)
-plash rm "$newcont1" "$newcont2"
-(! plash nodepath $newcont1)
-(! plash nodepath $newcont2)
-
-: delete by two build instruction
-plash build -f 1 --run 'touch /plash-rm-test-file1'
-plash build -f 1 --run 'touch /plash-rm-test-file2'
-plash rm -f 1 --run 'touch /plash-rm-test-file1' -- -f 1 --run 'touch /plash-rm-test-file2'

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 #
 # usage: plash sudo [CMD1 [CMD2 ..]]
-# Setup uid and gid mapped namespace,
-# the execute command or start shell if not command supplied
+# Setup uid and gid mapped namespace for a given command.
+# Default command is a shell
 
 import os
 import sys
