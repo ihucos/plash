@@ -105,6 +105,7 @@ containers, like letting a user quickly use a newer software package from anothe
 - Be as vanilla as you can be.
 - Be humble, don't oversell your abstraction layer.
 - The right guidelines for the right situation.
+- Work toward a timeless finished product that will require no maintainance.
 
 ### Examples
 * https://github.com/ihucos/noapt
