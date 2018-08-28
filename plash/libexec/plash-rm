@@ -2,6 +2,7 @@
 #
 # usage: plash rm CONTAINER
 # Deletes the given containers.
+# There are no guarantess of any behavour for running containers
 
 import os
 import sys

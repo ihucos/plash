@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # usage: plash runopts [ -b BIND ] [ -n ] [ -c CHANGES ] CONTAINER [ CMD1 [ CMD2 ... ] ]
-# Run a container specifing extra options, see --help
+# Run a container with extra options
 
 import argparse
 import os
