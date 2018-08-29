@@ -28,3 +28,6 @@ test "$out" = ""
 plash map mkey 1
 plash map mkey ''
 plash map mkey ''
+
+: no '/' in key
+(! plash map hi/da 1)
