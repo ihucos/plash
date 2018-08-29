@@ -13,17 +13,17 @@
 #
 # Examples:
 #
-# $ plash build -i ubuntu --run 'touch a'
+# $ plash build -f ubuntu --run 'touch a'
 # --> touch a
 # --:
 # 66
 #
-# $ plash build -i ubuntu --run 'touch a' --layer --run 'touch b'
+# $ plash build -f ubuntu --run 'touch a' --layer --run 'touch b'
 # --> touch b
 # --:
 # 67
 #
-# $ plash build -i ubuntu --apt nmap
+# $ plash build -f ubuntu --apt nmap
 # --> apt-get update
 # Hit:1 http://security.ubuntu.com/ubuntu bionic-security InRelease
 # Get:2 http://archive.ubuntu.com/ubuntu bionic InRelease [235 kB]
