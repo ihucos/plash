@@ -1,4 +1,0 @@
-#!/bin/sh
-set -ex
-out=$(plash eval --eval ' --run mycmd')
-test "$out" = mycmd

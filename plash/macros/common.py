@@ -81,8 +81,8 @@ def eval_file(file):
         ).decode()
 
 
-@register_macro('eval')
-def eval_macro(stri):
+@register_macro()
+def eval_string(stri):
     'evaluate expressions passed as string'
     tokens = shlex.split(stri)
 
