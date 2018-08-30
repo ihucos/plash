@@ -98,6 +98,10 @@ def eval(lisp):
     return '\n'.join(macro_values)
 
 
+def remove_hint_values(script):
+    return FIND_HIND_HINT_VALUES_RE.sub('', script)
+
+
 def get_hint_values(script):
     return dict(FIND_HIND_HINT_VALUES_RE.findall(script))
 

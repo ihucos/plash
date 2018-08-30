@@ -17,6 +17,7 @@ DEFAULT_BIND = [
     '/tmp', '/home', '/root', '/etc/resolv.conf', '/sys', '/dev', '/proc'
 ]
 
+handle_help_flag()
 assert_initialized()
 
 parser = argparse.ArgumentParser(add_help=False)

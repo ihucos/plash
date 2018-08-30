@@ -39,7 +39,7 @@ import subprocess
 import sys
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output
 
-from plash.eval import get_hint_values, hint
+from plash.eval import get_hint_values, hint, remove_hint_values
 from plash.utils import (assert_initialized, catch_and_die, color, die,
                          handle_help_flag, hashstr, info, nodepath_or_die,
                          plash_map)
@@ -59,9 +59,11 @@ if not image_hint:
 
 # split the script in its layers
 layers = script.split(hint('layer') + '\n')
+layers = [remove_hint_values(l) for l in layers]
 layers = [l for l in layers if l]
 
 current_container = image_hint
+nodepath_or_die(current_container)
 os.environ['PS4'] = color('--> ', 4)
 for layer in layers:
     cache_key = hashstr(b':'.join([current_container.encode(),
