@@ -101,15 +101,9 @@ def eval_stdin():
        raise subprocess.CalledProcessError(exit, cmd) 
 
 @register_macro()
-@join_result
 def run_stdin():
     'run commands read from stdin'
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            break
-        yield line
-
+    return sys.stdin.read()
 
 class HashPaths:
     'recursively hash files and add as cache key'

@@ -29,7 +29,6 @@ with open(file) as f:
 
 with catch_and_die([subprocess.CalledProcessError], silent=True):
     build_shell_script = run_write_read(['plash-eval'], script.encode()).decode()
-
 hint_values = get_hint_values(build_shell_script)
 
 exec = hint_values.get('exec')
