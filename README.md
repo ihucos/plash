@@ -44,7 +44,7 @@ Plashfiles are executable build files featuring optional lightweight configurati
 $ plash init
 
 # build a simple image
-$ plash build --image alpine --run 'touch /file'
+$ plash build --from alpine --run 'touch /file'
 [0%|10%|20%|30%|40%|50%|60%|70%|80%|90%|100%]
 extracting...
 --> touch /file
@@ -52,11 +52,11 @@ extracting...
 2
 
 # second build is cached
-$ plash build --image alpine --run 'touch /file'
+$ plash build --from alpine --run 'touch /file'
 2
 
 # layering is explicit
-$ plash build --image alpine --run 'touch /file' --layer --run 'touch /file2'
+$ plash build --from alpine --run 'touch /file' --layer --run 'touch /file2'
 --> touch /file2
 --:
 3
@@ -65,11 +65,11 @@ $ plash build --image alpine --run 'touch /file' --layer --run 'touch /file2'
 $ plash rm 3
 
 # build and run in one command
-$ plash run --image alpine --run 'touch /file' -- ls /file
+$ plash run --from alpine --run 'touch /file' -- ls /file
 /file
 
 # plash actually includes some configuration management
-$ plash run --image alpine --apk git -- git --version
+$ plash run --from alpine --apk git -- git --version
 --> apk update
 fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/APKINDEX.tar.gz
 <snip>
