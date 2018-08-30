@@ -76,9 +76,16 @@ def eval_file(file):
     with open(fname) as f:
         inscript = f.read()
 
-    return run_write_read(
+    sh =  run_write_read(
         ['plash-eval'], inscript.encode()
         ).decode()
+
+    # we remove an possibly existing newline
+    # because else this macros would add one
+    if sh .endswith('\n'):
+        return sh[:-1]
+
+    return sh
 
 
 @register_macro()
