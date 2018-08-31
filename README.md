@@ -3,15 +3,6 @@
 [![PyPI](https://img.shields.io/pypi/v/plash.svg?style=flat-square)](https://pypi.org/project/plash/)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/plash-containers)
 
-~~**current status:** Currently my day job is keeping me busy...~~
-
-~~**current status:** I quit my day job, so I have time after the notice period.~~
-
-**current status:** Working on version 1.0
-
-**broke compatibility with docs and examples**
-
-
 # plash
 is a container build and runtime system.
 
