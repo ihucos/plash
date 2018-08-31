@@ -8,7 +8,6 @@ import os
 import shlex
 import sys
 from subprocess import check_call
-from tempfile import mkdtemp
 
 from plash.utils import (die_with_usage, get_plash_data, handle_build_args,
                          handle_help_flag, nodepath_or_die)

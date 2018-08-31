@@ -20,10 +20,9 @@
 import os
 import sys
 from os.path import join
-from tempfile import mkdtemp
 
 from plash.utils import (catch_and_die, die_with_usage, get_plash_data,
-                         handle_build_args, handle_help_flag, nodepath_or_die)
+                         handle_build_args, handle_help_flag, nodepath_or_die, mkdtemp)
 
 handle_help_flag()
 handle_build_args()
@@ -53,7 +52,7 @@ new_node_path = join(
 #  prepare the node with the dir being imported
 #  this is the payload data we want to put in the builds folder later
 #
-prepared_new_node = mkdtemp(dir=join(plash_data, 'tmp'))
+prepared_new_node = mkdtemp()
 # other users can see the build tree
 os.chmod(prepared_new_node, 0o755)
 # but other users can not see the layer data

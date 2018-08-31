@@ -7,10 +7,9 @@
 import os
 import sys
 from shutil import rmtree
-from tempfile import mkdtemp
 
 from plash.utils import (get_plash_data, handle_build_args, handle_help_flag,
-                         nodepath_or_die, die_with_usage)
+                         nodepath_or_die, die_with_usage, mkdtemp)
 
 handle_help_flag()
 handle_build_args()
@@ -21,6 +20,6 @@ except IndexError:
     die_with_usage()
 
 node = nodepath_or_die(container)
-tmp = mkdtemp(dir=get_plash_data())
+tmp = mkdtemp()
 os.rename(node, tmp)
 rmtree(tmp)

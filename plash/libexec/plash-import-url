@@ -41,7 +41,7 @@ except IndexError:
 gpg_keyring = os.path.join(
     os.path.dirname(plash.__file__), 'fixtures', 'trusted_gpg_keyring')
 
-downloaded_rootfs = mkstemp()[1]
+downloaded_rootfs = mkstemp()[1] # FIXME: also use utils.mkdtemp
 with catch_and_die(
     [HTTPException, ValueError, URLError],
         debug='geturl({})'.format(repr(url))):

@@ -18,10 +18,9 @@
 import os
 import sys
 from os.path import join
-from tempfile import mkdtemp
 
 from plash.utils import (assert_initialized, catch_and_die, die_with_usage,
-                         get_plash_data, handle_help_flag, nodepath_or_die, die)
+                         get_plash_data, handle_help_flag, nodepath_or_die, die, mkdtemp)
 
 handle_help_flag()
 assert_initialized()
@@ -44,7 +43,7 @@ except IndexError:
 def cache_set(cache_key, container_id):
     nodepath = nodepath_or_die(container_id)
     with catch_and_die([OSError], debug='mkdtemp'):
-        tmpdir = mkdtemp(dir=join(plash_data, 'tmp'))
+        tmpdir = mkdtemp()
         os.symlink(nodepath, join(tmpdir, 'link'))
 
         # rename will overwrite atomically the cache key if it already exists,
