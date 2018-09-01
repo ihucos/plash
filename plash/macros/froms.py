@@ -17,11 +17,11 @@ fi'''
 def cache_container_hint(cache_key_templ):
     def decorator(func):
         @wraps(func)
-        def wrapper(image):
-            cache_key = cache_key_templ.format(image).replace('/', '%')
+        def wrapper(*args):
+            cache_key = cache_key_templ.format(':'.join(args)).replace('/', '%')
             container_id = utils.plash_map(cache_key)
             if not container_id:
-                container_id = func(image)
+                container_id = func(*args)
                 utils.plash_map(cache_key, container_id)
             return hint('image', container_id)
         return wrapper
@@ -72,3 +72,14 @@ def from_(image):
         return from_id(image)
     else:
         return from_lxcimages(image)
+
+@register_macro()
+@cache_container_hint('github:{}')
+def from_github(user_repo_pair, file='plashfile'):
+    "build and use a file (default 'plashfile') from github repo"
+    from urllib.request import urlopen
+    url = 'https://raw.githubusercontent.com/{}/master/{}'.format(user_repo_pair, file)
+    with utils.catch_and_die([Exception], debug=url):
+        resp = urlopen(url)
+    plashstr = resp.read()
+    return utils.run_write_read(['plash', 'build', '--eval-stdin'], plashstr).decode().rstrip('\n')
