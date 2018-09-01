@@ -18,7 +18,7 @@ def cache_container_hint(cache_key_templ):
     def decorator(func):
         @wraps(func)
         def wrapper(image):
-            cache_key = cache_key_templ.format(image)
+            cache_key = cache_key_templ.format(image).replace('/', '%')
             container_id = utils.plash_map(cache_key)
             if not container_id:
                 container_id = func(image)
@@ -42,6 +42,12 @@ def from_docker(image):
 def from_lxcimages(image):
     'use images from images.linuxcontainers.org'
     return subprocess.check_output(['plash', 'import-lxcimages', image]).decode().rstrip('\n')
+
+@register_macro()
+@cache_container_hint('url:{}')
+def from_url(url):
+    'import image from an url'
+    return subprocess.check_output(['plash', 'import-url', url]).decode().rstrip('\n')
 
 @register_macro()
 def from_id(image):
