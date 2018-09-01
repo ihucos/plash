@@ -37,7 +37,7 @@ def get_subs(query_user, subfile):
         user, start, count = read.split(':')
         if user == query_user:
             return int(start), int(count)
-    die('The user {} does not havy any subuids or subgids, please add some'.
+    die('the user {} does not havy any subuids or subgids, please add some'.
         format(query_user))
 
 
