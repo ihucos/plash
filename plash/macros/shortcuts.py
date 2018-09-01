@@ -3,7 +3,6 @@ from plash.eval import eval, register_macro
 ALIASES = dict(
     x=[['run']],
     l=[['layer']],
-    I=[['include']],
     f=[['from']],
     A=[['from', 'alpine'], ['apk']],
     U=[['from', 'ubuntu'], ['apt']],
