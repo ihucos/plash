@@ -7,12 +7,11 @@ import sys
 import subprocess
 from http.client import HTTPException
 import os
-from tempfile import mkstemp
 from urllib.error import URLError
 from urllib.request import urlretrieve, urlopen
 
 from plash.utils import (assert_initialized, catch_and_die, die_with_usage,
-                         handle_help_flag, die)
+                         handle_help_flag, die, mkdtemp)
 import plash
 
 MAX_SIGNATURE_LENGTH = 8192
@@ -41,7 +40,7 @@ except IndexError:
 gpg_keyring = os.path.join(
     os.path.dirname(plash.__file__), 'fixtures', 'trusted_gpg_keyring')
 
-downloaded_rootfs = mkstemp()[1] # FIXME: also use utils.mkdtemp
+downloaded_rootfs = os.path.join(mkdtemp(), 'rootfs')
 with catch_and_die(
     [HTTPException, ValueError, URLError],
         debug='geturl({})'.format(repr(url))):

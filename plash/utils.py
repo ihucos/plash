@@ -168,12 +168,8 @@ def run_write_read(cmd, input):
         raise subprocess.CalledProcessError(exit, cmd)
     return p.stdout.read()
 
-def mkdtemp(*, dir=None):
+def mkdtemp():
     import tempfile
-    if not dir:
-        dir = os.path.join(get_plash_data(), 'tmp')
-    prog = os.path.basename(sys.argv[0])
-    assert not '_' in prog
     return tempfile.mkdtemp(
-        prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()),
-        dir=dir)
+        dir=os.path.join(get_plash_data(), 'tmp'),
+        prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))

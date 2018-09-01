@@ -8,6 +8,7 @@ import os
 import sys
 from subprocess import CalledProcessError, check_call
 
+import tempfile
 from plash.unshare import unshare_if_root, unshare_if_user
 from plash.utils import (assert_initialized, catch_and_die, die,
                          get_default_shell, handle_help_flag, mkdtemp)
@@ -32,7 +33,7 @@ if not args.no_default_binds:
     requested_mounts.extend(DEFAULT_BIND)
 requested_mounts.extend(args.bind or [])
 
-mountpoint = mkdtemp(dir='/var/tmp')
+mountpoint = tempfile.mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-')
 
 unshare_if_root()
 
