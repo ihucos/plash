@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
+# usage: plash cleantmp
+# cleanup the tmp directory at plash data
 
 import os
 import sys
 from plash import utils
 import shutil
+
+utils.handle_help_flag()
 
 tmp = os.path.join(utils.get_plash_data(), 'tmp')
 for file in os.listdir(tmp):
