@@ -8,6 +8,7 @@ from plash import utils
 import shutil
 
 utils.handle_help_flag()
+utils.assert_initialized()
 
 tmp = os.path.join(utils.get_plash_data(), 'tmp')
 for file in os.listdir(tmp):
