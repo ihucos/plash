@@ -15,7 +15,7 @@ test
 build
 list-macros
 import-tar
-cleantmp
+clean
 )
 
 SKIP_HELP_FLAG_CHECK=(

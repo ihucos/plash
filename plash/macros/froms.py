@@ -31,11 +31,7 @@ def cache_container_hint(cache_key_templ):
 @cache_container_hint('docker:{}')
 def from_docker(image):
     'use image from local docker'
-    subprocess.check_call(['docker', 'pull', image], stdout=2)
-    container = subprocess.check_output(['docker', 'create', image, 'sh']).decode().rstrip('\n')
-    docker_export = subprocess.Popen(['docker', 'export', container], stdout=subprocess.PIPE)
-    atexit.register(lambda: docker_export.kill())
-    return subprocess.check_output(['plash', 'import-tar'], stdin=docker_export.stdout).decode().rstrip('\n')
+    return subprocess.check_output(['plash', 'import-docker', image]).decode().rstrip('\n') 
 
 @register_macro()
 @cache_container_hint('lxcimages:{}')
