@@ -4,16 +4,6 @@ from functools import wraps
 import subprocess
 import atexit
 
-
-@register_macro()
-def workaround_unionfs():
-    return '''if [ -d /etc/apt/apt.conf.d ]; then
-echo 'Dir::Log::Terminal "/dev/null";' > /etc/apt/apt.conf.d/unionfs_workaround
-echo 'APT::Sandbox::User "root";' >> /etc/apt/apt.conf.d/unionfs_workarounds
-: See https://github.com/rpodgorny/unionfs-fuse/issues/78
-chown root:root /var/cache/apt/archives/partial || true
-fi'''
-
 def cache_container_hint(cache_key_templ):
     def decorator(func):
         @wraps(func)
