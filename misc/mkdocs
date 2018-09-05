@@ -24,7 +24,7 @@ def render(tpl_path, **context):
         TEMPL_DIR)).get_template(filename).render(context)
 
 
-out = check_output(['plash', 'list'])
+out = check_output(['plash', 'help'])
 out = out.decode()
 progs = sorted((i.split(None, 2)[1:] for i in out.splitlines()))
 
