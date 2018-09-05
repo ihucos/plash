@@ -69,3 +69,8 @@ child_b1=$(mknode "$tree_b")
 child_b2=$(mknode "$tree_b")
 child_b3=$(mknode "$tree_b")
 testshrink 0 $tree_b $child_b2 $child_b3
+
+: test with deferenced node
+mknode 0
+plash rm 1
+testshrink 0

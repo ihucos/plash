@@ -91,4 +91,4 @@ if '--clean-tmp' in user_args:
             shutil.rmtree(abs_file)
             deleted_tmps += 1
     if not '--quiet' in user_args:
-        print('cleaned {} unused tmp directorie(s)'.format(deleted_tmps), file=sys.stderr)
+        print('cleaned {} unused tmp directories'.format(deleted_tmps), file=sys.stderr)
