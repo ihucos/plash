@@ -10,3 +10,10 @@ grep  $tmp' '  /proc/mounts >/dev/null || {
 test -d $tmp/usr
 test -d $tmp/bin
 test -d $tmp/var
+
+: check bad chars
+tmp=$(mktemp -d)
+changesdir=$tmp/'!@#$%^&*()'
+mkdir $tmp/mp
+mkdir $changesdir
+(! plash mount 1 /tmp/mp "$changesdir" )
