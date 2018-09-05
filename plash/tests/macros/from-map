@@ -11,3 +11,7 @@ test "$out" = 1
 
 out=$(plash build --from-map myfavorite)
 test "$out" = 1
+
+: unknow map
+(! plash build --from-map mymapxxxxx)
+
