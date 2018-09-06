@@ -5,6 +5,7 @@
 
 import argparse
 import os
+import re
 import sys
 from subprocess import CalledProcessError, check_call
 
@@ -16,6 +17,8 @@ from plash.utils import (assert_initialized, catch_and_die, die,
 DEFAULT_BIND = [
     '/tmp', '/home', '/root', '/etc/resolv.conf', '/sys', '/dev', '/proc'
 ]
+LOGIN_DEFS_RE = re.compile(r'^\s*ENV_PATH\s+(?:PATH=){0,1}(.*?)\s*$', re.MULTILINE)
+FALLBACK_PATH = '/bin:/usr/bin'
 
 handle_help_flag()
 assert_initialized()
@@ -59,6 +62,14 @@ pwd_at_start = os.getcwd()
 
 # I had problems opening the files after the chroot (LookupError: unknown encoding: ascii)
 default_root_shell = get_default_shell(os.path.join(mountpoint, 'etc/passwd'))
+
+# read PATH from /etc/login.defs if available
+try:
+    with open(os.path.join(mountpoint, 'etc/login.defs')) as f:
+        match = LOGIN_DEFS_RE.findall(f.read())
+except FileNotFoundError:
+    match = None
+os.environ['PATH'] = match[-1] if match else FALLBACK_PATH
 
 os.chroot(mountpoint)
 try:
