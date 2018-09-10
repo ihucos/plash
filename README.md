@@ -75,7 +75,54 @@ git version 2.15.0
 ## Other topics
 
 ### Plashfiles
-TODO
+Plashfiles are executable build files and may have many use cases. For example packaging scripts or bigger programs in an portable way. The following plash script for example will run a sample application with an graphical user interface.
+```
+#!/usr/bin/env plash-exec
+
+--from ubuntu
+
+--apt
+python3-gi
+python3-click
+python3-gi-cairo
+python3-cairo
+gir1.2-gtk-3.0
+
+--layer
+
+--entrypoint-script 
+#!/usr/bin/env python3
+
+from gi.repository import Gtk 
+win = Gtk.Window()
+label = Gtk.Label(label="Hello from inside your container")
+win.add(label)
+win.connect("destroy", Gtk.main_quit)
+win.show_all()
+Gtk.main()
+```
+As the project grows, you could decouple the source coe from the build scirpt like this.
+```
+#!/usr/bin/env plash-exec
+
+--from ubuntu
+
+--apt
+python3-gi
+python3-click
+python3-gi-cairo
+python3-cairo
+gir1.2-gtk-3.0
+
+--layer
+
+--# invalidates the build cache if the source code is changed
+--hash-path ./src
+
+--run
+cp -vr ./src /opt/mygui
+--entrypoint /opt/mygui/start.py
+```                               
 
 ### Philosophy
 Plash thrives to not be more than a useful tool. There is no monetization strategy, bundling or closed source. It plays well with other software in the ecosystem. Plash and its internal architecture tries to honor the "Do One Thing and Do It Well" UNIX philosophy. This software tries to not "oversell" its abstraction layer, which is containerization of processes. Containerization and isolation are seen as two different tasks, but as a flexible tool this software does not enforce any specific why of using it. Sloppily speaking: after we had a revolutionary containerization of processes with docker, this is also some needed fine adjusting: a *processisation of containers*.
