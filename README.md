@@ -75,7 +75,7 @@ git version 2.15.0
 ## Other topics
 
 ### Plashfiles
-Plashfiles are executable build files and may have many use cases. For example packaging scripts or bigger programs in a portable way. The following plash script for example will run a sample application with an graphical user interface.
+Plashfiles are executable build files and may have many use cases. For example packaging scripts or bigger programs in a portable way. The following plash script for example will run a sample application with a graphical user interface.
 ```
 #!/usr/bin/env plash-exec
 
