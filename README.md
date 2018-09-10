@@ -92,9 +92,9 @@ gir1.2-gtk-3.0
 
 --entrypoint-script 
 #!/usr/bin/env python3
-
 from gi.repository import Gtk 
 win = Gtk.Window()
+# create a label
 label = Gtk.Label(label="Hello from inside your container")
 win.add(label)
 win.connect("destroy", Gtk.main_quit)
