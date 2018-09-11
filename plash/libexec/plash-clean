@@ -3,6 +3,7 @@
 # clean older containers
 
 import os
+import signal
 import math
 import shutil
 from time import time
@@ -11,6 +12,7 @@ from plash import utils
 from plash.unshare import unshare_if_user
 import shutil
 import subprocess
+from collections import Counter
 
 utils.handle_help_flag()
 utils.assert_initialized()
@@ -21,9 +23,35 @@ if not user_args:
 
 plash_data = utils.get_plash_data()
 
-# so we support mapped users in fs access
-unshare_if_user()
+#
+# remove unused fuse mounts
+#
+nscount = Counter()
+unionfs = {}
+for proc in os.listdir('/proc'):
+    if not proc.isdigit():
+        continue
+    try:
+        mntns = os.readlink(os.path.join('/proc', proc, 'ns/mnt'))
+        with open(os.path.join('/proc', proc, 'cmdline')) as f:
+            prog = f.read().split('\0', 1)[:-1]
+    except OSError:
+        continue
 
+    if 'unionfs' in prog[0]: # XXXXXXXXX FIXME user ==
+        unionfs[proc] = mntns
+    print('update', prog, mntns)
+    nscount.update([mntns])
+print(nscount)
+print(unionfs)
+for pid, mntns in unionfs.items():
+    count = nscount[mntns]
+    if count == 1: # I am the only one
+        print('killing', pid)
+        os.kill(int(pid), signal.SIGINT)
+
+# so we support mapped users in fs access
+unshare_if_user() # XXXXXXx
 
 def remove_broken_links(dir):
     count = 0
