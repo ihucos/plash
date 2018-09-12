@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-# usage: plash data clean [ --clean-index ] [ --clean-cache-keys ] [ --clean-tmp ]
-# clean older containers
+# usage: plash clean
+# Cleanup internal states
+#
+# there are some abstraction leaks:
+# TODO: document rare case of process changing mount namespace and the binding thing with plash data
 
 import os
 import signal
@@ -17,11 +20,9 @@ from collections import Counter
 utils.handle_help_flag()
 utils.assert_initialized()
 
-user_args = sys.argv[1:]
-if not user_args:
-    user_args = ['--clean-index', '--clean-tmp', '--clean-cache-keys']
-
 plash_data = utils.get_plash_data()
+
+print('output_stable: false')
 
 
 def remove_broken_links(dir):
@@ -41,29 +42,30 @@ def remove_broken_links(dir):
 #
 # Remove all broken links in $PLASH_DATA/index
 #
-if '--clean-index' in user_args:
-    index_dir = os.path.join(plash_data, 'index')
-    count = remove_broken_links(index_dir)
-    if not '--quiet' in user_args:
-        print('cleaned {} index links'.format(count), file=sys.stderr)
+sys.stdout.write('unlinked_indexes: ')
+sys.stdout.flush()
+index_dir = os.path.join(plash_data, 'index')
+count = remove_broken_links(index_dir)
+print(count)
 
 #
 # Remove all broken links in $PLASH_DATA/cache_keys
 #
-if '--clean-cache-keys' in user_args:
-    cache_keys_dir = os.path.join(plash_data, 'cache_keys')
-    count = remove_broken_links(cache_keys_dir)
-    if not '--quiet' in user_args:
-        print('cleaned {} cache_keys links'.format(count), file=sys.stderr)
+sys.stdout.write('unlinked_cache_keys: ')
+sys.stdout.flush()
+cache_keys_dir = os.path.join(plash_data, 'cache_keys')
+count = remove_broken_links(cache_keys_dir)
+print(count)
 
 #
 # remove unused fuse mount processes
 #
+sys.stdout.write('killed_fuses: ')
+sys.stdout.flush()
 used_mountpoint = os.path.join(plash_data, 'mnt')
 mnt_ns_counter = Counter()
 running_unionfs = {}
-kill_success_count = 0
-kill_fail_count = 0
+killed = 0
 for pid in os.listdir('/proc'):
     if not pid.isdigit():
         continue
@@ -91,50 +93,43 @@ for unionfs_pid, mntns in running_unionfs.items():
     if count == 1:
         try:
             os.kill(int(unionfs_pid), signal.SIGINT)
-            kill_success_count += 1
+            killed += 1
         except OSError:
-            kill_fail_count += 1
-
-print('cleaned {killed} unused unionfs processes; {total} still active; {failed} errors'.format(
-    killed=kill_success_count, failed=kill_fail_count, total=len(running_unionfs) - kill_success_count), file=sys.stderr)
-
+            pass
+print(killed)
 
 
 #
 # Remove unused tmp dirs in $PLASH_DATA/tmp
 #
-# so we support mapped users in fs access
-unshare_if_user() # XXXXXXx
+sys.stdout.write('removed_tmpdirs: ')
+sys.stdout.flush()
+unshare_if_user() # map users for filesystem access
+deleted_tmps = 0
+tmp = os.path.join(utils.get_plash_data(), 'tmp')
+for file in os.listdir(tmp):
+    abs_file = os.path.join(tmp, file)
 
-if '--clean-tmp' in user_args:
-    deleted_tmps = 0
-    tmp = os.path.join(utils.get_plash_data(), 'tmp')
-    for file in os.listdir(tmp):
-        abs_file = os.path.join(tmp, file)
-    
-        try:
-            _, sid, pid, *_ = file.split('_')
-            pid = int(pid)
-        except ValueError:
-            print('bad {}'.format(abs_file), file=sys.stderr)
-            continue
-    
-        try:
-            real_sid = os.getsid(pid)
-        except ProcessLookupError:
-            # no such pid, delete its tmp data
-            delete = True
+    try:
+        _, sid, pid, *_ = file.split('_')
+        pid = int(pid)
+    except ValueError:
+        continue
+
+    try:
+        real_sid = os.getsid(pid)
+    except ProcessLookupError:
+        # no such pid, delete its tmp data
+        delete = True
+    else:
+        if str(sid) == str(real_sid):
+            # process still alive, don't delete its tmp dir
+            delete = False
         else:
-            if str(sid) == str(real_sid):
-                # process still alive, don't delete its tmp dir
-                delete = False
-            else:
-                # sid mismatch, its another one, delete
-                delete = True
-    
-        if delete:
-            # print('deleting {}'.format(abs_file), file=sys.stderr) # no noise
-            shutil.rmtree(abs_file)
-            deleted_tmps += 1
-    if not '--quiet' in user_args:
-        print('cleaned {} unused tmp directories'.format(deleted_tmps), file=sys.stderr)
+            # sid mismatch, its another one, delete
+            delete = True
+
+    if delete:
+        shutil.rmtree(abs_file)
+        deleted_tmps += 1
+print(deleted_tmps)

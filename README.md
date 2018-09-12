@@ -136,14 +136,16 @@ containers, like letting a user quickly use a newer software package from anothe
 - Use honest thin wrappers, documented leaky abstractions are better then difficult promises.
 - Don't be a monolith but don't try too hard not to be one.
 - Only be as smart as necessary and keep it simple and stupid (KISS).
+- Do it or don't do it, but never complain or warn via stderr, nobody cares.
+- There is no ad-hoc work or reporting, behave as expected and leak abstraction upwards.
 - Still be able to run this in five years without any maintenance work.
 - Find out what this program is and especially what it not is.
 - Say no to features, say yes to solved used cases.
 - Delay compromises.
-- Be as vanilla as you can be.
+- Be as vanilla as you can be
 - Be humble, don't oversell your abstraction layer.
-- The right guidelines for the right situation.
 - Work toward a timeless finished product that will require no maintainance.
+- The right guidelines for the right situation.
 
 ### Examples
 * https://github.com/ihucos/noapt
