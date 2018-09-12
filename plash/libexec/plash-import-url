@@ -19,7 +19,7 @@ MAX_SIGNATURE_LENGTH = 8192
 
 def reporthook(count, block_size, total_size):
     if total_size not in (0, -1):
-        sys.stderr.write('plash: import-url: fetching {}%\r'.format(
+        sys.stderr.write('plash: fetching {}%\r'.format(
             round(100 * count * min(block_size / total_size, 1))))
         if count * block_size >= total_size:
             sys.stderr.write('\n')
@@ -59,7 +59,7 @@ if gpg_signature_url:
             stdin=subprocess.PIPE)
     except FileNotFoundError:
         sys.stderr.write(
-            'plash: import-url: WARNING: not verifying signature, gpgv not in PATH\n'
+            'plash: WARNING: not verifying signature, gpgv not in PATH\n'
         )
     else:
         p.stdin.write(signature)
@@ -70,5 +70,5 @@ if gpg_signature_url:
             sys.stderr.write(out)
             die('signature check failed')
 
-sys.stderr.write('plash: import-url: extracting...\n')
+sys.stderr.write('plash: extracting...\n')
 os.execlp('plash-import-tar', 'plash-import-tar', downloaded_rootfs)

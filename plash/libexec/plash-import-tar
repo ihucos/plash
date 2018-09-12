@@ -30,7 +30,7 @@ class PlashTarFile(tarfile.TarFile):
             tarfile.TarFile.makedev(self, tarinfo, targetpath)
         except OSError as exc:
             print(
-                'plash: import-tar: ignoring dev file: {} ({})'.format(
+                'plash: ignoring dev file: {} ({})'.format(
                     tarinfo.path, exc.strerror),
                 file=sys.stderr)
 
@@ -57,5 +57,4 @@ with open(resolvconf, 'w') as f:
     f.seek(0)
     f.truncate()
 
-with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash-add-layer', '0', rootfs])
+os.execlp('plash-add-layer', 'plash-add-layer', '0', rootfs)
