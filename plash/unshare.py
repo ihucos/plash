@@ -89,7 +89,7 @@ def unshare_if_user(extra_setup_cmd=None):
     # what the unshare binary does do
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
     libc.unshare(CLONE_NEWUSER) != -1 or die_with_errno('`unshare(CLONE_NEWUSER)`',
-            '(is kernel.unprivileged_userns_clone=1 ?)')
+            '(maybe try `sysctl -w kernel.unprivileged_userns_clone=1`)')
     libc.unshare(CLONE_NEWNS) != -1 or die_with_errno('`unshare(CLONE_NEWNS)`')
     libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
                None) != -1 or die_with_errno('mount')
