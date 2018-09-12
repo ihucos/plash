@@ -81,7 +81,7 @@ for pid in os.listdir('/proc'):
         continue
 
     # collect unionfs processes mounted at this plash data
-    if os.path.basename(
+    if cmd and os.path.basename(
             cmd[0]) in ('unionfs',
                         'unionfs-fuse') and (cmd[-1] == used_mountpoint):
         running_unionfs[pid] = mntns
