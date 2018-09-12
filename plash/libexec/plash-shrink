@@ -58,6 +58,6 @@ for container_id in nodes:
             continue # this or another process already deleted it
         already_deleted += affected
 
-print('dereferenced {} of {} container(s)'.format(already_deleted, len(nodes)), file=sys.stderr)
+print('dereferenced {} of {} containers'.format(already_deleted, len(nodes)), file=sys.stderr)
 print('cleaning up...', file=sys.stderr)
 shutil.rmtree(mastertmp)
