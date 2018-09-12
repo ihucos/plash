@@ -4,6 +4,7 @@
 # Import an image from linuxcontainers.org
 
 import re
+import os
 import sys
 from subprocess import CalledProcessError, check_call
 from urllib.error import URLError
@@ -102,5 +103,4 @@ except KeyError:
         repr(image_name), ' '.join(sorted(names))))
 
 signature_url = '{}.asc'.format(url)
-with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash-import-url', url, signature_url])
+os.execlp('plash-import-url', 'plash-import-url', url, signature_url)
