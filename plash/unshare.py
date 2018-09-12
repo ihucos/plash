@@ -81,7 +81,7 @@ def unshare_if_user(extra_setup_cmd=None):
     lock = Lock()
     lock.acquire()
     child = os.fork()
-    atexit.register(lambda: os.kill(child, signal.SIGKILL))
+    # atexit.register(lambda: os.kill(child, signal.SIGKILL)) XXX: right direction but keeps killing the main proc at every call
     if not child:
         lock.acquire()
         prepare_unshared_proccess()
