@@ -1,4 +1,4 @@
 set -e
-base=$(plash build --alpine py-pip)
-plash run --image "$base" --pip yapf -- yapf . --in-place --recursive
-plash run --image "$base" --pip autoflake -- autoflake  --in-place --remove-all-unused-imports --recursive .
+base=$(plash build --from alpine --apk py-pip)
+plash run --from "$base" --pip yapf -- yapf . --in-place --recursive
+plash run --from "$base" --pip autoflake -- autoflake  --in-place --remove-all-unused-imports --recursive .

@@ -1,14 +1,14 @@
 import hashlib
 import os
-import sys
 import shlex
 import stat
 import subprocess
+import sys
 import uuid
 
 from plash.eval import (eval, hint, join_result, register_macro,
                         shell_escape_args)
-from plash.utils import hashstr, run_write_read, plash_map, catch_and_die
+from plash.utils import catch_and_die, hashstr, plash_map, run_write_read
 
 
 @register_macro()
@@ -76,13 +76,11 @@ def eval_file(file):
     with open(fname) as f:
         inscript = f.read()
 
-    sh =  run_write_read(
-        ['plash-eval'], inscript.encode()
-        ).decode()
+    sh = run_write_read(['plash-eval'], inscript.encode()).decode()
 
     # we remove an possibly existing newline
     # because else this macros would add one
-    if sh .endswith('\n'):
+    if sh.endswith('\n'):
         return sh[:-1]
 
     return sh
@@ -93,24 +91,24 @@ def eval_string(stri):
     'evaluate expressions passed as string'
     tokens = shlex.split(stri)
 
-    return run_write_read(
-        ['plash-eval'], '\n'.join(tokens).encode()
-        ).decode()
+    return run_write_read(['plash-eval'], '\n'.join(tokens).encode()).decode()
+
 
 @register_macro()
 def eval_stdin():
     'evaluate expressions read from stdin'
     cmd = ['plash-eval']
-    p = subprocess.Popen(
-        cmd, stdin=sys.stdin, stdout=sys.stdout)
+    p = subprocess.Popen(cmd, stdin=sys.stdin, stdout=sys.stdout)
     exit = p.wait()
     if exit:
-       raise subprocess.CalledProcessError(exit, cmd) 
+        raise subprocess.CalledProcessError(exit, cmd)
+
 
 @register_macro()
 def run_stdin():
     'run commands read from stdin'
     return sys.stdin.read()
+
 
 class HashPaths:
     'recursively hash files and add as cache key'
@@ -152,10 +150,12 @@ def entrypoint(exec_path):
     'hint default command for this build'
     return hint('exec', exec_path)
 
+
 @register_macro()
 def entrypoint_script(*lines):
     'write lines to /entrypoint and hint it as default command'
     lines = list(lines)
     if lines and not lines[0].startswith('#!'):
         lines.insert(0, '#!/bin/sh')
-    return eval([['entrypoint', '/entrypoint'], ['write-script', '/entrypoint'] + lines])
+    return eval([['entrypoint', '/entrypoint'],
+                 ['write-script', '/entrypoint'] + lines])

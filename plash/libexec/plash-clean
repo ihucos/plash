@@ -5,17 +5,17 @@
 # there are some abstraction leaks:
 # TODO: document rare case of process changing mount namespace and the binding thing with plash data
 
-import os
-import signal
 import math
+import os
 import shutil
-from time import time
+import signal
+import subprocess
 import sys
+from collections import Counter
+from time import time
+
 from plash import utils
 from plash.unshare import unshare_if_user
-import shutil
-import subprocess
-from collections import Counter
 
 utils.handle_help_flag()
 utils.assert_initialized()
@@ -36,8 +36,9 @@ def remove_broken_links(dir):
                 os.unlink(full_path)
                 count += 1
             except FileNotFoundError:
-                pass # race condition, link removed by another process
+                pass  # race condition, link removed by another process
     return count
+
 
 #
 # Remove all broken links in $PLASH_DATA/index
@@ -80,8 +81,9 @@ for pid in os.listdir('/proc'):
         continue
 
     # collect unionfs processes mounted at this plash data
-    if os.path.basename(cmd[0]) in ('unionfs', 'unionfs-fuse') and (
-            cmd[-1] == used_mountpoint):
+    if os.path.basename(
+            cmd[0]) in ('unionfs',
+                        'unionfs-fuse') and (cmd[-1] == used_mountpoint):
         running_unionfs[pid] = mntns
 
     mnt_ns_counter.update([mntns])
@@ -98,13 +100,12 @@ for unionfs_pid, mntns in running_unionfs.items():
             pass
 print(killed)
 
-
 #
 # Remove unused tmp dirs in $PLASH_DATA/tmp
 #
 sys.stdout.write('removed_tmpdirs: ')
 sys.stdout.flush()
-unshare_if_user() # map users for filesystem access
+unshare_if_user()  # map users for filesystem access
 deleted_tmps = 0
 tmp = os.path.join(utils.get_plash_data(), 'tmp')
 for file in os.listdir(tmp):

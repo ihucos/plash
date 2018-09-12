@@ -22,7 +22,8 @@ import sys
 from os.path import join
 
 from plash.utils import (catch_and_die, die_with_usage, get_plash_data,
-                         handle_build_args, handle_help_flag, nodepath_or_die, mkdtemp)
+                         handle_build_args, handle_help_flag, mkdtemp,
+                         nodepath_or_die)
 
 handle_help_flag()
 handle_build_args()

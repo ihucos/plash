@@ -3,16 +3,16 @@
 # usage: plash import-url URL [ GPG_SIGNATURE_URL ]
 # Import a container from an url
 
-import sys
-import subprocess
-from http.client import HTTPException
 import os
+import subprocess
+import sys
+from http.client import HTTPException
 from urllib.error import URLError
-from urllib.request import urlretrieve, urlopen
+from urllib.request import urlopen, urlretrieve
 
-from plash.utils import (assert_initialized, catch_and_die, die_with_usage,
-                         handle_help_flag, die, mkdtemp)
 import plash
+from plash.utils import (assert_initialized, catch_and_die, die,
+                         die_with_usage, handle_help_flag, mkdtemp)
 
 MAX_SIGNATURE_LENGTH = 8192
 
@@ -58,7 +58,9 @@ if gpg_signature_url:
             stderr=subprocess.PIPE,
             stdin=subprocess.PIPE)
     except FileNotFoundError:
-        sys.stderr.write('plash: import-url: WARNING: not verifying signature, gpgv not in PATH\n')
+        sys.stderr.write(
+            'plash: import-url: WARNING: not verifying signature, gpgv not in PATH\n'
+        )
     else:
         p.stdin.write(signature)
         p.stdin.close()

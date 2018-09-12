@@ -8,10 +8,11 @@ import os
 import sys
 from subprocess import CalledProcessError, check_call
 
-from plash.utils import (assert_initialized, catch_and_die, die, mkdtemp,
-                         die_with_usage, handle_build_args, handle_help_flag, get_default_shell)
-
 from plash.unshare import unshare_if_root, unshare_if_user
+from plash.utils import (assert_initialized, catch_and_die, die,
+                         die_with_usage, get_default_shell, handle_build_args,
+                         handle_help_flag, mkdtemp)
+
 handle_help_flag()
 handle_build_args()
 assert_initialized()

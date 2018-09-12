@@ -42,7 +42,7 @@ def get_subs(query_user, subfile):
 
 
 def unshare_if_user(extra_setup_cmd=None):
-    
+
     if not os.getuid():
         return
     os.environ['PLASH_DATA'] = get_plash_data()

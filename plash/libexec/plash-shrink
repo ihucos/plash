@@ -4,14 +4,15 @@
 # It attempts to delete older containers and
 # not the newer ones so there is some rotation.
 
-import os
 import math
-import sys
+import os
 import shutil
 import subprocess
-from plash import unshare, utils
+import sys
 import tempfile
 from collections import Counter
+
+from plash import unshare, utils
 
 # allows changing subuids in the fs
 unshare.unshare_if_user()
@@ -26,7 +27,8 @@ nodepaths = {}
 for container_id in links:
     try:
         nodepath = os.readlink(os.path.join(index_dir, container_id))
-        os.stat(nodepath) # raises the file not found if containers was deleted
+        os.stat(
+            nodepath)  # raises the file not found if containers was deleted
     except FileNotFoundError:
         # broken link, it's `plash clean`s responsability to clean that
         continue
@@ -36,7 +38,7 @@ for container_id in links:
 
 # don't mess around with the special root container
 del node_deletation_effect['0']
-    
+
 nodes = list(node_deletation_effect.keys())
 nodes.sort(key=int)
 delete_quota = math.ceil(len(nodes) * DELETE_PERCENT / 100.0)
@@ -55,9 +57,11 @@ for container_id in nodes:
         try:
             os.rename(nodepaths[container_id], tmp)
         except FileNotFoundError:
-            continue # this or another process already deleted it
+            continue  # this or another process already deleted it
         already_deleted += affected
 
-print('dereferenced {} of {} containers'.format(already_deleted, len(nodes)), file=sys.stderr)
+print(
+    'dereferenced {} of {} containers'.format(already_deleted, len(nodes)),
+    file=sys.stderr)
 print('cleaning up...', file=sys.stderr)
 shutil.rmtree(mastertmp)
