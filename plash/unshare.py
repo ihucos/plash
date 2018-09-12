@@ -10,6 +10,7 @@ from getpass import getuser
 from multiprocessing import Lock  # that takes way too long to load
 from subprocess import CalledProcessError, check_call
 
+from plash import utils
 from plash.utils import catch_and_die, die, get_plash_data
 
 # I do believe this libc constants are stable.
@@ -46,8 +47,9 @@ def unshare_if_user(extra_setup_cmd=None):
     if not os.getuid():
         return
     os.environ['PLASH_DATA'] = get_plash_data()
-    uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
-    gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
+    with utils.catch_and_die([FileNotFoundError]):
+        uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
+        gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
 
     setup_cmds = [[
         'newuidmap',
