@@ -5,6 +5,8 @@
 import ctypes
 import errno
 import os
+import signal
+import atexit
 import sys
 from getpass import getuser
 from multiprocessing import Lock  # that takes way too long to load
@@ -25,10 +27,10 @@ class CouldNotSetupUnshareError(SystemExit):
     pass
 
 
-def die_with_errno(hint):
+def die_with_errno(calling, extra=''):
     myerrno = ctypes.get_errno()
     errno_str = errno.errorcode.get(myerrno, myerrno)
-    die('errno while {}: {}'.format(hint, errno_str))
+    die('calling {} returned {} {}'.format(calling, errno_str, extra))
 
 
 def get_subs(query_user, subfile):
@@ -79,16 +81,18 @@ def unshare_if_user(extra_setup_cmd=None):
     lock = Lock()
     lock.acquire()
     child = os.fork()
+    atexit.register(lambda: os.kill(child, signal.SIGKILL))
     if not child:
         lock.acquire()
         prepare_unshared_proccess()
         sys.exit(0)
     # what the unshare binary does do
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
-    libc.unshare(CLONE_NEWNS
-                 | CLONE_NEWUSER) != -1 or die_with_errno(hint='unsharing')
+    libc.unshare(CLONE_NEWUSER) != -1 or die_with_errno('`unshare(CLONE_NEWUSER)`',
+            '(is kernel.unprivileged_userns_clone=1 ?)')
+    libc.unshare(CLONE_NEWNS) != -1 or die_with_errno('`unshare(CLONE_NEWNS)`')
     libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
-               None) != -1 or die_with_errno(hint='mounting')
+               None) != -1 or die_with_errno('mount')
 
     lock.release()
     pid, raw_exit_status = os.wait()
@@ -102,6 +106,6 @@ def unshare_if_root():
         return
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
 
-    libc.unshare(CLONE_NEWNS) != -1 or die_with_errno(hint='unsharing')
+    libc.unshare(CLONE_NEWNS) != -1 or die_with_errno('`unshare(CLONE_NEWNS)`')
     libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
-               None) != -1 or die_with_errno(hint='mounting')
+               None) != -1 or die_with_errno('mounting')
