@@ -29,7 +29,7 @@ for script in $testfiles ; do
   plash init
   plash import-tar $DIR/../fixtures/busybox.tar > /dev/null
 
-  printf ${script:2} # magic 2 is the length of "./"
+  printf "% -20s" ${script:2} # magic 2 is the length of "./"
   env "$script" > $log 2>&1 &
   if wait $!; then
     echo ' PASS'
