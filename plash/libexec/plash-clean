@@ -24,31 +24,44 @@ if not user_args:
 plash_data = utils.get_plash_data()
 
 #
-# remove unused fuse mounts
+# remove unused fuse mount processes
 #
-nscount = Counter()
-unionfs = {}
+mnt_ns_counter = Counter()
+running_unionfs = {}
+kill_success_count = 0
+kill_fail_count = 0
 for proc in os.listdir('/proc'):
     if not proc.isdigit():
         continue
+
+    # read process mount namespace and command line arguments
     try:
-        mntns = os.readlink(os.path.join('/proc', proc, 'ns/mnt'))
+        mntns = os.readlink(os.path.join('/proc', proc, 'ns', 'mnt'))
         with open(os.path.join('/proc', proc, 'cmdline')) as f:
             prog = f.read().split('\0', 1)[:-1]
     except OSError:
         continue
 
+    # collect unionfs processes mounted at this plash data
     if 'unionfs' in prog[0]: # XXXXXXXXX FIXME user ==
-        unionfs[proc] = mntns
-    print('update', prog, mntns)
-    nscount.update([mntns])
-print(nscount)
-print(unionfs)
-for pid, mntns in unionfs.items():
-    count = nscount[mntns]
-    if count == 1: # I am the only one
-        print('killing', pid)
-        os.kill(int(pid), signal.SIGINT)
+        running_unionfs[proc] = mntns
+
+    mnt_ns_counter.update([mntns])
+for unionfs_pid, mntns in running_unionfs.items():
+    count = mnt_ns_counter[mntns]
+
+    # check if this unionfs_pid instance is the only one using
+    # it's mount namespace
+    if count == 1:
+        try:
+            os.kill(int(unionfs_pid), signal.SIGINT)
+            kill_success_count += 1
+        except OSError:
+            kill_fail_count += 1
+
+print('cleaned {killed} unused unionfs processes; {total} still active; {failed} errors'.format(
+    killed=kill_success_count, failed=kill_fail_count, total=len(running_unionfs) - kill_success_count), file=sys.stderr)
+
 
 # so we support mapped users in fs access
 unshare_if_user() # XXXXXXx
@@ -74,7 +87,7 @@ if '--clean-index' in user_args:
     index_dir = os.path.join(plash_data, 'index')
     count = remove_broken_links(index_dir)
     if not '--quiet' in user_args:
-        print('cleaned {} index link(s)'.format(count), file=sys.stderr)
+        print('cleaned {} index links'.format(count), file=sys.stderr)
 
 #
 # Remove all broken links in $PLASH_DATA/cache_keys
@@ -83,7 +96,7 @@ if '--clean-cache-keys' in user_args:
     cache_keys_dir = os.path.join(plash_data, 'cache_keys')
     count = remove_broken_links(cache_keys_dir)
     if not '--quiet' in user_args:
-        print('cleaned {} cache_keys link(s)'.format(count), file=sys.stderr)
+        print('cleaned {} cache_keys links'.format(count), file=sys.stderr)
 
 #
 # Remove unused tmp dirs in $PLASH_DATA/tmp
