@@ -23,48 +23,6 @@ if not user_args:
 
 plash_data = utils.get_plash_data()
 
-#
-# remove unused fuse mount processes
-#
-mnt_ns_counter = Counter()
-running_unionfs = {}
-kill_success_count = 0
-kill_fail_count = 0
-for proc in os.listdir('/proc'):
-    if not proc.isdigit():
-        continue
-
-    # read process mount namespace and command line arguments
-    try:
-        mntns = os.readlink(os.path.join('/proc', proc, 'ns', 'mnt'))
-        with open(os.path.join('/proc', proc, 'cmdline')) as f:
-            prog = f.read().split('\0', 1)[:-1]
-    except OSError:
-        continue
-
-    # collect unionfs processes mounted at this plash data
-    if 'unionfs' in prog[0]: # XXXXXXXXX FIXME user ==
-        running_unionfs[proc] = mntns
-
-    mnt_ns_counter.update([mntns])
-for unionfs_pid, mntns in running_unionfs.items():
-    count = mnt_ns_counter[mntns]
-
-    # check if this unionfs_pid instance is the only one using
-    # it's mount namespace
-    if count == 1:
-        try:
-            os.kill(int(unionfs_pid), signal.SIGINT)
-            kill_success_count += 1
-        except OSError:
-            kill_fail_count += 1
-
-print('cleaned {killed} unused unionfs processes; {total} still active; {failed} errors'.format(
-    killed=kill_success_count, failed=kill_fail_count, total=len(running_unionfs) - kill_success_count), file=sys.stderr)
-
-
-# so we support mapped users in fs access
-unshare_if_user() # XXXXXXx
 
 def remove_broken_links(dir):
     count = 0
@@ -99,8 +57,55 @@ if '--clean-cache-keys' in user_args:
         print('cleaned {} cache_keys links'.format(count), file=sys.stderr)
 
 #
+# remove unused fuse mount processes
+#
+used_mountpoint = os.path.join(plash_data, 'mnt')
+mnt_ns_counter = Counter()
+running_unionfs = {}
+kill_success_count = 0
+kill_fail_count = 0
+for pid in os.listdir('/proc'):
+    if not pid.isdigit():
+        continue
+
+    # read process mount namespace and command line arguments
+    try:
+        mntns = os.readlink(os.path.join('/proc', pid, 'ns', 'mnt'))
+        cmdline_path = os.path.join('/proc', pid, 'cmdline')
+        with open(cmdline_path) as f:
+            cmd = f.read().split('\0')[:-1]
+    except OSError:
+        continue
+
+    # collect unionfs processes mounted at this plash data
+    if os.path.basename(cmd[0]) in ('unionfs', 'unionfs-fuse') and (
+            cmd[-1] == used_mountpoint):
+        running_unionfs[pid] = mntns
+
+    mnt_ns_counter.update([mntns])
+for unionfs_pid, mntns in running_unionfs.items():
+    count = mnt_ns_counter[mntns]
+
+    # check if this unionfs_pid instance is the only one using
+    # it's mount namespace
+    if count == 1:
+        try:
+            os.kill(int(unionfs_pid), signal.SIGINT)
+            kill_success_count += 1
+        except OSError:
+            kill_fail_count += 1
+
+print('cleaned {killed} unused unionfs processes; {total} still active; {failed} errors'.format(
+    killed=kill_success_count, failed=kill_fail_count, total=len(running_unionfs) - kill_success_count), file=sys.stderr)
+
+
+
+#
 # Remove unused tmp dirs in $PLASH_DATA/tmp
 #
+# so we support mapped users in fs access
+unshare_if_user() # XXXXXXx
+
 if '--clean-tmp' in user_args:
     deleted_tmps = 0
     tmp = os.path.join(utils.get_plash_data(), 'tmp')
