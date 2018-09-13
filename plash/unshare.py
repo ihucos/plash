@@ -102,7 +102,7 @@ def unshare_if_user(extra_setup_cmd=None):
 
 
 def unshare_if_root():
-    if os.getuid():
+    if os.getuid() or os.environ.get('PLASH_NO_UNSHARE'):
         return
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
 

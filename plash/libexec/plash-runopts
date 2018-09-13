@@ -38,7 +38,10 @@ if not args.no_default_binds:
     requested_mounts.extend(DEFAULT_BIND)
 requested_mounts.extend(args.bind or [])
 
-mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
+if not os.getuid() and os.environ.get('PLASH_NO_UNSHARE'):
+    mountpoint = tempfile.mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
+else:
+    mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
 
 original_uid = os.getuid()
 unshare_if_root()
