@@ -29,9 +29,10 @@ if not cmd:
 mountpoint = mkdtemp()
 
 unshare_if_root()
+unshare_if_user()
+
 with catch_and_die([CalledProcessError], silent=True):
     check_call(['plash-mount', container, mountpoint])
-unshare_if_user(extra_setup_cmd=['fusermount', '-u', mountpoint])
 os.chdir(mountpoint)
 try:
     os.execlp(cmd[0], *cmd)
