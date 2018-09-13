@@ -59,7 +59,7 @@ if gpg_signature_url:
             stdin=subprocess.PIPE)
     except FileNotFoundError:
         sys.stderr.write(
-            'plash: WARNING: not verifying signature, gpgv not in PATH\n'
+            'plash: WARNING: not verifying image signature, gpgv not in PATH\n'
         )
     else:
         p.stdin.write(signature)
