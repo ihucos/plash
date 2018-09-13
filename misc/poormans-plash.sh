@@ -25,7 +25,7 @@ mount --rbind /dev "$ROOTFS"/dev
 chroot "$ROOTFS" env PATH="$ALPINEPATH" apk update
 chroot "$ROOTFS" env PATH="$ALPINEPATH" apk add py3-pip bash
 chroot "$ROOTFS" env PATH="$ALPINEPATH" pip3 install plash
-umount "$ROOTFSMNT"/dev
+umount "$ROOTFS"/dev
 
 # write a script that creates our mounts if necessary
 # and the runs the chrooted plash
