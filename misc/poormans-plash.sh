@@ -20,10 +20,12 @@ curl "$URL" | tar -xz -C "$ROOTFS"
 rm "$ROOTFS"/etc/resolv.conf || true
 cp /etc/resolv.conf "$ROOTFS"/etc/resolv.conf
     
-# install our stuff there
+# install our stuff there, pip3 needs /dev/urandom in some cases
+mount --rbind /dev "$ROOTFSMNT"/dev
 chroot "$ROOTFS" env PATH="$ALPINEPATH" apk update
 chroot "$ROOTFS" env PATH="$ALPINEPATH" apk add py3-pip bash
 chroot "$ROOTFS" env PATH="$ALPINEPATH" pip3 install plash
+umount "$ROOTFSMNT"/dev
 
 # write a script that creates our mounts if necessary
 # and the runs the chrooted plash
