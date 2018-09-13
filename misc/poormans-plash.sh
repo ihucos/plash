@@ -20,9 +20,9 @@ rm "$ROOTFS"/etc/resolv.conf || true
 cp /etc/resolv.conf "$ROOTFS"/etc/resolv.conf
     
 # install our stuff there
-chroot "$ROOTFS" apk update
-chroot "$ROOTFS" apk add py3-pip bash
-chroot "$ROOTFS" pip3 install plash
+chroot "$ROOTFS" /sbin/apk update
+chroot "$ROOTFS" /sbin/apk add py3-pip bash
+chroot "$ROOTFS" /usr/bin/pip3 install plash
 
 # write a script that creates our mounts if necessary
 # and the runs the chrooted plash
