@@ -81,11 +81,15 @@ def unshare_if_user(extra_setup_cmd=None):
     lock = Lock()
     lock.acquire()
     child = os.fork()
-    # atexit.register(lambda: os.kill(child, signal.SIGKILL)) XXX: right direction but keeps killing the main proc at every call
     if not child:
         lock.acquire()
         prepare_unshared_proccess()
         sys.exit(0)
+
+    @atexit.register
+    def kill_child():
+        os.kill(child, signal.SIGKILL)
+
     # what the unshare binary does do
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
     libc.unshare(CLONE_NEWUSER) != -1 or die_with_errno('`unshare(CLONE_NEWUSER)`',
@@ -93,6 +97,8 @@ def unshare_if_user(extra_setup_cmd=None):
     libc.unshare(CLONE_NEWNS) != -1 or die_with_errno('`unshare(CLONE_NEWNS)`')
     libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
                None) != -1 or die_with_errno('mount')
+
+    atexit.unregister(kill_child)
 
     lock.release()
     pid, raw_exit_status = os.wait()
