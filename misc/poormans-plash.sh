@@ -21,7 +21,7 @@ rm "$ROOTFS"/etc/resolv.conf || true
 cp /etc/resolv.conf "$ROOTFS"/etc/resolv.conf
     
 # install our stuff there, pip3 needs /dev/urandom in some cases
-mount --rbind /dev "$ROOTFSMNT"/dev
+mount --rbind /dev "$ROOTFS"/dev
 chroot "$ROOTFS" env PATH="$ALPINEPATH" apk update
 chroot "$ROOTFS" env PATH="$ALPINEPATH" apk add py3-pip bash
 chroot "$ROOTFS" env PATH="$ALPINEPATH" pip3 install plash
