@@ -32,13 +32,13 @@ except FileExistsError:
     pass
 
 try:
-    with open(join(plash_data, 'union_taste'), 'x') as f:
+    with open(join(plash_data, 'config', 'union_taste'), 'x') as f:
         if not os.getuid() and platform.system() == 'Linux':
             # overlay is only in the Linux kernel and accesible by root
-            f.write('overlay')
+            f.write('overlay\n')
         else:
             # unionfs is fuse based and available in Linux, Mac and FreeBSD
-            f.write('unionfs-fuse')
+            f.write('unionfs-fuse\n')
 except FileExistsError:
     pass
 
