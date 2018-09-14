@@ -5,23 +5,17 @@ import sys
 import plash
 from plash.utils import die
 
-
-def die_helping():
+try:
+    subcommand = sys.argv[1]
+except IndexError:
     print(
         'Plash is a lean container build and run engine, try `plash help`',
         file=sys.stderr)
     sys.exit(1)
 
-
-try:
-    subcommand = sys.argv[1]
-except IndexError:
-    die_helping()
-if subcommand in ('-h', '--help'):
-    die_helping()
-
 libdir = os.path.dirname(plash.__file__)
 libexec = os.path.join(libdir, 'libexec')
+binfile = os.path.join(libexec, 'plash-{}'.format(subcommand))
 
 if 'PATH' in os.environ:
     os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
@@ -29,9 +23,7 @@ else:
     # maybe die instead and complain?
     os.environ['PATH'] = libexec
 
-binfile = 'plash-{}'.format(subcommand)
-binfilepath = os.path.join(libexec, binfile)
 try:
-    os.execlp(binfilepath, binfile, *sys.argv[2:])
+    os.execlp(binfile, binfile, *sys.argv[2:])
 except FileNotFoundError:
     die('no such command: {} (try `plash help`)'.format(subcommand))
