@@ -33,7 +33,7 @@ try:
 except IndexError:
     die_with_usage()
 if os.sep in key:
-    die('cache key can not contain any {}'.format(repr(os.sep)))
+    die('map can not contain any {}'.format(repr(os.sep)))
 
 try:
     value = sys.argv[2]
@@ -41,30 +41,30 @@ except IndexError:
     value = None
 
 
-def cache_set(cache_key, container_id):
+def map_set(map_key, container_id):
     nodepath = nodepath_or_die(container_id)
     with catch_and_die([OSError], debug='mkdtemp'):
         tmpdir = mkdtemp()
         os.symlink(nodepath, join(tmpdir, 'link'))
 
-        # rename will overwrite atomically the cache key if it already exists,
+        # rename will overwrite atomically the map key if it already exists,
         # just symlink would not
         os.rename(
-            join(tmpdir, 'link'), join(plash_data, 'cache_keys', cache_key))
+            join(tmpdir, 'link'), join(plash_data, 'map', map_key))
 
 
-def cache_rm(cache_key):
+def map_rm(map_key):
     with catch_and_die([OSError], debug='unlink'):
         try:
-            os.unlink(join(plash_data, 'cache_keys', cache_key))
+            os.unlink(join(plash_data, 'map', map_key))
             return True
         except FileNotFoundError:
             return False
 
 
-def cache_get(cache_key):
+def map_get(map_key):
     try:
-        nodepath = os.readlink(join(plash_data, 'cache_keys', cache_key))
+        nodepath = os.readlink(join(plash_data, 'map', map_key))
     except FileNotFoundError:
         return
     if os.path.exists(nodepath):
@@ -72,10 +72,10 @@ def cache_get(cache_key):
 
 
 if value == '':
-    cache_rm(key)
+    map_rm(key)
 elif value is None:
-    cont = cache_get(key)
+    cont = map_get(key)
     if cont:
         print(cont)
 else:
-    cache_set(key, value)
+    map_set(key, value)

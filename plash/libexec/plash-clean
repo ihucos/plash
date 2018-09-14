@@ -50,12 +50,12 @@ count = remove_broken_links(index_dir)
 print(count)
 
 #
-# Remove all broken links in $PLASH_DATA/cache_keys
+# Remove all broken links in $PLASH_DATA/map
 #
-sys.stdout.write('unlinked_cache_keys: ')
+sys.stdout.write('unlinked_maps: ')
 sys.stdout.flush()
-cache_keys_dir = os.path.join(plash_data, 'cache_keys')
-count = remove_broken_links(cache_keys_dir)
+maps_dir = os.path.join(plash_data, 'map')
+count = remove_broken_links(maps_dir)
 print(count)
 
 #

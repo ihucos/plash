@@ -13,18 +13,18 @@ plash clean
 out_after=$(ls "$PLASH_DATA"/index)
 test "$out_before" != "$out_after"
 
-: check that $PLASH_DATA/cache_keys gets cleaned
+: check that $PLASH_DATA/map gets cleaned
 cont=$(plash build -f 1 --invalidate-layer)
 plash map key1 "$cont"
 plash map key2 "$cont"
 plash map key3 "$cont"
-out=$(ls "$PLASH_DATA"/cache_keys)
+out=$(ls "$PLASH_DATA"/map)
 echo "$out" | grep key1
 echo "$out" | grep key2
 echo "$out" | grep key3
 plash rm 3  # delete the container the maps are referncing to
 plash clean --clean-cache-keys
-out=$(ls "$PLASH_DATA"/cache_keys/)
+out=$(ls "$PLASH_DATA"/map/)
 test "$out" = ""
 
 : check that `plash clean` removes tmp directories
@@ -39,6 +39,6 @@ test "$out" = "" # assert empty tmp
 
 : check that some bad files does not lead to a crash
 touch "$PLASH_DATA"/index/mybadfile
-touch "$PLASH_DATA"/cache_keys/mybadfile
+touch "$PLASH_DATA"/map/mybadfile
 touch "$PLASH_DATA"/tmp/mybadfile
 plash clean
