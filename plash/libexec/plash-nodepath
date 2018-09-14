@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash nodepath CONTAINER
+# usage: plash nodepath CONTAINER [--allow-root-container]
 # Prints the path of a given container
 # Example: `plash nodepath mycontainer | xargs tree`
 
