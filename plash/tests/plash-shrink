@@ -8,6 +8,7 @@ testshrink(){
   test "$out" = "$(echo $@)"
   plash purge --yes
   plash init
+  plash data touch config/testmode
 }
 
 mknode(){
@@ -18,6 +19,7 @@ mknode(){
 # start from zero
 plash purge --yes
 plash init
+plash data touch config/testmode
 
 : if called with one node delete it,
 mknode 0

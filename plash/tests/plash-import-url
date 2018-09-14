@@ -1,6 +1,4 @@
 #!/bin/sh
 set eux
 
-export PLASH_KILL_PARENT_ON_EXCEPTION=1
-
 (! plash import-url http://example.com/deosnotexists_and_never_will_789349)

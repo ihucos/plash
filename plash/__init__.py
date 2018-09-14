@@ -1,5 +1,8 @@
 import os
-if os.environ.get('PLASH_KILL_PARENT_ON_EXCEPTION'):
+from plash import utils
+
+testmode_file = os.path.join(utils.get_plash_data(), 'config', 'testmode')
+if os.path.exists(testmode_file):
     import sys, traceback, signal
 
     def my_except_hook(exctype, value, traceb):

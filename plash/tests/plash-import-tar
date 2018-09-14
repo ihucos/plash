@@ -1,8 +1,6 @@
 #!/bin/sh
 set -ex
 
-export PLASH_KILL_PARENT_ON_EXCEPTION=1
-
 tar=$(mktemp)
 plash export-tar -f 1 --run 'touch /myperson' -- $tar
 

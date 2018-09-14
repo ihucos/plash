@@ -1,8 +1,6 @@
 #!/bin/sh
 set -xeu
 
-export PLASH_KILL_PARENT_ON_EXCEPTION=1
-
 cont=$(plash import-lxcimages alpine:edge)
 plash run $cont ls
 (! plash import-lxcimages unknownos)
