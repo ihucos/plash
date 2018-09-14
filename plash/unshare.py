@@ -42,8 +42,9 @@ def get_subs(query_user, subfile):
             if user == query_user:
                 return int(start), int(count)
     except FileNotFoundError:
-        die('the user {} does not havy any subuids or subgids, please add some'.
-            format(query_user))
+        pass
+    die('the user {} does not havy any subuids or subgids, please add some'.
+                    format(repr(query_user)))
 
 
 def unshare_if_user(extra_setup_cmd=None):
