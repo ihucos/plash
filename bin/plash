@@ -22,7 +22,12 @@ if subcommand in ('-h', '--help'):
 
 libdir = os.path.dirname(plash.__file__)
 libexec = os.path.join(libdir, 'libexec')
-os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
+
+if 'PATH' in os.environ:
+    os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
+else:
+    # maybe die instead and complain?
+    os.environ['PATH'] = libexec
 
 binfile = 'plash-{}'.format(subcommand)
 binfilepath = os.path.join(libexec, binfile)
