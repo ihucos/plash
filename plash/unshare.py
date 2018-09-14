@@ -35,13 +35,15 @@ def die_with_errno(calling, extra=''):
 
 def get_subs(query_user, subfile):
     'get subuids or subgids for a user'
-    with open(subfile) as f:
-        read = f.readline()
-        user, start, count = read.split(':')
-        if user == query_user:
-            return int(start), int(count)
-    die('the user {} does not havy any subuids or subgids, please add some'.
-        format(query_user))
+    try:
+        with open(subfile) as f:
+            read = f.readline()
+            user, start, count = read.split(':')
+            if user == query_user:
+                return int(start), int(count)
+    except FileNotFoundError:
+        die('the user {} does not havy any subuids or subgids, please add some'.
+            format(query_user))
 
 
 def unshare_if_user(extra_setup_cmd=None):
@@ -49,9 +51,8 @@ def unshare_if_user(extra_setup_cmd=None):
     if not os.getuid():
         return
     os.environ['PLASH_DATA'] = get_plash_data()
-    with utils.catch_and_die([FileNotFoundError]):
-        uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
-        gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
+    uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
+    gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
 
     setup_cmds = [[
         'newuidmap',
