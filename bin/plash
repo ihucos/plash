@@ -9,7 +9,7 @@ try:
     subcommand = sys.argv[1]
 except IndexError:
     print(
-        'Plash is a lean container build and run engine, try `plash help`',
+        'plash is a container build and run engine, try --help',
         file=sys.stderr)
     sys.exit(1)
 
