@@ -17,12 +17,12 @@ os.chmod(plash_data, 0o755)
 
 os.makedirs(join(plash_data, 'index'), exist_ok=True, mode=0o755)
 os.makedirs(join(plash_data, 'map'), exist_ok=True, mode=0o755)
-os.makedirs(join(plash_data, 'layers'), exist_ok=True, mode=0o755)
+os.makedirs(join(plash_data, 'layer'), exist_ok=True, mode=0o755)
 os.makedirs(join(plash_data, 'tmp'), exist_ok=True, mode=0o700)
 os.makedirs(join(plash_data, 'mnt'), exist_ok=True, mode=0o700)
 
 # create the empty root container
-os.makedirs(join(plash_data, 'layers', '0', '_data', 'root'), exist_ok=True)
+os.makedirs(join(plash_data, 'layer', '0', '_data', 'root'), exist_ok=True)
 
 try:
     with open(join(plash_data, 'id'), 'x') as f:
@@ -42,6 +42,6 @@ except FileExistsError:
     pass
 
 try:
-    os.symlink(join(plash_data, 'layers', '0'), join(plash_data, 'index', '0'))
+    os.symlink(join(plash_data, 'layer', '0'), join(plash_data, 'index', '0'))
 except FileExistsError:
     pass

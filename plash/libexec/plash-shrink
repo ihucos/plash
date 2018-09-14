@@ -33,7 +33,7 @@ for container_id in links:
         # broken link, it's `plash clean`s responsability to clean that
         continue
     nodepaths[container_id] = nodepath
-    components = nodepath.split('layers/')[-1].split('/')
+    components = nodepath.split('layer/')[-1].split('/')
     node_deletation_effect.update(components)
 
 # don't mess around with the special root container
