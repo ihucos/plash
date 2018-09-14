@@ -23,7 +23,7 @@ if sys.argv[1:2] == ['--yes'] or input('Delete all build data? [y/N] ') == 'y':
     #
 
     try:
-        os.unlink(os.path.join(plash_data, 'id'))
+        os.unlink(os.path.join(plash_data, 'id_counter'))
     except FileNotFoundError:
         pass
 
