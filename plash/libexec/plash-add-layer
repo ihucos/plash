@@ -54,10 +54,8 @@ new_node_path = join(
 #  this is the payload data we want to put in the builds folder later
 #
 prepared_new_node = mkdtemp()
-# other users can see the build tree
 os.chmod(prepared_new_node, 0o755)
-# but other users can not see the layer data
-os.mkdir(join(prepared_new_node, '_data'), 0o700)
+os.mkdir(join(prepared_new_node, '_data'), 0o755)
 
 # the next line will actually make the import_dir "disappear" for the user.
 # the "root" folder will hold the access rights, user rights and maybe other meta
