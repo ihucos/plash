@@ -51,15 +51,15 @@ changesdir = mkdtemp()
 p = subprocess.Popen(
     [
         'plash-runopts',
-        '-b', '/home',
-        '-b', '/root',
-        '-b', '/etc/resolv.conf',
-        '-b', '/sys',
-        '-b', '/dev',
-        '-b', '/proc',
-        '-c', changesdir,
+        '-c', container,
+        '-d', changesdir,
+        '-m', '/home',
+        '-m', '/root',
+        '-m', '/etc/resolv.conf',
+        '-m', '/sys',
+        '-m', '/dev',
+        '-m', '/proc',
         '--',
-        container,
     ] + cmd,
     stdout=2
 )  # redirect stdout to stderr because we are passing the container id through stdout

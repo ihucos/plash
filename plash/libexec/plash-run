@@ -22,12 +22,13 @@ except ValueError:
 changesdir = utils.mkdtemp()
 
 os.execlp('plash-runopts', 'plash-runopts',
-'-c', changesdir,
-'-b', '/tmp',
-'-b', '/home',
-'-b', '/root',
-'-b', '/etc/resolv.conf',
-'-b', '/sys',
-'-b', '/dev',
-'-b', '/proc',
-'--', container_id, *cmd)
+'-c', container_id,
+'-d', changesdir,
+'-m', '/tmp',
+'-m', '/home',
+'-m', '/root',
+'-m', '/etc/resolv.conf',
+'-m', '/sys',
+'-m', '/dev',
+'-m', '/proc',
+'--', *cmd)

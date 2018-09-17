@@ -33,7 +33,7 @@ test $out = 123
 : test a mount - actually a runopts test
 tmp=$(mktemp)
 changesdir=$(mktemp -d)
-plash runopts -c $changesdir -b /etc/passwd 1 cat /etc/passwd > $tmp
+plash runopts -c 1 -d $changesdir -m /etc/passwd cat /etc/passwd > $tmp
 cat $tmp
 cmp /etc/passwd $tmp
 

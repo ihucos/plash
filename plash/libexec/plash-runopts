@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 #
-# usage: plash runopts [ -b BIND ] [ -c CHANGES ] CONTAINER [ CMD1 [ CMD2 ... ] ]
-# Run a container with extra options
+# usage: plash runopts -c CONTAINER -d CHANGESDIR  [ -m MOUNT ] CMD1 [ CMD2 ... ] ]
+# Run a container with low level options.
+# Usually you'll want to use `plash run` instead.
 
-from getopt import getopt
+import getopt
 import os
 import re
 import sys
@@ -13,7 +14,7 @@ from subprocess import CalledProcessError, check_call
 from plash import utils
 from plash.unshare import unshare_if_root, unshare_if_user
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         get_default_shell, handle_help_flag, mkdtemp)
+                         handle_help_flag, mkdtemp)
 
 LOGIN_DEFS_RE = re.compile(r'^\s*ENV_PATH\s+(?:PATH=){0,1}(.*?)\s*$',
                            re.MULTILINE)
@@ -22,8 +23,8 @@ FALLBACK_PATH = '/bin:/usr/bin'
 handle_help_flag()
 assert_initialized()
 
-user_opts, user_args = getopt(sys.argv[1:], 'b:nc:')
-container, *cmd = user_args
+with utils.catch_and_die([getopt.GetoptError], debug='runopts'):
+    user_opts, user_args = getopt.getopt(sys.argv[1:], 'c:d:m:')
 
 #
 # find out the mountpoint
@@ -40,29 +41,32 @@ unshare_if_root()
 unshare_if_user()
 
 #
-# find the changesdir opt and mount container
+# parse and interpret user options
 #
+container = False
 mounted = False
 for opt_key, opt_value in user_opts:
-    if opt_key == '-c':
-        changesdir = opt_value
-        with catch_and_die([CalledProcessError], silent=True):
-            check_call(['plash-mount', container, mountpoint, changesdir])
-        mounted = True
-        break
-if not mounted:
-    die('runopts: missing -c option')
 
-#
-# mount requested directories
-#
-for opt_key, opt_value in user_opts:
-    if opt_key == '-b':
+    if opt_key == '-c':
+        container = opt_value
+
+    elif opt_key == '-d':
+        if not container:
+            die('runopts: -c option must come before -d option')
+        with catch_and_die([CalledProcessError], silent=True):
+            check_call(['plash-mount', container, mountpoint, opt_value])
+        mounted = True
+
+    if opt_key == '-m':
         check_call([
             'mount', '--rbind', opt_value,
             os.path.join(mountpoint, opt_value.lstrip('/'))
         ])
 
+if not mounted and container:
+    die('runopts: missing -d option')
+elif not mounted:
+    die('runopts: missing -c and -d options')
 
 #
 # setup chroot and exec inside it
@@ -71,7 +75,6 @@ for opt_key, opt_value in user_opts:
 pwd_at_start = os.getcwd()
 
 # I had problems opening the files after the chroot (LookupError: unknown encoding: ascii)
-default_root_shell = get_default_shell(os.path.join(mountpoint, 'etc/passwd'))
 
 # read PATH from /etc/login.defs if available
 try:
@@ -81,13 +84,16 @@ except FileNotFoundError:
     match = None
 os.environ['PATH'] = match[-1] if match else FALLBACK_PATH
 
+if not user_args:
+    cmd = [utils.get_default_shell(os.path.join(mountpoint, 'etc/passwd'))]
+else:
+    cmd = user_args
+
 os.chroot(mountpoint)
 try:
     os.chdir(pwd_at_start)
 except (ValueError, OSError):
     os.chdir('/')
-if not cmd:
-    cmd = [default_root_shell]
 
 with catch_and_die([OSError]):
     try:
