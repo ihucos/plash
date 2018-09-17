@@ -40,6 +40,6 @@ run_args = [exec] + args
 with catch_and_die([subprocess.CalledProcessError], silent=True):
     run_container = run_write_read(['plash-build', '--run-stdin'], build_shell_script.encode()).decode().strip('\n')
 
-cmd = ['plash-run', 'plash-run', run_container, '--'] + run_args
+cmd = ['plash-run', 'plash-run', run_container] + run_args
 
 os.execlp(*cmd)

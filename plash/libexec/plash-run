@@ -9,15 +9,25 @@ import shlex
 import sys
 from subprocess import check_call
 
-from plash.utils import (die_with_usage, get_plash_data, handle_build_args,
-                         handle_help_flag, nodepath_or_die)
+from plash import utils
 
-handle_help_flag()
-handle_build_args()
+utils.handle_help_flag()
+utils.handle_build_args()
 
 try:
     container_id, *cmd = sys.argv[1:]
 except ValueError:
-    die_with_usage()
+    utils.die_with_usage()
 
-os.execlp('plash-runopts', 'plash-runopts', '--', container_id, *cmd)
+changesdir = utils.mkdtemp()
+
+os.execlp('plash-runopts', 'plash-runopts',
+'-c', changesdir,
+'-b', '/tmp',
+'-b', '/home',
+'-b', '/root',
+'-b', '/etc/resolv.conf',
+'-b', '/sys',
+'-b', '/dev',
+'-b', '/proc',
+'--', container_id, *cmd)

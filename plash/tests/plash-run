@@ -6,12 +6,12 @@ plash run 1 touch /a
 
 : run a program on the base layer of a container
 plash build -f 1
-out=$(plash run 1 -- echo hellow)
+out=$(plash run 1 echo hellow)
 test "$out" = hellow
 
 : run something with an layer
 new=$(plash create 1 true)
-out=$(plash run $new -- echo hi)
+out=$(plash run $new echo hi)
 test "$out" = hi
 
 : check the current dir is mapped
@@ -32,7 +32,8 @@ test $out = 123
 
 : test a mount - actually a runopts test
 tmp=$(mktemp)
-plash runopts --bind /etc/passwd 1 cat /etc/passwd > $tmp
+changesdir=$(mktemp -d)
+plash runopts -c $changesdir -b /etc/passwd 1 cat /etc/passwd > $tmp
 cat $tmp
 cmp /etc/passwd $tmp
 

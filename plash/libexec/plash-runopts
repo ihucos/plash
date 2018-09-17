@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 #
-# usage: plash runopts [ -b BIND ] [ -n ] [ -c CHANGES ] CONTAINER [ CMD1 [ CMD2 ... ] ]
+# usage: plash runopts [ -b BIND ] [ -c CHANGES ] CONTAINER [ CMD1 [ CMD2 ... ] ]
 # Run a container with extra options
 
-import argparse
+from getopt import getopt
 import os
 import re
 import sys
@@ -15,9 +15,6 @@ from plash.unshare import unshare_if_root, unshare_if_user
 from plash.utils import (assert_initialized, catch_and_die, die,
                          get_default_shell, handle_help_flag, mkdtemp)
 
-DEFAULT_BIND = [
-    '/tmp', '/home', '/root', '/etc/resolv.conf', '/sys', '/dev', '/proc'
-]
 LOGIN_DEFS_RE = re.compile(r'^\s*ENV_PATH\s+(?:PATH=){0,1}(.*?)\s*$',
                            re.MULTILINE)
 FALLBACK_PATH = '/bin:/usr/bin'
@@ -25,44 +22,52 @@ FALLBACK_PATH = '/bin:/usr/bin'
 handle_help_flag()
 assert_initialized()
 
-parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument('container')
-parser.add_argument('cmd', nargs='*')
-parser.add_argument('-b', '--bind', action='append')
-parser.add_argument('-n', '--no-default-binds', action='store_true')
-parser.add_argument('-c', '--changes')
-args = parser.parse_args()
+user_opts, user_args = getopt(sys.argv[1:], 'b:nc:')
+container, *cmd = user_args
 
-requested_mounts = []
-if not args.no_default_binds:
-    requested_mounts.extend(DEFAULT_BIND)
-requested_mounts.extend(args.bind or [])
-
+#
+# find out the mountpoint
+#
 if not os.getuid() and os.environ.get('PLASH_NO_UNSHARE'):
     mountpoint = tempfile.mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
 else:
     mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
 
-original_uid = os.getuid()
+#
+# enter different namespace
+#
 unshare_if_root()
 unshare_if_user()
 
-# mount container filesystem
-if args.changes:
-    changesdir = args.changes
-else:
-    changesdir = mkdtemp()
-with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash-mount', args.container, mountpoint, changesdir])
+#
+# find the changesdir opt and mount container
+#
+mounted = False
+for opt_key, opt_value in user_opts:
+    if opt_key == '-c':
+        changesdir = opt_value
+        with catch_and_die([CalledProcessError], silent=True):
+            check_call(['plash-mount', container, mountpoint, changesdir])
+        mounted = True
+        break
+if not mounted:
+    die('runopts: missing -c option')
 
-# mount /proc and so on
-for mount in requested_mounts:
-    check_call([
-        'mount', '--rbind', mount,
-        os.path.join(mountpoint, mount.lstrip('/'))
-    ])
+#
+# mount requested directories
+#
+for opt_key, opt_value in user_opts:
+    if opt_key == '-b':
+        check_call([
+            'mount', '--rbind', opt_value,
+            os.path.join(mountpoint, opt_value.lstrip('/'))
+        ])
 
-# setup chroot and exec
+
+#
+# setup chroot and exec inside it
+#
+
 pwd_at_start = os.getcwd()
 
 # I had problems opening the files after the chroot (LookupError: unknown encoding: ascii)
@@ -81,10 +86,8 @@ try:
     os.chdir(pwd_at_start)
 except (ValueError, OSError):
     os.chdir('/')
-if not args.cmd:
+if not cmd:
     cmd = [default_root_shell]
-else:
-    cmd = args.cmd
 
 with catch_and_die([OSError]):
     try:
