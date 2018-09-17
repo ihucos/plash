@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # usage: plash shrink
-# Delete half of the older containers
-# It attempts to delete older containers and
-# not the newer ones so there is some rotation.
+# Delete half of the first build containers.
 
 import math
 import os

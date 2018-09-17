@@ -138,6 +138,11 @@ def get_default_shell(passwd_file):
         return default_root_shell
 
 
+def get_default_user_shell():
+    import pwd
+    return pwd.getpwuid(os.getuid()).pw_shell
+
+
 def plash_map(*args):
     from subprocess import check_output
     'thin wrapper around plash map'

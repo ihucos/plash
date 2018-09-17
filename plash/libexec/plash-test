@@ -1,6 +1,7 @@
 #!/bin/bash
 # usage: plash test [TEST-PREFIX]
-# Run unit tests
+# Run unit tests.
+# You can filter tests to run by a prefix passed as first argument
 
 set -eu
 
