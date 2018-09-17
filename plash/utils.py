@@ -89,7 +89,7 @@ def handle_help_flag():
                 elif line and not line.startswith('#'):
                     break
                 if do_print:
-                    print(line[2:], end='')
+                    print(line[2:].rstrip('\n'))
         sys.exit(0)
 
 
