@@ -3,6 +3,7 @@
 # usage: plash nodepath CONTAINER [--allow-root-container]
 # Prints the path of a given container
 # Example: `plash nodepath mycontainer | xargs tree`
+# The --allow-root-container option makes 
 
 import os
 import sys

@@ -3,7 +3,8 @@
 # usage: plash purge [ --yes ]
 # Deletes all build data unatomically.
 # Running containers relying on the build data will enter an undefined state.
-# Plashs behaviour while this command did not finish running returning an non zero exit code is undefined.
+# Plashs behaviour while this command did not finish running returning an non
+# zero exit code is undefined.
 
 import os
 import sys
