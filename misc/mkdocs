@@ -50,18 +50,19 @@ for binfile in binfiles:
 
     # get doc out of source code
     doc = []
-    lines.pop(0)
-    lines.pop(0)
+    before_doc = [lines.pop(0)]
     while lines:
         line = lines.pop(0)
         if not line.startswith('#'):
             break
-        doc.append(line[2:])
+        doc.append(line)
     subcommand = binfile.split('-', 1)[1]
     filedocs.append({
         'test_code': test_code,
         'code': read,
+        'before_doc': '\n'.join(before_doc),
         'doc': '\n'.join(doc),
+        'after_doc': '\n'.join(lines),
         'prog': subcommand
     })
 

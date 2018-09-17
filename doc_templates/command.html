@@ -1,103 +1,43 @@
 <html>
 <head>
 <title>plash's command reference</title>
-<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
-<link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/gruvbox-dark.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>
-hljs.initHighlightingOnLoad();
-</script>
 <style>
 body {
+  background-color: #fdf6e3;
   font-family: 'Inconsolata', monospace;
   margin: 0px;
-}
-code {
-  font-size: 0.85em;
-  text-align: left;
+  padding: 10em;
 }
 pre {
   margin: 0px;
 }
-#doc {
-  min-height: 66.66vh;
-  font-size: 1.25em;
-  text-align: left;
-  margin-top: 2.5em;
-  margin-left: 4em;
-  margin-bottom: 4em;
-  color: #212845;
+
+.faded {
+  color: #93a1a1;
 }
 
-a {
-  color: #212845;
-  text-decoration: none;
-}
-a:link {
-  color: #212845;
-  text-decoration: none;
-}
-a:visited {
-  color: #212845;
-  text-decoration: none;
-}
-a:hover {
-  color: #212845;
-  text-decoration: none;
-}
-a:active {
-  color: #212845;
-  text-decoration: none;
+.real {
+  //font-size: 1.5em;
 }
 
-#command-index {
-  font-weight: bold;
-}
-h1 {
-  margin-bottom: 0em;
-}
 </style>
 </head>
 <body>
 
 <a href="https://github.com/ihucos/plash/blob/master/bin/{{ prog|e }}"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
 
-
-<div id='doc'>
-<pre>
-<h1>plash {{ prog|e }}</h1>
-{{ doc|e }}
-
-
-<a href='index.html' id='command-index'>&larr; Command index</a>
-
-
-
+<pre class="faded">
+{{ before_doc|e }}
 </pre>
-</div>
 
-<div>
-<pre>
-<code>{{ code|e }}</code></pre>
-<pre>
-<br />
-<br />
-<pre>
-{% if test_code %}
-<code>{{ test_code|e }}</code></pre>
-<br />
-<br />
-{% endif %}
-</div>
+<pre class="real">
+{{ doc|e }}
+</pre>
 
-<center>
-<h3>
-<blink>
-<a href="/htmlcov/plash_libexec_plash-{{ prog }}.html">click here for coverage report</a>
-</blink>
-<h3>
-</center>
+<pre class="faded">
+{{ after_doc|e }}
+</pre>
+
 
 </body>
 </html>
