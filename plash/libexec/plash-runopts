@@ -116,7 +116,7 @@ except (ValueError, OSError):
 
 with catch_and_die([OSError]):
     try:
-        os.execve('/bin/sh', ['sh', '-lc', 'exec env "$@"', '--'] + envs + cmd, {}) # XX check that cmd is not an arg for env
+        os.execve('/bin/sh', ['sh', '-lc', 'exec env "$@"', '--'] + envs + cmd, {})
     except FileNotFoundError:
         sys.stderr.write('{}: command not found\n'.format(cmd[0]))
         sys.exit(127)
