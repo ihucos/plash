@@ -18,6 +18,8 @@
 #    mount a path to the same location inside the container, can be specified
 #    multiple times
 
+ALWAYS_EXPORT = ['TERM']
+
 
 import getopt
 import os
@@ -99,7 +101,7 @@ pwd_at_start = os.getcwd()
 
 # read PATH from /etc/login.defs if available
 envs = []
-for env in os.environ.get('PLASH_EXPORT', '').split(':'):
+for env in os.environ.get('PLASH_EXPORT', '').split(':') + ALWAYS_EXPORT:
     if env:
         envs.append('{}={}'.format(env, os.environ[env]))
 
