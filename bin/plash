@@ -26,4 +26,5 @@ else:
 try:
     os.execlp(binfile, binfile, *sys.argv[2:])
 except FileNotFoundError:
-    die('no such command: {} (try `plash help`)'.format(subcommand))
+    plash_run = os.path.join(libexec, 'plash-run')
+    os.execlp(plash_run, plash_run, *sys.argv[1:])
