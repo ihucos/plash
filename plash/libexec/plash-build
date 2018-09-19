@@ -51,7 +51,7 @@ with catch_and_die([CalledProcessError], silent=True):
     script = subprocess.check_output(
         ['plash-eval'] + sys.argv[1:], stdin=sys.stdin).decode()
 
-hints = get_hint_values(script)
+hints = dict(get_hint_values(script))
 image_hint = hints.get('image')
 if not image_hint:
     die('no image specified', exit=2)

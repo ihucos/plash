@@ -54,3 +54,16 @@ echo hello
 ' >> $plashfile
 chmod 700 $plashfile
 test "$($plashfile)" = "hello"
+
+: test env
+export MYENV=111
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1
+--hint use-env MYENV
+--entrypoint-script
+printenv MYENV
+' >> $plashfile
+chmod 700 $plashfile
+test "$($plashfile)" = "111"

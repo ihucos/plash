@@ -26,9 +26,17 @@ plash run 1 sh -c 'exit 42'
 test $? -eq 42 || exit 1
 set -e
 
-: check that environment variables are exported to the container
+: check that environment variables are NOT exported to the container
 out=$(MYENV=123 plash run 1 sh -c 'echo $MYENV')
-test $out = 123
+test "$out" = ""
+
+: check export via PLASH_EXPORT
+out=$(PLASH_EXPORT=MYENV MYENV=123 V=a plash run 1 sh -c 'echo $MYENV$V')
+test $out = "123"
+
+: check export via PLASH_EXPORT - multiple vars
+out=$(PLASH_EXPORT='MYENV:V' V=a MYENV=123 plash run 1 sh -c 'echo $MYENV$V')
+test $out = "123a"
 
 : test a mount - actually a runopts test
 tmp=$(mktemp)
@@ -52,25 +60,8 @@ set +e
 out=$(plash run 1 mycmdnotfound 2>&1)
 exit=$?
 set -e
-set "$exit" = 127
-test "$out" = "mycmdnotfound: command not found"
+test "$exit" = 127
 
-: test PATH from /etc/login.defs - simple
-out=$(plash run -f 1 --write-file /etc/login.defs 'ENV_PATH /here' -- /bin/printenv PATH)
-test "$out" = /here
-
-: test PATH from /etc/login.defs - with PATH= prefix - see man login.defs for spec
-out=$(plash run -f 1 --write-file /etc/login.defs 'ENV_PATH PATH=/here' -- /bin/printenv PATH)
-test "$out" = /here
-
-: test PATH from /etc/login.defs - funny whitespaces
-out=$(plash run -f 1 --write-file /etc/login.defs '  ENV_PATH     PATH=/here   ' -- /bin/printenv PATH)
-test "$out" = /here
-
-: test PATH from /etc/login.defs - no ENV_PATH
-out=$(plash run -f 1 --write-file /etc/login.defs '# mycomment' -- /bin/printenv PATH)
-test "$out" = /bin:/usr/bin  # use default one
-
-: test PATH from /etc/login.defs - space missing
-out=$(plash run -f 1 --write-file /etc/login.defs 'ENV_PATH/here' -- /bin/printenv PATH)
-test "$out" = /bin:/usr/bin  # use default one
+: test variable setting
+out=$(plash run 1 MYV=101 printenv MYV)
+test "$out" = 101

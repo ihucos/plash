@@ -31,10 +31,6 @@ from plash.unshare import unshare_if_root, unshare_if_user
 from plash.utils import (assert_initialized, catch_and_die, die,
                          handle_help_flag, mkdtemp)
 
-LOGIN_DEFS_RE = re.compile(r'^\s*ENV_PATH\s+(?:PATH=){0,1}(.*?)\s*$',
-                           re.MULTILINE)
-FALLBACK_PATH = '/bin:/usr/bin'
-
 handle_help_flag()
 assert_initialized()
 
@@ -102,12 +98,10 @@ pwd_at_start = os.getcwd()
 # I had problems opening the files after the chroot (LookupError: unknown encoding: ascii)
 
 # read PATH from /etc/login.defs if available
-try:
-    with open(os.path.join(mountpoint, 'etc/login.defs')) as f:
-        match = LOGIN_DEFS_RE.findall(f.read())
-except FileNotFoundError:
-    match = None
-os.environ['PATH'] = match[-1] if match else FALLBACK_PATH
+envs = []
+for env in os.environ.get('PLASH_EXPORT', '').split(':'):
+    if env:
+        envs.append('{}={}'.format(env, os.environ[env]))
 
 if not user_args:
     cmd = [utils.get_default_shell(os.path.join(mountpoint, 'etc/passwd'))]
@@ -122,7 +116,7 @@ except (ValueError, OSError):
 
 with catch_and_die([OSError]):
     try:
-        os.execlp(cmd[0], *cmd)
+        os.execve('/bin/sh', ['sh', '-lc', 'exec env "$@"', '--'] + envs + cmd, {}) # XX check that cmd is not an arg for env
     except FileNotFoundError:
         sys.stderr.write('{}: command not found\n'.format(cmd[0]))
         sys.exit(127)
