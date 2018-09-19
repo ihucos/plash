@@ -82,7 +82,7 @@ def eval(lisp):
         try:
             res = macro(*args)
         except Exception as exc:
-            if os.getenv('PLASH_DEBUG_MACROS', '').lower() in ('1', 'yes',
+            if os.getenv('PLASH_DEBUG', '').lower() in ('1', 'yes',
                                                                'true'):
                 raise
             if isinstance(exc, MacroError):
@@ -103,7 +103,7 @@ def remove_hint_values(script):
 
 
 def get_hint_values(script):
-    return dict(FIND_HIND_HINT_VALUES_RE.findall(script))
+    return FIND_HIND_HINT_VALUES_RE.findall(script)
 
 
 @register_macro('import')
