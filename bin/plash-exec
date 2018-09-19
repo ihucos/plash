@@ -28,7 +28,8 @@ with open(file) as f:
     script = f.read()
 
 with catch_and_die([subprocess.CalledProcessError], silent=True):
-    build_shell_script = run_write_read(['plash-eval'], script.encode()).decode()
+    build_shell_script = run_write_read(['plash-eval'],
+                                        script.encode()).decode()
 hint_values = get_hint_values(build_shell_script)
 
 envs = []
@@ -45,7 +46,9 @@ if exec is None:
 run_args = [exec] + args
 
 with catch_and_die([subprocess.CalledProcessError], silent=True):
-    run_container = run_write_read(['plash-build', '--run-stdin'], build_shell_script.encode()).decode().strip('\n')
+    run_container = run_write_read(
+        ['plash-build', '--run-stdin'],
+        build_shell_script.encode()).decode().strip('\n')
 
 cmd = ['plash-run', 'plash-run', run_container] + envs + run_args
 

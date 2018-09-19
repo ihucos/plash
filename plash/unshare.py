@@ -44,7 +44,7 @@ def get_subs(query_user, subfile):
     except FileNotFoundError:
         pass
     die('the user {} does not havy any subuids or subgids, please add some'.
-                    format(repr(query_user)))
+        format(repr(query_user)))
 
 
 def unshare_if_user(extra_setup_cmd=None):
@@ -61,21 +61,22 @@ def unshare_if_user(extra_setup_cmd=None):
         str(os.getuid()), '1', '1',
         str(uid_start),
         str(uid_count)
-    ], [
-        'newgidmap',
-        str(os.getpid()), '0',
-        str(os.getgid()), '1', '1',
-        str(gid_start),
-        str(gid_count)
-    ]]
+    ],
+                  [
+                      'newgidmap',
+                      str(os.getpid()), '0',
+                      str(os.getgid()), '1', '1',
+                      str(gid_start),
+                      str(gid_count)
+                  ]]
 
     if extra_setup_cmd:
         setup_cmds.append(extra_setup_cmd)
 
     def prepare_unshared_proccess():
         for cmd in setup_cmds:
-            with catch_and_die(
-                [CalledProcessError, FileNotFoundError], debug='forked child'):
+            with catch_and_die([CalledProcessError, FileNotFoundError],
+                               debug='forked child'):
                 check_call(cmd)
 
     # we need to call prepare_unshared_proccess
@@ -94,8 +95,9 @@ def unshare_if_user(extra_setup_cmd=None):
 
     # what the unshare binary does do
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
-    libc.unshare(CLONE_NEWUSER) != -1 or die_with_errno('`unshare(CLONE_NEWUSER)`',
-            '(maybe try `sysctl -w kernel.unprivileged_userns_clone=1`)')
+    libc.unshare(CLONE_NEWUSER) != -1 or die_with_errno(
+        '`unshare(CLONE_NEWUSER)`',
+        '(maybe try `sysctl -w kernel.unprivileged_userns_clone=1`)')
     libc.unshare(CLONE_NEWNS) != -1 or die_with_errno('`unshare(CLONE_NEWNS)`')
     libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
                None) != -1 or die_with_errno('mount')

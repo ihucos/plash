@@ -71,8 +71,8 @@ def eval(lisp):
             raise EvalError('must evaluate list of list')
         if not all(isinstance(i, str) for i in item):
             raise EvalError(
-                'must evaluate list of list of strings. not a list of strings: {}'.
-                format(item))
+                'must evaluate list of list of strings. not a list of strings: {}'
+                .format(item))
         name = item[0]
         args = item[1:]
         try:
@@ -82,8 +82,7 @@ def eval(lisp):
         try:
             res = macro(*args)
         except Exception as exc:
-            if os.getenv('PLASH_DEBUG', '').lower() in ('1', 'yes',
-                                                               'true'):
+            if os.getenv('PLASH_DEBUG', '').lower() in ('1', 'yes', 'true'):
                 raise
             if isinstance(exc, MacroError):
                 # only raise that one time and don't have multiple wrapped MacroError
