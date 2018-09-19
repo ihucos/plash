@@ -41,7 +41,9 @@ def import_env(*envs):
             export_as = env
         else:
             env, export_as = parts
-        yield '{}={}'.format(export_as, shlex.quote(os.environ[env]))
+        env_val = os.environ.get(env)
+        if env_val is not None:
+            yield '{}={}'.format(export_as, shlex.quote(env_val))
 
 
 @register_macro()
