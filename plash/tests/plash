@@ -1,0 +1,5 @@
+#!/bin/sh
+
+: check fallback to plash-run
+out=$(plash -f 1 -- printf hi)
+test "$out" = hi
