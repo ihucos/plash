@@ -29,14 +29,20 @@ except ValueError:
 
 changesdir = utils.mkdtemp()
 
-os.execlp('plash-runopts', 'plash-runopts',
-'-c', container_id,
-'-d', changesdir,
-'-m', '/tmp',
-'-m', '/home',
-'-m', '/root',
-'-m', '/etc/resolv.conf',
-'-m', '/sys',
-'-m', '/dev',
-'-m', '/proc',
-'--', *cmd)
+os.execlp(
+    'plash-runopts',
+    'plash-runopts',
+    *((
+        '-c',
+        container_id,
+        '-d',
+        changesdir,
+        '-m',
+        '/tmp',
+        '-m',
+        '/home',
+    ) +
+      # only mount /root if it is readable
+      (('-m', '/root') if os.access('/root', os.R_OK) else
+       ()) + ('-m', '/etc/resolv.conf', '-m', '/sys', '-m', '/dev', '-m',
+              '/proc', '--') + tuple(cmd)))
