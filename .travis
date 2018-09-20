@@ -23,6 +23,16 @@ else
 fi
 
 test -n "${TRAVIS:-}" && sed -i -e "s/VERSION = '0.1dev'/VERSION = "0.$TRAVIS_BUILD_NUMBER"/g" setup.py
+
+
+#
+# some weird temporary fix, delte this block later (20 Oct, 2018)
+#
+export PATH
+apt-get purge python3-setuptools --yes
+pip3 install setuptools
+# end weird fix
+
 python3 setup.py --quiet develop
 
 for f in /usr/lib/python3.*; do
