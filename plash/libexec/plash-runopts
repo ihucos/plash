@@ -103,7 +103,10 @@ pwd_at_start = os.getcwd()
 envs = []
 for env in os.environ.get('PLASH_EXPORT', '').split(':') + ALWAYS_EXPORT:
     if env:
-        envs.append('{}={}'.format(env, os.environ[env]))
+        try:
+            envs.append('{}={}'.format(env, os.environ[env]))
+        except KeyError:
+            pass
 
 if not user_args:
     cmd = [utils.get_default_shell(os.path.join(mountpoint, 'etc/passwd'))]
