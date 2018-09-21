@@ -12,6 +12,15 @@ twine
 codecov
 
 --layer
+--hint use-env TRAVIS
+--hint use-env TRAVIS_BRANCH
+--hint use-env TRAVIS_BUILD_NUMBER
+--hint use-env CODECOV_TOKEN
+--hint use-env GH_TOKEN
+--hint use-env GH_USER
+--hint use-env TWINE_PASSWORD
+--hint use-env TWINE_USERNAME
+--layer
 
 --entrypoint-script
 set -eux
@@ -26,7 +35,7 @@ test -n "${TRAVIS:-}" && sed -i -e "s/VERSION = '0.1dev'/VERSION = "0.$TRAVIS_BU
 
 
 #
-# some weird temporary fix, delte this block later (20 Oct, 2018)
+# some weird temporary fix, delete this block later (20 Oct, 2018)
 #
 export PATH
 apt-get purge python3-setuptools --yes
