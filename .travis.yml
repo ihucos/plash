@@ -12,6 +12,9 @@ cache:
 
 script:
 
+  - uname -a
+  - plash --version
+
   # load the plash cache
   - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
   - plash sudo tar -xf ~/plashcache/userdata.tar -C / || plash init
