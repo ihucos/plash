@@ -6,10 +6,10 @@
 body {
   background-color: #fdf6e3;
   margin: 0px;
-  font-family: 'Inconsolata', monospace;
   padding: 5em;
 }
-pre {
+pre, body {
+  font-family: 'Inconsolata', monospace;
   margin: 0px;
 }
 a {
@@ -50,6 +50,8 @@ td a {
 <a href="https://github.com/ihucos/plash"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
 <pre>
+$ pip3 install plash > /dev/null
+$ plash init
 $ echo 'plash reference' | plash run --from ubuntu --apt figlet -- figlet
        _           _                 __
  _ __ | | __ _ ___| |__    _ __ ___ / _| ___ _ __ ___ _ __   ___ ___
