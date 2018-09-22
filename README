@@ -16,3 +16,25 @@
    
 ｃｏｎｔａｉｎｅｒｉｚｅｄ  Ｐｒｏｃｃｅｓｓｅｓ
 
+
+###
+# Why plash?
+###
+
+- Secure: plash containers can run completely in user space.
+
+- Portable: Plash runs inside CI environments or other containers systems like docker.
+
+- Integration: Plash containers are just processes as they exists for decades.
+
+- Plashfiles: Plashfiles are executable build files featuring optional
+  lightweight configuration management language.
+
+
+
+
+
+
+###
+# 
+###
