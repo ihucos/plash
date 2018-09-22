@@ -117,7 +117,7 @@ me out for a friendly chat about plash in Berlin.
 A Django/Python software-developer. Since this is an open source project I hope
 this software grows organically and collaboratively.
 
-* Why was it done?
+* Why write a containerization software?
 Technical idealism. I wanted a better technical solution for a problem. In my
 personal opinion Docker is revolutionary but has some shortcomings: awkward
 interface, reinvention of established software or interfaces, bundling, vendor
