@@ -18,7 +18,7 @@
 #    mount a path to the same location inside the container, can be specified
 #    multiple times
 
-ALWAYS_EXPORT = ['TERM']
+ALWAYS_EXPORT = ['TERM', 'DISPLAY', 'HOME']
 
 
 import getopt

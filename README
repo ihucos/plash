@@ -23,18 +23,24 @@
 
 - Security: plash containers run completely in user space.
 
-- portability: Plash runs inside CI environments or other containers systems
+- portability: Plash runs inside CI environments or inside other container software
   like docker.
 
 - Integration: Plash containers are just chrooted, uid/gid mapped processes in
   their own mount namespace.
 
-- Plashfiles: Plashfiles are executable build files featuring optional
+- Plashfiles: Plashfiles are executable build files featuring an extendable
   lightweight configuration management language.
 
 
+###
+# Getting started
+###
 
-
+$ pip3 install plash
+$ plash --from alpine --apk xeyes -- xeyes
+$ plash --from-github ihucos/python --pip3 dotfiles -- dotfiles --sync
+$ plash --help
 
 
 ###
