@@ -60,7 +60,7 @@ https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that runs pla
 Plashfiles are executable build files and may have many use cases. For example
 packaging scripts or bigger programs in a portable way. Here is an example:
 
-<---begin script--->
+$ cat $HOME/bin/gtk-hello
 #!/usr/bin/env plash-exec
 --from archlinux
 --pacman gtk3 python-gobject
@@ -76,7 +76,6 @@ Hello = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO,
                           text="Hello world!",
                           secondary_text="This is running inside a plash container.")
 Hello.run()
-<---end script--->
 
 ###
 # Development Guidelines
