@@ -58,8 +58,7 @@ https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that runs pla
 ###
 
 Plashfiles are executable build files and may have many use cases. For example
-packaging scripts or bigger programs in a portable way. The following plash
-script for example will run a sample application.
+packaging scripts or bigger programs in a portable way. Here is an example:
 
 #!/usr/bin/env plash-exec
 --from archlinux
