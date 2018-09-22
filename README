@@ -52,3 +52,23 @@ https://github.com/ihucos/plash-travis-example         Run plash in travis CI
 https://github.com/ihucos/plash-python-example/        Example of OS-Level isolation of python packages
 https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that is runs plash's unit tests and deployments
 
+
+###
+# Development Guidelines
+###
+
+- Keep the script character.
+- Don't fall in love with the code, embrace its absence.
+- All dependencies will get unmaintained at some point.
+- Use honest thin wrappers, documented leaky abstractions are better then difficult promises.
+- Don't be a monolith but don't try too hard not to be one.
+- Only be as smart as necessary and keep it simple and stupid (KISS).
+- Do it or don't do it, but never complain or warn via stderr, nobody cares.
+- Still be able to run this in five years without any maintenance work.
+- Find out what this program is and especially what it not is.
+- Say no to features, say yes to solved used cases.
+- Delay compromises.
+- Be as vanilla as you can be
+- Be humble, don't oversell your abstraction layer.
+- Work toward a timeless finished product that will require no maintainance.
+- The right guidelines for the right situation.
