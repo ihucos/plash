@@ -28,7 +28,7 @@
 - Integration: Processes are containerized but still interact naturally with the host
   operating system.
 
-- Plashfiles: Plashfiles are executable build files featuring an extendable
+- Plashfiles: Plashfiles are executable build files featuring an extendable,
   lightweight configuration management language.
 
 
