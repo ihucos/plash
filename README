@@ -57,6 +57,7 @@ Examples:
 - https://github.com/ihucos/plash-python-example/        Example of OS-Level isolation of python packages
 - https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that runs plash's unit tests and deployments
 - https://github.com/ihucos/plashmisc                    Custom build file commands (macros)
+- https://git.io/fAdM0 and https://git.io/fAdMg          Run docker inside plash
 
 
 ###
