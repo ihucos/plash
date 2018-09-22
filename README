@@ -14,7 +14,7 @@
  ██                                               
  ██                                               
    
-ｃｏｎｔａｉｎｅｒｉｚｅｄ  Ｐｒｏｃｃｅｓｓｅｓ
+ｃｏｎｔａｉｎｅｒｉｚｅｄ  Ｐｒｏｃｅｓｓｅｓ
 
 
 ###
@@ -26,8 +26,8 @@
 - portability: Plash runs inside CI environments or inside other container software
   like docker.
 
-- Integration: Plash containers are just chrooted, uid/gid mapped processes in
-  their own mount namespace.
+- Integration: Processes are containerized but not isolated from the host
+  operating system.
 
 - Plashfiles: Plashfiles are executable build files featuring an extendable
   lightweight configuration management language.
@@ -50,8 +50,32 @@ $ plash --help
 https://github.com/ihucos/noapt                        Use ubuntu packages in other Linux distributions
 https://github.com/ihucos/plash-travis-example         Run plash in travis CI
 https://github.com/ihucos/plash-python-example/        Example of OS-Level isolation of python packages
-https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that is runs plash's unit tests and deployments
+https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that runs plash's unit tests and deployments
 
+
+###
+# Plashfiles
+###
+
+Plashfiles are executable build files and may have many use cases. For example
+packaging scripts or bigger programs in a portable way. The following plash
+script for example will run a sample application.
+
+#!/usr/bin/env plash-exec
+--from archlinux
+--pacman gtk3 python-gobject
+--layer
+--entrypoint-script 
+#!/usr/bin/env python
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+Gtk.init(None)
+Hello = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO,
+                          buttons=Gtk.ButtonsType.OK,
+                          text="Hello world!",
+                          secondary_text="This is running inside a plash container.")
+Hello.run()
 
 ###
 # Development Guidelines
@@ -63,12 +87,12 @@ https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that is runs 
 - Use honest thin wrappers, documented leaky abstractions are better then difficult promises.
 - Don't be a monolith but don't try too hard not to be one.
 - Only be as smart as necessary and keep it simple and stupid (KISS).
-- Do it or don't do it, but never complain or warn via stderr, nobody cares.
+- Do it or don't do it, but never complain or warn via stderr.
 - Still be able to run this in five years without any maintenance work.
 - Find out what this program is and especially what it not is.
 - Say no to features, say yes to solved used cases.
-- Delay compromises.
+- Postpone compromises.
 - Be as vanilla as you can be
 - Be humble, don't oversell your abstraction layer.
-- Work toward a timeless finished product that will require no maintainance.
+- Work toward a timeless, finished product that will require no maintainance.
 - The right guidelines for the right situation.

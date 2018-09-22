@@ -50,10 +50,6 @@ for distro, version, arch, variant, date, _, _, _ in matches:
 
     url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
 
-    # rename that
-    if distro == 'archlinux':
-        distro = 'arch'
-
     if not version == 'current':
         names['{}:{}'.format(distro, version)] = url
     else:
