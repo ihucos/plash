@@ -27,9 +27,10 @@ def render(tpl_path, **context):
 out = check_output(['plash', 'help'])
 out = out.decode()
 progs = (i.split(None, 2)[1:] for i in out.splitlines())
+macros = check_output(['plash', 'help-macros']).decode()
 
 with open(path.join(docs_out, 'index.html'), 'w') as f:
-    f.write(render('index.html', progs=progs))
+    f.write(render('index.html', progs=progs, macros=macros))
 
 filedocs = []
 binfiles = [i for i in os.listdir(BIN_DIR) if not i.startswith('.')]

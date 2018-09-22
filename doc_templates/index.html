@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta charset="utf-8"/>
 <title>plash's command reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
 <style>
@@ -53,13 +54,14 @@ td a {
 <pre>
 $ pip3 install plash > /dev/null
 $ plash init
-$ echo 'plash reference' | plash --from ubuntu --apt figlet -- figlet
+$ echo 'plash reference' | plash run --from ubuntu --apt figlet -- figlet
        _           _                 __
  _ __ | | __ _ ___| |__    _ __ ___ / _| ___ _ __ ___ _ __   ___ ___
 | '_ \| |/ _` / __| '_ \  | '__/ _ \ |_ / _ \ '__/ _ \ '_ \ / __/ _ \
 | |_) | | (_| \__ \ | | | | | |  __/  _|  __/ | |  __/ | | | (_|  __/
 | .__/|_|\__,_|___/_| |_| |_|  \___|_|  \___|_|  \___|_| |_|\___\___|
 |_|
+
 $
 $ plash --help
 </pre>
@@ -67,10 +69,10 @@ $ plash --help
 {% for prog, short in progs %}
 <tr>
   <td>
-    <a href="{{ prog }}.html"><nobr>plash {{ prog }}&nbsp;</nobr></a>
+    <a href="{{ prog|e}}.html"><nobr>plash {{ prog|e }}&nbsp;</nobr></a>
   </td>
   <td>
-    <a href="{{ prog }}.html"><nobr>{{ short }}</nobr></a>
+    <a href="{{ prog|e}}.html"><nobr>{{ short|e }}</nobr></a>
   </td>
 </tr>
 {% endfor %}
@@ -81,7 +83,7 @@ $
 $
 $
 $
-$ echo 'tutorial' | plash run -U --apt figlet -- figlet
+$ echo 'tutorial' | plash -U --apt figlet -- figlet
   _         _             _       _
  | |_ _   _| |_ ___  _ __(_) __ _| |
  | __| | | | __/ _ \| '__| |/ _` | |
@@ -103,7 +105,13 @@ $ ### run something on the container
 $ plash run 2 printf 'hello from container\n
 hello from container
 $
-$ ### build a layer on top of it
+$ ### host filesystem is mapped to the container
+$ mkdir ~/mydir
+$ cd ~/mydir
+$ plash run 2 pwd
+/home/myuser/mydir
+$
+$ ### build a layer on top a container
 $ plash build --from 2 --run 'touch /myfile'
 + touch /myfile
 --:
@@ -112,6 +120,7 @@ $
 $ ### build already cached
 $ plash build --from 2 --run 'touch /myfile'
 3
+$
 $ ### build and run in one command
 $ plash run --from alpine --run 'touch /myfile' -- ls /myfile
 /myfile
@@ -119,6 +128,12 @@ $
 $ ### less verbose invocation
 $ plash -Ax 'touch /myfile' -- ls /myfile
 /myfile
+$
+$ ### explicit layering (`touch /myfile` is already cached)
+$ plash -Ax 'touch /myfile' -lx 'touch /otherfile' -- ls /otherfile
++ touch /otherfile
+--:
+/otherfile
 $
 $ ### execute a command on the container's rootfs from the host
 $ plash with-mount -A -- ls
@@ -136,17 +151,7 @@ $ ### export a plash container to docker
 $ ihucos@macbook:~/plash$ plash export-tar 2 | docker import -
 sha256:2c3550e60fef9db8b154a45c04253506e7a9d585af8b738fbe39350d58cbd6ad
 $
-$ ### check the output of an example of the build configuration management language
-$ plash eval --from ubuntu --apt python3-pip --layer --pip3 yapf -lx 'touch /foo'
-### plash hint: image=9
-apt-get update
-apt-get install -y python3-pip
-### plash hint: layer
-pip3 install yapf
-### plash hint: layer
-touch /foo
-$ 
-$ ### use and image published in github
+$ ### use an image published via github
 $ plash --from-github ihucos/python
 + apk update
 fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/APKINDEX.tar.gz
@@ -175,11 +180,52 @@ $ ### remove the image (actually the last layer of it)
 $ plash rm --from-github ihucos/python
 $
 $ ### create an executable build file
-
-
-
-
-</pre>
+$ ed
+a
+#!/usr/bin/env plash-exec
+--from-github ihucos/python
+--pip3 yapf
+--entrypoint /usr/bin/yapf
+.
+w /tmp/yapf
+93
+q
+$ chmod +x /tmp/yapf
+$ /tmp/yapf
++ pip3 install yapf
+Collecting yapf
+  Downloading https://files.pythonhosted.org/packages/32/12/9f6...08a/yapf-0.24.0-py2.py3-none-any.whl (168kB)
+    100% |████████████████████████████████| 174kB 1.6MB/s 
+Installing collected packages: yapf
+Successfully installed yapf-0.24.0
+--:
+yapf 0.24.0
+$ /tmp/yapf # second call is already cached
+yapf 0.24.0
+$
+$ ### check the output of an sample of the build configuration management language
+$ plash eval --from ubuntu --apt python3-pip --layer --pip3 yapf -lx 'touch /foo'
+### plash hint: image=9
+apt-get update
+apt-get install -y python3-pip
+### plash hint: layer
+pip3 install yapf
+### plash hint: layer
+touch /foo
+$ 
+$
+$
+$ echo 'macros' | plash -U figlet -- figlet
+                                    
+ _ __ ___   __ _  ___ _ __ ___  ___ 
+| '_ ` _ \ / _` |/ __| '__/ _ \/ __|
+| | | | | | (_| | (__| | | (_) \__ \
+|_| |_| |_|\__,_|\___|_|  \___/|___/
+                                    
+$ ### list vailable build commands (macros)
+$ plash --help-macros
+{{ macros|e }}$</pre>
+ <a href="https://github.com/ihucos/plash">$ exit # bye bye, check it out at github: https://github.com/ihucos/plash</a>
 
 </body>
 </html>
