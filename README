@@ -76,6 +76,7 @@ Hello = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO,
                           text="Hello world!",
                           secondary_text="This is running inside a plash container.")
 Hello.run()
+<---end script--->
 
 ###
 # Development Guidelines
