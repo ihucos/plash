@@ -161,7 +161,7 @@ software and all issues that may come with it and focus on backward
 compatibility.
 
 * Is plash secure?
-Plash does not use any privileged daemons or have its own setuid helper
+Plash does not use any daemons or have its own setuid helper
 binaries. Note that plash does not try to isolate containers (which are just
 normal processes). That means that running a program inside plash is not a
 security feature. Running any container software introduces more entities to
