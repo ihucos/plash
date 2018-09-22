@@ -28,7 +28,7 @@
 - Integration: Processes are containerized but still interact naturally with the host
   operating system.
 
-- portability: Plash runs inside CI environments and inside other container software
+- Portability: Plash runs inside CI environments and inside other container software
   like docker or itself.
 
 - Plashfiles: Plashfiles are executable build files featuring an extendable,
