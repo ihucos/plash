@@ -23,7 +23,10 @@
 # Why plash?
 ###
 
-- Security: plash containers run completely unprivileged.
+- Security: plash containers run completely in user space.
+
+- portability: Plash runs inside CI environments and inside other container software
+  like docker or itself.
 
 - Integration: Processes are containerized but still interact naturally with the host
   operating system.
