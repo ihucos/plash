@@ -127,19 +127,16 @@ useful tool with one task: Building and running containerized processes.
 Ultimately I wanted something I can if necessary maintain by myself.
 
 * Are there plans to commercialise this?
-No, there isn't. I want to write a core software that is "finished" at some
-point and serves well for a long time. But at the same time I don't want to
-risk disappointing anyone and am not making any absolute guarantees. In any
-case commercialising open source Software can very easily lead to a worse
-product.
+No, there isn't. At the same time I don't want to risk disappointing anyone and
+am not making any absolute guarantees.
 
 * What is the Licence?
 plash is licensed under the  MIT Licence.
 
 * How does the code look?
 One python3 library without dependencies and one standalone script per
-subcommand. Counting the whole repository its just less than 5000 lines. I am
-planning to slowly rewrite part by part in C. But first I must learn C properly
+subcommand. Counting the whole repository, it's just less than 5000 lines. The
+plan is to slowly rewrite part by part in C. But first I must learn C properly
 :-)
 
 * How does plash compare to Docker?
