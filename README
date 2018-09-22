@@ -1,3 +1,5 @@
+[ http://plash.io/ ] [ https://travis-ci.org/ihucos/plash ] [ http://plash.io/htmlcov/ ]
+
            ████                          ██       
            ████                          ██       
              ██                          ██       
@@ -23,10 +25,10 @@
 
 - Security: plash containers run completely in user space.
 
-- portability: Plash runs inside CI environments or inside other container software
+- portability: Plash runs inside CI environments and inside other container software
   like docker.
 
-- Integration: Processes are containerized but not isolated from the host
+- Integration: Processes are containerized but still interact naturally with the host
   operating system.
 
 - Plashfiles: Plashfiles are executable build files featuring an extendable
@@ -51,6 +53,7 @@ https://github.com/ihucos/noapt                        Use ubuntu packages in ot
 https://github.com/ihucos/plash-travis-example         Run plash in travis CI
 https://github.com/ihucos/plash-python-example/        Example of OS-Level isolation of python packages
 https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that runs plash's unit tests and deployments
+https://github.com/ihucos/plashmisc                    Custom build file commands (macros)
 
 
 ###
