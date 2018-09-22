@@ -23,7 +23,7 @@
 # Why plash?
 ###
 
-- Security: plash containers run completely in user space.
+- Security: plash containers run completely unprivileged.
 
 - Integration: Processes are containerized but still interact naturally with the host
   operating system.
