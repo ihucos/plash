@@ -60,6 +60,7 @@ https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that runs pla
 Plashfiles are executable build files and may have many use cases. For example
 packaging scripts or bigger programs in a portable way. Here is an example:
 
+<---begin script--->
 #!/usr/bin/env plash-exec
 --from archlinux
 --pacman gtk3 python-gobject
