@@ -26,7 +26,7 @@
 - Security: plash containers run completely in user space.
 
 - portability: Plash runs inside CI environments and inside other container software
-  like docker.
+  like docker rkt, or itself.
 
 - Integration: Processes are containerized but still interact naturally with the host
   operating system.
@@ -131,7 +131,7 @@ case commercialising open source Software can very easily lead to a worse
 product.
 
 * What is the Licence?
-The MIT Licence.
+plash is licensed under the  MIT Licence.
 
 * How does the code look?
 One python3 library without dependencies and one standalone script per
