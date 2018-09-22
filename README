@@ -29,7 +29,7 @@
   operating system.
 
 - Portability: Plash runs inside CI environments and inside other container software
-  like docker or itself.
+  like Docker or itself.
 
 - Plashfiles: Plashfiles are executable build files featuring an extendable,
   lightweight configuration management language.
