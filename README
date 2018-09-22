@@ -106,15 +106,15 @@ Hello.run()
 # FAQ
 ###
 
-- Can I contribute?
+* Can I contribute?
 Please! Write me an mail mail@irae.me, open an issue, do a pull request or ask
 me out for a friendly chat about plash in Berlin.
 
-- Who are you?
+* Who are you?
 A Django/Python software-developer. Since this is an open source project I hope
 this software grows organically and collaboratively.
 
-- Why did you write it?
+* Why did you write it?
 Technical idealism. I wanted a better technical solution for a problem. In my
 personal opinion Docker is revolutionary but has some shortcomings: awkward
 interface, reinvention of established software or interfaces, bundling, vendor
@@ -123,23 +123,23 @@ build a huge company on top of it. Plash thrives to not to be more than a
 useful tool with one task: Building and running containerized processes.
 Ultimately I wanted something I can if necessary maintain by myself.
 
-- Are there plans to commercialise this?
+* Are there plans to commercialise this?
 No, there isn't. I want to write a core software that is "finished" at some
 point and serves well for a long time. But at the same time I don't want to
 risk disappointing anyone and am not making any absolute guarantees. In any
 case commercialising open source Software can very easily lead to a worse
 product.
 
-- What is the Licence?
+* What is the Licence?
 The MIT Licence.
 
-- How does the code look?
+* How does the code look?
 One python3 library without dependencies and one standalone script per
 subcommand. Counting the whole repository its just less than 5000 lines. I am
 planning to slowly rewrite part by part in C. But first I must learn C properly
 :-)
 
-- How does plash compare to Docker?
+* How does plash compare to Docker?
 There are no efforts to implement features like image distribution, process
 management, or orchestration in plash. Instead plash works nicely with docker
 or other software in the ecosystem. You can use plash to run docker in your
@@ -154,12 +154,12 @@ command line tool that is only concerned with the essential needs of using
 containers. Both approaches are totally valid and very different. Comparing the
 code base between the two projects is also difficult.
 
-- Can I run this in production?
+* Can I run this in production?
 You can. It probably still has some warts, what I can guarantee is to
 enthusiastically support this software and all issues that may come with it and
 focus on backward compatibility.
 
-- Is plash secure?
+* Is plash secure?
 Plash does not use any privileged daemons or have its own setuid helper
 binaries. Note that plash does not try to isolate containers (which are just
 normal processes). That means that running a program inside plash is not a
@@ -175,5 +175,5 @@ plash as root should be avoided and should not be necessary for most use cases.
 Until now plash was written by one person and of course I could be wrong about
 something. But generally speaking it really should be good enough.
 
-- When will be the 1.0 release?
+* When will be the 1.0 release?
 Very Soon, there is a Github project for this: https://github.com/ihucos/plash/projects/1
