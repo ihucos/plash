@@ -172,7 +172,7 @@ trust, that is the root file system image with its additional linux
 distribution and its own package manager. Using a program from alpine edge
 could be considered less secure than a package from debian stable or vice
 versa. Also note that keeping containers updated is more difficult than keeping
-"normal" system software updated. Furthermore note that programs could not be
+"normal" system software updated. Furthermore note that programs could be not
 used to run inside semi-isolated containers and behave oddly. Plash uses
 unmodified lxc images and checks their signatures with gpgv (if in PATH). Using
 plash as root should be avoided and should not be necessary for most use cases.
