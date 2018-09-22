@@ -136,7 +136,7 @@ personal opinion Docker is revolutionary but has some shortcomings: awkward
 interface, reinvention of established software or interfaces, bundling, vendor
 lock in and overengineering. In a way it kills it's idea by trying too hard to
 build a huge company on top of it. Plash thrives not to be more than a useful
-tool with one task: Building and running containerized processes.  Ultimately I
+tool with one task: Building and running containerized processes. Ultimately I
 wanted something I can if necessary maintain by myself.
 
 * Are there plans to commercialise this?
