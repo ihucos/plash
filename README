@@ -1,0 +1,193 @@
+[ http://plash.io/ ] [ https://travis-ci.org/ihucos/plash ] [ http://plash.io/htmlcov/ ]
+
+           ████                          ██       
+           ████                          ██       
+             ██                          ██       
+ ██░███▒     ██       ▒████▓    ▒█████░  ██░████  
+ ███████▒    ██       ██████▓  ████████  ███████▓ 
+ ███  ███    ██       █▒  ▒██  ██▒  ░▒█  ███  ▒██ 
+ ██░  ░██    ██        ▒█████  █████▓░   ██    ██ 
+ ██    ██    ██      ░███████  ░██████▒  ██    ██ 
+ ██░  ░██    ██      ██▓░  ██     ░▒▓██  ██    ██ 
+ ███  ███    ██▒     ██▒  ███  █▒░  ▒██  ██    ██ 
+ ███████▒    █████   ████████  ████████  ██    ██ 
+ ██░███▒     ░████    ▓███░██  ░▓████▓   ██    ██ 
+ ██                                               
+ ██                                               
+ ██                                               
+   
+ｃｏｎｔａｉｎｅｒｉｚｅｄ  Ｐｒｏｃｅｓｓｅｓ
+
+
+###
+# Why plash?
+###
+
+- Security: plash containers run completely unprivileged.
+
+- Integration: Processes are containerized but still interact naturally with the host
+  operating system.
+
+- Portability: Plash runs inside CI environments and inside other container software
+  like Docker or itself.
+
+- Plashfiles: Plashfiles are executable build files featuring an extendable,
+  lightweight configuration management language.
+
+
+###
+# Getting started
+###
+
+$ pip3 install plash
+$ plash --from alpine --apk xeyes -- xeyes
+$ plash --from-github ihucos/python --pip3 dotfiles -- dotfiles --sync
+$ plash --help
+
+
+###
+# Documentation
+###
+
+Reference documentation and tutorial: http://plash.io/
+
+Examples:
+- https://github.com/ihucos/noapt                        Use ubuntu packages in other Linux distributions
+- https://github.com/ihucos/plash-travis-example         Run plash in travis CI
+- https://github.com/ihucos/plash-python-example/        Example of OS-Level isolation of python packages
+- https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that runs plash's unit tests and deployments
+- https://github.com/ihucos/plashmisc                    Custom build file commands (macros)
+- https://git.io/fAdM0 and https://git.io/fAdMg          Run docker inside plash
+
+
+###
+# Backwards Compatibility
+###
+
+One aim of plash is to have strong backwards compatibility. Breaking changes
+would have to be published under a different program name. It's unusual to
+launch a complex software with limited real world usage already claiming
+backward compatibility, this promise will not be fully kept in the beginning.
+As real issues surface they will be fixed properly introducing breaking
+changes.
+
+
+###
+# Plashfiles
+###
+
+Plashfiles are executable build files and may have many use cases. For example
+packaging scripts or bigger programs in a portable way. Here is an example:
+
+$ cat $HOME/bin/gtk-hello-world
+#!/usr/bin/env plash-exec
+--from archlinux
+--pacman gtk3 python-gobject
+--layer
+--entrypoint-script 
+#!/usr/bin/env python
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+Gtk.init(None)
+Hello = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO,
+                          buttons=Gtk.ButtonsType.OK,
+                          text="Hello world!",
+                          secondary_text="This is running inside a plash container.")
+Hello.run()
+
+
+###
+# Development Guidelines
+###
+
+- Keep the script character.
+- Don't fall in love with the code, embrace its absence.
+- All dependencies will get unmaintained at some point.
+- Use honest thin wrappers, documented leaky abstractions are better then difficult promises.
+- Don't be a monolith but don't try too hard not to be one.
+- Don't complain or warn via stderr, do it or don't do it.
+- Only be as smart as necessary and keep it simple and stupid (KISS).
+- Still be able to run this in five years without any maintenance work.
+- Find out what this program is and especially what it not is.
+- Say no to features, say yes to solved used cases.
+- Postpone compromises.
+- Be as vanilla as you can be
+- Be humble, don't oversell your abstraction layer.
+- Work toward a timeless, finished product that will require no maintainance.
+- The right guidelines for the right situation.
+
+
+###
+# FAQ
+###
+
+* Can I contribute?
+Please! Write me an mail mail@irae.me, open an issue, do a pull request or ask
+me out for a friendly chat about plash in Berlin.
+
+* Who are you?
+A Django/Python software-developer. Since this is an open source project I hope
+this software grows organically and collaboratively.
+
+* Why write a containerization software?
+Technical idealism. I wanted a better technical solution for a problem. In my
+personal opinion Docker is revolutionary but has some shortcomings: awkward
+interface, reinvention of established software or interfaces, bundling, vendor
+lock in and overengineering. In a way it kills it's idea by trying too hard to
+build a huge company on top of it. Plash thrives not to be more than a useful
+tool with one task: Building and running containerized processes. Ultimately I
+wanted something I can if necessary maintain by myself.
+
+* Are there plans to commercialise this?
+No, there isn't. At the same time I don't want to risk disappointing anyone and
+am not making any absolute guarantees.
+
+* What is the Licence?
+plash is licensed under the MIT Licence.
+
+* How does the code look?
+One python3 library without dependencies and one standalone script per
+subcommand. Counting the whole repository, it's just less than 5000 lines. The
+plan is to slowly rewrite part by part in C. But first I must learn C properly
+:-)
+
+* How does plash compare to Docker?
+There are no efforts to implement features like image distribution, process
+management, or orchestration in plash. Instead plash works nicely with docker
+or other software in the ecosystem. You can use plash to run docker in your
+system or run your plash containers inside docker. If you for exampling are
+using docker but want to have containers inside your docker container, you
+could use plash. You can also access docker images from plash or export plash
+images to docker. Another use case is to build docker images inside docker
+containers.  They are two software with completely different philosophies.
+Docker is kind of a big framework that tries to solve all your container
+related problems. Plash on the other hand tries to be a flexible minimalistic
+command line tool that is only concerned with the essential needs of using
+containers. Both approaches are totally valid and very different. Comparing the
+code base between the two projects is also difficult.
+
+* Can I run this in production?
+You caXXXn (FIXME: NO YOU CANT, remove fixme after 1.0 release). It probably still
+has some warts, what I can guarantee is to enthusiastically support this
+software and all issues that may come with it and focus on backward
+compatibility.
+
+* Is plash secure?
+Plash does not use any daemons or have its own setuid helper binaries. Note
+that plash does not try to isolate containers (which are just normal
+processes). That means that running a program inside plash is not a security
+feature. Running any container software introduces more entities to trust, that
+is the root file system image with its additional linux distribution and its
+own package manager. Using a program from alpine edge could be considered less
+secure than a package from debian stable or vice versa. Also note that keeping
+containers updated is more difficult than keeping "normal" system software
+updated. Furthermore note that programs could be not used to run inside
+semi-isolated containers and behave oddly. Plash uses unmodified lxc images and
+checks their signatures with gpgv (if in PATH). Using plash as root should be
+avoided and should not be necessary for most use cases.  Until now plash was
+written by one person and of course I could be wrong about something. But
+generally speaking it really should be good enough.
+
+* When will be the 1.0 release?
+Very Soon, there is a Github project for this: https://github.com/ihucos/plash/projects/1
