@@ -161,20 +161,20 @@ software and all issues that may come with it and focus on backward
 compatibility.
 
 * Is plash secure?
-Plash does not use any daemons or have its own setuid helper
-binaries. Note that plash does not try to isolate containers (which are just
-normal processes). That means that running a program inside plash is not a
-security feature. Running any container software introduces more entities to
-trust, that is the root file system image with its additional linux
-distribution and its own package manager. Using a program from alpine edge
-could be considered less secure than a package from debian stable or vice
-versa. Also note that keeping containers updated is more difficult than keeping
-"normal" system software updated. Furthermore note that programs could be not
-used to run inside semi-isolated containers and behave oddly. Plash uses
-unmodified lxc images and checks their signatures with gpgv (if in PATH). Using
-plash as root should be avoided and should not be necessary for most use cases.
-Until now plash was written by one person and of course I could be wrong about
-something. But generally speaking it really should be good enough.
+Plash does not use any daemons or have its own setuid helper binaries. Note
+that plash does not try to isolate containers (which are just normal
+processes). That means that running a program inside plash is not a security
+feature. Running any container software introduces more entities to trust, that
+is the root file system image with its additional linux distribution and its
+own package manager. Using a program from alpine edge could be considered less
+secure than a package from debian stable or vice versa. Also note that keeping
+containers updated is more difficult than keeping "normal" system software
+updated. Furthermore note that programs could be not used to run inside
+semi-isolated containers and behave oddly. Plash uses unmodified lxc images and
+checks their signatures with gpgv (if in PATH). Using plash as root should be
+avoided and should not be necessary for most use cases.  Until now plash was
+written by one person and of course I could be wrong about something. But
+generally speaking it really should be good enough.
 
 * When will be the 1.0 release?
 Very Soon, there is a Github project for this: https://github.com/ihucos/plash/projects/1
