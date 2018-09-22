@@ -66,9 +66,10 @@ Examples:
 
 One aim of plash is to have strong backwards compatibility. Breaking changes
 would have to be published under a different program name. It's unusual to
-already launch a complex software with limited real world usage claiming
-backward compatibility, this promise will not be fully kept in the beginning. As
-real issues surface they will be fixed properly introducing breaking changes.
+launch a complex software with limited real world usage already claiming
+backward compatibility, this promise will not be fully kept in the beginning.
+As real issues surface they will be fixed properly introducing breaking
+changes.
 
 
 ###
