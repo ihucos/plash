@@ -9,7 +9,7 @@ ALIASES = dict(
     F=[['from', 'fedora'], ['dnf']],
     D=[['from', 'debian'], ['apt']],
     C=[['from', 'centos'], ['yum']],
-    R=[['from', 'arch'], ['pacman']],
+    R=[['from', 'archlinux'], ['pacman']],
     G=[['from', 'gentoo'], ['emerge']],
 )
 
