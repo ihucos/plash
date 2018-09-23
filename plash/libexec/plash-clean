@@ -6,7 +6,7 @@
 # will be handled better in the future. File a bug if this subcommand behaves
 # unexpectedly.
 
-timport math
+import math
 import os
 import shutil
 import signal

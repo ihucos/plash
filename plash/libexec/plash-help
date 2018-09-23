@@ -21,7 +21,7 @@ for prog in sorted(progs):
         #continue # it's an alias
         links_to = os.readlink(prog_path)
         links_to = links_to[len('plash-'):]
-        first_sentence = 'same as `plash {}`'.format(links_to)
+        first_sentence = 'Same as `plash {}`'.format(links_to)
     else:
         first_sentence = '<empty>'
         with open(prog_path) as f:
@@ -35,4 +35,4 @@ for prog in sorted(progs):
     assert first_sentence
     subcommand = prog[len('plash '):]
     print(('plash ' + subcommand).ljust(max_prog_lenght), first_sentence)
-print(('plash ' + '*').ljust(max_prog_lenght), 'anything else is passed to `plash run`')
+print(('plash ' + '-*').ljust(max_prog_lenght), 'Fallback to `plash run`')
