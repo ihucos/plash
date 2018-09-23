@@ -2,10 +2,11 @@
 # usage: plash clean
 # Cleanup internal states
 #
-# there are some abstraction leaks:
-# TODO: document rare case of process changing mount namespace and the binding thing with plash data
+# there may be some abstraction leaks with cleaning up fuse mountpoints that
+# will be handled better in the future. File a bug if this subcommand behaves
+# unexpectedly.
 
-import math
+timport math
 import os
 import shutil
 import signal

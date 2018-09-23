@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 #
 # usage: plash map KEY [ CONTAINER ]
-# Get or set a container by a key. Use an empty container to delete a key.
+# Map a container to a key. Use an empty container to delete a key.
 #
 # Example:
+#
 # $ plash build -f alpine
 # 342
 #
@@ -13,7 +14,12 @@
 # 342
 #
 # $ plash build --from-map myfavorite
-#342
+# 342
+#
+# $ plash map myfavorite ''
+#
+# $ plash map myfavorite 
+# $
 
 import os
 import sys

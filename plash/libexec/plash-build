@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
 #
 # usage: plash build <MACROS>
-# Builds a container. Any command line options is interpreted as action,
-# Use `--list` to list all available action.
-#
-# exit status:
-# 1: Generic error code
-# 2: Unrecognized arguments
-# 3: Returning container from cache, not building
-# 4: Build error - building returned non-zero exit status
-#
+# Builds a container. Any command line options is evaluated as macro with
+# `plash eval`.  Use `plash help-macros` to list all available macros.
 #
 # Examples:
 #

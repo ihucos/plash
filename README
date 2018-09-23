@@ -69,7 +69,8 @@ would have to be published under a different program name. It's unusual to
 launch a complex software with limited real world usage already claiming
 backward compatibility, this promise will not be fully kept in the beginning.
 As real bugs and design issues surface they will be fixed properly introducing
-breaking changes.
+breaking changes. Subtle things like exit status numbers may also change at
+this point.
 
 
 ###

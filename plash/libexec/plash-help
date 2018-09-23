@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash list
+# usage: plash help
 # Lists all available plash commands
 
 import sys

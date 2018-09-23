@@ -8,7 +8,7 @@
 # Example:
 #
 # $ plash data
-# /home/cherry/.plashdata
+# /home/myuser/.plashdata
 #
 # $ plash data cat config/union_taste
 # $ unionfs-fuse

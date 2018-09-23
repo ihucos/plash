@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # usage: plash import-url URL [ GPG_SIGNATURE_URL ]
-# Import a container from an url
+# Import a container from an url.
 
 import os
 import subprocess

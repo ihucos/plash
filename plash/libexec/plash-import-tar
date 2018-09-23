@@ -2,7 +2,7 @@
 #
 # usage: plash import-tar [ TARFILE ]
 # Create a container from a tar file.
-# If the TARFILE argument is ommited, the tarfile is read from stdin
+# If the TARFILE argument is ommited, the tarfile is read from stdin.
 
 import os
 import sys
