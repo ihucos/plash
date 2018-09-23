@@ -6,7 +6,7 @@
 # started. The new container is printed to stdout, all other output goes to
 # stderr. Note that a new container is only returned if the build command
 # returns 0 (success) as exit code.  For most cases use `plash build` for a
- higher level interface.
+# higher level interface.
 #
 # Parameters may be interpreted as build instruction.
 #
