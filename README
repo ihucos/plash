@@ -169,10 +169,9 @@ containers. Both approaches are totally valid and very different. Comparing the
 code base between the two projects is also difficult.
 
 * Can I run this in production?
-You caXXXn (FIXME: NO YOU CANT, remove fixme after 1.0 release). It probably still
-has some warts, what I can guarantee is to enthusiastically support this
-software and all issues that may come with it and focus on backward
-compatibility.
+You can. It probably still has some warts, what I can guarantee is to
+enthusiastically support this software and all issues that may come with it and
+focus on backward compatibility.
 
 * Is plash secure?
 Plash does not use any daemons or have its own setuid helper binaries. Note
