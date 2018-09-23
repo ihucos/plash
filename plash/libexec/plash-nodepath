@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 #
 # usage: plash nodepath CONTAINER [--allow-root-container]
-# Prints the path of a given container
-# Example: `plash nodepath mycontainer | xargs tree`
-# The --allow-root-container option makes 
+# Prints the path of a given container. The --allow-root-container option
+# allows the root container ("0") to be specified as container.
+#
+# Examples:
+# $ plash nodepath 19
+# /home/ihucos/.plashdata/layer/0/2/19
+# $ plash nodepath 19 | xargs tree
 
 import os
 import sys

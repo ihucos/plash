@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 #
 # usage: plash with-mount CONTAINER [ CMD1 [ CMD2  ... ] ]
-# Exec parameters inside a mounted container.
-# Default parameter is the default shell.
-# Mounting happens inside an isolated mount namespace.
+# Execute parameters inside a mounted container. Default parameter is the
+# default shell. Mounting happens inside an isolated mount namespace.
 #
 # Example to get how much disk space a container is using:
 # $ plash with-mount 70 du -sh

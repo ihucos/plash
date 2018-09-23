@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 #
 # usage: plash rm CONTAINER
-# Deletes the given container atomically.
-# There are no guarantess of any behavour of running containers whose root
-# filesystem was deleted.
+# Deletes the given container atomically. There are no guarantees of any
+# behaviour of running containers whose root file system was deleted.
 
 import os
 import sys

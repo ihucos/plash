@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 #
 # usage: plash mount CONTAINER MOUNTPOINT [ CHANGESDIR ]
-# Mounts the filsystem of a container. To cleanup, unmout it with the `umount` command.
-# The optional arguments are options passed to the overlay filesystem program:
-# `upperdir` will include any changes made on the mountpoint, `workdir` is used internally by the overlay programm and must be located in the same file system device than `upperdir`.
+# Mounts the filsystem of a container. To cleanup you need to unmount it
+# manually. Changes to the filesystem will be written to CHANGESDIR, if ommited
+# a temporary directory will be used.
 
 import os
 import shutil

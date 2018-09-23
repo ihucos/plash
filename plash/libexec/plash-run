@@ -2,7 +2,7 @@
 #
 # usage: plash run CONTAINER [ CMD1 [ CMD2 ... ] ]
 # Run a container.
-# If no command is specified, the containers default root shell is execed.
+# If no command is specified, the containers default root shell is executed.
 # The following host file systems are mapped to the container:
 # - /tmp
 # - /home
@@ -11,6 +11,8 @@
 # - /sys
 # - /dev
 # - /proc
+#
+# If you want more control about how the container is run, use `plash runopts`
 
 import os
 import shlex
