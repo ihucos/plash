@@ -188,6 +188,3 @@ checks their signatures with gpgv (if in PATH). Using plash as root should be
 avoided and should not be necessary for most use cases.  Until now plash was
 written by one person and of course I could be wrong about something. But
 generally speaking it really should be good enough.
-
-* When will be the 1.0 release?
-Very Soon, there is a Github project for this: https://github.com/ihucos/plash/projects/1
