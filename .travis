@@ -33,7 +33,7 @@ else
   deploy=no
 fi
 
-test -n "${TRAVIS:-}" && sed -i -e "s/VERSION = '0.1dev'/VERSION = "$TRAVIS_BUILD_NUMBER"/g" setup.py
+test -n "${TRAVIS:-}" && sed -i -e "s/VERSION = '0.1dev'/VERSION = "0.$TRAVIS_BUILD_NUMBER"/g" setup.py
 
 
 #
