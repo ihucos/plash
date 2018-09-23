@@ -5,6 +5,8 @@
 # Mount a container-filsystem. To cleanup you need to unmount it manually.
 # Changes to the filesystem will be written to CHANGESDIR, if ommited a
 # temporary directory will be used.
+#
+# Parameters may be interpreted as build instruction.
 
 import os
 import shutil
