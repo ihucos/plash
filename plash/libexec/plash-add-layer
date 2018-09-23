@@ -6,6 +6,7 @@
 # directory.  The container "0" is the empty root container, use that to start
 # a container from scratch.
 #
+# This subcommand is very low-level, usually you would use `plash build`.
 #
 # Examples:
 #

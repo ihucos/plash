@@ -19,7 +19,7 @@
 # /home/fulano # exit 0
 # 71
 #
-# $ plash create -i ubuntu -- touch /myfile
+# $ plash create -f ubuntu -- touch /myfile
 # 44
 
 import os

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # usage: plash with-mount CONTAINER [ CMD1 [ CMD2  ... ] ]
+#
 # Execute parameters inside a mounted container. Default parameter is the
 # default shell. Mounting happens inside an isolated mount namespace.
 #

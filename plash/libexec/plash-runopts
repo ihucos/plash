@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 #
 # usage: plash runopts -c CONTAINER [-d CHANGESDIR] [ -m MOUNT ] [CMD1 [ CMD2 ... ]]
+#
 # Run a container specifying lower level options.  Usually you'll want to use
 # `plash run` instead. If no command is specified the containers default root
 # shell will be executed.
 #
 # Supported options:
 #
-# -c CONTAINER the container id to run
+# -c CONTAINER
+#        the container id to run
 #
-# -d CHANGESIDR if specified changes to the root file system will be written
-#    there
+# -d CHANGESIDR
+#        if specified changes to the root file system will be written there
 #
-# -m MOUNT mount a path to the same location inside the container, can be
-#    specified multiple times
+# -m MOUNT
+#        mount a path to the same location inside the container, can be
+#        specified multiple times
 
 
 ALWAYS_EXPORT = ['TERM', 'DISPLAY', 'HOME']

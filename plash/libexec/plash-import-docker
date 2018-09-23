@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # usage: plash-import-docker IMAGE
-# Import image from local docker into plash
+# Import image from local docker instance into.
 
 import atexit
 import subprocess

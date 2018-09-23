@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 #
 # usage: plash mount CONTAINER MOUNTPOINT [ CHANGESDIR ]
-# Mounts the filsystem of a container. To cleanup you need to unmount it
-# manually. Changes to the filesystem will be written to CHANGESDIR, if ommited
-# a temporary directory will be used.
+#
+# Mount a container-filsystem. To cleanup you need to unmount it manually.
+# Changes to the filesystem will be written to CHANGESDIR, if ommited a
+# temporary directory will be used.
 
 import os
 import shutil

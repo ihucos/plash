@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # usage: plash help
-# Lists all available plash commands
+# List all available subcommands.
 
 import sys
 import os
@@ -21,7 +21,7 @@ for prog in sorted(progs):
         #continue # it's an alias
         links_to = os.readlink(prog_path)
         links_to = links_to[len('plash-'):]
-        first_sentence = 'Same as `plash {}`'.format(links_to)
+        first_sentence = 'Alias for `plash {}`'.format(links_to)
     else:
         first_sentence = '<empty>'
         with open(prog_path) as f:

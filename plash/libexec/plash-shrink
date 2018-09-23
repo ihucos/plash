@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # usage: plash shrink
 # Delete half of the older containers.
-# Containers with a lower build id will be deleted first
+# Containers with a lower build id will be deleted first.
 
 import math
 import os
