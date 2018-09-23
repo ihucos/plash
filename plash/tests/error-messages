@@ -62,9 +62,9 @@ test $(plash eval --run hi) = hi
 
 
 #
-# plash import-lxcimages
+# plash import-lxc
 #
-(! plash import-lxcimages doesnotexistsimagey)
+(! plash import-lxc doesnotexistsimagey)
 
 
 #

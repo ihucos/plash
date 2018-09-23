@@ -32,10 +32,10 @@ def from_docker(image):
 
 
 @register_macro()
-@cache_container_hint('lxcimages:{}')
-def from_lxcimages(image):
+@cache_container_hint('lxc:{}')
+def from_lxc(image):
     'use images from images.linuxcontainers.org'
-    return subprocess.check_output(['plash', 'import-lxcimages',
+    return subprocess.check_output(['plash', 'import-lxc',
                                     image]).decode().rstrip('\n')
 
 
@@ -73,7 +73,7 @@ def from_(image):
     if image.isdigit():
         return from_id(image)
     else:
-        return from_lxcimages(image)
+        return from_lxc(image)
 
 
 @register_macro()
