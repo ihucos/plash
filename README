@@ -120,6 +120,23 @@ Hello.run()
 
 
 ###
+# Caveats
+###
+
+- Plash processes have the same operating system access rights than the process
+  that started it. There is no security relevant isolation feature. Exactly as
+  with running programs "normally", don't run programs you do not trust with
+  plash and try to avoid using plash with the root user.
+
+- Sometimes there are issues with apt-get failing that still need to be ironed
+  out, sometimes it's due to an older kernel, sometimes due the lxc ubuntu
+  build and I suppose it could also be related to unionfs-fuse in certain
+  cases. Currently I don't see a single solution for this, this problems will
+  have to be managed and fixed bit by bit. Other package managers seem to be
+  more robust.
+
+
+###
 # FAQ
 ###
 
