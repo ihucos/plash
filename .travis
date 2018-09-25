@@ -41,7 +41,8 @@ test -n "${TRAVIS:-}" && sed -i -e "s/VERSION = '0.1dev'/VERSION = "1.$TRAVIS_BU
 #
 export PATH
 apt-get purge python3-setuptools --yes
-pip3 install setuptools twine
+pip3 install setuptools
+pip3 install twine
 # end weird fix
 
 python3 setup.py --quiet develop
