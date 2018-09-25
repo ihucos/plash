@@ -43,7 +43,7 @@ def get_subs(query_user, subfile):
                 return int(start), int(count)
     except FileNotFoundError:
         pass
-    die('the user {} does not havy any subuids or subgids, please add some'.
+    die('please configure a subgid/uid range for the user {} in /etc/subuid and /etc/subgid'.
         format(repr(query_user)))
 
 
