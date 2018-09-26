@@ -1,0 +1,80 @@
+
+
+
+Everybody is welcome to contribute to the project. Hopefully this project will
+grow organically, be improved and maintained for a long time. In this file you
+find guidelines about contributing changes into plash.
+
+
+Guiding guideline
+=================
+
+There are no universal guidelines, the situation dictates the approaches.
+
+
+Process Guidelines
+==================
+
+1. Write a pull request, there is no special form about how that should look
+like. A description with some context is nice. Let the code speak.
+
+2. If approved, the pull request will get squashed to master. Commit messages
+of the pull request don't need to be specially nice or readable. In an optimal
+case the whole pull request in its whole is clear enough. Every line needs to
+be tested. Don't be afraid to ask about how to write tests after making the
+pull request.
+
+3. If the unit tests pass on master at CI, there will be automatically an
+release. The price of this lightweight releasing-model, is that pull requests
+can not be of an experimental nature, a lot of care must be taken before
+getting them in.
+
+4. Thank you for contributing! Just `pip3 install --upgrade pip` ten minutes
+after the merge and there are your changes!
+
+
+Pull Request Approval guidelines
+================================
+
+The time of experimentation in this project is finished. New changes must try
+to be as backward compatible as possible. If your pull request get merged to
+master, it will be automatically be released. So it is important that it is
+conservative. It can only be merged in after we figured out good testing and
+went trough all edge cases and so on. Plash is a core library, so it is about
+developing general purpose functionality and not adding new features.  Note
+that the true cost of software is maintaining it, only code that will still
+work in five to ten years without additional changes, will get merged.  In the
+"Development Guidelines" at the REAMDE you can find bullet points about what
+kind of software plash tries to be. Overall pull requests need to somehow fit
+these ideas. Ask me at mail-at-irae.me if you are wondering if something is a
+fit before putting too much work into it.  Maybe it is possible to have some
+`plash contrib` or so subcommand where stuff that does not necessarily belong
+to the core aspects of building and running containers can be put with lesser
+guarantees about stability and backward compatibility.  If strong feelings
+about a pull request stay after the pull request was merged or closed, feel
+free to meet me around Berlin for a Coffee or alternatively write me an email.
+
+
+Communication Guidelines
+========================
+
+- Try to be a nice person.
+
+- State your personal opinion directly and friendly.
+
+- Reread your post and assert a positive and grounded overall impression.
+
+- Start criticism with "I think" or "In my opinion".
+
+- If your post sounds somewhat too harsh, try putting in some little fillers
+  like "a little bit", "actually", "maybe", "interestingly" and so on.
+
+- Criticise positions, not people.
+
+- Keep it simple and friendly.
+
+- Everybody is wrong sometimes and makes mistakes.
+
+- Irony only works in face-to-face interactions.
+
+- Don't feed the trolls.
