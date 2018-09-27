@@ -110,7 +110,7 @@ $ plash export-tar --from alpine | docker import -
 # run an image from docker
 $ plash --from-docker busybox
 
-# Run the unit test suite inside a docker container.
+# run the unit tests inside a docker container
 $ docker run --privileged --volume /var/lib/plash --volume /tmp -ti python bash
 root@5750a18ea217:/# pip3 install plash > /dev/null
 root@5750a18ea217:/# plash test
@@ -119,7 +119,15 @@ basic-call-test      PASS
 error-messages       PASS
 macros/defpm         PASS
 macros/eval-file     PASS
+macros/eval-stdin    PASS
 ...
+
+# run the unit test suite inside another plash container
+$ plash --from-github ihucos/python --apk unionfs-fuse --layer --pip3 plash
+macbook:/home/ihucos/plash# plash init
+macbook:/home/ihucos/plash# echo unionfs-fuse > /var/lib/plash/config/union_taste
+macbook:/home/ihucos/plash# plash test
+0_quickfail          PASS
 ...
 
 # use an image from https://images.linuxcontainers.org 
