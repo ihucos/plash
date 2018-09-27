@@ -101,6 +101,44 @@ Hello.run()
 
 
 ###
+# Some Recipes
+###
+
+# export an image to docker
+$ plash export-tar --from alpine | docker import -
+
+# run an image from docker
+$ plash --from-docker busybox
+
+# use an image from https://images.linuxcontainers.org 
+$ plash --from-lxc archlinux
+$ plash --from archlinux  # actually --from fallbacks to --from-lxc
+
+# use an image from the web
+$ plash --from-url http://example.com/rootfs.tar
+
+# run a plash build file
+$ plash --eval-file ./mybuildfile
+
+# build and use a plash build file at github
+$ plash --from-github ihucos/python
+
+# see how much space an image is taking
+$ plash with-mount --from alpine -- du -sh
+
+# delete an image
+$ plash rm --from ubuntu
+
+# Delete some older containers
+$ plash shrink
+
+# cleanup internal state (like tmp dirs)
+$ plash clean
+
+Check out the tutorial: https://plash.io/
+
+
+###
 # Development Guidelines
 ###
 
