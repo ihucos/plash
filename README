@@ -122,14 +122,6 @@ macros/eval-file     PASS
 macros/eval-stdin    PASS
 ...
 
-# run the unit test suite inside another plash container
-$ plash --from-github ihucos/python --apk unionfs-fuse --layer --pip3 plash
-macbook:/home/ihucos/plash# plash init
-macbook:/home/ihucos/plash# echo unionfs-fuse > /var/lib/plash/config/union_taste
-macbook:/home/ihucos/plash# plash test
-0_quickfail          PASS
-...
-
 # use an image from https://images.linuxcontainers.org 
 $ plash --from-lxc archlinux
 $ plash --from archlinux  # actually --from fallbacks to --from-lxc
