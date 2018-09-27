@@ -5,8 +5,9 @@ import os, sys
 from plash import utils
 from plash.unshare import unshare_if_user, unshare_if_root
 
-#unshare_if_user()
-#nshare_if_root()
+utils.assert_inited()
+unshare_if_user()
+unshare_if_root()
 
 lower1 = utils.mkdtemp()
 lower2 = utils.mkdtemp()
