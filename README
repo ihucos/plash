@@ -147,7 +147,7 @@ $ plash shrink
 # cleanup internal state (like tmp dirs)
 $ plash clean
 
-Check out the tutorial: https://plash.io/
+Check out the tutorial: http://plash.io/
 
 
 ###
