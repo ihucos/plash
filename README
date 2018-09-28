@@ -197,8 +197,8 @@ Failsafe mode (PLASH_NO_UNSHARE=1):
   - root access
   - chroot system call
   - a `mount` binary
-The failsafe mode leaks mounts and is only usable for a limited amount of
-invocations while already i an mount namespace.
+The failsafe mode leaks mounts and is only usable for a certain amount of
+invocations while already inside an mount namespace.
 
 
 ###
