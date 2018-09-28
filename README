@@ -182,6 +182,26 @@ including for example other containerization platforms.
 
 
 ###
+# Requirements
+###
+
+For unprivileged containers:
+  - newuidmap/newgidmap
+  - unionfs-fuse if not Ubuntu
+  - Kernel >= 4.18 or Ubuntu
+
+For privileged containers:
+  - Support for mount namespaces `unshare(CLONE_NEWNS)`
+
+Failsafe mode (PLASH_NO_UNSHARE=1):
+  - root access
+  - chroot system call
+  - a `mount` binary
+The failsafe mode leaks mounts and is only usable for a limited amount of
+invocations while already i an mount namespace.
+
+
+###
 # Development Guidelines
 ###
 
