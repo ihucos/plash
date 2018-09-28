@@ -18,3 +18,9 @@ export PLASH_DATA=$tmp/myplashdata
 plash init
 out=$(ls -A $tmp/myplashdata)
 test -n "$out"
+
+! (PLASH_DATA=/tmp/bla:blub plash init) # bad char
+! (PLASH_DATA=/tmp/bla:blu plash init) # bad chars
+
+! (PLASH_DATA=/tmp/bla:blu plash init) # bad chars
+
