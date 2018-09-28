@@ -22,11 +22,6 @@ MS_REC = 0x4000
 MS_PRIVATE = 1 << 18
 
 
-# SystemExit because so the process dies if this is unhandled
-class CouldNotSetupUnshareError(SystemExit):
-    pass
-
-
 def die_with_errno(calling, extra=''):
     myerrno = ctypes.get_errno()
     errno_str = errno.errorcode.get(myerrno, myerrno)
@@ -47,7 +42,10 @@ def get_subs(query_user, subfile):
         format(repr(query_user)))
 
 
-def unshare_if_user(extra_setup_cmd=None):
+def unshare_if_user():
+    '''
+    Exits the program on failure
+    '''
 
     if not os.getuid():
         return
@@ -55,7 +53,7 @@ def unshare_if_user(extra_setup_cmd=None):
     uid_start, uid_count = get_subs(getuser(), '/etc/subuid')
     gid_start, gid_count = get_subs(getuser(), '/etc/subgid')
 
-    setup_cmds = [[
+    setup_user_map = [[
         'newuidmap',
         str(os.getpid()), '0',
         str(os.getuid()), '1', '1',
@@ -70,14 +68,14 @@ def unshare_if_user(extra_setup_cmd=None):
                       str(gid_count)
                   ]]
 
-    if extra_setup_cmd:
-        setup_cmds.append(extra_setup_cmd)
-
     def prepare_unshared_proccess():
-        for cmd in setup_cmds:
-            with catch_and_die([CalledProcessError, FileNotFoundError],
-                               debug='forked child'):
-                check_call(cmd)
+        for cmd in setup_user_map:
+            try:
+                with catch_and_die([CalledProcessError],
+                                   debug='forked child'):
+                    check_call(cmd)
+            except FileNotFoundError as exc:
+                utils.die('newuidmap/newgidmap not found in PATH, please install it (package typically called `uidmap` or `shadow-utils`)')
 
     # we need to call prepare_unshared_proccess
     # from outside of the unshared process
@@ -108,7 +106,7 @@ def unshare_if_user(extra_setup_cmd=None):
     pid, raw_exit_status = os.wait()
     exit_status = raw_exit_status // 255
     if exit_status:
-        raise CouldNotSetupUnshareError()
+        sys.exit(1)
 
 
 def unshare_if_root():
