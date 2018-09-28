@@ -14,6 +14,7 @@ import sys
 from os.path import join
 from subprocess import CalledProcessError, check_call
 
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, get_plash_data, handle_build_args,
                          handle_help_flag, nodepath_or_die)
@@ -32,11 +33,6 @@ except ValueError:
     die_with_usage()
 
 nodepath = nodepath_or_die(container)
-
-# conservatly validate the changedir
-if changedir and not changedir.replace('.', '').replace('/', '').replace(
-        '_', '').replace('-', '').isalnum():
-    die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(changedir))
 
 container_ids_path = []
 parts = nodepath.split('/')
@@ -102,6 +98,9 @@ try:
 except KeyError:
     die('unexpected union taste: {}'.format(union_taste))
 
+utils.check_mount_option_part(changedir)
+for dir in lowerdir_list:
+    utils.check_mount_option_part(dir)
 mount_func(lowerdir_list, mountpoint, changedir)
 
 # overlay is only in the Linux kernel and accesible by root
