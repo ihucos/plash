@@ -59,7 +59,7 @@ if platform.system() == 'Linux':
                      "lowerdir={}:{}".format(lower1, lower2).encode())
     # we just check for EPERM, on anything else we assume overlay usage is ok
     can_access_overlay = not (ret == -1
-                              and errno.errorcode.get(myerrno) == 'EPERM')
+                              and errno.errorcode.get(ctypes.get_errno()) == 'EPERM')
 
 try:
     with open(join(plash_data, 'config', 'union_taste'), 'x') as f:
