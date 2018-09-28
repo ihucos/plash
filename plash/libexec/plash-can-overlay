@@ -19,13 +19,16 @@ MS_MGC_VAL = 0xC0ED0000
 
 libc = ctypes.CDLL('libc.so.6', use_errno=True)
 # XXX SECURITY ESCAPE lower1 lower2
-ret = libc.mount("overlay", "/var/lib/plash/mnt", "overlay", MS_MGC_VAL,
-        "lowerdir={}:{}".format(lower1, lower2))
+ret = libc.mount(b"overlay", b"/var/lib/plash/mnt", b"overlay", MS_MGC_VAL,
+        "lowerdir={}:{}".format(lower1, lower2).encode())
 
-print(ret)
-myerrno = ctypes.get_errno()
-errno_str = errno.errorcode.get(myerrno, myerrno)
-print(errno_str)
+if not ret:
+    print('plash: test overlay worked', file=sys.stderr)
+else:
+    myerrno = ctypes.get_errno()
+    errno_str = errno.errorcode.get(myerrno, myerrno)
+    print('plash: test overlay failed ({})'.format(errno_str), file=sys.stderr)
+    sys.exit(myerrno)
 
 
 
