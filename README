@@ -185,12 +185,12 @@ including for example other containerization platforms.
 # Requirements
 ###
 
-For unprivileged containers:
+For unprivileged use:
   - newuidmap/newgidmap
   - unionfs-fuse if not Ubuntu
   - Kernel >= 4.18 or Ubuntu
 
-For privileged containers:
+For privileged use:
   - Support for mount namespaces `unshare(CLONE_NEWNS)`
 
 Failsafe mode (PLASH_NO_UNSHARE=1):
