@@ -7,7 +7,6 @@ import os
 import platform
 from os.path import join
 
-import utils
 from plash.utils import get_plash_data, handle_help_flag, hashstr
 
 handle_help_flag()
