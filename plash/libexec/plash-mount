@@ -98,11 +98,9 @@ try:
 except KeyError:
     die('unexpected union taste: {}'.format(union_taste))
 
-# conservatly validate the changedir
 utils.check_mount_option_part(changedir)
 for dir in lowerdir_list:
     utils.check_mount_option_part(dir)
-
 mount_func(lowerdir_list, mountpoint, changedir)
 
 # overlay is only in the Linux kernel and accesible by root

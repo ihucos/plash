@@ -12,9 +12,6 @@ from plash import utils
 from plash.utils import get_plash_data, handle_help_flag, hashstr
 from plash.unshare import unshare_if_user, unshare_if_root
 
-# value ignored since kernel 2.4
-MS_MGC_VAL = 0xC0ED0000
-
 handle_help_flag()
 
 # needed for the overlay test
@@ -48,6 +45,8 @@ except FileExistsError:
 #
 can_access_overlay = False
 if platform.system() == 'Linux':
+    # MS_MGC_VAL value ignored since kernel 2.4
+    MS_MGC_VAL = 0xC0ED0000
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
     lower1 = utils.mkdtemp()
     lower2 = utils.mkdtemp()
