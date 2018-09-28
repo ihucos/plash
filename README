@@ -159,8 +159,8 @@ containers are more lightweight, in fact they are just processes. Let's take a
 look at this:
 
 Thread < Process < Container < Full Virtualisation < Dedicated Hardware
-              ^
-              └─ plash is here
+            ^
+            └─ plash is here
 
 Plash does not start containers, it starts processes. This architecture
 leverages the fact, that processes are a very well established interface. In
