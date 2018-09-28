@@ -2,25 +2,44 @@
 
 import subprocess
 import os, sys
+import ctypes
+import errno
 from plash import utils
 from plash.unshare import unshare_if_user, unshare_if_root
 
-utils.assert_inited()
+utils.assert_initialized()
 unshare_if_user()
 unshare_if_root()
 
 lower1 = utils.mkdtemp()
 lower2 = utils.mkdtemp()
 
-# XXX SECURITY ESCAPE lower1 lower2
-p = subprocess.Popen([
-    'mount', '-t', 'overlay', 'overlay', '-olowerdir={}:{}'.format(
-        lower1, lower2),
-    os.path.join(utils.get_plash_data(), 'mnt')],
-    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+# value ignored since kernel 2.4
+MS_MGC_VAL = 0xC0ED0000
 
-exit = p.wait()
-if exit:
-    print('plash: test overlay invocation failed', file=sys.stderr)
-else:
-    print('plash: test overlay invocation succeeded', file=sys.stderr)
+libc = ctypes.CDLL('libc.so.6', use_errno=True)
+# XXX SECURITY ESCAPE lower1 lower2
+ret = libc.mount("overlay", "/var/lib/plash/mnt", "overlay", MS_MGC_VAL,
+        "lowerdir={}:{}".format(lower1, lower2))
+
+print(ret)
+myerrno = ctypes.get_errno()
+errno_str = errno.errorcode.get(myerrno, myerrno)
+print(errno_str)
+
+
+
+
+
+#p = subprocess.Popen([
+#    'mount', '-t', 'overlay', 'overlay', '-olowerdir={}:{}'.format(
+#        lower1, lower2),
+#    os.path.join(utils.get_plash_data(), 'mnt')],
+#    )
+#
+#exit = p.wait()
+#print(exit)
+#if exit:
+#    print('plash: test overlay invocation failed', file=sys.stderr)
+#else:
+#    print('plash: test overlay invocation succeeded', file=sys.stderr)
