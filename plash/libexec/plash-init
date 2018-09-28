@@ -21,7 +21,6 @@ handle_help_flag()
 unshare_if_user()
 unshare_if_root()
 
-
 plash_data = get_plash_data()
 os.makedirs(plash_data, exist_ok=True)
 os.chmod(plash_data, 0o700)
@@ -42,7 +41,7 @@ try:
 except FileExistsError:
     pass
 
-# 
+#
 # feature detect if we can use overlay. In the mainstream kernel that is only
 # the case if we are root, in ubuntu that does also apply for unprivileged
 # users.
@@ -56,13 +55,11 @@ if platform.system() == 'Linux':
     utils.check_mount_option_part(lower1)
     utils.check_mount_option_part(lower2)
     utils.check_mount_option_part(mountpoint)
-    ret = libc.mount(
-            b"overlay",
-            mountpoint.encode(), b"overlay",
-            MS_MGC_VAL,
-            "lowerdir={}:{}".format(lower1, lower2).encode())
+    ret = libc.mount(b"overlay", mountpoint.encode(), b"overlay", MS_MGC_VAL,
+                     "lowerdir={}:{}".format(lower1, lower2).encode())
     # we just check for EPERM, on anything else we assume overlay usage is ok
-    can_access_overlay = not (ret == -1 and errno.errorcode.get(myerrno) == 'EPERM')
+    can_access_overlay = not (ret == -1
+                              and errno.errorcode.get(myerrno) == 'EPERM')
 
 try:
     with open(join(plash_data, 'config', 'union_taste'), 'x') as f:
