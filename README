@@ -168,7 +168,7 @@ order to list your containers, you use `ps` or `top`, to kill a "container" you
 can use `kill` and so on. To manage multiple instances, you can utilize
 something like `supervisord`, there is no need to reinvent and relearn things
 "the container way". Although containerized processes behave like - or in fact
-are - processes, they get the advantages from containers. Which is mainly the
+are - processes, they get the advantages of containers. Which is mainly the
 perception of running in a dedicated operating system of choice. Still some
 resources like the home folder and the network stack are shared. If a more
 heavy isolation is needed, other existing tools can provide this functionality,
