@@ -138,9 +138,6 @@ $ plash --from-url http://example.com/rootfs.tar
 # run a plash build file
 $ plash --eval-file ./mybuildfile
 
-# build and use a plash build file at github
-$ plash --from-github ihucos/python
-
 # see how much space an image is taking
 $ plash with-mount --from alpine -- du -sh
 
