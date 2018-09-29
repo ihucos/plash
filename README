@@ -197,6 +197,7 @@ Failsafe mode:
   - root access
   - chroot system call
   - a `mount` binary
+  - Linux kernel or unionfs-fuse
 
   Warning: The failsafe mode does not clean up mountpoints. It is designed to
   run inside another short lived container/machine/mount namespace. Enable with
