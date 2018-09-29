@@ -186,16 +186,19 @@ For unprivileged use:
   - newuidmap/newgidmap
   - unionfs-fuse if not Ubuntu
   - Kernel >= 4.18 or Ubuntu
+  - Support for user and mount namespaces
 
 For privileged use:
-  - Support for mount namespaces `unshare(CLONE_NEWNS)`
+  - Support for mount namespaces
 
-Failsafe mode (PLASH_NO_UNSHARE=1):
+Failsafe mode:
   - root access
   - chroot system call
   - a `mount` binary
-The failsafe mode leaks mounts and is only usable for a certain amount of
-invocations while already inside another mount namespace.
+
+  Warning: The failsafe mode does not clean up mountpoints. It is designed to
+  run inside another short lived container/machine/mount namespace. Enable with
+  `export PLASH_NO_UNSHARE=1`
 
 
 ###
