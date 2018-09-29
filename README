@@ -182,6 +182,8 @@ including for example other containerization platforms.
 # Requirements
 ###
 
+Note: in this sectiont the focus is on usability, not immaculate accuracy.
+
 For unprivileged use:
   - newuidmap/newgidmap
   - unionfs-fuse if not Ubuntu
