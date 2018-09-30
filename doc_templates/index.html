@@ -52,6 +52,8 @@ td a {
 
 <pre>
 $ pip3 install plash > /dev/null
+$ # for unprivileged usage, ensure you have unionfs-fuse and
+$ # uidmap/shadow-utils installed
 $ plash init
 $ echo 'plash reference' | plash run --from ubuntu --apt figlet -- figlet
        _           _                 __
