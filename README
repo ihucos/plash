@@ -23,14 +23,14 @@
 # Why plash?
 ###
 
-- Security: Traditional per user isolation. Containers run completely
-  unprivileged.
+- Security: Containers are just regular processes that inherits they parents
+  properties. They can be invoked by unprivileged users.
 
-- Integration: Processes are containerized but still interact naturally with the host
-  operating system.
+- Integration: Plash containers interact naturally with the host operating
+  system and vice versa.
 
-- Portability: Plash runs inside CI environments and inside other container software
-  like Docker or itself.
+- Portability: Plash runs inside CI environments and inside other container
+  software like Docker or itself.
 
 - Plashfiles: Plashfiles are executable build files featuring an extendable,
   lightweight configuration management language.
