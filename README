@@ -241,6 +241,9 @@ Failsafe mode:
   have to be managed and fixed bit by bit. Other package managers seem to be
   more robust.
 
+- Plash only runs inside Docker containers started with the `--privileged`
+  flag, see GitHub issue #51 for details. 
+
 
 ###
 # FAQ
