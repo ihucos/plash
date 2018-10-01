@@ -4,6 +4,7 @@
 # Initialize build data. Run this on a new system before anything else.
 
 import os
+import sys
 import errno
 import ctypes
 import platform
@@ -44,7 +45,7 @@ except FileExistsError:
 # the case if we are root, in ubuntu that does also apply for unprivileged
 # users.
 #
-can_access_overlay = False
+init_msg_append = ''
 if platform.system() == 'Linux':
     # MS_MGC_VAL value ignored since kernel 2.4
     MS_MGC_VAL = 0xC0ED0000
@@ -58,9 +59,15 @@ if platform.system() == 'Linux':
     ret = libc.mount(b"overlay", mountpoint.encode(), b"overlay", MS_MGC_VAL,
                      "lowerdir={}:{}".format(lower1, lower2).encode())
     # we just check for EPERM, on anything else we assume overlay usage is ok
-    can_access_overlay = not (ret == -1
-                              and errno.errorcode.get(ctypes.get_errno()) == 'EPERM')
-
+    if ret == -1:
+        init_msg_append = ' with unionfs-fuse - overlay probing returned {}'.format(
+        errno.errorcode.get(ctypes.get_errno()))
+        can_access_overlay = False
+    elif ret == 0:
+        init_msg_append = ' with overlay'
+        can_access_overlay = True
+    else:
+        assert False, 'unexpected ret value: {}'.format(ret)
 try:
     with open(join(plash_data, 'config', 'union_taste'), 'x') as f:
         if can_access_overlay:
@@ -71,9 +78,11 @@ try:
             # unionfs is fuse based and available in Linux, Mac and FreeBSD
             f.write('unionfs-fuse\n')
 except FileExistsError:
-    pass
+    init_msg_append = ' respecting existing union taste preference'
 
 try:
     os.symlink(join(plash_data, 'layer', '0'), join(plash_data, 'index', '0'))
 except FileExistsError:
-    pass
+    init_msg_append = ''
+
+print('plash: initalized {}{}'.format(plash_data, init_msg_append), file=sys.stderr)
