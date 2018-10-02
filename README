@@ -23,7 +23,7 @@
 # Why plash?
 ###
 
-- Security: Containers are just regular processes that inherits they parents
+- Security: Containers are just regular processes that inherits their parents
   properties. They can be invoked by unprivileged users.
 
 - Integration: Plash containers interact naturally with the host operating
@@ -202,6 +202,50 @@ Failsafe mode:
   Warning: The failsafe mode does not clean up mountpoints. It is designed to
   run inside another short lived container/machine/mount namespace. Enable with
   `export PLASH_NO_UNSHARE=1`
+
+
+###
+# Environemnt variables
+###
+
+- PLASH_DATA
+  Select a different directory for the build data. Default is "~/.plashdata" or
+  "/var/lib/plash" if root.
+
+- PLASH_DEBUG
+  If enabled, raises exceptions more often.
+
+- PLASH_EXPORT
+  Tells plash which environment variables to export into containers. Separate
+  multiple variables with a ":".
+
+- PLASH_INIT_UNION_TASTE
+  Tells `plash init` which union filesystem to use for the build data. The
+  default is "unionfs-fuse", the other alternative is "overlay".
+
+- PLASH_NO_UNSHARE
+  The failsafe mode. It disables the attempt to create the mountpoints inside a
+  fresh mount namespace. Setting this environment variable will pollute your
+  current mount namespace. When run as a non-root user, this option has no
+  effect. Only use this inside a throw-away mount namespace like another
+  container.
+
+
+###
+# Choosing an union filesystem
+###
+
+By default after you run `plash init`, the build directory will be configured
+with the "unionfs-fuse" filesystem. If you want to use "overlay" instead, run
+the following command: `echo overlay | plash data tee config/union_taste`
+
+The difference is that "unionfs-fuse" is slower but more flexible, it works with
+fuse. Overlay on the other hand is faster but in most cases requires root
+access or an ubuntu system. If you can, go with "overlay".
+
+Note that "overlay" and "unionfs-fuse" may not be compatible to each other, so
+you have to decide for one of them right after initializing a build directory.
+It's like choosing the first Pokemon.
 
 
 ###
