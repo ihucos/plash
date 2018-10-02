@@ -23,7 +23,7 @@
 # Why plash?
 ###
 
-- Security: Containers are just regular processes that inherits they parents
+- Security: Containers are just regular processes that inherits their parents
   properties. They can be invoked by unprivileged users.
 
 - Integration: Plash containers interact naturally with the host operating
