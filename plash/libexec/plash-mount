@@ -33,11 +33,6 @@ except ValueError:
 
 nodepath = nodepath_or_die(container)
 
-# conservatly validate the changedir
-if changedir and not changedir.replace('.', '').replace('/', '').replace(
-        '_', '').replace('-', '').isalnum():
-    die('cowardly dying: bad char(s) in overlayfs arg: {}'.format(changedir))
-
 container_ids_path = []
 parts = nodepath.split('/')
 while True:
@@ -92,6 +87,12 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
         ])
 
 
+def check_mount_option_part(dir):
+    if dir and not dir.replace('.', '').replace('/', '').replace(
+            '_', '').replace('-', '').isalnum():
+        die('cowardly dying: bad char(s) in unionfs-fuse/overlay arg: {}'.format(dir))
+
+
 known_union_tastes = {'overlay': mount_overlay, 'unionfs-fuse': mount_unionfs}
 
 with open(os.path.join(get_plash_data(), 'config', 'union_taste')) as f:
@@ -102,7 +103,7 @@ try:
 except KeyError:
     die('unexpected union taste: {}'.format(union_taste))
 
+for l in lowerdir_list:
+    check_mount_option_part(l)
+check_mount_option_part(changedir)
 mount_func(lowerdir_list, mountpoint, changedir)
-
-# overlay is only in the Linux kernel and accesible by root
-# unionfs is fuse based and available in Linux, Mac and FreeBSD
