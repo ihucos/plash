@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
 #
 # usage: plash init
-# Initialize build data. Run this on a new system before anything else.
+#
+# Initialize build data. Run this on a new system before anything else.  By
+# default the union mount program  will be unionfs-fuse, if a different union
+# taste is desired, it can be changed with:
+# $ echo overlay | plash data tee config/union_taste
+#
+# It is also possible to change the default union taste of plash init with the
+# environment variable `PLASH_INIT_UNION_TASTE`.
+#
+# Warning: how the union taste is or can be selected is something not set in
+# stone yet.
 
 import os
 import platform
@@ -31,10 +41,10 @@ try:
 except FileExistsError:
     pass
 
+union_taste = os.environ.get('PLASH_INIT_UNION_TASTE', 'unionfs-fuse')
 try:
     with open(join(plash_data, 'config', 'union_taste'), 'x') as f:
-        # the user needs to change it if a different value is desired
-        f.write('unionfs-fuse\n')
+        f.write('{}\n'.format(union_taste))
 except FileExistsError:
     pass
 
