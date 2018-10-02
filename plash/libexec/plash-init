@@ -4,7 +4,6 @@
 # Initialize build data. Run this on a new system before anything else.
 
 import os
-import errno
 import ctypes
 import platform
 from os.path import join
