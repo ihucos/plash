@@ -4,19 +4,12 @@
 # Initialize build data. Run this on a new system before anything else.
 
 import os
-import ctypes
 import platform
 from os.path import join
 
-from plash import utils
 from plash.utils import get_plash_data, handle_help_flag, hashstr
-from plash.unshare import unshare_if_user, unshare_if_root
 
 handle_help_flag()
-
-# needed for the overlay test
-unshare_if_user()
-unshare_if_root()
 
 plash_data = get_plash_data()
 os.makedirs(plash_data, exist_ok=True)
@@ -38,33 +31,10 @@ try:
 except FileExistsError:
     pass
 
-#
-# feature detect if we can use overlay. In the mainstream kernel that is only
-# the case if we are root, in ubuntu that does also apply for unprivileged
-# users.
-#
-can_access_overlay = False
-if platform.system() == 'Linux':
-    # MS_MGC_VAL value ignored since kernel 2.4
-    MS_MGC_VAL = 0xC0ED0000
-    libc = ctypes.CDLL('libc.so.6', use_errno=True)
-    lower1 = utils.mkdtemp()
-    lower2 = utils.mkdtemp()
-    mountpoint = os.path.join(plash_data, 'mnt')
-    utils.check_mount_option_part(lower1)
-    utils.check_mount_option_part(lower2)
-    utils.check_mount_option_part(mountpoint)
-    ret = libc.mount(b"overlay", mountpoint.encode(), b"overlay", MS_MGC_VAL,
-                     "lowerdir={}:{}".format(lower1, lower2).encode())
-    # we just check for EPERM, on anything else we assume overlay usage is ok
-    can_access_overlay = not (ret == -1
-                              and errno.errorcode.get(myerrno) == 'EPERM')
-
 try:
     with open(join(plash_data, 'config', 'union_taste'), 'x') as f:
-        if can_access_overlay:
-            # overlay is only in the Linux kernel and in mainstream only
-            # accesible by root.
+        if not os.getuid() and platform.system() == 'Linux':
+            # overlay is only in the Linux kernel and accesible by root
             f.write('overlay\n')
         else:
             # unionfs is fuse based and available in Linux, Mac and FreeBSD
