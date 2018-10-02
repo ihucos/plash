@@ -244,7 +244,7 @@ access or an ubuntu system. If you can, go with "overlay".
 
 Note that "overlay" and "unionfs-fuse" may not be compatible to each other, so
 you have to decide for one of them right after initializing a build directory.
-It's like choosing a Pokemon.
+It's like choosing the first Pokemon.
 
 
 ###
