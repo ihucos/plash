@@ -209,28 +209,42 @@ Failsafe mode:
 ###
 
 - PLASH_DATA
-  select a different directory to save the build data. Default is
-  "~/.plashdata" or "/var/lib/plash" if root.
+  select a different directory for the build data. Default is "~/.plashdata" or
+  "/var/lib/plash" if root.
 
 - PLASH_DEBUG
   If enabled, raises exceptions more often.
 
-- PLASH_EXPORT.
-  Tells plash which environment variables to export into an container. Separate
+- PLASH_EXPORT
+  Tells plash which environment variables to export into containers. Separate
   multiple variables with a ":".
 
 - PLASH_INIT_UNION_TASTE
-  Tells `plash init` which mount program to setup instead of unionfs-fuse,
-  currently the only alternative is overlay.
+  Tells `plash init` which mount program to use for the build data. The default
+  is "unionfs-fuse", the other alternative is "overlay".
 
 - PLASH_NO_UNSHARE
-  Disables the attempt to create new mountpoints inside a fresh mount namespace
-  if root. This will pollute your current mount namespace.
+  The failsafe mode. It disables the attempt to create the mountpoints inside a
+  fresh mount namespace. This will pollute your current mount namespace. When
+  run as a non-root user, this option has no effect. Only use this inside a
+  throw-away mount namespace like another container.
 
 
 ###
-# Choosing the union taste
+# Choosing an union filesystem.
 ###
+
+By default after you run `plash init`, the build directory will be configured
+with the "unionfs-fuse" filesystem. If you want to use "overlay" instead, run
+the following command: `echo overlay | plash data tee config/union_taste`
+
+The difference is that "unionfs-fuse" is slower but more flexible, it works with
+fuse. Overlay on the other hand is faster but in most cases requires root
+access or an ubuntu system. If you can, go with "overlay".
+
+Note that "overlay" and "unionfs-fuse" may not be compatible to each other, so
+you have to decide for one of them right after initializing a build directory.
+It's like choosing a Pokemon.
 
 
 ###
