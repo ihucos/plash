@@ -220,8 +220,8 @@ Failsafe mode:
   multiple variables with a ":".
 
 - PLASH_INIT_UNION_TASTE
-  Tells `plash init` which mount program to use for the build data. The default
-  is "unionfs-fuse", the other alternative is "overlay".
+  Tells `plash init` which union filesystem to use for the build data. The
+  default is "unionfs-fuse", the other alternative is "overlay".
 
 - PLASH_NO_UNSHARE
   The failsafe mode. It disables the attempt to create the mountpoints inside a
