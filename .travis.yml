@@ -19,6 +19,8 @@ script:
   - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
   - plash sudo tar -xf ~/plashcache/userdata.tar -C / || plash init
 
+  - export PLASH_EXPORT='PLASH_INIT_UNION_TASTE'
+  - export PLASH_INIT_UNION_TASTE=overlay
   - sudo ./.travis
 
   # save the plash cache
