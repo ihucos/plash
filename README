@@ -231,7 +231,7 @@ Failsafe mode:
 
 
 ###
-# Choosing an union filesystem.
+# Choosing an union filesystem
 ###
 
 By default after you run `plash init`, the build directory will be configured
