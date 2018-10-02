@@ -209,7 +209,7 @@ Failsafe mode:
 ###
 
 - PLASH_DATA
-  select a different directory for the build data. Default is "~/.plashdata" or
+  Select a different directory for the build data. Default is "~/.plashdata" or
   "/var/lib/plash" if root.
 
 - PLASH_DEBUG
