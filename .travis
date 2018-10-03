@@ -30,7 +30,7 @@ set -eux
 
 export LANG=en_US.UTF-8
  
-if [ "${TRAVIS_BRANCH:-}" = "master" -a "${TRAVIS_PULL_REQUEST:-}" = "false" ]; then
+if [ "${TRAVIS_BRANCH:-}" = "master" -a "${TRAVIS_PULL_REQUEST:-false}" = "false" ]; then
   deploy=yes
 else
   deploy=no
