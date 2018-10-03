@@ -63,7 +63,8 @@ Examples:
 - https://github.com/ihucos/plashmisc                    Custom build file commands (macros)
 - https://git.io/fAdM0 and https://git.io/fAdMg          Run docker inside plash
 - https://github.com/ihucos/noapt                        Use Ubuntu packages in other Linux distributions
-- https://github.com/ihucos/megaman                      Use Arch linux packages in other Linux distributions.
+- https://github.com/ihucos/megaman                      Use Arch Linux packages in other Linux distributions.
+- https://github.com/ihucos/plash-plash                  Example of running plash in plash
 
 
 ###
