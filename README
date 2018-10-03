@@ -20,20 +20,24 @@
 
 
 ###
-# Why plash?
+# What is plash?
 ###
 
-- Security: Containers are just regular processes that inherits they parents
-  properties. They can be invoked by unprivileged users.
+Plash is an implementation of containers, you can build and run containers. It
+uses the same underlying interfaces as other container software.
 
-- Integration: Plash containers interact naturally with the host operating
-  system and vice versa.
 
-- Portability: Plash runs inside CI environments and inside other container
-  software like Docker or itself.
+###
+# Incomplete feature list
+###
 
-- Plashfiles: Plashfiles are executable build files featuring an extendable,
-  lightweight configuration management language.
+- Unprivileged users are first-class citizens.
+- No daemons and no self baked privileged helpers.
+- It's portable and runs in many platforms like CI environments, itself or
+  other container software.
+- Create custom build commands with python3
+- Designed for ergonomic command-line interface and scripting.
+- Integrates well with existing tools - "Do One Thing and Do It Well".
 
 
 ###
@@ -79,8 +83,9 @@ this point.
 # Plashfiles
 ###
 
-Plashfiles are executable build files and may have many use cases. For example
-packaging scripts or bigger programs in a portable way. Here is an example:
+Plashfiles are executable build files featuring an extendable, lightweight
+configuration management language. There may be many use cases like packaging
+scripts or bigger programs in a portable way. Here is an example:
 
 $ cat $HOME/bin/gtk-hello-world
 #!/usr/bin/env plash-exec
