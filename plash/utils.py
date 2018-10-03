@@ -174,8 +174,3 @@ def mkdtemp():
     return tempfile.mkdtemp(
         dir=os.path.join(get_plash_data(), 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
-
-def check_mount_option_part(dir):
-    if dir and not dir.replace('.', '').replace('/', '').replace(
-            '_', '').replace('-', '').isalnum():
-        die('cowardly dying: bad char(s) in unionfs-fuse/overlay arg: {}'.format(dir))
