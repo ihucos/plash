@@ -32,10 +32,10 @@ def get_subs(query_user, subfile):
     'get subuids or subgids for a user'
     try:
         with open(subfile) as f:
-            read = f.readline()
-            user, start, count = read.split(':')
-            if user == query_user:
-                return int(start), int(count)
+            for line in f:
+                user, start, count = line.split(':')
+                if user == query_user:
+                    return int(start), int(count)
     except FileNotFoundError:
         pass
     die('please configure a subgid/uid range for the user {} in /etc/subuid and /etc/subgid'.
