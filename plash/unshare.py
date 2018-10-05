@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 #
-# usage: plash noroot CMD
 
 import ctypes
 import errno
