@@ -35,6 +35,7 @@ except ValueError:
 
 changesdir = utils.mkdtemp()
 
+# yapf: disable
 os.execlp(
     'plash-runopts',
     'plash-runopts',
@@ -47,8 +48,15 @@ os.execlp(
         '/tmp',
         '-m',
         '/home',
-    ) +
-      # only mount /root if it is readable
-      (('-m', '/root') if os.access('/root', os.R_OK) else
-       ()) + ('-m', '/etc/resolv.conf', '-m', '/sys', '-m', '/dev', '-m',
-              '/proc', '--') + tuple(cmd)))
+    ) + (('-m', '/root') if os.access('/root', os.R_OK) else ()) + (
+       '-m',
+       '/etc/resolv.conf',
+       '-m',
+       '/sys',
+       '-m',
+       '/dev',
+       '-m',
+       '/proc',
+       '--'
+       ) + tuple(cmd)))
+# yapf: enable

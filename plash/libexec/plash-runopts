@@ -27,6 +27,7 @@ import os
 import re
 import sys
 import tempfile
+import shlex
 from subprocess import CalledProcessError, check_call
 
 from plash import utils
@@ -38,7 +39,7 @@ handle_help_flag()
 assert_initialized()
 
 with utils.catch_and_die([getopt.GetoptError], debug='runopts'):
-    user_opts, user_args = getopt.getopt(sys.argv[1:], 'c:d:m:')
+    user_opts, user_args = getopt.getopt(sys.argv[1:], 'c:d:m:x:')
 
 #
 # find out the mountpoint
@@ -53,7 +54,7 @@ else:
 #
 container = None
 changesdir = None
-mounts = []
+setup_commands = []
 for opt_key, opt_value in user_opts:
 
     if opt_key == '-c':
@@ -62,8 +63,11 @@ for opt_key, opt_value in user_opts:
     elif opt_key == '-d':
         changesdir = opt_value
 
-    if opt_key == '-m':
-        mounts.append(opt_value)
+    elif opt_key == '-m':
+        setup_commands.append('mount --rbind {0} .{0}'.format(shlex.quote(opt_value)))
+
+    elif opt_key == '-x':
+        setup_commands.append(opt_value)
 
 if not container:
     die('runopts: missing -c option')
@@ -82,16 +86,7 @@ with catch_and_die([CalledProcessError], silent=True):
     check_call(['plash-mount', container, mountpoint] + (
         [changesdir] if changesdir else []))
 
-
 #
-# mount requested mounts
-#
-for mount in mounts:
-    check_call([
-        'mount', '--rbind', mount,
-        os.path.join(mountpoint, mount.lstrip('/'))
-    ])
-
 #
 # setup chroot and exec inside it
 #
@@ -113,6 +108,13 @@ if not user_args:
     cmd = [utils.get_default_shell(os.path.join(mountpoint, 'etc/passwd'))]
 else:
     cmd = user_args
+
+#
+# run setup commands
+#
+for setup_cmd in setup_commands:
+    with catch_and_die([CalledProcessError]):
+        check_call(shlex.split(setup_cmd), cwd=mountpoint)
 
 os.chroot(mountpoint)
 try:
