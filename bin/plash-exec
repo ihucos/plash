@@ -4,14 +4,11 @@
 # Used as shebang. It runs a plash buildfile.
 
 import os
-import shlex
 import subprocess
 import sys
-from collections import OrderedDict
 
 import plash
 from plash.eval import get_hint_values
-from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, handle_help_flag, run_write_read)
 
@@ -36,69 +33,27 @@ with catch_and_die([subprocess.CalledProcessError], silent=True):
 hint_values = get_hint_values(build_shell_script)
 
 envs = []
-setup_cmd_args = []
-volume_namespace = None
+setup_cmds = []
 for hint_name, hint_value in hint_values:
     if hint_name == 'use-env':
         env_val = os.environ.get(hint_value)
         if env_val:
             envs.append('{}={}'.format(hint_value, env_val))
-    elif hint_name == 'volume-namespace':
-        volume_namespace = hint_value
-    elif hint_name == 'volume':
-        volume = hint_value
-        if volume_namespace is None:
-            die('specify a volume namespace (`--hint volume-namespace foo`) before a volume')
-        volume_path = os.path.join(utils.get_plash_data(), 'volume', volume_namespace, volume.replace('/', '%'))
-
-        # create volume dirs
-        try:
-            os.mkdir(os.path.dirname(volume_path))
-        except FileExistsError:
-            pass
-        try:
-            os.mkdir(volume_path)
-        except FileExistsError:
-            pass
-
-        setup_cmd_args.append('-x')
-        setup_cmd_args.append('mount --bind {} {}'.format(shlex.quote(volume_path), shlex.quote('.' + volume)))
+    elif hint_name == 'setup':
+        setup_cmds.append(hint_val)
 
 exec = dict(hint_values).get('exec')
 if exec is None:
     die("no hint named 'exec' found (maybe try adding `--entrypoint /bin/sh`)")
 
-run_args = [exec] + args
+setup = hint_values.get('setup', '')
+run_args = ['sh', '-c', 'eval {} && exec {} "$@"'.format(shlex.quote(setup), exec), '--'] + args
 
 with catch_and_die([subprocess.CalledProcessError], silent=True):
     run_container = run_write_read(
         ['plash-build', '--run-stdin'],
         build_shell_script.encode()).decode().strip('\n')
 
-# yapf: disable
-os.execlp(
-    'plash-runopts',
-    'plash-runopts',
-    *((
-        '-c',
-        run_container,
-        '-d',
-        utils.mkdtemp(),
-        '-m',
-        '/tmp',
-        '-m',
-        '/home',
-    ) + (('-m', '/root') if os.access('/root', os.R_OK) else ()) + (
-       '-m',
-       '/etc/resolv.conf',
-       '-m',
-       '/sys',
-       '-m',
-       '/dev',
-       '-m',
-       '/proc',
-       ) + tuple(setup_cmd_args) + (
-       '--',
-       )
-       + tuple(envs) + tuple(run_args)))
-# yapf: enable
+cmd = ['plash-run', 'plash-run', run_container] + envs + run_args
+
+os.execlp(*cmd)
