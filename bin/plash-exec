@@ -6,6 +6,7 @@
 import os
 import subprocess
 import sys
+import shlex
 
 import plash
 from plash.eval import get_hint_values
@@ -42,11 +43,12 @@ for hint_name, hint_value in hint_values:
     elif hint_name == 'setup':
         setup_cmds.append(hint_val)
 
-exec = dict(hint_values).get('exec')
+hint_values_dict = dict(hint_values)
+exec = hint_values_dict.get('exec')
 if exec is None:
     die("no hint named 'exec' found (maybe try adding `--entrypoint /bin/sh`)")
 
-setup = hint_values.get('setup', '')
+setup = hint_values_dict.get('setup', '')
 run_args = ['sh', '-c', 'eval {} && exec {} "$@"'.format(shlex.quote(setup), exec), '--'] + args
 
 with catch_and_die([subprocess.CalledProcessError], silent=True):
