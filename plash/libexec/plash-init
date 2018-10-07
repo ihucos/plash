@@ -31,6 +31,7 @@ os.makedirs(join(plash_data, 'layer'), exist_ok=True)
 os.makedirs(join(plash_data, 'tmp'), exist_ok=True)
 os.makedirs(join(plash_data, 'mnt'), exist_ok=True)
 os.makedirs(join(plash_data, 'config'), exist_ok=True)
+os.makedirs(join(plash_data, 'volume'), exist_ok=True)
 
 # create the empty root container
 os.makedirs(join(plash_data, 'layer', '0', '_data', 'root'), exist_ok=True)
