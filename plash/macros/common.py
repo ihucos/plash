@@ -161,3 +161,17 @@ def entrypoint_script(*lines):
         lines.insert(0, '#!/bin/sh')
     return eval([['entrypoint', '/entrypoint'],
                  ['write-script', '/entrypoint'] + lines])
+
+
+@register_macro()
+def entrypoint_setup(entrypoint, *setup_lines):
+    setup_lines = [
+    'volume()',
+    '{',
+    '  [ -z "$2" ] && { echo "plash error: volume usage: volume VOLUME_NAME VOLUME_DIR"; exit 1; }',
+    """  [ -z "$HOME" ] && { echo 'plash error: volume: $HOME not set'; exit 1; }""",
+    '  mkdir -p ~/.plashvolumes/$1 && mount --bind ~/.plashvolumes/$1 $2',
+    '}'
+    ] + list(setup_lines)
+    exec_line = 'exec {} "$@"'.format(shlex.quote(entrypoint))
+    return eval([['entrypoint-script'] + list(setup_lines) + [exec_line]])
