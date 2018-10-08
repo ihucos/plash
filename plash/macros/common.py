@@ -163,15 +163,38 @@ def entrypoint_script(*lines):
                  ['write-script', '/entrypoint'] + lines])
 
 
+def generate_entrypoint_script(ini_string):
+    from configparser import ConfigParser
+    config = ConfigParser()
+    config.read_dict({'main': dict(
+        # default values
+        nohome=False,
+    )})
+    config.read_string(ini_string)
+    entrypoint = config.get('main', 'entrypoint')
+
+    yield 'set -e'
+    if config.has_section('volumes'):
+        yield '[ -z "$HOME" ] && { echo \'plash error: $HOME not set\'; exit 1; }'
+        for volume_name, volume in config.items('volumes'):
+            yield 'mkdir -p ~/.plashvolumes/{}'.format(shlex.quote(volume_name))
+            yield 'mkdir -p {}'.format(shlex.quote(volume))
+            yield 'mount --bind ~/.plashvolumes/{} {}'.format(shlex.quote(volume_name), shlex.quote(volume))
+
+    if config.has_section('environment'):
+        yield '[ -z "$HOME" ] && { echo \'plash error: $HOME not set\'; exit 1; }'
+        for env_key, env_val in config.items('environment'):
+            yield 'export {}={}'.format(shlex.quote(env_key.upper()), shlex.quote(env_val))
+
+    if config.getboolean('main', 'nohome'):
+        yield 'cd /' # home would still be accesible if it is the current cwd
+        yield 'mount -t tmpfs tmpfs /root'
+        yield 'for userhome in /home/*; do'
+        yield '  mount -t tmpfs tmpfs "$userhome"'
+        yield 'done'
+
+    yield 'exec {} "$@"'.format(shlex.quote(entrypoint))
+
 @register_macro()
-def entrypoint_setup(entrypoint, *setup_lines):
-    setup_lines = [
-    'volume()',
-    '{',
-    '  [ -z "$2" ] && { echo "plash error: volume usage: volume VOLUME_NAME VOLUME_DIR"; exit 1; }',
-    """  [ -z "$HOME" ] && { echo 'plash error: volume: $HOME not set'; exit 1; }""",
-    '  mkdir -p ~/.plashvolumes/$1 && mount --bind ~/.plashvolumes/$1 $2',
-    '}'
-    ] + list(setup_lines)
-    exec_line = 'exec {} "$@"'.format(shlex.quote(entrypoint))
-    return eval([['entrypoint-script'] + list(setup_lines) + [exec_line]])
+def entrypoint_generate(*ini_lines):
+    return eval([['entrypoint-script'] + list(generate_entrypoint_script('\n'.join(ini_lines)))])
