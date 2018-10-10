@@ -20,6 +20,7 @@ try:
 except ValueError:
     die_with_usage()
 
+plashfile_dir = os.path.dirname(file)
 libdir = os.path.dirname(plash.__file__)
 libexec = os.path.join(libdir, 'libexec')
 os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
@@ -29,7 +30,8 @@ with open(file) as f:
 
 with catch_and_die([subprocess.CalledProcessError], silent=True):
     build_shell_script = run_write_read(['plash-eval'],
-                                        script.encode()).decode()
+                                        script.encode(),
+                                        cwd=plashfile_dir).decode()
 hint_values = get_hint_values(build_shell_script)
 
 envs = []
@@ -48,7 +50,9 @@ run_args = [exec] + args
 with catch_and_die([subprocess.CalledProcessError], silent=True):
     run_container = run_write_read(
         ['plash-build', '--run-stdin'],
-        build_shell_script.encode()).decode().strip('\n')
+        build_shell_script.encode(),
+        cwd=plashfile_dir,
+        ).decode().strip('\n')
 
 cmd = ['plash-run', 'plash-run', run_container] + envs + run_args
 

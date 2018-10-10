@@ -158,9 +158,9 @@ def assert_initialized():
         die('first run `plash init`')
 
 
-def run_write_read(cmd, input):
+def run_write_read(cmd, input, cwd=None):
     import subprocess
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd)
     p.stdin.write(input)
     p.stdin.close()
     exit = p.wait()

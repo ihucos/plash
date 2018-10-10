@@ -67,3 +67,17 @@ printenv MYENV
 ' >> $plashfile
 chmod 700 $plashfile
 test "$($plashfile)" = "111"
+
+: test cwd while building
+cd /
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1
+--run
+pwd > /pwd
+--entrypoint cat
+' >> $plashfile
+chmod 700 $plashfile
+test "$($plashfile /pwd)" = "/tmp"
+cd -
