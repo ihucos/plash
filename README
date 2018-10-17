@@ -35,6 +35,7 @@ uses the same underlying interfaces as other container software.
 - No daemons and no self baked privileged helpers.
 - It's portable and runs in many platforms like CI environments, itself or
   other container software.
+- Nested containers.
 - Create custom build commands with python3
 - Designed for ergonomic command-line interface and scripting.
 - Integrates well with existing tools - "Do One Thing and Do It Well".
