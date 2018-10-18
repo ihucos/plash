@@ -27,7 +27,7 @@ set -eux
 
 BINSCRIPT='#!/bin/sh
 
-unshare --mount sh -c "
+unshare --mount sh -c '\''
 mount --rbind /tmp  {datadir}/{progname}/tmp
 mount --rbind /home {datadir}/{progname}/home
 mount --rbind /root {datadir}/{progname}/root
@@ -36,8 +36,8 @@ mount --rbind /dev  {datadir}/{progname}/dev
 mount --rbind /proc {datadir}/{progname}/proc
 mount --bind /etc/resolv.conf {datadir}/{progname}/etc/resolv.conf
 
-exec chroot {datadir}/{progname} {exec}
-"
+exec chroot {datadir}/{progname} {exec} "$@"
+'\'' -- "$@"
 '
 
 mkdir -p {datadir}/{progname} || true
