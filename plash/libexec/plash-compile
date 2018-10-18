@@ -27,7 +27,7 @@ set -eux
 
 BINSCRIPT='#!/bin/sh
 
-unshare --mount sh -c '\''
+unshare --mount sh -ec '\''
 mount --rbind /tmp  {datadir}/{progname}/tmp
 mount --rbind /home {datadir}/{progname}/home
 mount --rbind /root {datadir}/{progname}/root
@@ -48,15 +48,15 @@ curl -fL {imageurl} | tar -xzf - -C {datadir}/{progname}
 rm    {datadir}/{progname}/etc/resolv.conf || true
 touch {datadir}/{progname}/etc/resolv.conf || true
 
-unshare --mount sh -c '
-mount --rbind /home {datadir}/{progname}/home
-mount --rbind /root {datadir}/{progname}/root
+unshare --mount sh -ec '
+#mount --rbind /home {datadir}/{progname}/home
+#mount --rbind /root {datadir}/{progname}/root
 mount --rbind /sys  {datadir}/{progname}/sys
 mount --rbind /dev  {datadir}/{progname}/dev
 mount --rbind /proc {datadir}/{progname}/proc
 mount --bind /etc/resolv.conf {datadir}/{progname}/etc/resolv.conf
 
-echo "$1" | chroot {datadir}/{progname} sh
+echo "$1" | chroot {datadir}/{progname} sh -ex
 ' - {buildscript}
 
 echo "$BINSCRIPT" > {bindir}/{progname}
