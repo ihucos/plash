@@ -23,17 +23,21 @@ setupidns(){
 }
 
 child(){
-  pid=$(cat "$fifo") # not used?
+  read -r pid < "$fifo"
   setupidns newuidmap "$getuid" "$username" /etc/subuid
   setupidns newgidmap "$getgid" "$groupname" /etc/subgid
-
   echo ok > "$fifo"
-
 }
+
 child &
+( sleep 3 && echo timeout > "$fifo" ) &
 
 exec unshare --user --mount sh -euc '
 echo $$ > '"$fifo"'
-cat '"$fifo"' > /dev/null
+read -r status < "$fifo"
+if [ "$status" = "timeout" ]; then
+ echo "child failed"
+ exit 1
+fi
 exec "$@"
 ' -- "$@"
