@@ -7,41 +7,51 @@ getuid=$(id -u)
 groupname=$(id -gn)
 getgid=$(id -g)
 
+# create a fifo
 tmpdir=$(mktemp -d)
 fifo="$tmpdir"/fifo
 mkfifo "$fifo"
 
 
+# this fucntion  will call newuidmap/newgidmap with
+# appropriate arguments takes from /etc/subuid or /etc/subgid
 setupidns(){
   prog="$1"
   id="$2"
   name="$3"
   file="$4"
 
+  # check if newuidmap/newgidmap is available
   if ! command -v "$prog" >/dev/null; then
     echo 'plash: command not found: '"$prog" \
     ' (package typically called `uidmap` or `shadow-utils`)' >&2
     exit 1
   fi
 
+  # search for subuid/subgids
   found=0
   if [ -f "$file" ]; then
     while IFS=: read -r query start count
     do
     if [ "$query" = "$id" ] || [ "$query" = "$name" ]; then
+        # call newuidmap/newgidmap
         "$prog" "$pid" 0 "$getgid" 1 1 "$start" "$count"
         found=1
         break
     fi
     done <"$file"
   fi
+
+  # complain if newuidmap/newgidmap could not be invoked
   if [ "$found" = 0 ]; then
     echo "plash: please configure a subgid/uid range for the" \
     " user $name in /etc/subuid and /etc/subgid"
     exit 1
   fi
+
 }
 
+# fork off and attempt mapping
 child(){
   read -r pid < "$fifo"
   setupidns newuidmap "$getuid" "$username" /etc/subuid
@@ -50,6 +60,7 @@ child(){
 }
 child &
 
+# enter new user and mount namespace
 exec unshare --user --mount sh -euc '
 echo $$ > '"$fifo"'
 eval "read -r status < '"$fifo"'" 2> /dev/null
