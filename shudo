@@ -13,13 +13,27 @@ mkfifo "$fifo"
 
 
 setupidns(){
+
+  if ! command -v "$1" >/dev/null; then
+    echo 'plash: command not found: '"$1" \
+    ' (package typically called `uidmap` or `shadow-utils`)' >&2
+    exit 1
+  fi
+
+  found=0
   while IFS=: read -r query start count
   do
   if [ "$query" = "$2" ] || [ "$query" = "$3" ]; then
       "$1" "$pid" 0 "$getgid" 1 1 "$start" "$count"
+      found=1
       break
   fi
   done <"$4"
+  if [ "$found" = 0 ] && ! [ "$2" = 0 ]; then
+    echo "plash: please configure a subgid/uid range for the" \
+    " user $3 in /etc/subuid and /etc/subgid"
+    exit 1
+  fi
 }
 
 child(){
@@ -30,14 +44,9 @@ child(){
 }
 
 child &
-( sleep 3 && echo timeout > "$fifo" ) &
 
 exec unshare --user --mount sh -euc '
 echo $$ > '"$fifo"'
 read -r status < '"$fifo"'
-if [ "$status" = "timeout" ]; then
- echo "child failed"
- exit 1
-fi
 exec "$@"
 ' -- "$@"
