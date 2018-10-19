@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -eu
+
+username=$(id -un)
+getuid=$(id -u)
+groupname=$(id -gn)
+getgid=$(id -g)
+
+tmpdir=$(mktemp -d)
+fifo="$tmpdir"/fifo
+mkfifo "$fifo"
+
+
+{ # forked child
+
+  pid=$(cat "$fifo")
+
+  while IFS=: read -r user uidstart uidcount
+  do
+  if [ "$user" = "$getuid" ] || [ "$user" = "$username" ]; then
+      newuidmap $$ 0  "$getuid"    1 \
+                   1  "$uidstart" "$uidcount"
+      break
+  fi
+  done <"/etc/subuid"
+
+  while IFS=: read -r group gidstart gidcount
+  do
+  if [ "$group" = "$getgid" ] || [ "$group" = "$groupname" ]; then
+      newgidmap $$ 0  "$getgid"    1 \
+                   1  "$gidstart" "$gidcount"
+      break
+  fi
+  done <"/etc/subgid"
+  echo ok > "$fifo"
+} &
+
+exec unshare --user --mount sh -euc '
+echo $$ > '"$fifo"'
+cat '"$fifo"' > /dev/null
+exec "$@"
+' -- "$@"
