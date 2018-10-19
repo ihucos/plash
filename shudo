@@ -12,29 +12,25 @@ fifo="$tmpdir"/fifo
 mkfifo "$fifo"
 
 
-{ # forked child
-
-  pid=$(cat "$fifo")
-
-  while IFS=: read -r user uidstart uidcount
+setupidns(){
+  while IFS=: read -r query start count
   do
-  if [ "$user" = "$getuid" ] || [ "$user" = "$username" ]; then
-      newuidmap $$ 0  "$getuid"    1 \
-                   1  "$uidstart" "$uidcount"
+  if [ "$query" = "$2" ] || [ "$query" = "$3" ]; then
+      "$1" "$pid" 0 "$getgid" 1 1 "$start" "$count"
       break
   fi
-  done <"/etc/subuid"
+  done <"$4"
+}
 
-  while IFS=: read -r group gidstart gidcount
-  do
-  if [ "$group" = "$getgid" ] || [ "$group" = "$groupname" ]; then
-      newgidmap $$ 0  "$getgid"    1 \
-                   1  "$gidstart" "$gidcount"
-      break
-  fi
-  done <"/etc/subgid"
+child(){
+  pid=$(cat "$fifo") # not used?
+  setupidns newuidmap "$getuid" "$username" /etc/subuid
+  setupidns newgidmap "$getgid" "$groupname" /etc/subgid
+
   echo ok > "$fifo"
-} &
+
+}
+child &
 
 exec unshare --user --mount sh -euc '
 echo $$ > '"$fifo"'
