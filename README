@@ -272,6 +272,7 @@ It's like choosing the first Pokemon.
 - Be as vanilla as you can be
 - Be humble, don't oversell your abstraction layer.
 - Work toward a timeless, finished product that will require no maintainance.
+- Don't differentiate root from non-root users (this is a TODO)
 - The right guidelines for the right situation.
 
 
