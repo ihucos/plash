@@ -18,6 +18,8 @@
 #        mount a path to the same location inside the container, can be
 #        specified multiple times
 
+from plash.utils import recall_unshared; recall_unshared()
+
 
 ALWAYS_EXPORT = ['TERM', 'DISPLAY', 'HOME']
 
@@ -29,10 +31,9 @@ import sys
 import tempfile
 from subprocess import CalledProcessError, check_call
 
-from plash import utils
-from plash.unshare import unshare_if_root, unshare_if_user
 from plash.utils import (assert_initialized, catch_and_die, die,
                          handle_help_flag, mkdtemp)
+from plash import utils
 
 handle_help_flag()
 assert_initialized()
@@ -67,13 +68,6 @@ for opt_key, opt_value in user_opts:
 
 if not container:
     die('runopts: missing -c option')
-
-#
-# enter different namespace
-#
-unshare_if_root()
-unshare_if_user()
-
 
 #
 # mount root filesystem

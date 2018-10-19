@@ -5,16 +5,16 @@
 # build data will enter an undefined state. Plashs behaviour while this command
 # did not finish running returning an non zero exit code is undefined.
 
+from plash.utils import recall_unshared; recall_unshared() 
+
 import os
 import sys
 from shutil import rmtree
 
-from plash.unshare import unshare_if_user
 from plash.utils import get_plash_data, handle_help_flag
 
 handle_help_flag()
 plash_data = get_plash_data()
-unshare_if_user()
 
 if sys.argv[1:2] == ['--yes'] or input('Delete all build data? [y/N] ') == 'y':
 

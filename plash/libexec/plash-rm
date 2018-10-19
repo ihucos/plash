@@ -6,11 +6,12 @@
 #
 # Parameters may be interpreted as build instruction.
 
+from plash.utils import recall_unshared; recall_unshared() 
+
 import os
 import sys
 from shutil import rmtree
 
-from plash.unshare import unshare_if_user
 from plash.utils import (die_with_usage, get_plash_data, handle_build_args,
                          handle_help_flag, mkdtemp, nodepath_or_die)
 
@@ -21,9 +22,6 @@ try:
     container = sys.argv[1]
 except IndexError:
     die_with_usage()
-
-# fs access could need mapped users support
-unshare_if_user()
 
 node = nodepath_or_die(container)
 tmp = mkdtemp()

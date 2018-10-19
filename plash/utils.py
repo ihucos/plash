@@ -38,10 +38,7 @@ def catch_and_die(exceptions,
 
 
 def get_plash_data():
-    if os.getuid():
-        default = '~/.plashdata'
-    else:
-        default = '/var/lib/plash'
+    default = '~/.plashdata'
     dir = os.environ.get('PLASH_DATA', default)
     return os.path.expanduser(dir)
 
@@ -174,3 +171,13 @@ def mkdtemp():
     return tempfile.mkdtemp(
         dir=os.path.join(get_plash_data(), 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
+
+
+def recall_unshared():
+    import plash
+    libdir = os.path.dirname(plash.__file__)
+    libexec = os.path.join(libdir, 'libexec')
+    plash_sudo = os.path.join(libexec, 'plash-sudo')
+    if not os.environ.get('PLASH_NO_UNSHARE'):
+        os.environ['PLASH_NO_UNSHARE'] = '1'
+        os.execlp(plash_sudo, plash_sudo, *sys.argv)

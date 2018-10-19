@@ -6,6 +6,8 @@
 # will be handled better in the future. File a bug if this subcommand behaves
 # unexpectedly.
 
+from plash.utils import recall_unshared; recall_unshared()
+
 import math
 import os
 import shutil
@@ -16,7 +18,6 @@ from collections import Counter
 from time import time
 
 from plash import utils
-from plash.unshare import unshare_if_user
 
 utils.handle_help_flag()
 utils.assert_initialized()
@@ -106,7 +107,6 @@ print(killed)
 #
 sys.stdout.write('removed_tmpdirs: ')
 sys.stdout.flush()
-unshare_if_user()  # map users for filesystem access
 deleted_tmps = 0
 tmp = os.path.join(utils.get_plash_data(), 'tmp')
 for file in os.listdir(tmp):

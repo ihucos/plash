@@ -13,7 +13,7 @@ fifo="$tmpdir"/fifo
 mkfifo "$fifo"
 
 
-# this fucntion  will call newuidmap/newgidmap with
+# this function will call newuidmap/newgidmap with
 # appropriate arguments takes from /etc/subuid or /etc/subgid
 setupidns(){
   prog="$1"

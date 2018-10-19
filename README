@@ -232,8 +232,7 @@ Failsafe mode:
 - PLASH_NO_UNSHARE
   The failsafe mode. It disables the attempt to create the mountpoints inside a
   fresh mount namespace. Setting this environment variable will pollute your
-  current mount namespace. When run as a non-root user, this option has no
-  effect. Only use this inside a throw-away mount namespace like another
+  current mount namespace. Only use this inside a throw-away mount namespace like another
   container.
 
 

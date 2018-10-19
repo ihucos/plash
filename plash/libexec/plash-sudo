@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/bin/sh
 #
 # usage: plash sudo [CMD1 [CMD2 ..]]
 #
@@ -9,20 +9,74 @@
 # where written by a non-root user (from the containers perspective). It can
 # also be used as a general purpose utility to "fake" root access.
 
-import os
-import sys
+set -eu
 
-from plash.unshare import unshare_if_user
-from plash.utils import catch_and_die, get_default_user_shell, handle_help_flag
+username=$(id -un)
+getuid=$(id -u)
+groupname=$(id -gn)
+getgid=$(id -g)
 
-handle_help_flag()
-unshare_if_user()
-cmd = sys.argv[1:]
-if not cmd:
-    cmd = [get_default_user_shell()]
+# create a fifo
+tmpdir=$(mktemp -d)
+fifo="$tmpdir"/fifo
+mkfifo "$fifo"
 
-try:
-    os.execlp(cmd[0], *cmd)
-except FileNotFoundError:
-    sys.stderr.write('{}: command not found\n'.format(cmd[0]))
-    sys.exit(127)
+
+# this function will call newuidmap/newgidmap with
+# appropriate arguments takes from /etc/subuid or /etc/subgid
+setupidns(){
+  prog="$1"
+  id="$2"
+  name="$3"
+  file="$4"
+
+  # check if newuidmap/newgidmap is available
+  if ! command -v "$prog" >/dev/null; then
+    echo 'plash: command not found: '"$prog" \
+    ' (package typically called `uidmap` or `shadow-utils`)' >&2
+    exit 1
+  fi
+
+  # search for subuid/subgids
+  found=0
+  if [ -f "$file" ]; then
+    while IFS=: read -r query start count
+    do
+    if [ "$query" = "$id" ] || [ "$query" = "$name" ]; then
+        # call newuidmap/newgidmap
+        "$prog" "$pid" 0 "$getgid" 1 1 "$start" "$count"
+        found=1
+        break
+    fi
+    done <"$file"
+  fi
+
+  # complain if newuidmap/newgidmap could not be invoked
+  if [ "$found" = 0 ]; then
+    echo "plash: please configure a subgid/uid range for the" \
+    " user $name in /etc/subuid and /etc/subgid"
+    exit 1
+  fi
+
+}
+
+# fork off and attempt mapping
+child(){
+  read -r pid < "$fifo"
+  setupidns newuidmap "$getuid" "$username" /etc/subuid
+  setupidns newgidmap "$getgid" "$groupname" /etc/subgid
+  echo ok > "$fifo"
+}
+child &
+
+# enter new user and mount namespace
+exec unshare --user --mount sh -euc '
+echo $$ > '"$fifo"'
+eval "read -r status < '"$fifo"'" 2> /dev/null
+if [ $# = 0 ]; then
+  default_shell=$(getent passwd '"$username"' | cut -d: -f 7)
+  exec "$default_shell"
+else
+  exec "$@"
+fi
+' -- "$@"

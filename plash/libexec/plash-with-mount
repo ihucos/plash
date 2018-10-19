@@ -11,11 +11,12 @@
 # $ plash with-mount 70 du -sh
 # 7,2M    .
 
+from plash.utils import recall_unshared; recall_unshared() 
+
 import os
 import sys
 from subprocess import CalledProcessError, check_call
 
-from plash.unshare import unshare_if_root, unshare_if_user
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, get_default_user_shell, handle_build_args,
                          handle_help_flag, mkdtemp)
@@ -34,9 +35,6 @@ if not cmd:
     cmd = [default_shell]
 
 mountpoint = mkdtemp()
-
-unshare_if_root()
-unshare_if_user()
 
 with catch_and_die([CalledProcessError], silent=True):
     check_call(['plash-mount', container, mountpoint])

@@ -3,6 +3,8 @@
 # Delete half of the older containers.
 # Containers with a lower build id will be deleted first.
 
+from plash.utils import recall_unshared; recall_unshared() 
+
 import math
 import os
 import shutil
@@ -11,10 +13,7 @@ import sys
 import tempfile
 from collections import Counter
 
-from plash import unshare, utils
-
-# allows changing subuids in the fs
-unshare.unshare_if_user()
+from plash import utils
 
 DELETE_PERCENT = 50
 
