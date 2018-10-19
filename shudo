@@ -47,6 +47,6 @@ child &
 
 exec unshare --user --mount sh -euc '
 echo $$ > '"$fifo"'
-read -r status < '"$fifo"'
+eval "read -r status < '"$fifo"'" 2> /dev/null
 exec "$@"
 ' -- "$@"
