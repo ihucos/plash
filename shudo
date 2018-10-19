@@ -34,7 +34,7 @@ child &
 
 exec unshare --user --mount sh -euc '
 echo $$ > '"$fifo"'
-read -r status < "$fifo"
+read -r status < '"$fifo"'
 if [ "$status" = "timeout" ]; then
  echo "child failed"
  exit 1
