@@ -29,7 +29,7 @@ setupidns(){
       break
   fi
   done <"$4"
-  if [ "$found" = 0 ] && ! [ "$2" = 0 ]; then
+  if [ "$found" = 0 ]; then
     echo "plash: please configure a subgid/uid range for the" \
     " user $3 in /etc/subuid and /etc/subgid"
     exit 1
