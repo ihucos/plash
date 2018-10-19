@@ -48,5 +48,10 @@ child &
 exec unshare --user --mount sh -euc '
 echo $$ > '"$fifo"'
 eval "read -r status < '"$fifo"'" 2> /dev/null
-exec "$@"
+if [ $# = 0 ]; then
+  default_shell=$(getent passwd '"$username"' | cut -d: -f 7)
+  exec "$default_shell"
+else
+  exec "$@"
+fi
 ' -- "$@"
