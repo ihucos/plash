@@ -13,27 +13,31 @@ mkfifo "$fifo"
 
 
 setupidns(){
+  prog="$1"
+  id="$2"
+  name="$3"
+  file="$4"
 
-  if ! command -v "$1" >/dev/null; then
-    echo 'plash: command not found: '"$1" \
+  if ! command -v "$prog" >/dev/null; then
+    echo 'plash: command not found: '"$prog" \
     ' (package typically called `uidmap` or `shadow-utils`)' >&2
     exit 1
   fi
 
   found=0
-  if [ -f "$4" ]; then
+  if [ -f "$file" ]; then
     while IFS=: read -r query start count
     do
-    if [ "$query" = "$2" ] || [ "$query" = "$3" ]; then
-        "$1" "$pid" 0 "$getgid" 1 1 "$start" "$count"
+    if [ "$query" = "$id" ] || [ "$query" = "$name" ]; then
+        "$prog" "$pid" 0 "$getgid" 1 1 "$start" "$count"
         found=1
         break
     fi
-    done <"$4"
+    done <"$file"
   fi
   if [ "$found" = 0 ]; then
     echo "plash: please configure a subgid/uid range for the" \
-    " user $3 in /etc/subuid and /etc/subgid"
+    " user $name in /etc/subuid and /etc/subgid"
     exit 1
   fi
 }
