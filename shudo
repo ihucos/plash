@@ -21,14 +21,16 @@ setupidns(){
   fi
 
   found=0
-  while IFS=: read -r query start count
-  do
-  if [ "$query" = "$2" ] || [ "$query" = "$3" ]; then
-      "$1" "$pid" 0 "$getgid" 1 1 "$start" "$count"
-      found=1
-      break
+  if [ -f "$4" ]; then
+    while IFS=: read -r query start count
+    do
+    if [ "$query" = "$2" ] || [ "$query" = "$3" ]; then
+        "$1" "$pid" 0 "$getgid" 1 1 "$start" "$count"
+        found=1
+        break
+    fi
+    done <"$4"
   fi
-  done <"$4"
   if [ "$found" = 0 ]; then
     echo "plash: please configure a subgid/uid range for the" \
     " user $3 in /etc/subuid and /etc/subgid"
@@ -42,7 +44,6 @@ child(){
   setupidns newgidmap "$getgid" "$groupname" /etc/subgid
   echo ok > "$fifo"
 }
-
 child &
 
 exec unshare --user --mount sh -euc '
