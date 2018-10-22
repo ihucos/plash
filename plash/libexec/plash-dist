@@ -12,6 +12,7 @@ import uuid
 
 DEFAULT_RUN_SCRIPT = """#!/bin/sh
 set -eu
+
 thisfile=$(readlink "$0")
 progname=$(basename "$0")
 rootfs=$(dirname "$thisfile")
@@ -26,15 +27,28 @@ mount --rbind /sys  "$rootfs"/sys
 mount --rbind /dev  "$rootfs"/dev
 mount --rbind /proc "$rootfs"/proc
 mount --bind /etc/resolv.conf "$rootfs"/etc/resolv.conf
+
+EXPORT="TERM HOME DISPLAY"
+
+exported=()
+for export in "${EXPORT[@]}"
+do
+  val=$(printenv "$export")
+  if [ $? = 0 ]; then
+    exported+=("$export=$val")
+  fi
+done
+echo "${exported[@]}"
 exec chroot "$rootfs" $progname "$@"
 '
+
 if [ "$(id -u)" = 0 ]; then
     extra=""
 else
   extra='--user --map-root'
 fi
 
-exec unshare --mount $extra env -i sh -euc "$script" -- "$rootfs" "$progname" "$@"
+exec unshare --mount $extra env -i sh -leuc "$script" -- "$rootfs" "$progname" "$@"
 
 """
 
