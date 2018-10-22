@@ -3,10 +3,15 @@
 from plash import utils
 from plash import unshare
 import subprocess
+import tarfile
 import sys
 import os
 
+utils.handle_build_args()
+
 container = sys.argv[1]
+nodepath = utils.nodepath_or_die(container)
+outdir = utils.mkdtemp()
 
 unshare.unshare_if_root()
 unshare.unshare_if_user()
@@ -19,22 +24,49 @@ changesdir = utils.mkdtemp()
 with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
     subprocess.check_call(['plash-mount', container, mountpoint, changesdir])
 
-out = os.path.join(mountpoint, 'rootfs-shallow-copy')
-os.mkdir(out) # can't already exist
+dirtar = tarfile.TarFile
+
+import io
+io_bytes = io.BytesIO()
+tar = tarfile.open(fileobj=io_bytes, mode='w')
+
+file_list = []
 for subdir, dirs, files in os.walk(mountpoint):
-    if subdir == mountpoint:
-        dirs.remove('rootfs-shallow-copy')
 
     rel_subdir = os.path.relpath(subdir, mountpoint)
     for dir in dirs:
-        dir = os.path.join(out, rel_subdir, dir)
-        os.mkdir(dir)
+        reldir = os.path.join(rel_subdir, dir)
+        realdir = os.path.join(subdir, dir)
+        tar.add(realdir, reldir, recursive=False)
 
     for file in files:
-        target_file = os.path.join(out, rel_subdir, file)
-        src_file = os.path.join(subdir, file)
-        os.link(src_file, target_file)
+        file_list.append(os.path.join(rel_subdir, file))
 
+tar.close()
+io_bytes.seek(0)
 subprocess.call(['umount', mountpoint])
+tar = tarfile.open(fileobj=io_bytes, mode='r')
+tar.extractall(outdir)
 
-print(changesdir)
+plash_data = utils.get_plash_data()
+parts = nodepath.split('/layer/')[-1]
+resolve_paths = [
+    os.path.join(plash_data, 'index', i, '_data', 'root') for i in parts
+]
+resolve_paths.reverse()
+
+for file in file_list:
+    target = os.path.join(outdir, file)
+    for resolve_path in resolve_paths:
+        src = os.path.join(resolve_path, file)
+        try:
+            os.link(src, target, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            break
+
+
+
+print(outdir)
+
