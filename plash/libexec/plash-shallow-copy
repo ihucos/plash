@@ -6,6 +6,7 @@ import subprocess
 import tarfile
 import sys
 import os
+import io
 
 utils.handle_build_args()
 
@@ -18,18 +19,13 @@ unshare.unshare_if_root()
 unshare.unshare_if_user()
 
 
-# what if PLASH_NO_UNSHARE?
 mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
-changesdir = utils.mkdtemp()
 
 with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
-    subprocess.check_call(['plash-mount', container, mountpoint, changesdir])
+    subprocess.check_call(['plash-mount', container, mountpoint])
 
-dirtar = tarfile.TarFile
-
-import io
 io_bytes = io.BytesIO()
-tar = tarfile.open(fileobj=io_bytes, mode='w')
+tar = tarfile.open(fileobj=io_bytes, mode='w:xz')
 
 file_list = []
 for subdir, dirs, files in os.walk(mountpoint):

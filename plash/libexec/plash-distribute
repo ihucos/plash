@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+#
+# usage: plash distribute CONTAINER EXPORT1 [ EXPORT2 [ EXPORT3 ..] OUTFILE
+#
+from plash import utils
+from plash import unshare
+import tarfile
+import sys
+import os
+import subprocess
+import uuid
+
+utils.handle_build_args()
+unshare.unshare_if_root()
+unshare.unshare_if_user()
+
+if not len(sys.argv[1:]) >= 3:
+    utils.die_with_usage()
+
+container = sys.argv[1]
+export = sys.argv[2:-1]
+outfile = sys.argv[-1]
+
+rand = (uuid.uuid4())
+package_main_dir = '/opt/plash-distribute:{}:{}/'.format(':'.join(export), rand)
+assert 0, package_main_dir
+
+mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
+
+with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
+    subprocess.check_call(['plash-mount', container, mountpoint])
+
+tar = tarfile.open(outfile, mode='w:bz2')
+tar.add(mountpoint, arcname=package_main_dir)
+for e in export:
+    tarinfo = tarfile.TarInfo('usr/local/bin/{}'.format(e))
+    tarinfo.type = tarfile.SYMTYPE
+    tarinfo.linkname = os.path.join(package_main_dir, '.run')
+    tar.addfile(tarinfo)
+tar.close()
