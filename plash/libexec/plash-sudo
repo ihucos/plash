@@ -11,60 +11,40 @@
 
 set -eu
 
+
 username=$(id -un)
 getuid=$(id -u)
-groupname=$(id -gn)
-getgid=$(id -g)
+if [ -f "/etc/subuid" ]; then
+  while IFS=: read -r query uidstart uidcount; do
+  [ "$query" = "$getuid" ]   && break
+  [ "$query" = "$username" ] && break
+  done <"/etc/subuid"
+fi
+
+groupname=$(id -un)
+getgid=$(id -u)
+if [ -f "/etc/subgid" ]; then
+  while
+    IFS=: read -r query gidstart gidcount
+    [ "$query" != "$getgid" ]
+    [ "$query" != "$groupname" ];
+  do :; done <"/etc/subgid"
+fi
+
+#if not subgid and no subuid or no newuidmap installed
+#exec unshare --mount --user --map-root -- "$@"
+
 
 # create a fifo
 tmpdir=$(mktemp -d)
 fifo="$tmpdir"/fifo
 mkfifo "$fifo"
 
-
-# this function will call newuidmap/newgidmap with
-# appropriate arguments takes from /etc/subuid or /etc/subgid
-setupidns(){
-  prog="$1"
-  id="$2"
-  name="$3"
-  file="$4"
-
-  # check if newuidmap/newgidmap is available
-  if ! command -v "$prog" >/dev/null; then
-    echo 'plash: command not found: '"$prog" \
-    ' (package typically called `uidmap` or `shadow-utils`)' >&2
-    exit 1
-  fi
-
-  # search for subuid/subgids
-  found=0
-  if [ -f "$file" ]; then
-    while IFS=: read -r query start count
-    do
-    if [ "$query" = "$id" ] || [ "$query" = "$name" ]; then
-        # call newuidmap/newgidmap
-        "$prog" "$pid" 0 "$getgid" 1 1 "$start" "$count"
-        found=1
-        break
-    fi
-    done <"$file"
-  fi
-
-  # complain if newuidmap/newgidmap could not be invoked
-  if [ "$found" = 0 ]; then
-    echo "plash: please configure a subgid/uid range for the" \
-    " user $name in /etc/subuid and /etc/subgid"
-    exit 1
-  fi
-
-}
-
 # fork off and attempt mapping
 child(){
   read -r pid < "$fifo"
-  setupidns newuidmap "$getuid" "$username" /etc/subuid
-  setupidns newgidmap "$getgid" "$groupname" /etc/subgid
+  newuidmap "$pid" 0 "$getuid" 1 1 "$uidstart" "$uidcount"
+  newgidmap "$pid" 0 "$getgid" 1 1 "$gidstart" "$gidcount"
   echo ok > "$fifo"
 }
 child &
