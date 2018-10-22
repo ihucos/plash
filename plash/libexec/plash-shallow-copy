@@ -10,8 +10,9 @@ import os
 utils.handle_build_args()
 
 container = sys.argv[1]
+outdir = sys.argv[2]
 nodepath = utils.nodepath_or_die(container)
-outdir = utils.mkdtemp()
+tmpout = utils.mkdtemp()
 
 unshare.unshare_if_root()
 unshare.unshare_if_user()
@@ -46,7 +47,7 @@ tar.close()
 io_bytes.seek(0)
 subprocess.call(['umount', mountpoint])
 tar = tarfile.open(fileobj=io_bytes, mode='r')
-tar.extractall(outdir)
+tar.extractall(tmpout)
 
 plash_data = utils.get_plash_data()
 parts = nodepath.split('/layer/')[-1]
@@ -56,7 +57,7 @@ resolve_paths = [
 resolve_paths.reverse()
 
 for file in file_list:
-    target = os.path.join(outdir, file)
+    target = os.path.join(tmpout, file)
     for resolve_path in resolve_paths:
         src = os.path.join(resolve_path, file)
         try:
@@ -66,5 +67,5 @@ for file in file_list:
         else:
             break
 
-print(outdir)
-os.rename(outdir, '/tmp/da')
+with utils.catch_and_die([OSError]):
+    os.rename(tmpout, outdir)
