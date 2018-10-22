@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+
+from plash import utils
+from plash import unshare
+import subprocess
+import sys
+import os
+
+container = sys.argv[1]
+
+unshare.unshare_if_root()
+unshare.unshare_if_user()
+
+
+# what if PLASH_NO_UNSHARE?
+mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
+changesdir = utils.mkdtemp()
+
+with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
+    subprocess.check_call(['plash-mount', container, mountpoint, changesdir])
+
+out = os.path.join(mountpoint, 'rootfs-shallow-copy')
+os.mkdir(out) # can't already exist
+for subdir, dirs, files in os.walk(mountpoint):
+    if subdir == mountpoint:
+        dirs.remove('rootfs-shallow-copy')
+
+    rel_subdir = os.path.relpath(subdir, mountpoint)
+    for dir in dirs:
+        dir = os.path.join(out, rel_subdir, dir)
+        os.mkdir(dir)
+
+    for file in files:
+        target_file = os.path.join(out, rel_subdir, file)
+        src_file = os.path.join(subdir, file)
+        os.link(src_file, target_file)
+
+subprocess.call(['umount', mountpoint])
+
+print(changesdir)

@@ -59,6 +59,15 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
     else:
         upperdir_str = ''
 
+    unionfs = shutil.which('unionfs') or shutil.which('unionfs-fuse') or die(
+        'unionfs-fuse seems not to be installed')
+    with catch_and_die([CalledProcessError]):
+        check_call([
+            unionfs, '-o', 'cow', '{upperdir}{lowerdirs}'.format(
+                lowerdirs=lowerdirs_str, upperdir=upperdir_str), mountpoint
+        ])
+
+
 def mount_overlay(lowerdirs_list, mountpoint, changedir):
     if changedir:
         workdir = os.path.join(changedir, 'work')
