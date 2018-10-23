@@ -28,7 +28,7 @@ void map_id(const char *file, u_int32_t id){
         close(fd);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
         int uid = getuid();
         int gid = getgid();
 
@@ -48,7 +48,7 @@ int main() {
 		        return 1;
                 }
         }
-        if (0 < fprintf(fd, "%s", "deny")){
+        if (fprintf(fd, "%s", "deny") < 0){ // FIXME: error handling broken
                 fprintf(stderr, "output error writing to /proc/self/setgroups\n");
                 exit(1);
         }
@@ -59,6 +59,10 @@ int main() {
 
         printf("%d\n", getuid());
         printf("%d\n", getgid());
-	return 0;
+        if (argc < 2){
+                fprintf(stderr, "usage: blah\n");
+                exit(1);
+        }
+        execvp(argv[1], argv+1); 
 
 }
