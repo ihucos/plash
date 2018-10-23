@@ -9,6 +9,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#define err(...) {\
+fprintf(stderr, "%s", "myprog: ");\
+fprintf(stderr, __VA_ARGS__);\
+fprintf(stderr, ": %s\n", strerror(errno));\
+exit(1);\
+}
+
 void map_id(const char *file, u_int32_t id){
         //
         // echo "0 $(id -u) 1" > /proc/self/uid_map
@@ -16,15 +23,12 @@ void map_id(const char *file, u_int32_t id){
 	char *map;
 	int fd = open(file, O_WRONLY);
 	if (fd < 0) {
-                fprintf(stderr, "could not open %s (%s)\n", file, strerror(errno));
-                exit(1);
+                err("Could not open %s", file);
         }
         asprintf(&map, "0 %u 1\n", id);
         //printf("%s\n", map);
-        if (-1 == write(fd, map, sizeof(map))) {
-                fprintf(stderr, "could not write to %s (%s)", file, strerror(errno));
-                exit(1);
-        }
+        if (-1 == write(fd, map, sizeof(map)))
+                err("could not write to %s", file);
         close(fd);
 }
 
@@ -32,10 +36,8 @@ int main(int argc, char* argv[]) {
         int uid = getuid();
         int gid = getgid();
 
-	if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)) {
-            fprintf(stderr, "could not unshare\n");
-            return 1;
-        }
+	if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
+            err("could not unshare")
 
 
         //
@@ -43,10 +45,8 @@ int main(int argc, char* argv[]) {
         //
 	FILE *fd = fopen("/proc/self/setgroups", "w");
 	if (fd < 0) {
-		if (errno != ENOENT) {
-                        fprintf(stderr, "could not open setgroups\n");
-		        return 1;
-                }
+		if (errno != ENOENT) 
+                        err("could not open setgroups");
         }
         if (fprintf(fd, "%s", "deny") < 0){ // FIXME: error handling broken
                 fprintf(stderr, "output error writing to /proc/self/setgroups\n");
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
         printf("%d\n", getuid());
         printf("%d\n", getgid());
         if (argc < 2){
-                fprintf(stderr, "usage: blah\n");
+                fprintf(stderr, "bad usage\n");
                 exit(1);
         }
         execvp(argv[1], argv+1); 
