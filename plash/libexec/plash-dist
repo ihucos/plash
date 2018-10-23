@@ -9,78 +9,55 @@ import sys
 import os
 import subprocess
 import uuid
+import argparse
+import shutil
 
-DEFAULT_RUN_SCRIPT = """#!/bin/sh
-set -eu
+COLLECT_FROM = ['/usr/local/bin', '/usr/bin', '/bin']
+RUNPROG = '/home/ihucos/plash/run'
 
-thisfile=$(readlink "$0")
-progname=$(basename "$0")
-rootfs=$(dirname "$thisfile")
-
-script='
-rootfs=$1; shift
-progname=$1; shift
-mount --rbind /tmp  "$rootfs"/tmp
-mount --rbind /home "$rootfs"/home
-mount --rbind /root "$rootfs"/root
-mount --rbind /sys  "$rootfs"/sys
-mount --rbind /dev  "$rootfs"/dev
-mount --rbind /proc "$rootfs"/proc
-mount --bind /etc/resolv.conf "$rootfs"/etc/resolv.conf
-
-EXPORT="TERM HOME DISPLAY"
-
-exported=()
-for export in "${EXPORT[@]}"
-do
-  val=$(printenv "$export")
-  if [ $? = 0 ]; then
-    exported+=("$export=$val")
-  fi
-done
-echo "${exported[@]}"
-exec chroot "$rootfs" $progname "$@"
-'
-
-if [ "$(id -u)" = 0 ]; then
-    extra=""
-else
-  extra='--user --map-root'
-fi
-
-exec unshare --mount $extra env -i sh -leuc "$script" -- "$rootfs" "$progname" "$@"
-
-"""
 
 utils.handle_build_args()
 unshare.unshare_if_root()
 unshare.unshare_if_user()
 
-if not len(sys.argv[1:]) >= 3:
-    utils.die_with_usage()
+parser = argparse.ArgumentParser(description='Distribute containers')
+parser.add_argument('container')
+parser.add_argument('out')
+parser.add_argument('--export', action='append', default=[])
+parser.add_argument('--name')
 
-container = sys.argv[1]
-export = sys.argv[2:-1]
-outfile = sys.argv[-1]
+args = parser.parse_args()
 
-rand = utils.hashstr(os.urandom(128))[:12]
-package_main_dir = '/opt/plash-dist:{}:{}/'.format(rand, ':'.join(export))
+if not args.name:
+    distname = 'mydist-{}'.format(uuid.uuid4().hex)
+else:
+    distname = args.name
+package_main_dir = os.path.join('./opt', distname)
 
-mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
-changesdir = utils.mkdtemp()
+archive=utils.mkdtemp()
+rootfs = os.path.join(archive, 'rootfs')
+os.mkdir(rootfs)
+os.mkdir(os.path.join(archive, 'bin'))
+shutil.copy(RUNPROG, os.path.join(archive, 'run'))
 
 with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
-    subprocess.check_call(['plash-mount', container, mountpoint, changesdir])
+    subprocess.check_call(['plash-shallow-copy', args.container, rootfs])
 
-with open(os.path.join(mountpoint, '.run'), 'x') as f:
-    f.write(DEFAULT_RUN_SCRIPT)
-os.chmod(os.path.join(mountpoint, '.run'), 0o755)
+for collect_path in COLLECT_FROM:
+    bins = os.path.join(rootfs, collect_path.lstrip('/'))
+    try:
+        bfiles = os.listdir(bins)
+    except FileNotFoundError:
+        continue
+    for bfile in bfiles:
+        dst = os.path.join(archive, 'bin', bfile)
+        os.symlink(os.path.join(archive, 'run'), dst)
 
-tar = tarfile.open(outfile, mode='w:bz2')
-tar.add(mountpoint, arcname=package_main_dir)
-for e in export:
-    tarinfo = tarfile.TarInfo('usr/local/bin/{}'.format(e))
+tar = tarfile.open(args.out, mode='w:bz2')
+tar.add(archive, arcname=package_main_dir)
+for e in args.export:
+    tarinfo = tarfile.TarInfo('./usr/local/bin/{}'.format(e))
     tarinfo.type = tarfile.SYMTYPE
-    tarinfo.linkname = os.path.join(package_main_dir, '.run')
+    tarinfo.linkname = os.path.join('/opt', distname, 'run')
     tar.addfile(tarinfo)
 tar.close()

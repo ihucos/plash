@@ -1,9 +1,9 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
-#include <linux/limits.h>
-#include <sched.h>
 #include <libgen.h>
+#include <limits.h>
+#include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,9 +18,7 @@ fprintf(stderr, ": %s\n", strerror(errno));\
 exit(1);\
 }
 
-#define MAX_ENVS 1024
-
-void map_id(const char *file, u_int32_t id){
+void map_id(const char *file, uid_t id){ // assuming uid_t == gid_t
         //
         // echo "0 $(id -u) 1" > /proc/self/uid_map
         //
@@ -117,18 +115,19 @@ int main(int argc, char* argv[]) {
                         err("could not chdir")
         }
 
-
-        char *env[MAX_ENVS + 1];
-        size_t env_index;
+        char *env[UCHAR_MAX + 1];
+        unsigned char env_index; // let it overflow if maximum is reached
         char *envname, *envval;
 
-        char str[] = "BLA:DUUH:SHLVL:duu";
-        envname = strtok(str, ":");
-        while( envname != NULL ) {
-           envval = getenv(envname);
-           if (NULL != envval)
-                asprintf(env + env_index++, "%s=%s", envname, envval);
-           envname = strtok(NULL, ":");
+        char *str = getenv("PLASH_EXPORT");
+        if (str != NULL ) {
+                envname = strtok(str, ":");
+                while( envname != NULL ) {
+                   envval = getenv(envname);
+                   if (NULL != envval)
+                        asprintf(env + env_index++, "%s=%s", envname, envval);
+                   envname = strtok(NULL, ":");
+                }
         }
    
 
