@@ -32,6 +32,17 @@ void map_id(const char *file, u_int32_t id){
         close(fd);
 }
 
+void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir) {
+        char *dst;
+        if (-1 == asprintf(&dst, "%s/%s", rootfs, hostdir)) {
+                fprintf(stderr, "myprog: asprintf returned -1\n");
+                exit(1);
+        }
+        if (-1 == mount(hostdir, dst, "none", MS_MGC_VAL|MS_BIND|MS_REC, NULL))
+                err("could not mount")
+}
+
+
 int main(int argc, char* argv[]) {
         int uid = getuid();
         int gid = getgid();
@@ -61,8 +72,16 @@ int main(int argc, char* argv[]) {
                 fprintf(stderr, "bad usage\n");
                 exit(1);
         }
+
+
+        rootfs_mount("/tmp", argv[1], "/tmp");
+
         if (-1 == chroot(argv[1]))
                 err("could not chroot to %s", argv[1]);
+
+        if (-1 == chdir("/"))
+                err("could not chdir")
+
 
         if (-1 == execvp(argv[2], argv+2))
                 err("could not exec %s", argv[2]);
