@@ -66,7 +66,6 @@ void find_rootfs(char **rootfs) {
         char *executable;
         if (NULL == (executable = realpath("/proc/self/exe", NULL)))
                 err("could not call realpath");
-
         char *executable_dir = dirname(executable);
         if (-1 == asprintf(rootfs, "%s/rootfs", executable_dir)){
                 fprintf(stderr, "myprog: asprintf returned -1\n");
@@ -77,14 +76,11 @@ void find_rootfs(char **rootfs) {
 
 int main(int argc, char* argv[]) {
 
+
+        char *argv0 = strdup(argv[0]);
+        char *progname = basename(argv0);
         char *rootfs;
         find_rootfs(&rootfs);
-        printf("%s\n", rootfs);
-
-        if (argc < 3){
-                fprintf(stderr, "bad usage\n");
-                exit(1);
-        }
 
         int uid = getuid();
         int gid = getgid();
@@ -100,26 +96,27 @@ int main(int argc, char* argv[]) {
                         map_id("/proc/self/gid_map", gid);
         }
 
-        rootfs_mount("/dev",  argv[1], "/dev");
-        rootfs_mount("/home", argv[1], "/home");
-        rootfs_mount("/proc", argv[1], "/proc");
-        rootfs_mount("/root", argv[1], "/root");
-        rootfs_mount("/sys",  argv[1], "/sys");
-        rootfs_mount("/tmp",  argv[1], "/tmp");
+        rootfs_mount("/dev",  rootfs, "/dev");
+        rootfs_mount("/home", rootfs, "/home");
+        rootfs_mount("/proc", rootfs, "/proc");
+        rootfs_mount("/root", rootfs, "/root");
+        rootfs_mount("/sys",  rootfs, "/sys");
+        rootfs_mount("/tmp",  rootfs, "/tmp");
 
         char *origpwd;
         if (NULL == (origpwd = get_current_dir_name()))
             err("error calling get_current_dir_name")
 
-        if (-1 == chroot(argv[1]))
-                err("could not chroot to %s", argv[1]);
+        if (-1 == chroot(rootfs))
+                err("could not chroot to %s", rootfs);
 
         if (-1 == chdir(origpwd)){
                 if (-1 == chdir("/"))
                         err("could not chdir")
         }
 
-        if (-1 == execvp(argv[2], argv+2))
-                err("could not exec %s", argv[2]);
+        argv[0] = progname;
+        if (-1 == execvp(progname, argv))
+                err("could not exec %s", progname);
 
 }
