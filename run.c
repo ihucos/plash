@@ -41,21 +41,24 @@ int main() {
         //
         // echo deny > /proc/self/setgroups
         //
-	int fd = open("/proc/self/setgroups", O_WRONLY);
+	FILE *fd = fopen("/proc/self/setgroups", "w");
 	if (fd < 0) {
 		if (errno != ENOENT) {
                         fprintf(stderr, "could not open setgroups\n");
 		        return 1;
                 }
         }
-        const char *deny = "deny";
-        write(fd, deny, sizeof(deny));
-        close(fd);
+        if (0 < fprintf(fd, "%s", "deny")){
+                fprintf(stderr, "output error writing to /proc/self/setgroups\n");
+                exit(1);
+        }
+        fclose(fd);
 
         map_id("/proc/self/uid_map", uid);
         map_id("/proc/self/gid_map", gid);
 
         printf("%d\n", getuid());
+        printf("%d\n", getgid());
 	return 0;
 
 }
