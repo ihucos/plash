@@ -1,7 +1,9 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
+#include <linux/limits.h>
 #include <sched.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,9 +34,7 @@ void map_id(const char *file, u_int32_t id){
         close(fd);
 }
 
-
-void setup_map(uid_t uid, gid_t gid) {
-
+void deny_setgroups() {
 	FILE *fd = fopen("/proc/self/setgroups", "w");
 	if (fd < 0) {
 		if (errno != ENOENT) 
@@ -45,9 +45,6 @@ void setup_map(uid_t uid, gid_t gid) {
                 exit(1);
         }
         fclose(fd);
-
-        map_id("/proc/self/uid_map", uid);
-        map_id("/proc/self/gid_map", gid);
 }
 
 void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir) {
@@ -65,14 +62,29 @@ void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir
                 err("could not rbind mount %s -> %s", hostdir, dst)
 }
 
+void find_rootfs(char **rootfs) {
+        char *executable;
+        if (NULL == (executable = realpath("/proc/self/exe", NULL)))
+                err("could not call realpath");
+
+        char *executable_dir = dirname(executable);
+        if (-1 == asprintf(rootfs, "%s/rootfs", executable_dir)){
+                fprintf(stderr, "myprog: asprintf returned -1\n");
+                exit(1);
+        }
+}
+
 
 int main(int argc, char* argv[]) {
+
+        char *rootfs;
+        find_rootfs(&rootfs);
+        printf("%s\n", rootfs);
 
         if (argc < 3){
                 fprintf(stderr, "bad usage\n");
                 exit(1);
         }
-
 
         int uid = getuid();
         int gid = getgid();
@@ -83,8 +95,9 @@ int main(int argc, char* argv[]) {
         } else {
 	        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
                         err("could not unshare")
-
-                setup_map(uid, gid);
+                        deny_setgroups();
+                        map_id("/proc/self/uid_map", uid);
+                        map_id("/proc/self/gid_map", gid);
         }
 
         rootfs_mount("/dev",  argv[1], "/dev");
