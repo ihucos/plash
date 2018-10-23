@@ -87,15 +87,24 @@ int main(int argc, char* argv[]) {
                 setup_map(uid, gid);
         }
 
-        rootfs_mount("/tmp", argv[1], "/tmp");
-        rootfs_mount("/tmpX", argv[1], "/tmp");
+        rootfs_mount("/dev",  argv[1], "/dev");
+        rootfs_mount("/home", argv[1], "/home");
+        rootfs_mount("/proc", argv[1], "/proc");
+        rootfs_mount("/root", argv[1], "/root");
+        rootfs_mount("/sys",  argv[1], "/sys");
+        rootfs_mount("/tmp",  argv[1], "/tmp");
+
+        char *origpwd;
+        if (NULL == (origpwd = get_current_dir_name()))
+            err("error calling get_current_dir_name")
 
         if (-1 == chroot(argv[1]))
                 err("could not chroot to %s", argv[1]);
 
-        if (-1 == chdir("/"))
-                err("could not chdir")
-
+        if (-1 == chdir(origpwd)){
+                if (-1 == chdir("/"))
+                        err("could not chdir")
+        }
 
         if (-1 == execvp(argv[2], argv+2))
                 err("could not exec %s", argv[2]);
