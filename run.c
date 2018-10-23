@@ -18,6 +18,8 @@ fprintf(stderr, ": %s\n", strerror(errno));\
 exit(1);\
 }
 
+#define MAX_ENVS 1024
+
 void map_id(const char *file, u_int32_t id){
         //
         // echo "0 $(id -u) 1" > /proc/self/uid_map
@@ -115,8 +117,24 @@ int main(int argc, char* argv[]) {
                         err("could not chdir")
         }
 
+
+        char *always_export[] = {"TERM", "DISPLAY", "HOME", NULL};
+        char *env[MAX_ENVS + 1];
+        size_t c;
+        char *var, *val;
+
+        for (size_t i=0; always_export[i] != NULL; i++) {
+                var = always_export[i];
+                val = getenv(var);
+                if (NULL == val)
+                        continue;
+                asprintf(env + c++, "%s=%s", var, val);
+        }
+
+        env[c++] = NULL;
+
         argv[0] = progname;
-        if (-1 == execvp(progname, argv))
+        if (-1 == execvpe(progname, argv, env))
                 err("could not exec %s", progname);
 
 }
