@@ -57,12 +57,14 @@ int main(int argc, char* argv[]) {
         map_id("/proc/self/uid_map", uid);
         map_id("/proc/self/gid_map", gid);
 
-        printf("%d\n", getuid());
-        printf("%d\n", getgid());
-        if (argc < 2){
+        if (argc < 3){
                 fprintf(stderr, "bad usage\n");
                 exit(1);
         }
-        execvp(argv[1], argv+1); 
+        if (-1 == chroot(argv[1]))
+                err("could not chroot to %s", argv[1]);
+
+        if (-1 == execvp(argv[2], argv+2))
+                err("could not exec %s", argv[2]);
 
 }
