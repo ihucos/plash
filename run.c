@@ -118,20 +118,30 @@ int main(int argc, char* argv[]) {
         }
 
 
-        char *always_export[] = {"TERM", "DISPLAY", "HOME", NULL};
         char *env[MAX_ENVS + 1];
-        size_t c;
-        char *var, *val;
+        size_t env_index;
+        char *envname, *envval;
 
+        char str[] = "BLA:DUUH:SHLVL:duu";
+        envname = strtok(str, ":");
+        while( envname != NULL ) {
+           envval = getenv(envname);
+           if (NULL != envval)
+                asprintf(env + env_index++, "%s=%s", envname, envval);
+           envname = strtok(NULL, ":");
+        }
+   
+
+        char *always_export[] = {"TERM", "DISPLAY", "HOME", NULL};
         for (size_t i=0; always_export[i] != NULL; i++) {
-                var = always_export[i];
-                val = getenv(var);
-                if (NULL == val)
+                envname = always_export[i];
+                envval = getenv(envname);
+                if (NULL == envval)
                         continue;
-                asprintf(env + c++, "%s=%s", var, val);
+                asprintf(env + env_index++, "%s=%s", envname, envval);
         }
 
-        env[c++] = NULL;
+        env[env_index++] = NULL;
 
         argv[0] = progname;
         if (-1 == execvpe(progname, argv, env))
