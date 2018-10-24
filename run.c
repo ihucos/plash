@@ -23,6 +23,22 @@ fprintf(stderr, "\n");\
 exit(1);\
 }
 
+
+#define QUOTE(...) #__VA_ARGS__
+const char *script = QUOTE(
+
+mkdir -m 755 "/opt/$1" "/opt/$1/rootfs" "/opt/$1/bin";
+wget -O  "/opt/$1/tarfile" "$2";
+tar -xpf  "/opt/$1/tarfile" -C /opt/$1/rootfs;
+chmod 755 /opt/$1/rootfs;
+rm        "/opt/$1/tarfile";
+ 
+find /opt/$1/rootfs/ -perm /+x -type f
+| xargs -L 1 basename | sort | uniq
+| xargs -I{} ln -s /usr/local/bin/birdperson /opt/$1/bin/{};
+);
+
+
 void singlemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
 	char *map;
         FILE *fd;
@@ -98,6 +114,11 @@ int main(int argc, char* argv[]) {
         char *rootfs;
 
         if (0 == strcmp(progname, PROG)) {
+                if (argc > 2 && 0 == strcmp(argv[1], "install")) {
+                        if (-1 == execlp("sh", "sh", "-ecxu", script, "--", argv[2], argv[3], NULL))
+                                fatal("could not exec");
+                }
+                
                 if (argc < 3){
                         fatal("usage: rootfs cmd1 cmd2 ... ");
                 }
