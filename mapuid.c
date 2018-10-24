@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pwd.h>
+#include <grp.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -52,10 +54,26 @@ find_subid_t find_subid(unsigned long id, char *id_name, const char *file){
     subidv.start = start;
     subidv.count = count;
     return subidv;
+
+
     
 }
         
 int main(int argc, char* argv[]) {
-        find_subid_t subidv = find_subid(1000, "ihucos", "/etc/subuid");
-        printf("%i  %lu %lu\n", subidv.found, subidv.start, subidv.count);
+        
+        struct passwd *pwent = getpwuid(getuid());
+        if (NULL == pwent) {perror("uid not in passwd"); exit(1);}
+        find_subid_t uidmap = find_subid(pwent->pw_uid, pwent->pw_name, "/etc/subuid");
+
+        struct group *grent = getgrgid(getgid());
+        if (NULL == grent) {perror("gid not in db"); exit(1);}
+        find_subid_t gidmap = find_subid(grent->gr_gid, grent->gr_name, "/etc/subgid");
+
+        printf("%i  %lu %lu\n", gidmap.found, gidmap.start, gidmap.count);
+
+        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
+                perror("could not unshare");
+                exit(EXIT_FAILURE);
+        }
+
 }
