@@ -36,7 +36,7 @@ void map_id(const char *file, uid_t id){ // assuming uid_t == gid_t
 
 void deny_setgroups() {
 	FILE *fd = fopen("/proc/self/setgroups", "w");
-	if (fd < 0) {
+	if (NULL == fd) {
 		if (errno != ENOENT) 
                         err("could not open setgroups");
         }
@@ -91,9 +91,9 @@ int main(int argc, char* argv[]) {
         } else {
 	        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
                         err("could not unshare")
-                        deny_setgroups();
-                        map_id("/proc/self/uid_map", uid);
-                        map_id("/proc/self/gid_map", gid);
+                deny_setgroups();
+                map_id("/proc/self/uid_map", uid);
+                map_id("/proc/self/gid_map", gid);
         }
 
         rootfs_mount("/dev",  rootfs, "/dev");

@@ -15,6 +15,8 @@ import shutil
 COLLECT_FROM = ['/usr/local/bin', '/usr/bin', '/bin']
 RUNPROG = '/home/ihucos/plash/run'
 
+# FIXME: assert root is 755!!!
+
 
 utils.handle_build_args()
 unshare.unshare_if_root()
@@ -41,7 +43,7 @@ os.mkdir(os.path.join(archive, 'bin'))
 shutil.copy(RUNPROG, os.path.join(archive, 'run'))
 
 with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
-    subprocess.check_call(['plash-shallow-copy', args.container, rootfs])
+    subprocess.check_call(['plash-mount', args.container, rootfs])
 
 for collect_path in COLLECT_FROM:
     bins = os.path.join(rootfs, collect_path.lstrip('/'))
@@ -50,8 +52,11 @@ for collect_path in COLLECT_FROM:
     except FileNotFoundError:
         continue
     for bfile in bfiles:
-        dst = os.path.join(archive, 'bin', bfile)
-        os.symlink(os.path.join(archive, 'run'), dst)
+        dst = os.path.join(package_main_dir, 'bin', bfile)
+        try:
+            os.symlink(os.path.join(archive, 'run'), dst)
+        except FileExistsError:
+            pass
 
 tar = tarfile.open(args.out, mode='w:bz2')
 tar.add(archive, arcname=package_main_dir)

@@ -53,8 +53,11 @@ try:
     os.unlink(resolvconf)
 except FileNotFoundError:
     pass
-with open(resolvconf, 'w') as f:
-    f.seek(0)
-    f.truncate()
+try:
+    with open(resolvconf, 'w') as f:
+        f.seek(0)
+        f.truncate()
+except FileNotFoundError:
+    pass # no /etc folder, leave it alone
 
 os.execlp('plash-add-layer', 'plash-add-layer', '0', rootfs)
