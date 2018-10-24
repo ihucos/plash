@@ -19,14 +19,12 @@
 // #define MAX_USERNAME_LENGTH_STRING #MAX_USERNAME_LENGTH
 
 
-void find_subid(unsigned long id, char *id_name, const char *file, unsigned long range[2]){
+int find_subid(unsigned long id, char *id_name, const char *file, unsigned long range[2]){
         char label[MAX_USERLEN];
         FILE *fd = fopen(file, "r");
         if (NULL == fd) {
                 if (errno == ENOENT){
-                        range[0] = 0;
-                        range[1] = 0;
-                        return;
+                        return -1;
                 }
                 perror("could not open subuid/subgid file");
                 exit(EXIT_FAILURE);
@@ -36,29 +34,15 @@ void find_subid(unsigned long id, char *id_name, const char *file, unsigned long
                 errno = 0;
                 if ((strcmp(id_name, label) == 0) ||
                                 strtoul(label, NULL, 10) == id && errno == 0)
-                        return;
+                        return 0;
         }
-        range[0] = 0;
-        range[1] = 0;
-        return;
+        return -1;
 }
-        
-int main(int argc, char* argv[]) {
-        
-        struct passwd *pwent = getpwuid(getuid());
-        struct group *grent = getgrgid(getgid());
-        unsigned long uidrange[2], gidrange[2];
 
-        if (NULL == pwent) {perror("uid not in passwd"); exit(1);}
-        find_subid(pwent->pw_uid, pwent->pw_name, "/etc/subuid", uidrange);
-
-        find_subid(grent->gr_gid, grent->gr_name, "/etc/subgid", gidrange);
-        if (NULL == grent) {perror("gid not in db"); exit(1);}
-
+int run_newidmap(unsigned long uidrange[2], unsigned long gidrange[2]){
         int fd[2];
         pid_t child;
         char readbuffer[2];
-
         if (-1 == pipe(fd)){
                 perror("pipe");
                 exit(EXIT_FAILURE);
@@ -82,8 +66,7 @@ int main(int argc, char* argv[]) {
                         "newgidmap %lu %lu %lu %lu %lu %lu %lu\n" \
                         "exit 0\n",
                         getpid(), 0, 1000, 1, 1, uidrange[0], uidrange[1],
-                        getpid(), 0, 1000, 1, 1, gidrange[0], gidrange[1]
-                       )){
+                        getpid(), 0, 1000, 1, 1, gidrange[0], gidrange[1])) {
                 printf("dprintf failed");
                 exit(1);
         }
@@ -100,6 +83,31 @@ int main(int argc, char* argv[]) {
         if (status){
                 printf("child exited with %d\n", status);
                 exit(1);
+        }
+}
+
+
+int setup_subids() {
+        struct passwd *pwent = getpwuid(getuid());
+        struct group *grent = getgrgid(getgid());
+        if (NULL == pwent) {perror("uid not in passwd"); exit(1);}
+        if (NULL == grent) {perror("gid not in db"); exit(1);}
+        unsigned long uidrange[2], gidrange[2];
+        
+        if (-1 == find_subid(pwent->pw_uid, pwent->pw_name, "/etc/subuid", uidrange) ||
+            -1 == find_subid(grent->gr_gid, grent->gr_name, "/etc/subgid", gidrange)) {
+                return -1;
+        }
+        
+        run_newidmap(uidrange, gidrange);
+        return 0;
+}
+
+
+int main(int argc, char* argv[]) {
+
+        if (-1 == setup_subids()){
+                printf("call the other unshare");
         }
         execlp("id", "id", NULL);
 }
