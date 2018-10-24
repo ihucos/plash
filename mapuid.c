@@ -103,15 +103,15 @@ int main(int argc, char* argv[]) {
                 getpid(), 0, 1000, 1, 1, gidmap.start, gidmap.count
         );
 
-        int wstatus;
-        waitpid(child, &wstatus, 0);
-        if (!WIFEXITED(wstatus)){
+        int status;
+        waitpid(child, &status, 0);
+        if (!WIFEXITED(status)){
                 printf("child exited abnormally");
                 exit(1);
         }
-        int child_exit = WEXITSTATUS(wstatus);
-        if (child_exit){
-                printf("child exited with %d\n", child_exit);
+        status = WEXITSTATUS(status);
+        if (status){
+                printf("child exited with %d\n", status);
                 exit(1);
         }
 
