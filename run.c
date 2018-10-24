@@ -11,40 +11,53 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define err(...) {\
+#define PROG "birdperson"
+
+#define fatal(...) {\
 fprintf(stderr, "%s", "myprog: ");\
 fprintf(stderr, __VA_ARGS__);\
-fprintf(stderr, ": %s\n", strerror(errno));\
+if (errno != 0){\
+        fprintf(stderr, ": %s", strerror(errno));\
+}\
+fprintf(stderr, "\n");\
 exit(1);\
 }
 
-void map_id(const char *file, uid_t id){ // assuming uid_t == gid_t
-        //
-        // echo "0 $(id -u) 1" > /proc/self/uid_map
-        //
+void singlemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
 	char *map;
-	int fd = open(file, O_WRONLY);
-	if (fd < 0) {
-                err("Could not open %s", file);
+        FILE *fd;
+
+	if (NULL == (fd = fopen(file, "w"))) {
+                fatal("could not open %s", file);
         }
-        asprintf(&map, "0 %u 1\n", id);
-        //printf("%s\n", map);
-        if (-1 == write(fd, map, sizeof(map)))
-                err("could not write to %s", file);
-        close(fd);
+        fprintf(fd, "0 %u 1\n", id);
+        if (errno != 0)
+                fatal("could not write to %s", file);
+        fclose(fd);
 }
 
-void deny_setgroups() {
+void singlemap_deny_setgroups() {
 	FILE *fd = fopen("/proc/self/setgroups", "w");
 	if (NULL == fd) {
 		if (errno != ENOENT) 
-                        err("could not open setgroups");
+                        fatal("could not open /proc/self/setgroups");
         }
-        if (fprintf(fd, "%s", "deny") < 0){ // FIXME: error handling broken
-                fprintf(stderr, "output error writing to /proc/self/setgroups\n");
+        fprintf(fd, "deny");
+        if (errno != 0) {
+                fatal("could not write to /proc/self/setgroups");
                 exit(1);
         }
         fclose(fd);
+}
+
+void singlemap_setup(){
+        uid_t uid = getuid();
+        gid_t gid = getgid();
+        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
+                fatal("could not unshare");
+        singlemap_deny_setgroups();
+        singlemap_map("/proc/self/uid_map", uid);
+        singlemap_map("/proc/self/gid_map", gid);
 }
 
 void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir) {
@@ -57,15 +70,18 @@ void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir
         if (-1 == asprintf(&dst, "%s/%s", rootfs, hostdir)) {
                 fprintf(stderr, "myprog: asprintf returned -1\n");
                 exit(1);
+
+        if (! (stat(dst, &sb) == 0 && S_ISDIR(sb.st_mode)))
+                return;
         }
         if (-1 == mount(hostdir, dst, "none", MS_MGC_VAL|MS_BIND|MS_REC, NULL))
-                err("could not rbind mount %s -> %s", hostdir, dst)
+                fatal("could not rbind mount %s -> %s", hostdir, dst)
 }
 
 void find_rootfs(char **rootfs) {
         char *executable;
         if (NULL == (executable = realpath("/proc/self/exe", NULL)))
-                err("could not call realpath");
+                fatal("could not call realpath");
         char *executable_dir = dirname(executable);
         if (-1 == asprintf(rootfs, "%s/rootfs", executable_dir)){
                 fprintf(stderr, "myprog: asprintf returned -1\n");
@@ -80,21 +96,18 @@ int main(int argc, char* argv[]) {
         char *argv0 = strdup(argv[0]);
         char *progname = basename(argv0);
         char *rootfs;
+
+        if (0 == strcmp(progname, PROG)) {
+                if (argc < 3){
+                        fatal("usage: rootfs cmd1 cmd2 ... ");
+                }
+                rootfs = argv[1];
+                progname = argv[2];
+                argv += 2;
+        }
         find_rootfs(&rootfs);
 
-        int uid = getuid();
-        int gid = getgid();
-
-        if (uid == 0) {
-	        if (-1 == unshare(CLONE_NEWNS))
-                        err("could not unshare")
-        } else {
-	        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
-                        err("could not unshare")
-                deny_setgroups();
-                map_id("/proc/self/uid_map", uid);
-                map_id("/proc/self/gid_map", gid);
-        }
+        singlemap_setup();
 
         rootfs_mount("/dev",  rootfs, "/dev");
         rootfs_mount("/home", rootfs, "/home");
@@ -105,14 +118,14 @@ int main(int argc, char* argv[]) {
 
         char *origpwd;
         if (NULL == (origpwd = get_current_dir_name()))
-            err("error calling get_current_dir_name")
+            fatal("error calling get_current_dir_name")
 
         if (-1 == chroot(rootfs))
-                err("could not chroot to %s", rootfs);
+                fatal("could not chroot to %s", rootfs);
 
         if (-1 == chdir(origpwd)){
                 if (-1 == chdir("/"))
-                        err("could not chdir")
+                        fatal("could not chdir")
         }
 
         char *env[UCHAR_MAX + 1];
@@ -144,6 +157,6 @@ int main(int argc, char* argv[]) {
 
         argv[0] = progname;
         if (-1 == execvpe(progname, argv, env))
-                err("could not exec %s", progname);
+                fatal("could not exec %s", progname);
 
 }

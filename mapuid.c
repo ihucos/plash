@@ -29,7 +29,7 @@ if (errno != 0){\
 exit(1);\
 }
 
-int bettermap_find(
+int fullmap_find(
                 unsigned long id,
                 char *id_name,
                 const char *file,
@@ -52,10 +52,11 @@ int bettermap_find(
         return -1;
 }
 
-int bettermap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
+int fullmap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
         int fd[2];
         pid_t child;
         char readbuffer[2];
+
         if (-1 == pipe(fd))
                 fatal("could not create pipe");
         child = fork();
@@ -93,23 +94,23 @@ int bettermap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
         }
 }
 
-int bettermap_setup() {
+int fullmap_setup() {
         struct passwd *pwent = getpwuid(getuid());
         struct group *grent = getgrgid(getgid());
         if (NULL == pwent) {perror("uid not in passwd"); exit(1);}
         if (NULL == grent) {perror("gid not in db"); exit(1);}
         unsigned long uidrange[2], gidrange[2];
         
-        if (-1 == bettermap_find(pwent->pw_uid, pwent->pw_name, "/etc/subuid", uidrange) ||
-            -1 == bettermap_find(grent->gr_gid, grent->gr_name, "/etc/subgid", gidrange)) {
+        if (-1 == fullmap_find(pwent->pw_uid, pwent->pw_name, "/etc/subuid", uidrange) ||
+            -1 == fullmap_find(grent->gr_gid, grent->gr_name, "/etc/subgid", gidrange)) {
                 return -1;
         }
         
-        bettermap_run(uidrange, gidrange);
+        fullmap_run(uidrange, gidrange);
         return 0;
 }
 
-void simplemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
+void singlemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
 	char *map;
         FILE *fd;
 
@@ -122,7 +123,7 @@ void simplemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
         fclose(fd);
 }
 
-void simplemap_deny_setgroups() {
+void singlemap_deny_setgroups() {
 	FILE *fd = fopen("/proc/self/setgroups", "w");
 	if (NULL == fd) {
 		if (errno != ENOENT) 
@@ -136,21 +137,23 @@ void simplemap_deny_setgroups() {
         fclose(fd);
 }
 
-void simplemap_setup(){
+void singlemap_setup(){
         uid_t uid = getuid();
         gid_t gid = getgid();
         if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
                 fatal("could not unshare");
-        simplemap_deny_setgroups();
-        simplemap_map("/proc/self/uid_map", uid);
-        simplemap_map("/proc/self/gid_map", gid);
+        singlemap_deny_setgroups();
+        singlemap_map("/proc/self/uid_map", uid);
+        singlemap_map("/proc/self/gid_map", gid);
 }
 
 int main(int argc, char* argv[]) {
 
 
-        simplemap_setup();
-        //if (-1 == bettermap_setup()){
+        //singlemap_setup();
+        fullmap_setup();
+
+        //if (-1 == fullmap_setup()){
         //        printf("call the other unshare");
         //}
         execlp("id", "id", NULL);
