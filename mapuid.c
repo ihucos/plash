@@ -19,7 +19,7 @@
 // #define MAX_USERNAME_LENGTH_STRING #MAX_USERNAME_LENGTH
 
 typedef struct find_subid_struct {
-        int found;
+        int success;
         unsigned long start;
         unsigned long count;
 } find_subid_t;
@@ -29,10 +29,12 @@ find_subid_t find_subid(unsigned long id, char *id_name, const char *file){
     char label[MAX_USERLEN];
     unsigned long ulong_label;
     find_subid_t retval;
-    retval.found = 0;
+    retval.success = 0;
 
     FILE *fd = fopen(file, "r");
     if (NULL == fd) {
+            if (errno == ENOENT)
+                return retval;
             perror("could not open subuid/subgid file");
             exit(EXIT_FAILURE);
     }
@@ -42,14 +44,14 @@ find_subid_t find_subid(unsigned long id, char *id_name, const char *file){
                     break;
 
             if (strcmp(id_name, label) == 0){
-                retval.found = 1;
+                retval.success = 1;
                 break;
 
             } else {
                 errno = 0;
                 ulong_label = strtoul(label, NULL, 10);
                 if (errno == 0 && ulong_label == id) {
-                        retval.found = 1;
+                        retval.success = 1;
                         break;
                 };
             }
@@ -73,8 +75,8 @@ int main(int argc, char* argv[]) {
         // printf("%i  %lu %lu\n", gidmap.found, gidmap.start, gidmap.count);
 
 
-        pid_t child;
         int fd[2];
+        pid_t child;
         char readbuffer[2];
 
         if (-1 == pipe(fd)){
@@ -94,14 +96,19 @@ int main(int argc, char* argv[]) {
                 exit(EXIT_FAILURE);
         }
 
-        dprintf(
+        if (0 > dprintf(
                 fd[1],
                 "newuidmap %lu %lu %lu %lu %lu %lu %lu\n" \
                 "newgidmap %lu %lu %lu %lu %lu %lu %lu\n" \
                 "exit 0\n",
                 getpid(), 0, 1000, 1, 1, uidmap.start, uidmap.count,
                 getpid(), 0, 1000, 1, 1, gidmap.start, gidmap.count
-        );
+        )){
+                printf("dprintf failed");
+                exit(1);
+        }
+        close(fd[0]);
+        close(fd[1]);
 
         int status;
         waitpid(child, &status, 0);
@@ -114,7 +121,5 @@ int main(int argc, char* argv[]) {
                 printf("child exited with %d\n", status);
                 exit(1);
         }
-
         execlp("id", "id", NULL);
-
 }
