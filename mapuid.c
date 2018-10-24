@@ -97,7 +97,6 @@ int bettermap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
         }
 }
 
-
 int bettermap_setup() {
         struct passwd *pwent = getpwuid(getuid());
         struct group *grent = getgrgid(getgid());
@@ -114,21 +113,20 @@ int bettermap_setup() {
         return 0;
 }
 
-
-
 void simplemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
         //
         // echo "0 $(id -u) 1" > /proc/self/uid_map
         //
 	char *map;
-	int fd = open(file, O_WRONLY);
-	if (fd < 0) {
+        FILE *fd;
+
+	if (NULL == (fd = fopen(file, "w"))) {
                 err("Could not open %s", file);
         }
-        asprintf(&map, "0 %u 1\n", id);
-        if (-1 == write(fd, map, sizeof(map)))
+        fprintf(fd, "0 %u 1\n", id);
+        if (errno != 0)
                 err("could not write to %s", file);
-        close(fd);
+        fclose(fd);
 }
 
 void simplemap_deny_setgroups() {
@@ -137,8 +135,9 @@ void simplemap_deny_setgroups() {
 		if (errno != ENOENT) 
                         err("could not open setgroups");
         }
-        if (fprintf(fd, "%s", "deny") < 0){ // FIXME: error handling broken
-                fprintf(stderr, "output error writing to /proc/self/setgroups\n");
+        fprintf(fd, "deny");
+        if (errno != 0) {
+                perror("output error writing to /proc/self/setgroups\n");
                 exit(1);
         }
         fclose(fd);
@@ -157,7 +156,6 @@ void simplemap_setup(){
 }
 
 int main(int argc, char* argv[]) {
-
 
 
         simplemap_setup();
