@@ -20,7 +20,14 @@
 #define MAX_USERLEN 32
 #define SCAN_ID_RANGE "%" STR(MAX_USERLEN) "[^:\n]:%lu:%lu\n"
 
-int find_subid(
+#define err(...) {\
+fprintf(stderr, "%s", "myprog: ");\
+fprintf(stderr, __VA_ARGS__);\
+fprintf(stderr, ": %s\n", strerror(errno));\
+exit(1);\
+}
+
+int bettermap_find(
                 unsigned long id,
                 char *id_name,
                 const char *file,
@@ -43,7 +50,7 @@ int find_subid(
         return -1;
 }
 
-int run_newidmap(unsigned long uidrange[2], unsigned long gidrange[2]){
+int bettermap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
         int fd[2];
         pid_t child;
         char readbuffer[2];
@@ -91,27 +98,71 @@ int run_newidmap(unsigned long uidrange[2], unsigned long gidrange[2]){
 }
 
 
-int setup_subids() {
+int bettermap_setup() {
         struct passwd *pwent = getpwuid(getuid());
         struct group *grent = getgrgid(getgid());
         if (NULL == pwent) {perror("uid not in passwd"); exit(1);}
         if (NULL == grent) {perror("gid not in db"); exit(1);}
         unsigned long uidrange[2], gidrange[2];
         
-        if (-1 == find_subid(pwent->pw_uid, pwent->pw_name, "/etc/subuid", uidrange) ||
-            -1 == find_subid(grent->gr_gid, grent->gr_name, "/etc/subgid", gidrange)) {
+        if (-1 == bettermap_find(pwent->pw_uid, pwent->pw_name, "/etc/subuid", uidrange) ||
+            -1 == bettermap_find(grent->gr_gid, grent->gr_name, "/etc/subgid", gidrange)) {
                 return -1;
         }
         
-        run_newidmap(uidrange, gidrange);
+        bettermap_run(uidrange, gidrange);
         return 0;
 }
 
 
+
+void simplemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
+        //
+        // echo "0 $(id -u) 1" > /proc/self/uid_map
+        //
+	char *map;
+	int fd = open(file, O_WRONLY);
+	if (fd < 0) {
+                err("Could not open %s", file);
+        }
+        asprintf(&map, "0 %u 1\n", id);
+        if (-1 == write(fd, map, sizeof(map)))
+                err("could not write to %s", file);
+        close(fd);
+}
+
+void simplemap_deny_setgroups() {
+	FILE *fd = fopen("/proc/self/setgroups", "w");
+	if (NULL == fd) {
+		if (errno != ENOENT) 
+                        err("could not open setgroups");
+        }
+        if (fprintf(fd, "%s", "deny") < 0){ // FIXME: error handling broken
+                fprintf(stderr, "output error writing to /proc/self/setgroups\n");
+                exit(1);
+        }
+        fclose(fd);
+}
+
+void simplemap_setup(){
+        uid_t uid = getuid();
+        gid_t gid = getgid();
+        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
+                perror("could not unshare");
+                exit(1);
+        }
+        simplemap_deny_setgroups();
+        simplemap_map("/proc/self/uid_map", uid);
+        simplemap_map("/proc/self/gid_map", gid);
+}
+
 int main(int argc, char* argv[]) {
 
-        if (-1 == setup_subids()){
-                printf("call the other unshare");
-        }
+
+
+        simplemap_setup();
+        //if (-1 == bettermap_setup()){
+        //        printf("call the other unshare");
+        //}
         execlp("id", "id", NULL);
 }
