@@ -20,10 +20,7 @@
 
 
 void find_subid(unsigned long id, char *id_name, const char *file, unsigned long range[2]){
-
         char label[MAX_USERLEN];
-        unsigned long ulong_label;
-
         FILE *fd = fopen(file, "r");
         if (NULL == fd) {
                 if (errno == ENOENT){
@@ -54,60 +51,55 @@ int main(int argc, char* argv[]) {
 
         if (NULL == pwent) {perror("uid not in passwd"); exit(1);}
         find_subid(pwent->pw_uid, pwent->pw_name, "/etc/subuid", uidrange);
-        if (uidrange[0] == 0) {
-                printf("could not find subuid\n");
-                exit(1);
+
+        find_subid(grent->gr_gid, grent->gr_name, "/etc/subgid", gidrange);
+        if (NULL == grent) {perror("gid not in db"); exit(1);}
+
+        int fd[2];
+        pid_t child;
+        char readbuffer[2];
+
+        if (-1 == pipe(fd)){
+                perror("pipe");
+                exit(EXIT_FAILURE);
+        }
+        child = fork();
+        if (-1 == child) perror("fork");
+        if (0 == child){
+                close(fd[1]);
+                dup2(fd[0], 0);
+                execlp("sh", "sh", "-e", NULL);
         }
 
-       if (NULL == grent) {perror("gid not in db"); exit(1);}
-       find_subid(grent->gr_gid, grent->gr_name, "/etc/subgid", gidrange);
+        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
+                perror("could not unshare");
+                exit(EXIT_FAILURE);
+        }
 
+        if (0 > dprintf(
+                        fd[1],
+                        "newuidmap %lu %lu %lu %lu %lu %lu %lu\n" \
+                        "newgidmap %lu %lu %lu %lu %lu %lu %lu\n" \
+                        "exit 0\n",
+                        getpid(), 0, 1000, 1, 1, uidrange[0], uidrange[1],
+                        getpid(), 0, 1000, 1, 1, gidrange[0], gidrange[1]
+                       )){
+                printf("dprintf failed");
+                exit(1);
+        }
+        close(fd[0]);
+        close(fd[1]);
 
-       int fd[2];
-       pid_t child;
-       char readbuffer[2];
-
-       if (-1 == pipe(fd)){
-               perror("pipe");
-               exit(EXIT_FAILURE);
-       }
-       child = fork();
-       if (-1 == child) perror("fork");
-       if (0 == child){
-               close(fd[1]);
-               dup2(fd[0], 0);
-               execlp("sh", "sh", "-e", NULL);
-       }
-
-       if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
-               perror("could not unshare");
-               exit(EXIT_FAILURE);
-       }
-
-       if (0 > dprintf(
-               fd[1],
-               "newuidmap %lu %lu %lu %lu %lu %lu %lu\n" \
-               "newgidmap %lu %lu %lu %lu %lu %lu %lu\n" \
-               "exit 0\n",
-               getpid(), 0, 1000, 1, 1, uidrange[0], uidrange[1],
-               getpid(), 0, 1000, 1, 1, gidrange[0], gidrange[1]
-       )){
-               printf("dprintf failed");
-               exit(1);
-       }
-       close(fd[0]);
-       close(fd[1]);
-
-       int status;
-       waitpid(child, &status, 0);
-       if (!WIFEXITED(status)){
-               printf("child exited abnormally");
-               exit(1);
-       }
-       status = WEXITSTATUS(status);
-       if (status){
-               printf("child exited with %d\n", status);
-               exit(1);
-       }
+        int status;
+        waitpid(child, &status, 0);
+        if (!WIFEXITED(status)){
+                printf("child exited abnormally");
+                exit(1);
+        }
+        status = WEXITSTATUS(status);
+        if (status){
+                printf("child exited with %d\n", status);
+                exit(1);
+        }
         execlp("id", "id", NULL);
 }
