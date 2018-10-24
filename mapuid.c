@@ -20,10 +20,12 @@
 #define MAX_USERLEN 32
 #define SCAN_ID_RANGE "%" STR(MAX_USERLEN) "[^:\n]:%lu:%lu\n"
 
-#define err(...) {\
+#define fatal(...) {\
 fprintf(stderr, "%s", "myprog: ");\
 fprintf(stderr, __VA_ARGS__);\
-fprintf(stderr, ": %s\n", strerror(errno));\
+if (errno != 0){\
+        fprintf(stderr, ": %s\n", strerror(errno));\
+}\
 exit(1);\
 }
 
@@ -54,12 +56,11 @@ int bettermap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
         int fd[2];
         pid_t child;
         char readbuffer[2];
-        if (-1 == pipe(fd)){
-                perror("pipe");
-                exit(EXIT_FAILURE);
-        }
+        if (-1 == pipe(fd))
+                fatal("could not create pipe");
         child = fork();
-        if (-1 == child) perror("fork");
+        if (-1 == child)
+                fatal("could not fork")
         if (0 == child){
                 close(fd[1]);
                 dup2(fd[0], 0);
@@ -67,8 +68,7 @@ int bettermap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
         }
 
         if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
-                perror("could not unshare");
-                exit(EXIT_FAILURE);
+                fatal("could not unshare");
         }
 
         if (0 > dprintf(
@@ -77,23 +77,19 @@ int bettermap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
                         "newgidmap %lu %lu %lu %lu %lu %lu %lu\n" \
                         "exit 0\n",
                         getpid(), 0, 1000, 1, 1, uidrange[0], uidrange[1],
-                        getpid(), 0, 1000, 1, 1, gidrange[0], gidrange[1])) {
-                printf("dprintf failed");
-                exit(1);
+                        getpid(), 0, 1000, 1, 1, gidrange[0], gidrange[1])){
+                fatal("could not send data to child with dprintf");
         }
         close(fd[0]);
         close(fd[1]);
 
         int status;
         waitpid(child, &status, 0);
-        if (!WIFEXITED(status)){
-                printf("child exited abnormally");
-                exit(1);
-        }
+        if (!WIFEXITED(status))
+                fatal("child exited abnormally");
         status = WEXITSTATUS(status);
         if (status){
-                printf("child exited with %d\n", status);
-                exit(1);
+                fatal("child exited with %d", status);
         }
 }
 
@@ -114,18 +110,15 @@ int bettermap_setup() {
 }
 
 void simplemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
-        //
-        // echo "0 $(id -u) 1" > /proc/self/uid_map
-        //
 	char *map;
         FILE *fd;
 
 	if (NULL == (fd = fopen(file, "w"))) {
-                err("Could not open %s", file);
+                fatal("could not open %s", file);
         }
         fprintf(fd, "0 %u 1\n", id);
         if (errno != 0)
-                err("could not write to %s", file);
+                fatal("could not write to %s", file);
         fclose(fd);
 }
 
@@ -133,11 +126,11 @@ void simplemap_deny_setgroups() {
 	FILE *fd = fopen("/proc/self/setgroups", "w");
 	if (NULL == fd) {
 		if (errno != ENOENT) 
-                        err("could not open setgroups");
+                        fatal("could not open /proc/self/setgroups");
         }
         fprintf(fd, "deny");
         if (errno != 0) {
-                perror("output error writing to /proc/self/setgroups\n");
+                fatal("could not write to /proc/self/setgroups");
                 exit(1);
         }
         fclose(fd);
@@ -146,10 +139,8 @@ void simplemap_deny_setgroups() {
 void simplemap_setup(){
         uid_t uid = getuid();
         gid_t gid = getgid();
-        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
-                perror("could not unshare");
-                exit(1);
-        }
+        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
+                fatal("could not unshare");
         simplemap_deny_setgroups();
         simplemap_map("/proc/self/uid_map", uid);
         simplemap_map("/proc/self/gid_map", gid);
