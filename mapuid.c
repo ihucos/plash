@@ -19,23 +19,27 @@
 // #define MAX_USERNAME_LENGTH_STRING #MAX_USERNAME_LENGTH
 
 
-int find_subid(unsigned long id, char *id_name, const char *file, unsigned long range[2]){
-        char label[MAX_USERLEN];
-        FILE *fd = fopen(file, "r");
-        if (NULL == fd) {
-                if (errno == ENOENT){
-                        return -1;
-                }
-                perror("could not open subuid/subgid file");
-                exit(EXIT_FAILURE);
-        }
+int find_subid(
+                unsigned long id,
+                char *id_name,
+                const char *file,
+                unsigned long range[2]) {
+
         const char *scan = "%"MAX_USERLEN_STR"[^:\n]:%lu:%lu\n"; // move as constant
+        char label[MAX_USERLEN];
+        FILE *fd;
+
+        if (NULL == (fd = fopen(file, "r")))
+                return -1;
+
         while (3 == fscanf(fd, scan, label, range, range+1)){
                 errno = 0;
                 if ((strcmp(id_name, label) == 0) ||
                                 strtoul(label, NULL, 10) == id && errno == 0)
+                        errno = 0;
                         return 0;
         }
+        errno = 0;
         return -1;
 }
 
