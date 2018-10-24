@@ -24,10 +24,12 @@ typedef struct find_subid_struct {
 } find_subid_t;
 
 find_subid_t find_subid(unsigned long id, char *id_name, const char *file){
+
     char label[MAX_USERLEN];
-    unsigned long start, count, ulong_label;
-    int found, found_status = 0;
-    find_subid_t subidv;
+    unsigned long ulong_label;
+    find_subid_t retval;
+    retval.found = 0;
+
     FILE *fd = fopen(file, "r");
     if (NULL == fd) {
             perror("could not open subuid/subgid file");
@@ -35,25 +37,24 @@ find_subid_t find_subid(unsigned long id, char *id_name, const char *file){
     }
     for (;;){
             if (3 != fscanf(fd, "%"MAX_USERLEN_STR"[^:\n]:%lu:%lu\n",
-                    label, &start, &count))
+                    label, &retval.start, &retval.count))
                     break;
 
             if (strcmp(id_name, label) == 0){
-                found_status = 1;
+                retval.found = 1;
                 break;
+
             } else {
                 errno = 0;
                 ulong_label = strtoul(label, NULL, 10);
                 if (errno == 0 && ulong_label == id) {
-                        found_status = 1;
+                        retval.found = 1;
                         break;
                 };
             }
     }
-    subidv.found = found_status;
-    subidv.start = start;
-    subidv.count = count;
-    return subidv;
+    errno = 0;
+    return retval;
 
 
     
@@ -68,12 +69,50 @@ int main(int argc, char* argv[]) {
         struct group *grent = getgrgid(getgid());
         if (NULL == grent) {perror("gid not in db"); exit(1);}
         find_subid_t gidmap = find_subid(grent->gr_gid, grent->gr_name, "/etc/subgid");
+        // printf("%i  %lu %lu\n", gidmap.found, gidmap.start, gidmap.count);
 
-        printf("%i  %lu %lu\n", gidmap.found, gidmap.start, gidmap.count);
+
+        pid_t child;
+        int fd[2];
+        char readbuffer[2];
+
+        if (-1 == pipe(fd)){
+                perror("pipe");
+                exit(EXIT_FAILURE);
+        }
+        child = fork();
+        if (-1 == child) perror("fork");
+        if (0 == child){
+
+                // wait for pipe
+                close(fd[1]);
+                read(fd[0], NULL, 1);
+                close(fd[0]);
+
+                char *map;
+                asprintf(&map, "newuidmap %ul %ul %ul %ul", id);
+
+                printf("go child\n");
+
+
+                //execlp("sh", "sh", "-ceu", " \
+                //echo  $1 $1 $2 $3 \n\
+                //#newgidmap  \
+                //", "1", "1", "1", "1", NULL);
+
+        }
 
         if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
                 perror("could not unshare");
                 exit(EXIT_FAILURE);
         }
+
+        // release pipe
+        close(fd[0]);
+        close(fd[1]);
+
+
+
+
 
 }
