@@ -14,10 +14,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define MAX_USERLEN 32
-#define MAX_USERLEN_STR "32"
-// #define MAX_USERNAME_LENGTH_STRING #MAX_USERNAME_LENGTH
+#define STR_EXPAND(name) #name
+#define STR(name) STR_EXPAND(name)
 
+#define MAX_USERLEN 32
+#define SCAN_ID_RANGE "%" STR(MAX_USERLEN) "[^:\n]:%lu:%lu\n"
 
 int find_subid(
                 unsigned long id,
@@ -25,14 +26,13 @@ int find_subid(
                 const char *file,
                 unsigned long range[2]) {
 
-        const char *scan = "%"MAX_USERLEN_STR"[^:\n]:%lu:%lu\n"; // move as constant
         char label[MAX_USERLEN];
         FILE *fd;
 
         if (NULL == (fd = fopen(file, "r")))
                 return -1;
 
-        while (3 == fscanf(fd, scan, label, range, range+1)){
+        while (3 == fscanf(fd, SCAN_ID_RANGE, label, range, range+1)){
                 errno = 0;
                 if ((strcmp(id_name, label) == 0) ||
                                 strtoul(label, NULL, 10) == id && errno == 0)
