@@ -11,10 +11,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define PROG "birdperson"
-
 #define fatal(...) {\
-fprintf(stderr, "%s", "myprog: ");\
+fprintf(stderr, "%s", "glaze: ");\
 fprintf(stderr, __VA_ARGS__);\
 if (errno != 0){\
         fprintf(stderr, ": %s", strerror(errno));\
@@ -27,11 +25,12 @@ exit(1);\
 #define QUOTE(...) #__VA_ARGS__
 const char *script = QUOTE(
 
-mkdir -m 755 "/opt/$1" "/opt/$1/rootfs" "/opt/$1/bin";
-wget -O  "/opt/$1/tarfile" "$2";
-tar -xpf  "/opt/$1/tarfile" -C /opt/$1/rootfs;
-chmod 755 /opt/$1/rootfs;
-rm        "/opt/$1/tarfile";
+tmp=$(mktemp -d);
+mkdir -m 755 "$tmp/$1" "$tmp/$1/rootfs" "$tmp/$1/bin";
+wget -O  "$tmp/$1/tarfile" "$2";
+tar -xpf  "$tmp/$1/tarfile" -C /opt/$1/rootfs;
+chmod 755 $tmp/$1/rootfs;
+rm        "$tmp/$1/tarfile";
  
 find /opt/$1/rootfs/ -perm /+x -type f
 | xargs -L 1 basename | sort | uniq
@@ -83,13 +82,11 @@ void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir
         if (! (stat(hostdir, &sb) == 0 && S_ISDIR(sb.st_mode)))
                 return;
 
-        if (-1 == asprintf(&dst, "%s/%s", rootfs, hostdir)) {
-                fprintf(stderr, "myprog: asprintf returned -1\n");
-                exit(1);
+        if (-1 == asprintf(&dst, "%s/%s", rootfs, hostdir))
+                fatal("asprintf returned -1");
 
         if (! (stat(dst, &sb) == 0 && S_ISDIR(sb.st_mode)))
                 return;
-        }
         if (-1 == mount(hostdir, dst, "none", MS_MGC_VAL|MS_BIND|MS_REC, NULL))
                 fatal("could not rbind mount %s -> %s", hostdir, dst)
 }
@@ -99,10 +96,8 @@ void find_rootfs(char **rootfs) {
         if (NULL == (executable = realpath("/proc/self/exe", NULL)))
                 fatal("could not call realpath");
         char *executable_dir = dirname(executable);
-        if (-1 == asprintf(rootfs, "%s/rootfs", executable_dir)){
-                fprintf(stderr, "myprog: asprintf returned -1\n");
-                exit(1);
-        }
+        if (-1 == asprintf(rootfs, "%s/rootfs", executable_dir))
+                fatal("asprintf returned -1");
 }
 
 
@@ -113,11 +108,9 @@ int main(int argc, char* argv[]) {
         char *progname = basename(argv0);
         char *rootfs;
 
-        if (0 == strcmp(progname, PROG)) {
-                if (argc > 2 && 0 == strcmp(argv[1], "install")) {
-                        if (-1 == execlp("sh", "sh", "-ecxu", script, "--", argv[2], argv[3], NULL))
-                                fatal("could not exec");
-                }
+        if (0 == strcmp(progname, "glaze")) {
+                if (-1 == execlp("sh", "sh", "-ecxu", script, "--", argv[2], argv[3], NULL))
+                       fatal("could not exec");
                 
                 if (argc < 3){
                         fatal("usage: rootfs cmd1 cmd2 ... ");
