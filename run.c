@@ -97,13 +97,13 @@ void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir
         char *dst;
         struct stat sb;
 
-        if (! (stat(hostdir, &sb) == 0 && S_ISDIR(sb.st_mode)))
+        if (! (stat(hostdir, &sb) == 0 && S_ISDIR(sb.st_mode) || S_ISREG(sb.st_mode)))
                 return;
 
         if (-1 == asprintf(&dst, "%s/%s", rootfs, hostdir))
                 fatal("asprintf returned -1");
 
-        if (! (stat(dst, &sb) == 0 && S_ISDIR(sb.st_mode)))
+        if (! (stat(dst, &sb) == 0 && S_ISDIR(sb.st_mode) || S_ISREG(sb.st_mode)))
                 return;
         if (-1 == mount(hostdir, dst, "none", MS_MGC_VAL|MS_BIND|MS_REC, NULL))
                 fatal("could not rbind mount %s -> %s", hostdir, dst)
