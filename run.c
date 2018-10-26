@@ -38,9 +38,9 @@ find ./usr/local/bin ./usr/bin ./bin ./usr/local/sbin ./usr/sbin ./sbin 2> /dev/
 | xargs -L 1 basename | sort | uniq
 | xargs -I{} ln -s "../glaze" "$tmp/root/opt/$name/bin/{}";
 cd "$tmp/root"\n
-mkdir -pm 755 ./usr/local/bin/\n
 for var in "$@"\n
 do\n
+    mkdir -pm 755 ./usr/local/bin/\n
     ln -s "/opt/$name/glaze" "./usr/local/bin/$var"\n
 done\n
 cd "$tmp/root"\n
@@ -78,11 +78,16 @@ void singlemap_deny_setgroups() {
 void singlemap_setup(){
         uid_t uid = getuid();
         gid_t gid = getgid();
-        if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
-                fatal("could not unshare");
-        singlemap_deny_setgroups();
-        singlemap_map("/proc/self/uid_map", uid);
-        singlemap_map("/proc/self/gid_map", gid);
+        if (uid == 0){
+                if (-1 == unshare(CLONE_NEWNS))
+                        fatal("could not unshare");
+        } else {
+                if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER))
+                        fatal("could not unshare");
+                singlemap_deny_setgroups();
+                singlemap_map("/proc/self/uid_map", uid);
+                singlemap_map("/proc/self/gid_map", gid);
+        }
 }
 
 void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir) {
@@ -162,7 +167,7 @@ int main(int argc, char* argv[]) {
         }
 
         char *env[UCHAR_MAX + 1];
-        unsigned char env_index; // let it overflow if maximum is reached
+        unsigned char env_index = 0; // let it overflow if maximum is reached
         char *envname, *envval;
 
         char *str = getenv("PLASH_EXPORT");
@@ -191,5 +196,4 @@ int main(int argc, char* argv[]) {
         argv[0] = progname;
         if (-1 == execvpe(progname, argv, env))
                 fatal("could not exec %s", progname);
-
 }
