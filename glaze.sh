@@ -1,6 +1,5 @@
 
 set -eu
-
 infile="$1"; shift
 outfile="$1"; shift
 name="$1"; shift

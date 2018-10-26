@@ -23,18 +23,27 @@ exit(1);\
 
 
 #define QUOTE(...) #__VA_ARGS__
-const char *script = QUOTE(
-
-tmp=$(mktemp -d);
-mkdir -m 755 "$tmp/$1" "$tmp/$1/rootfs" "$tmp/$1/bin";
-wget -O  "$tmp/$1/tarfile" "$2";
-tar -xpf  "$tmp/$1/tarfile" -C /opt/$1/rootfs;
-chmod 755 $tmp/$1/rootfs;
-rm        "$tmp/$1/tarfile";
- 
-find /opt/$1/rootfs/ -perm /+x -type f
+char *script = QUOTE(
+infile="$1"; shift\n
+outfile="$1"; shift\n
+name="$1"; shift\n
+tmp=$(mktemp -d)\n
+mkdir -pm 755 "$tmp/root/opt/$name/bin" "$tmp/root/opt/$name/rootfs/dev"\n
+cp /proc/self/exe "$tmp/root/opt/$name/glaze"\n
+tar -xpf  "$infile" -C "$tmp/root/opt/$name/rootfs" --exclude ./dev --exclude /dev\n
+chmod 755 "$tmp/root/opt/$name/rootfs"\n
+cd "$tmp/root/opt/$name/rootfs"\n
+find ./usr/local/bin ./usr/bin ./bin ./usr/local/sbin ./usr/sbin ./sbin 2> /dev/null
 | xargs -L 1 basename | sort | uniq
-| xargs -I{} ln -s /usr/local/bin/birdperson /opt/$1/bin/{};
+| xargs -I{} ln -s "../glaze" "$tmp/root/opt/$name/bin/{}";
+cd "$tmp/root"\n
+mkdir -p 755 ./usr/local/bin/\n
+for var in "$@"\n
+do\n
+    ln -s "/opt/$name/glaze" "./usr/local/bin/$var"\n
+done\n
+cd "$tmp/root"\n
+tar -czf "$outfile" .\n
 );
 
 
@@ -109,15 +118,18 @@ int main(int argc, char* argv[]) {
         char *rootfs;
 
         if (0 == strcmp(progname, "glaze")) {
-                if (-1 == execlp("sh", "sh", "-ecxu", script, "--", argv[2], argv[3], NULL))
+                char *shargv[argc + 4]; // FIXME: 4 is a magic number
+                unsigned int idx = 0;
+                shargv[idx++] = "sh";
+                shargv[idx++] = "-ecu";
+                shargv[idx++] = script;
+                shargv[idx++] = "--";
+                argv++;
+                for (; argc > 0; argc--)
+                        shargv[idx++] = *(argv++);
+                shargv[idx++] = NULL;
+                if (-1 == execv("/bin/sh", shargv))
                        fatal("could not exec");
-                
-                if (argc < 3){
-                        fatal("usage: rootfs cmd1 cmd2 ... ");
-                }
-                rootfs = argv[1];
-                progname = argv[2];
-                argv += 2;
         }
         find_rootfs(&rootfs);
 
