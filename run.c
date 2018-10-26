@@ -32,6 +32,8 @@ tmp=$(mktemp -d)\n
 mkdir -pm 755 "$tmp/root/opt/$name/bin" "$tmp/root/opt/$name/rootfs/dev"\n
 cp "$glaze_binary" "$tmp/root/opt/$name/glaze"\n
 tar -xpf  "$infile" -C "$tmp/root/opt/$name/rootfs" --exclude ./dev --exclude /dev\n
+rm     "$tmp/root/opt/$name/rootfs/etc/resolv.conf" 2> /dev/null || true\n
+touch  "$tmp/root/opt/$name/rootfs/etc/resolv.conf"\n
 chmod 755 "$tmp/root/opt/$name/rootfs"\n
 cd "$tmp/root/opt/$name/rootfs"\n
 find ./usr/local/bin ./usr/bin ./bin ./usr/local/sbin ./usr/sbin ./sbin 2> /dev/null
@@ -88,6 +90,7 @@ void singlemap_setup(){
                 singlemap_map("/proc/self/uid_map", uid);
                 singlemap_map("/proc/self/gid_map", gid);
         }
+        mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL);
 }
 
 void rootfs_mount(const char *hostdir, const char *rootfs, const char *rootfsdir) {
@@ -153,6 +156,7 @@ int main(int argc, char* argv[]) {
         rootfs_mount("/root", rootfs, "/root");
         rootfs_mount("/sys",  rootfs, "/sys");
         rootfs_mount("/tmp",  rootfs, "/tmp");
+        rootfs_mount("/etc/resolv.conf",  rootfs, "/etc/resolv.conf");
 
         char *origpwd;
         if (NULL == (origpwd = get_current_dir_name()))
@@ -190,9 +194,7 @@ int main(int argc, char* argv[]) {
                         continue;
                 asprintf(env + env_index++, "%s=%s", envname, envval);
         }
-
         env[env_index++] = NULL;
-
         argv[0] = progname;
         if (-1 == execvpe(progname, argv, env))
                 fatal("could not exec %s", progname);
