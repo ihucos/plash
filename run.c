@@ -24,12 +24,13 @@ exit(1);\
 
 #define QUOTE(...) #__VA_ARGS__
 char *script = QUOTE(
+glaze_binary="$1"; shift\n
 infile="$1"; shift\n
 outfile="$1"; shift\n
 name="$1"; shift\n
 tmp=$(mktemp -d)\n
 mkdir -pm 755 "$tmp/root/opt/$name/bin" "$tmp/root/opt/$name/rootfs/dev"\n
-cp /proc/self/exe "$tmp/root/opt/$name/glaze"\n
+cp "$glaze_binary" "$tmp/root/opt/$name/glaze"\n
 tar -xpf  "$infile" -C "$tmp/root/opt/$name/rootfs" --exclude ./dev --exclude /dev\n
 chmod 755 "$tmp/root/opt/$name/rootfs"\n
 cd "$tmp/root/opt/$name/rootfs"\n
@@ -37,7 +38,7 @@ find ./usr/local/bin ./usr/bin ./bin ./usr/local/sbin ./usr/sbin ./sbin 2> /dev/
 | xargs -L 1 basename | sort | uniq
 | xargs -I{} ln -s "../glaze" "$tmp/root/opt/$name/bin/{}";
 cd "$tmp/root"\n
-mkdir -p 755 ./usr/local/bin/\n
+mkdir -pm 755 ./usr/local/bin/\n
 for var in "$@"\n
 do\n
     ln -s "/opt/$name/glaze" "./usr/local/bin/$var"\n
@@ -118,12 +119,18 @@ int main(int argc, char* argv[]) {
         char *rootfs;
 
         if (0 == strcmp(progname, "glaze")) {
-                char *shargv[argc + 4]; // FIXME: 4 is a magic number
+
+
+                char *executable;
+                if (NULL == (executable = realpath("/proc/self/exe", NULL)))
+                        fatal("could not call realpath");
+                char *shargv[argc + 5]; // FIXME: 5 is a magic number
                 unsigned int idx = 0;
                 shargv[idx++] = "sh";
                 shargv[idx++] = "-ecu";
                 shargv[idx++] = script;
                 shargv[idx++] = "--";
+                shargv[idx++] = executable;
                 argv++;
                 for (; argc > 0; argc--)
                         shargv[idx++] = *(argv++);
