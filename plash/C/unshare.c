@@ -59,7 +59,7 @@ void fullmap_run(uid_t getuid, gid_t getgid, unsigned long uidrange[2], unsigned
         if (0 == child){
                 close(fd[1]);
                 dup2(fd[0], 0);
-                execlp("sh", "shXX", "-xe", NULL);
+                execlp("sh", "sh", "-xe", NULL);
         }
         if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
                 fatal("could not unshare");
