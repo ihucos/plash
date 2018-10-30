@@ -2,7 +2,9 @@ from setuptools import setup, Extension
 import os
 
 unshare_module = Extension('unshare',
-                    sources = ['plash/C/unshare.c'])
+                    sources=['plash/C/pyunshare.c'],
+                    py_limited_api=True,
+                    )
 
 VERSION = '0.1dev'
 
