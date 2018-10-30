@@ -1,10 +1,8 @@
-#include <stdio.h>
-#include <Python.h>
 #include "unshare.c"
+#include <Python.h>
 
 static PyObject* pyunshare(PyObject *self, PyObject *args) {
     printf("UNSHARE CALL HERE!\n");
-    fullmap_setup();
     Py_RETURN_NONE;
 }
 

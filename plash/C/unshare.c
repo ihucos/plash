@@ -1,4 +1,6 @@
-#define _GNU_SOURCE 1
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
@@ -13,6 +15,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
 #define STR_EXPAND(name) #name
 #define STR(name) STR_EXPAND(name)
 #define MAX_USERLEN 32
@@ -128,11 +131,12 @@ void singlemap_setup(){
         singlemap_map("/proc/self/uid_map", uid);
         singlemap_map("/proc/self/gid_map", gid);
 }
-int main(int argc, char* argv[]) {
-        //singlemap_setup();
-        fullmap_setup();
-        //if (-1 == fullmap_setup()){
-        //        printf("call the other unshare");
-        //}
-        execlp("id", "id", NULL);
-}
+
+// int main(int argc, char* argv[]) {
+//         //singlemap_setup();
+//         fullmap_setup();
+//         //if (-1 == fullmap_setup()){
+//         //        printf("call the other unshare");
+//         //}
+//         execlp("id", "id", NULL);
+// }
