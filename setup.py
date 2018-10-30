@@ -1,5 +1,8 @@
-from setuptools import setup
+from setuptools import setup, Extension
 import os
+
+unshare_module = Extension('unshare',
+                    sources = ['plash/C/unshare.c'])
 
 VERSION = '0.1dev'
 
@@ -12,6 +15,7 @@ setup(
     scripts=['bin/plash', 'bin/plash-exec'],
     zip_safe=False,
     include_package_data=True,
+    ext_modules=[unshare_module],
 
     # extra stuff
     python_requires='>=3',
