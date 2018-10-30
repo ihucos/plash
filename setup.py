@@ -3,9 +3,6 @@ import os
 
 VERSION = '0.1dev'
 
-if os.environ.get('TRAVIS'):
-    assert VERSION != '0.1dev', 'not building with version 0.1dev in travis'
-
 setup(
     name='plash',
     version=VERSION,
