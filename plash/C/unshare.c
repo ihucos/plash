@@ -48,7 +48,7 @@ int fullmap_find(
         errno = 0;
         return -1;
 }
-void fullmap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
+void fullmap_run(uid_t getuid, gid_t getgid, unsigned long uidrange[2], unsigned long gidrange[2]){
         int fd[2];
         pid_t child;
         if (-1 == pipe(fd))
@@ -59,7 +59,7 @@ void fullmap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
         if (0 == child){
                 close(fd[1]);
                 dup2(fd[0], 0);
-                execlp("sh", "sh", "-e", NULL);
+                execlp("sh", "shXX", "-xe", NULL);
         }
         if (-1 == unshare(CLONE_NEWNS | CLONE_NEWUSER)){
                 fatal("could not unshare");
@@ -69,8 +69,8 @@ void fullmap_run(unsigned long uidrange[2], unsigned long gidrange[2]){
                         "newuidmap %u %u %u %u %u %lu %lu\n" \
                         "newgidmap %u %u %u %u %u %lu %lu\n" \
                         "exit 0\n",
-                        getpid(), 0, getuid(), 1, 1, uidrange[0], uidrange[1],
-                        getpid(), 0, getgid(), 1, 1, gidrange[0], gidrange[1])){
+                        getpid(), 0, getuid, 1, 1, uidrange[0], uidrange[1],
+                        getpid(), 0, getgid, 1, 1, gidrange[0], gidrange[1])){
                 fatal("could not send data to child with dprintf");
         }
         close(fd[0]);
@@ -96,7 +96,7 @@ int fullmap_setup() {
                 return -1;
         }
         
-        fullmap_run(uidrange, gidrange);
+        fullmap_run(getuid(), getgid(), uidrange, gidrange);
         return 0;
 }
 void singlemap_map(const char *file, uid_t id){ // assuming uid_t == gid_t
