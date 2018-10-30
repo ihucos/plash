@@ -2,7 +2,7 @@
 --from alpine:edge
 --apk python3 bash unionfs-fuse git py3-pip coreutils
 --layer
---pip3 wheel
+--pip3 wheel jinja2
 --layer
 --hint use-env VERSION
 --layer
