@@ -1,4 +1,4 @@
-[ http://plash.io/ ] [ http://plash.io/htmlcov/ ] [ https://travis-ci.org/ihucos/plash ]
+[ http://plash.io/ ] [ https://travis-ci.org/ihucos/plash ]
 
            ████                          ██       
            ████                          ██       
@@ -60,7 +60,6 @@ Reference documentation and tutorial: http://plash.io/
 Examples:
 - https://github.com/ihucos/plash-travis-example         Run plash in travis CI
 - https://github.com/ihucos/plash-python-example/        Example of OS-Level isolation of python packages
-- https://github.com/ihucos/plash/blob/master/.travis    A Plashfile that runs plash's unit tests and deployments
 - https://github.com/ihucos/plashmisc                    Custom build file commands (macros)
 - https://git.io/fAdM0 and https://git.io/fAdMg          Run docker inside plash
 - https://github.com/ihucos/noapt                        Use Ubuntu packages in other Linux distributions
