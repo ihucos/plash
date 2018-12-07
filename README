@@ -28,7 +28,7 @@ uses the same underlying interfaces as other container software.
 
 
 ###
-# Incomplete feature list
+# Some features
 ###
 
 - Unprivileged users are first-class citizens.
