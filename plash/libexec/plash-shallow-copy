@@ -48,7 +48,7 @@ with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
     subprocess.check_call(['plash-mount', container, mountpoint])
 
 io_bytes = io.BytesIO()
-tar = tarfile.open(fileobj=io_bytes, mode='w:xz')
+dirs_only_tar = tarfile.open(fileobj=io_bytes, mode='w:xz')
 
 file_list = []
 for subdir, dirs, files in os.walk(mountpoint):
@@ -57,19 +57,21 @@ for subdir, dirs, files in os.walk(mountpoint):
     for dir in dirs:
         reldir = os.path.join(rel_subdir, dir)
         realdir = os.path.join(subdir, dir)
-        tar.add(realdir, reldir, recursive=False)
+        dirs_only_tar.add(realdir, reldir, recursive=False)
 
     for file in files:
         file_list.append(os.path.join(rel_subdir, file))
 
-tar.close()
+dirs_only_tar.close()
 io_bytes.seek(0)
 subprocess.call(['umount', mountpoint])
+
+# write all directories (empty) to tmpout
 tar = tarfile.open(fileobj=io_bytes, mode='r')
 tar.extractall(tmpout)
 
 plash_data = utils.get_plash_data()
-parts = reversed(nodepath.split('/layer/')[-1])
+parts = list(reversed(nodepath.split('/layer/')[-1].split('/')))
 resolve_paths = [
     os.path.join(plash_data, 'index', i, '_data', 'root') for i in parts
 ]
