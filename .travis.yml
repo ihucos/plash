@@ -11,8 +11,7 @@ cache:
     - ~/plashcache
 
 env:
-  - PLASH_EXPORT=PLASH_INIT_UNION_TASTE
-  - PLASH_INIT_UNION_TASTE=overlay
+  - PLASH_EXPORT=PLASH_INIT_UNION_TASTE PLASH_INIT_UNION_TASTE=overlay
 
 script:
 
