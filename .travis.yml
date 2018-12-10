@@ -10,16 +10,13 @@ cache:
   directories:
     - ~/plashcache
 
-env:
-  - PLASH_EXPORT=PLASH_INIT_UNION_TASTE PLASH_INIT_UNION_TASTE=overlay
-
 script:
 
   - uname -a
   - plash --version
 
   # load the plash cache
-  - sudo tar -xf ~/plashcache/data.tar -C / || sudo plash init
+  - sudo tar -xf ~/plashcache/data.tar -C / || sudo PLASH_INIT_UNION_TASTE=overlay plash init
 
   - sudo
     VERSION="1.$TRAVIS_BUILD_NUMBER"
