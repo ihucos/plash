@@ -32,10 +32,14 @@ import sys
 import os
 import io
 
+utils.handle_help_flag()
 utils.handle_build_args()
 
-container = sys.argv[1]
-outdir = sys.argv[2]
+try:
+    container = sys.argv[1]
+    outdir = sys.argv[2]
+except IndexError:
+    utils.die_with_usage()
 nodepath = utils.nodepath_or_die(container)
 tmpout = utils.mkdtemp()
 
