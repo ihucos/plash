@@ -96,8 +96,11 @@ def unshare_if_user():
         '`unshare(CLONE_NEWUSER)`',
         '(maybe try `sysctl -w kernel.unprivileged_userns_clone=1`)')
     libc.unshare(CLONE_NEWNS) != -1 or die_with_errno('`unshare(CLONE_NEWNS)`')
-    libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
-               None) != -1 or die_with_errno('mount')
+
+    # make / rprivate, ignore EINVAL
+    if libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
+               None) == -1 and ctypes.get_errno() != errno.EINVAL:
+               die_with_errno('mount')
 
     atexit.unregister(kill_child)
 
@@ -114,5 +117,8 @@ def unshare_if_root():
     libc = ctypes.CDLL('libc.so.6', use_errno=True)
 
     libc.unshare(CLONE_NEWNS) != -1 or die_with_errno('`unshare(CLONE_NEWNS)`')
-    libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
-               None) != -1 or die_with_errno('mounting')
+
+    # make / rprivate, ignore EINVAL
+    if libc.mount("none", "/", None, MS_REC | MS_PRIVATE,
+               None) == -1 and ctypes.get_errno() != errno.EINVAL:
+               die_with_errno('mount')
