@@ -101,7 +101,8 @@ with open(os.path.join(get_plash_data(), 'config', 'union_taste')) as f:
 try:
     mount_func = known_union_tastes[union_taste]
 except KeyError:
-    die('unexpected union taste: {}'.format(union_taste))
+    die('unexpected union taste: {} (try {})'.format(
+        union_taste, ' or '.join(known_union_tastes.keys())))
 
 for l in lowerdir_list:
     check_mount_option_part(l)
