@@ -1,0 +1,8 @@
+#!/bin/bash
+set -eux
+
+: export looks like rootfs
+tmpd=$(mktemp -d)
+plash copy 1 "$tmpd"
+ls "$tmpd"/bin/sh
+ls "$tmpd"/etc
