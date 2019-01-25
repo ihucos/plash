@@ -10,15 +10,17 @@ import sys
 import plash
 from plash.eval import get_hint_values
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, handle_help_flag, run_write_read)
+                         handle_help_flag, run_write_read)
 
 handle_help_flag()
 assert_initialized()
 
 try:
     file, args = sys.argv[1], sys.argv[2:]
-except ValueError:
-    die_with_usage()
+except IndexError:
+    print("plash-exec: this program is usually invoked from a shebang",
+        file=sys.stderr)
+    sys.exit(1)
 
 plashfile_dir = os.path.dirname(file)
 libdir = os.path.dirname(plash.__file__)
