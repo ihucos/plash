@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+# usage: plash copy CONTAINER DIR
+#
+# Copy the container's root filesystem to directory
+
+from os.path import abspath
+import os
+import subprocess
+import sys
+
+from plash import utils
+from plash.unshare import unshare_if_user
+
+utils.handle_help_flag()
+utils.assert_initialized()
+utils.handle_build_args()
+unshare_if_user()
+
+try:
+    container, outdir = sys.argv[1:3]
+except ValueError:
+    utils.die_with_usage()
+
+tmpout = utils.mkdtemp()
+
+with utils.catch_and_die([subprocess.CalledProcessError]):
+    subprocess.check_call(['plash-with-mount', container, 'cp', '-r',
+              '.', tmpout])
+
+with utils.catch_and_die([OSError]):
+    os.rename(tmpout, outdir)
