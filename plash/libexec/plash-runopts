@@ -83,14 +83,16 @@ with catch_and_die([CalledProcessError], silent=True):
         [changesdir] if changesdir else []))
 
 
+
 #
-# mount requested mounts
+# mount requested mounts if they exist
 #
 for mount in mounts:
-    check_call([
-        'mount', '--rbind', mount,
-        os.path.join(mountpoint, mount.lstrip('/'))
-    ])
+    mount_to = os.path.join(mountpoint, mount.lstrip('/'))
+    if os.path.exists(mount_to):
+        with catch_and_die([CalledProcessError]):
+            check_call(['mount', '--rbind', mount, mount_to])
+
 
 #
 # setup chroot and exec inside it
