@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+#
+# usage: plash eval --macro1 arg1 arg2 --macro2 arg1 ...
+# Generates a build script. It prints the shell script generated from
+# evaluating the macros passed as args. `plash build` passes its arguments to
+# this script in order to get a shell script with the build instructions.
+
+import sys
+from itertools import dropwhile
+
+# register the macros
+import plash.macros.all
+from plash import eval
+from plash.utils import catch_and_die, die, handle_help_flag
+
+handle_help_flag()
+
+lines = sys.argv[1:]
+if not lines:
+    lines = [line.rstrip('\n') for line in sys.stdin.readlines()]
+
+# a little magic: remove possible shebang
+if lines and lines[0].startswith('#!/'):
+    lines.pop(0)
+
+tokens = []
+tokens_escape_status = []
+for line in lines:
+    if line.startswith('--#'):
+        continue
+    elif line == '--\\':
+        tokens.append('')
+        tokens_escape_status.append(True)
+    elif line.startswith('--\\ '):
+        tokens.append(line[4:])
+        tokens_escape_status.append(True)
+    elif line.startswith('-'):
+        fst, *rest = line.split()
+        tokens.append(fst)
+        tokens_escape_status.append(False)
+        tokens.extend(rest)
+        tokens_escape_status.extend(True for i in rest)
+    else:
+        tokens.append(line)
+        tokens_escape_status.append(False)
+assert len(tokens) == len(tokens_escape_status)
+
+lsp = []
+for token, token_is_escaped in zip(tokens, tokens_escape_status):
+
+    if token_is_escaped:
+        try:
+            lsp[-1].append(token)
+        except IndexError:
+            die('parse: first token can not be escaped (got {})'.format(
+                repr(token)))
+    elif token.startswith('--'):
+        lsp.append([token[2:]])
+    elif token.startswith('-') and not token == '-':
+        for single_letter_opt in token[1:]:
+            lsp.append([single_letter_opt])
+    elif token:
+        try:
+            lsp[-1].append(token)
+        except IndexError:
+            die('parse: first token must be an action prefixed by two dashes (got {})'.
+                format(repr(token)))
+
+with catch_and_die([eval.MacroNotFoundError, eval.MacroError]):
+    script = eval.eval(lsp)
+if script and not script.endswith('\n'):
+    script += '\n'  # that '\n' is right
+print(script, end='')

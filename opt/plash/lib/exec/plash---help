@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+#
+# usage: plash help
+# List all available subcommands.
+
+import sys
+import os
+from os import listdir
+from os.path import dirname, join, islink
+
+from plash.utils import handle_help_flag
+
+handle_help_flag()
+
+bin = dirname(sys.argv[0])
+progs = [i for i in listdir(bin) if not i.startswith('.')]
+max_prog_lenght = max(len(prog) for prog in progs)
+for prog in sorted(progs):
+    prog_path = join(bin, prog)
+    if islink(prog_path):
+        #continue # it's an alias
+        links_to = os.readlink(prog_path)
+        links_to = links_to[len('plash-'):]
+        first_sentence = 'Alias for `plash {}`'.format(links_to)
+    else:
+        first_sentence = '<empty>'
+        with open(prog_path) as f:
+            lines = f.readlines()
+        for line, next_line, next_next_line in zip(lines, lines[1:], lines[2:]):
+            if line.startswith('# usage:'):
+                first_sentence = next_line[2:-1].split('.')[0]
+                if not first_sentence:  # try the next line
+                    first_sentence = next_next_line[2:-1].split('.')[0]
+
+    assert first_sentence
+    subcommand = prog[len('plash '):]
+    print(('plash ' + subcommand).ljust(max_prog_lenght), first_sentence)
+print(('plash ' + '-*').ljust(max_prog_lenght), 'Fallback to `plash run`')

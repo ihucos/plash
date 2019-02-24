@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+#
+# usage: plash import-tar [ TARFILE ]
+# Create a container from a tar file.
+# If the TARFILE argument is ommited, the tar file is read from stdin.
+
+import os
+import sys
+import tarfile
+from os.path import join
+from subprocess import CalledProcessError, check_call
+
+from plash.unshare import unshare_if_user
+from plash.utils import (assert_initialized, catch_and_die, die,
+                         die_with_usage, get_plash_data, handle_help_flag,
+                         mkdtemp)
+
+handle_help_flag()
+assert_initialized()
+
+try:
+    tar_file = sys.argv[1]
+except IndexError:
+    tar_file = None
+
+
+class PlashTarFile(tarfile.TarFile):
+    def makedev(self, tarinfo, targetpath):
+        try:
+            tarfile.TarFile.makedev(self, tarinfo, targetpath)
+        except OSError as exc:
+            print(
+                'plash: ignoring dev file: {} ({})'.format(
+                    tarinfo.path, exc.strerror),
+                file=sys.stderr)
+
+
+rootfs = mkdtemp()
+
+with catch_and_die([tarfile.TarError], debug_class=True):
+    with catch_and_die([OSError]):
+        if tar_file is None:
+            t = PlashTarFile.open(fileobj=sys.stdin.buffer, mode='r|')
+        else:
+            t = PlashTarFile.open(tar_file)
+
+unshare_if_user()
+t.extractall(rootfs)
+
+# we want /etc/resolv to not be a symlink or to exist as a file - otherwise moutning over it later does not work
+resolvconf = join(rootfs, 'etc/resolv.conf')
+try:
+    os.unlink(resolvconf)
+except FileNotFoundError:
+    pass
+with open(resolvconf, 'w') as f:
+    f.seek(0)
+    f.truncate()
+
+os.execlp('plash-add-layer', 'plash-add-layer', '0', rootfs)

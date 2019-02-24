@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+#
+# usage: plash map KEY [ CONTAINER ]
+# Map a container to a key. Use an empty container to delete a key.
+#
+# Example:
+#
+# $ plash build -f alpine
+# 342
+#
+# $ plash map myfavorite 342
+#
+# $ plash map myfavorite
+# 342
+#
+# $ plash build --from-map myfavorite
+# 342
+#
+# $ plash map myfavorite ''
+#
+# $ plash map myfavorite 
+# $
+
+import os
+import sys
+from os.path import join
+
+from plash.utils import (assert_initialized, catch_and_die, die,
+                         die_with_usage, get_plash_data, handle_help_flag,
+                         mkdtemp, nodepath_or_die)
+
+handle_help_flag()
+assert_initialized()
+
+plash_data = get_plash_data()
+
+try:
+    key = sys.argv[1]
+except IndexError:
+    die_with_usage()
+if os.sep in key:
+    die('map can not contain any {}'.format(repr(os.sep)))
+
+try:
+    value = sys.argv[2]
+except IndexError:
+    value = None
+
+
+def map_set(map_key, container_id):
+    nodepath = nodepath_or_die(container_id)
+    with catch_and_die([OSError], debug='mkdtemp'):
+        tmpdir = mkdtemp()
+        os.symlink(nodepath, join(tmpdir, 'link'))
+
+        # rename will overwrite atomically the map key if it already exists,
+        # just symlink would not
+        os.rename(
+            join(tmpdir, 'link'), join(plash_data, 'map', map_key))
+
+
+def map_rm(map_key):
+    with catch_and_die([OSError], debug='unlink'):
+        try:
+            os.unlink(join(plash_data, 'map', map_key))
+            return True
+        except FileNotFoundError:
+            return False
+
+
+def map_get(map_key):
+    try:
+        nodepath = os.readlink(join(plash_data, 'map', map_key))
+    except FileNotFoundError:
+        return
+    if os.path.exists(nodepath):
+        return os.path.basename(nodepath)
+
+
+if value == '':
+    map_rm(key)
+elif value is None:
+    cont = map_get(key)
+    if cont:
+        print(cont)
+else:
+    map_set(key, value)

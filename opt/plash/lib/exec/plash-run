@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+#
+# usage: plash run CONTAINER [ CMD1 [ CMD2 ... ] ]
+#
+# Run a container. If no command is specified, the containers default root
+# shell is executed.
+#
+# The following host file systems are mapped to the container:
+# - /tmp
+# - /home
+# - /root
+# - /etc/resolv.conf
+# - /sys
+# - /dev
+# - /proc
+#
+# If you want more control about how the container is run, use `plash runopts`
+#
+# Parameters may be interpreted as build instruction.
+
+import os
+import shlex
+import sys
+from subprocess import check_call
+
+from plash import utils
+
+utils.handle_help_flag()
+utils.handle_build_args()
+
+try:
+    container_id, *cmd = sys.argv[1:]
+except ValueError:
+    utils.die_with_usage()
+
+changesdir = utils.mkdtemp()
+
+os.execlp(
+    'plash-runopts',
+    'plash-runopts',
+    *((
+        '-c',
+        container_id,
+        '-d',
+        changesdir,
+        '-m',
+        '/tmp',
+        '-m',
+        '/home',
+    ) +
+      # only mount /root if it is readable
+      (('-m', '/root') if os.access('/root', os.R_OK) else
+       ()) + ('-m', '/etc/resolv.conf', '-m', '/sys', '-m', '/dev', '-m',
+              '/proc', '--') + tuple(cmd)))

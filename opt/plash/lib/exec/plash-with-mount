@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+#
+# usage: plash with-mount CONTAINER [ CMD1 [ CMD2  ... ] ]
+#
+# Execute parameters inside a mounted container. Default parameter is the
+# default shell. Mounting happens inside an isolated mount namespace.
+#
+# Parameters may be interpreted as build instruction.
+#
+# Example to get how much disk space a container is using:
+# $ plash with-mount 70 du -sh
+# 7,2M    .
+
+import os
+import sys
+from subprocess import CalledProcessError, check_call
+
+from plash.unshare import unshare_if_root, unshare_if_user
+from plash.utils import (assert_initialized, catch_and_die, die,
+                         die_with_usage, get_default_user_shell, handle_build_args,
+                         handle_help_flag, mkdtemp)
+
+handle_help_flag()
+handle_build_args()
+assert_initialized()
+
+try:
+    container = sys.argv[1]
+    cmd = sys.argv[2:]
+except IndexError:
+    die_with_usage()
+default_shell = get_default_user_shell()
+if not cmd:
+    cmd = [default_shell]
+
+mountpoint = mkdtemp()
+
+unshare_if_root()
+unshare_if_user()
+
+with catch_and_die([CalledProcessError], silent=True):
+    check_call(['plash-mount', container, mountpoint])
+os.chdir(mountpoint)
+try:
+    os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    sys.stderr.write('{}: command not found'.format(cmd[0]))
+    sys.exit(127)

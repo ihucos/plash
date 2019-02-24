@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+#
+# usage: plash sudo [CMD1 [CMD2 ..]]
+#
+# Setup a Linux user namespace. Then run the specified commands there. The
+# default command is the default user shell.
+#
+# This is useful to access files written to disk by a container, when they
+# where written by a non-root user (from the containers perspective). It can
+# also be used as a general purpose utility to "fake" root access.
+
+import os
+import sys
+
+from plash.unshare import unshare_if_user
+from plash.utils import catch_and_die, get_default_user_shell, handle_help_flag
+
+handle_help_flag()
+unshare_if_user()
+cmd = sys.argv[1:]
+if not cmd:
+    cmd = [get_default_user_shell()]
+
+try:
+    os.execlp(cmd[0], *cmd)
+except FileNotFoundError:
+    sys.stderr.write('{}: command not found\n'.format(cmd[0]))
+    sys.exit(127)
