@@ -16,7 +16,7 @@ libdir = os.path.abspath(
 libpydir = os.path.join(libdir, "py")
 libexecdir = os.path.join(libdir, "exec")
 bindir = os.path.abspath(os.path.join(libdir, '../bin'))
-execfile = os.path.join(libexecdir, 'plash-{}'.format(subcommand))
+execfile = os.path.join(libexecdir, subcommand)
 
 sys.path.append(libpydir)
 from plash.utils import die
@@ -34,6 +34,6 @@ try:
     os.execlp(execfile, execfile, *sys.argv[2:])
 except FileNotFoundError:
     if subcommand.startswith('-'):
-        plash_run = os.path.join(libexecdir, 'plash-run')
+        plash_run = os.path.join(libexecdir, 'run')
         os.execlp(plash_run, plash_run, *sys.argv[1:])
     die('no such command: {} (try `plash help`)'.format(subcommand))
