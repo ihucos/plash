@@ -1,7 +1,1 @@
-#!/usr/bin/env python3
-# usage: plash version
-# Prints the version number.
-import pkg_resources
-import sys
-version = pkg_resources.get_distribution('plash').version
-print(version)
+version
