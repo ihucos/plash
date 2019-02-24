@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eux
+plash run --from-github ihucos/plash-github-test -- true

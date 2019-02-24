@@ -1,0 +1,4 @@
+#!/bin/sh
+set ex
+# TODO: write functional tests
+plash build -f 1 --invalidate-layer

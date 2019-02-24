@@ -1,0 +1,3 @@
+#!/bin/sh
+set ex
+MYENV=123 plash build -f 1 --import-env MYENV --run 'test $MYENV = 123'

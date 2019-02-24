@@ -1,0 +1,4 @@
+#!/bin/sh
+set -ex
+cont=$(plash build -f 1 --write-script '/script' '#!/bin/sh' 'echo hi')
+test hi = "$(plash run "$cont" /script)"

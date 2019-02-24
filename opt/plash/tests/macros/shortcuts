@@ -1,0 +1,4 @@
+#!/bin/sh
+: test only one shortuct
+out=$(plash eval -x hi)
+test "$out" = hi

@@ -1,0 +1,5 @@
+#!/bin/sh
+set -ex
+cont=$(plash build -f 1 --write-script /a 'line1' 'line2')
+test "$(plash run "$cont" cat /a)" = 'line1
+line2'

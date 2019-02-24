@@ -1,0 +1,62 @@
+#!/bin/bash
+set -xu
+
+SKIP_NO_ARGS_CHECK=(
+bash_syntax_no_empty_dummy
+docker
+docker-daemon
+rm
+eval
+init
+list
+purge
+sudo
+test
+build
+list-macros
+import-tar
+clean
+)
+
+SKIP_HELP_FLAG_CHECK=(
+bash_syntax_no_empty_dummy
+docker
+docker-daemon
+eval
+list-macros
+import-tar
+)
+subcommands=$(plash list | cut -d' ' -f2)
+
+: check that no arguments make the script exit with exit status 2
+for subcommand in $subcommands
+do
+  [[ " ${SKIP_NO_ARGS_CHECK[*]} " = *" $subcommand "* ]] && continue
+  prog="plash $subcommand"
+  $prog 2>/dev/null >/dev/null
+  exit=$?
+  [ $exit -eq 2 ] || {
+    echo "Unexpected exit status when calling '$prog' with no arguments (expected exit status 2, got $exit)"
+    exit 1
+  }
+done
+
+: check that --help prints usage in desired format
+subcommands=$(plash list | cut -d' ' -f2)
+for subcommand in $subcommands
+do
+  [[ " ${SKIP_HELP_FLAG_CHECK[*]} " = *" $subcommand "* ]] && continue
+  prog="plash $subcommand"
+  out=$($prog --help)
+  substr='usage: '
+  echo $out
+  [ "${out:0:${#substr}}" == "$substr" ] || {
+    echo "Calling \"$prog --help\" seems not to print usage"
+    exit 1
+  }
+done
+
+: call plash without executing a subcommand
+(! plash)
+(! plash --help)
+(! plash notfound)

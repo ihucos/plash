@@ -1,0 +1,5 @@
+#!/bin/sh
+set -xeu
+
+: calling it returns success
+plash help

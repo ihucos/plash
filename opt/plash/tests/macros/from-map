@@ -1,0 +1,17 @@
+#!/bin/sh
+set -ex
+
+out=$(plash map myfavorite)
+test "$out" = ""
+
+plash map myfavorite 1
+
+out=$(plash map myfavorite)
+test "$out" = 1
+
+out=$(plash build --from-map myfavorite)
+test "$out" = 1
+
+: unknow map
+(! plash build --from-map mymapxxxxx)
+

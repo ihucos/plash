@@ -1,0 +1,83 @@
+#!/bin/sh
+set -eux
+
+: basic test
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--entrypoint
+/bin/printf
+--from
+1
+' >> $plashfile
+chmod 700 $plashfile
+test $("$plashfile" printf_that) = printf_that
+
+: entrypoint not found
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--entrypoint
+/usr/bin/notfoundxxxx
+--from
+1
+' >> $plashfile
+chmod 700 $plashfile
+(! $plashfile)
+
+: build error - bad build args
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1
+--entrypoint
+/bin/true
+--asdf
+' >> $plashfile
+chmod 700 $plashfile
+(! $plashfile)
+
+: no --entrypoint
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1' >> $plashfile
+chmod 700 $plashfile
+(! $plashfile)
+
+: test entrypoint-script macro
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1
+--entrypoint-script
+#!/bin/sh
+echo hello
+' >> $plashfile
+chmod 700 $plashfile
+test "$($plashfile)" = "hello"
+
+: test env
+export MYENV=111
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1
+--hint use-env MYENV
+--entrypoint-script
+printenv MYENV
+' >> $plashfile
+chmod 700 $plashfile
+test "$($plashfile)" = "111"
+
+: test cwd while building
+cd /
+plashfile=$(mktemp)
+printf '#!/usr/bin/env plash-exec
+--from
+1
+--run
+pwd > /pwd
+--entrypoint cat
+' >> $plashfile
+chmod 700 $plashfile
+test "$($plashfile /pwd)" = "/tmp"
+cd -
