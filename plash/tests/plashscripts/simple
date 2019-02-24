@@ -1,3 +1,0 @@
-#!/usr/bin/env plash-exec
---from 1
---entrypoint /bin/true

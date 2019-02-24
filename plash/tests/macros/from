@@ -1,5 +1,0 @@
-#!/bin/sh
-set -ex
-
-out=$(plash build --from 1)
-test "$out" = 1

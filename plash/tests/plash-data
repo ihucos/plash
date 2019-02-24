@@ -1,7 +1,0 @@
-#!/bin/sh
-
-set -eux
-
-out1=$(plash data pwd)
-out2=$(plash data)
-test "$out1" = "$out2"

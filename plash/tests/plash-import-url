@@ -1,4 +1,0 @@
-#!/bin/sh
-set eux
-
-(! plash import-url http://example.com/deosnotexists_and_never_will_789349)

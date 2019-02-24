@@ -1,5 +1,0 @@
-#!/bin/bash
-set eux
-
-: test that nonexistent mount requests are ignored
-plash runopts -c 1 -m /doesnotexist -- true
