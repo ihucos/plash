@@ -14,13 +14,12 @@ handle_help_flag()
 
 bin = dirname(sys.argv[0])
 progs = [i for i in listdir(bin) if not i.startswith('.')]
-max_prog_lenght = max(len(prog) for prog in progs)
+max_prog_lenght = len('plash ') + max(len(prog) for prog in progs)
 for prog in sorted(progs):
     prog_path = join(bin, prog)
     if islink(prog_path):
         #continue # it's an alias
         links_to = os.readlink(prog_path)
-        links_to = links_to[len('plash-'):]
         first_sentence = 'Alias for `plash {}`'.format(links_to)
     else:
         first_sentence = '<empty>'
@@ -33,6 +32,5 @@ for prog in sorted(progs):
                     first_sentence = next_next_line[2:-1].split('.')[0]
 
     assert first_sentence
-    subcommand = prog[len('plash '):]
-    print(('plash ' + subcommand).ljust(max_prog_lenght), first_sentence)
+    print(('plash ' + prog).ljust(max_prog_lenght), first_sentence)
 print(('plash ' + '-*').ljust(max_prog_lenght), 'Fallback to `plash run`')
