@@ -1,4 +1,4 @@
 #!/bin/sh
 # usage: plash version
 # Prints the version number.
-echo 1.0
+echo $Id$
