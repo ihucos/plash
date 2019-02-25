@@ -37,8 +37,8 @@ try:
 except IndexError:
     gpg_signature_url = None
 
-gpg_keyring = os.path.join(
-    os.path.dirname(plash.__file__), 'fixtures', 'trusted_gpg_keyring')
+gpg_keyring = os.path.abspath(os.path.join(
+    os.path.dirname(plash.__file__), '..', '..', '..', 'data', 'trusted_gpg_keyring'))
 
 downloaded_rootfs = os.path.join(mkdtemp(), 'rootfs')
 with catch_and_die(

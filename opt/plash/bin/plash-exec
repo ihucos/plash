@@ -30,7 +30,7 @@ except IndexError:
     sys.exit(1)
 
 plashfile_dir = os.path.dirname(file)
-libdir = os.path.dirname(plash.__file__)
+libdir = os.path.dirname(str(plash.__file__))
 libexec = os.path.join(libdir, 'libexec')
 os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
 
