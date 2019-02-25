@@ -26,9 +26,9 @@ if "PYTHONPATH" in os.environ:
 else:
     os.environ["PYTHONPATH"] = libpydir
 if "PATH" in os.environ:
-    os.environ["PATH"] = "{}:{}:{}".format(bindir, libexecdir, os.environ["PATH"])
+    os.environ["PATH"] = "{}:{}".format(bindir, os.environ["PATH"])
 else:    
-    os.environ["PATH"] = "{}:{}".format(bindir, libexecdir)
+    os.environ["PATH"] = bindir
 
 try:
     os.execlp(execfile, execfile, *sys.argv[2:])

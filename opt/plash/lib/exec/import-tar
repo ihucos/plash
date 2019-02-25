@@ -57,4 +57,4 @@ with open(resolvconf, 'w') as f:
     f.seek(0)
     f.truncate()
 
-os.execlp('plash-add-layer', 'plash-add-layer', '0', rootfs)
+os.execlp('plash', 'plash', 'add-layer', '0', rootfs)

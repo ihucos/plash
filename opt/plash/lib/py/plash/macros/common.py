@@ -114,7 +114,7 @@ def eval_file(file):
     with open(fname) as f:
         inscript = f.read()
 
-    sh = run_write_read(['plash-eval'], inscript.encode()).decode()
+    sh = run_write_read(['plash', 'eval'], inscript.encode()).decode()
 
     # we remove an possibly existing newline
     # because else this macros would add one
@@ -129,13 +129,13 @@ def eval_string(stri):
     'evaluate expressions passed as string'
     tokens = shlex.split(stri)
 
-    return run_write_read(['plash-eval'], '\n'.join(tokens).encode()).decode()
+    return run_write_read(['plash', 'eval'], '\n'.join(tokens).encode()).decode()
 
 
 @register_macro()
 def eval_stdin():
     'evaluate expressions read from stdin'
-    cmd = ['plash-eval']
+    cmd = ['plash', 'eval']
     p = subprocess.Popen(cmd, stdin=sys.stdin, stdout=sys.stdout)
     exit = p.wait()
     if exit:

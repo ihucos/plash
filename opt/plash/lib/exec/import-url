@@ -71,4 +71,4 @@ if gpg_signature_url:
             die('signature check failed')
 
 sys.stderr.write('plash: extracting...\n')
-os.execlp('plash-import-tar', 'plash-import-tar', downloaded_rootfs)
+os.execlp('plash', 'plash', 'import-tar', downloaded_rootfs)

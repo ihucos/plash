@@ -24,7 +24,7 @@ except ValueError:
 tmpout = utils.mkdtemp()
 
 with utils.catch_and_die([subprocess.CalledProcessError]):
-    subprocess.check_call(['plash-with-mount', container, 'cp', '-r',
+    subprocess.check_call(['plash', 'with-mount', container, 'cp', '-r',
               '.', tmpout])
 
 with utils.catch_and_die([OSError]):

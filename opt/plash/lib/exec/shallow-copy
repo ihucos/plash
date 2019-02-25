@@ -49,7 +49,7 @@ unshare.unshare_if_user()
 mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
 
 with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
-    subprocess.check_call(['plash-mount', container, mountpoint])
+    subprocess.check_call(['plash', 'mount', container, mountpoint])
 
 io_bytes = io.BytesIO()
 dirs_only_tar = tarfile.open(fileobj=io_bytes, mode='w:xz')

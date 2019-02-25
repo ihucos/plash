@@ -115,7 +115,7 @@ def handle_build_args():
     if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
         cmd, args = filter_positionals(sys.argv[1:])
         with catch_and_die([subprocess.CalledProcessError], silent=True):
-            out = subprocess.check_output(['plash-build'] + args)
+            out = subprocess.check_output(['plash', 'build'] + args)
         container_id = out[:-1]
         os.execlp(sys.argv[0], sys.argv[0], container_id, *cmd)
 
@@ -126,7 +126,7 @@ def nodepath_or_die(container, allow_root_container=False):
     extra = [] if not allow_root_container else ['--allow-root-container']
     with catch_and_die([subprocess.CalledProcessError], silent=True):
         return subprocess.check_output(
-            ['plash-nodepath', str(container)] + extra, ).decode().strip('\n')
+            ['plash', 'nodepath', str(container)] + extra, ).decode().strip('\n')
 
 
 def get_default_shell(passwd_file):
@@ -146,7 +146,7 @@ def get_default_user_shell():
 def plash_map(*args):
     from subprocess import check_output
     'thin wrapper around plash map'
-    out = check_output(['plash-map'] + list(args))
+    out = check_output(['plash', 'map'] + list(args))
     if out == '':
         return None
     return out.decode().strip('\n')

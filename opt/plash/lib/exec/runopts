@@ -79,7 +79,7 @@ unshare_if_user()
 # mount root filesystem
 #
 with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash-mount', container, mountpoint] + (
+    check_call(['plash', 'mount', container, mountpoint] + (
         [changesdir] if changesdir else []))
 
 

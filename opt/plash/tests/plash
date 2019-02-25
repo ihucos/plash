@@ -2,7 +2,7 @@
 
 set -eux
 
-: check fallback to plash-run
+: check fallback to plash run
 out=$(plash -f 1 -- printf hi)
 test "$out" = hi
 

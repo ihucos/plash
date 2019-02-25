@@ -60,7 +60,7 @@ class MapDoesNotExist(Exception):
 @register_macro()
 def from_map(map_key):
     'use resolved map as image'
-    image_id = subprocess.check_output(['plash-map',
+    image_id = subprocess.check_output(['plash', 'map',
                                         map_key]).decode().strip('\n')
     if not image_id:
         raise MapDoesNotExist('map {} not found'.format(repr(map_key)))

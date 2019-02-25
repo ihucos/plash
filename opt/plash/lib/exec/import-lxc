@@ -99,4 +99,4 @@ except KeyError:
         repr(image_name), ' '.join(sorted(names))))
 
 signature_url = '{}.asc'.format(url)
-os.execlp('plash-import-url', 'plash-import-url', url, signature_url)
+os.execlp('plash', 'plash', 'import-url', url, signature_url)
