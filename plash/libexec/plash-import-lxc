@@ -79,6 +79,9 @@ for distro, versions in distros.items():
     if distro == 'alpine':
         versions.remove('edge')
 
+    if distro == 'opensuse':
+        versions.remove('tumbleweed')
+
     if distro == 'ubuntu':
         newest = sorted(versions, key=lambda v: UBUNTU_ABC.index(v[0]))[-1]
     elif distro == 'debian':
