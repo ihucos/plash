@@ -45,7 +45,12 @@ uses the same underlying interfaces as other container software.
 # Getting started
 ###
 
-$ pip3 install plash
+# install
+$ sudo sh -c 'curl -Lf https://github.com/ihucos/plash/archive/master.tar.gz | tar -xzC / --strip-components=1'
+
+# uninstall
+$ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
+
 $ plash --from alpine --apk xeyes -- xeyes
 $ plash --from-github ihucos/python --pip3 dotfiles -- dotfiles --sync
 $ plash --help
@@ -366,3 +371,6 @@ checks their signatures with gpgv (if in PATH). Using plash as root should be
 avoided and should not be necessary for most use cases.  Until now plash was
 written by one person and of course I could be wrong about something. But
 generally speaking it really should be good enough.
+
+* Why the unusual project structure?
+Source code and packaged directory structure is the same to reduce complexity.
