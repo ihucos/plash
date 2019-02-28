@@ -4,7 +4,7 @@ install:
 
   # install plash and dependencies
   - sudo apt-get install python3-pip
-  - sudo pip3 install plash
+  - sudo pip3 install git+https://github.com/ihucos/plash.git
 
 cache:
   directories:
