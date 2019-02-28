@@ -1,4 +1,5 @@
 #!/bin/sh
 # usage: plash version
 # Prints the version number.
+
 echo '$Format:%h$'
