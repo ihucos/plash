@@ -18,5 +18,4 @@ script:
 
   # test as root with overlay
   - echo overlay | sudo plash data tee config/union_taste
-  - sudo plash init
   - sudo plash test
