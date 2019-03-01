@@ -13,6 +13,8 @@ plash build -f 1 --run 'touch /a'
 : only one argument
 tmp=$(mktemp)
 plash export-tar 2 > $tmp
+printf "$tmp"
+file $tmp
 tar --list -f $tmp >/dev/null
 
 : specifying a real file
