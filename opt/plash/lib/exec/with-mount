@@ -39,7 +39,7 @@ unshare_if_root()
 unshare_if_user()
 
 with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash', 'mount', container, mountpoint])
+    check_call(['plash', 'mount', container, mountpoint], stdout=2)
 os.chdir(mountpoint)
 try:
     os.execlp(cmd[0], *cmd)
