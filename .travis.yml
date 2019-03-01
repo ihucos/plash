@@ -9,9 +9,7 @@ script:
   - curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz | sudo tar -xzC / --strip-components=1
 
   # test as root with overlay
-  - sudo PLASH_INIT_UNION_TASTE=overlay plash init
   - sudo PLASH_INIT_UNION_TASTE=overlay plash test
 
   # test user mode
-  - plash init
   - plash test
