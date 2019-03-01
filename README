@@ -46,7 +46,7 @@ uses the same underlying interfaces as other container software.
 ###
 
 # install
-$ sudo sh -c 'curl -Lf https://github.com/ihucos/plash/archive/master.tar.gz | tar -xzC / --strip-components=1'
+$ sudo sh -c 'curl -Lf https://github.com/ihucos/plash/archive/master.tar.gz XXXREMOVETHISAFTERMERGEXXXX | tar -xzC / --strip-components=1'
 
 # uninstall
 $ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
