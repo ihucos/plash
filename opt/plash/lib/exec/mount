@@ -99,6 +99,7 @@ with open(os.path.join(get_plash_data(), 'config', 'union_taste')) as f:
     union_taste = f.read().rstrip('\n')
 
 try:
+    assert 0, union_taste
     mount_func = known_union_tastes[union_taste]
 except KeyError:
     die('unexpected union taste: {} (try {})'.format(
