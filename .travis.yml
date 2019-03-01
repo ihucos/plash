@@ -1,4 +1,17 @@
 language: generic
+
+install:
+- sudo apt-get install uidmap unionfs-fuse
+
 script:
+
+  # install this plash
   - curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz | sudo tar -xzC / --strip-components=1
+
+  # test user mode
+  - plash init
   - plash test
+
+  # test as root
+  - sudo plash init
+  - sudo plash test
