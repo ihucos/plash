@@ -17,4 +17,6 @@ script:
   - sudo sh -c 'echo overlay | plash data tee config/union_taste'
   - cat /var/lib/plash/config/union_taste
   - cat ~/.plashdata/config/union_taste
+  - sudo plash data
+  - plash data
   - sudo plash test
