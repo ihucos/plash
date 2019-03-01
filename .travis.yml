@@ -1,4 +1,5 @@
 language: generic
+dist: xenial
 
 install:
 - sudo apt-get install uidmap unionfs-fuse
