@@ -13,6 +13,5 @@ script:
   - plash test
 
   # test as root with overlay
-  - sudo plash init
-  - sudo sh -c 'echo overlay | plash data tee config/union_taste'
-  - sudo plash test
+  - sudo PLASH_INIT_UNION_TASTE=overlay plash init
+  - sudo PLASH_INIT_UNION_TASTE=overlay plash test
