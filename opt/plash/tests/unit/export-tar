@@ -20,7 +20,6 @@ file $tmp
 du -sh $tmp
 head -c 200 $tmp
 
-exit 1
 tar --list -f $tmp >/dev/null
 
 : specifying a real file
