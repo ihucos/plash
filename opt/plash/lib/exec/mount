@@ -65,7 +65,7 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
         check_call([
             unionfs, '-o', 'cow', '{upperdir}{lowerdirs}'.format(
                 lowerdirs=lowerdirs_str, upperdir=upperdir_str), mountpoint
-        ])
+        ], stdout=2)
 
 
 def mount_overlay(lowerdirs_list, mountpoint, changedir):
@@ -84,7 +84,7 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
                 lowerdir=':'.join(lowerdir_list),
                 upperdir=',upperdir=' + upperdir if upperdir else '',
                 workdir=',workdir=' + workdir if workdir else ''), mountpoint
-        ])
+        ], stdout=2)
 
 
 def check_mount_option_part(dir):

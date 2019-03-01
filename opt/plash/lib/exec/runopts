@@ -91,7 +91,7 @@ for mount in mounts:
     mount_to = os.path.join(mountpoint, mount.lstrip('/'))
     if os.path.exists(mount_to):
         with catch_and_die([CalledProcessError]):
-            check_call(['mount', '--rbind', mount, mount_to])
+            check_call(['mount', '--rbind', mount, mount_to], stdout=2)
 
 
 #
