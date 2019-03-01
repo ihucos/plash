@@ -27,5 +27,5 @@ plash with-mount 1 tar -cf - . > /dev/null
 set +e
 out=$(plash with-mount 1 cmdnotfound 2>&1)
 set -e
-test "$out" = 'cmdnotfound: command not found'
+[[ "$out" == *"cmdnotfound: command not found"* ]]
 
