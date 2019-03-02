@@ -5,10 +5,17 @@ install:
 
 script:
 
+  # test that only /opt and /usr are affected by an installation
+  - >
+    test "$(curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz
+    | tar -z --list | cut -d/ -f2 | sort | uniq)"
+    = "$(printf "\nopt\nusr")"
+
   # install plash for this commit
   - curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz | sudo tar -xzC / --strip-components=1
 
-  - ls /
+  # test version number expansion
+  - test "$(pash version)" = "$TRAVIS_COMMIT"
 
   # test as root with overlay
   - sudo PLASH_INIT_UNION_TASTE=overlay plash test
