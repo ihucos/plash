@@ -5,8 +5,10 @@ install:
 
 script:
 
-  # install this plash
+  # install plash for this commit
   - curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz | sudo tar -xzC / --strip-components=1
+
+  - ls /
 
   # test as root with overlay
   - sudo PLASH_INIT_UNION_TASTE=overlay plash test
