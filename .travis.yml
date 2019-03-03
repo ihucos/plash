@@ -15,7 +15,7 @@ script:
   - curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz | sudo tar -xzC / --strip-components=1
 
   # test version number expansion
-  - test "$(plash version)" = "$TRAVIS_COMMIT"
+  - sh -xc 'test "$(plash version)" = "$TRAVIS_COMMIT"'
 
   # test as root with overlay
   - sudo PLASH_INIT_UNION_TASTE=overlay plash test
