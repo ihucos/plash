@@ -5,7 +5,7 @@ set -eux
 test $(plash sudo id -u) = 0
 
 : no arguments gives shell
-test "$(echo 'echo itsbash' | plash sudo)" = 'itsbash'
+test "$(echo 'echo itsshell' | plash sudo)" = 'itsshell'
 
 : unknown command
 set +e
