@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -eux
+
+: check fallback to plash run
+out=$(plash -f 1 -- printf hi)
+test "$out" = hi
+
+: check missing program
+set +e
+out=$(plash commandnotfound 2>&1)
+set -e
+test "$out" = 'plash error: no such command: commandnotfound (try `plash help`)'

@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+# usage: plash import-docker IMAGE
+# Import image from local docker instance into.
+
+import atexit
+import subprocess
+import sys
+
+from plash import utils
+
+try:
+    image = sys.argv[1]
+except IndexError:
+    utils.die_with_usage()
+utils.handle_help_flag()
+
+with utils.catch_and_die([FileNotFoundError, subprocess.CalledProcessError]):
+    subprocess.check_call(['docker', 'pull', image], stdout=2)
+    container = subprocess.check_output(['docker', 'create', image,
+                                         'sh']).decode().rstrip('\n')
+    docker_export = subprocess.Popen(
+        ['docker', 'export', container], stdout=subprocess.PIPE)
+    atexit.register(lambda: docker_export.kill())
+    subprocess.check_call(['plash', 'import-tar'], stdin=docker_export.stdout)

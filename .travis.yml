@@ -1,32 +1,24 @@
 language: generic
 
 install:
-
-  # install plash and dependencies
-  - sudo apt-get install python3-pip
-  - sudo pip3 install git+https://github.com/ihucos/plash.git
-
-cache:
-  directories:
-    - ~/plashcache
+- sudo apt-get install uidmap unionfs-fuse
 
 script:
 
-  - uname -a
-  - plash --version
+  # test that only /opt and /usr are affected by an installation
+  - >
+    test "$(curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz
+    | tar -z --list | cut -d/ -f2 | sort | uniq)"
+    = "$(printf "\nopt\nusr")"
 
-  # load the plash cache
-  - sudo tar -xf ~/plashcache/data.tar -C / || sudo PLASH_INIT_UNION_TASTE=overlay plash init
+  # install plash for this commit
+  - curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz | sudo tar -xzC / --strip-components=1
 
-  - sudo
-    VERSION="1.$TRAVIS_BUILD_NUMBER"
-    ./misc/test-and-create-artifacts
+  # test version number expansion
+  - test "$(plash version)" = "${TRAVIS_COMMIT:0:7}"
 
-  # save the plash cache
-  - sudo tar -cf ~/plashcache/data.tar /var/lib/plash
+  # test as root with overlay
+  - sudo PLASH_INIT_UNION_TASTE=overlay plash test
 
-deploy:
-  - provider: script
-    script: sudo VERSION="1.$TRAVIS_BUILD_NUMBER" -E misc/deploy-artifacts
-    on:
-      branch: master
+  # test user mode
+  - plash test
