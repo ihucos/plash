@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+try:
+    subcommand = sys.argv[1]
+except IndexError:
+    print(
+        'plash is a container build and run engine, try --help',
+        file=sys.stderr)
+    sys.exit(1)
+
+libdir = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "../lib"))
+libpydir = os.path.join(libdir, "py")
+libexecdir = os.path.join(libdir, "exec")
+bindir = os.path.abspath(os.path.join(libdir, '../bin'))
+execfile = os.path.join(libexecdir, subcommand)
+
+sys.path.append(libpydir)
+from plash.utils import die
+
+if "PYTHONPATH" in os.environ:
+    os.environ["PYTHONPATH"] = "{}:{}".format(libpydir, os.environ["PYTHONPATH"])
+else:
+    os.environ["PYTHONPATH"] = libpydir
+if "PATH" in os.environ:
+    os.environ["PATH"] = "{}:{}".format(bindir, os.environ["PATH"])
+else:    
+    os.environ["PATH"] = bindir
+
+try:
+    os.execlp(execfile, execfile, *sys.argv[2:])
+except FileNotFoundError:
+    if subcommand.startswith('-'):
+        plash_run = os.path.join(libexecdir, 'run')
+        os.execlp(plash_run, plash_run, *sys.argv[1:])
+    die('no such command: {} (try `plash help`)'.format(subcommand))

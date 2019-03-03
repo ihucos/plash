@@ -1,2 +1,0 @@
-#!/bin/sh
-exec plash build -o zesty --apt golang -- go build -o ./bin/runp runp.go
