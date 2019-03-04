@@ -7,14 +7,11 @@
 // where written by a non-root user (from the containers perspective). It can
 // also be used as a general purpose utility to "fake" root access.
 
-#include <stdio.h>
-#include <pwd.h>
-#include <sys/types.h>
 #include <plash.c>
 
 int main(int argc, char* argv[]) {
         struct passwd *pw = getpwuid(getuid());
-        char* default_shell = pw ? pw->pw_shell : "sh";
+        char* default_shell = pw ? pw->pw_shell : "/bin/sh";
         pl_setup_user_ns();
         argv++;
         if (argc <= 1) {

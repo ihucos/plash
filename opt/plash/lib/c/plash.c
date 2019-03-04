@@ -39,11 +39,24 @@ int pl_fatal(char *format, ...){
         va_list args;
         va_start(args, format);
         va_end(args);
-        fprintf(stderr, "bchroot: ");
+        fprintf(stderr, "plash: ");
         vfprintf(stderr, format, args);
         if (errno != 0) fprintf(stderr, ": %s", strerror(errno));
         fprintf(stderr, "\n");
         exit(1);
+}
+
+char* pl_path(const char *relpath){
+        char *addedpath, *normalizedpath;
+        static char *herepath = NULL;
+        if (!herepath){
+                (herepath = realpath("/proc/self/exe", NULL)) || pl_fatal("realpath");
+                herepath = dirname(herepath);
+        }
+        asprintf(&addedpath, "%s/%s", herepath, relpath) != -1 || pl_fatal("asprintf");
+        (normalizedpath = realpath(addedpath, NULL)) || pl_fatal("realpath %s", addedpath);
+        free(addedpath);
+        return normalizedpath;
 }
 
 
