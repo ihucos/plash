@@ -6,7 +6,7 @@ install:
 script:
 
   # check that all binaries are up to date
-  - make --question
+  - (cd opt/plash && make --question)
 
   # test that only /opt and /usr are affected by an installation
   - >
