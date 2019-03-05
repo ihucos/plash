@@ -1,7 +1,7 @@
 language: generic
 
 install:
-- sudo apt-get install uidmap unionfs-fuse musl-tools
+- sudo apt-get install uidmap unionfs-fuse
 
 script:
 
