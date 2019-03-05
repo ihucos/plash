@@ -1,14 +1,18 @@
 language: generic
 
 install:
-- sudo apt-get install uidmap unionfs-fuse
+- sudo apt-get install uidmap unionfs-fuse musl-tools
 
 script:
 
   # check that all binaries are up to date
   - (cd opt/plash && make --question)
 
+  - git status -s
+
   - make
+
+  - git status -s
 
   # test that only /opt and /usr are affected by an installation
   - >
