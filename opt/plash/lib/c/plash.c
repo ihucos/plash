@@ -98,6 +98,7 @@ int pl_parse_subid(
                 if ((read = getdelim(from, &from_size, ':', fd)) == -1) break;
                 (*from)[read-1] = 0;
                 if ((read = getdelim(to, &to_size, '\n', fd)) == -1) break;
+                if (feof(fd)){read++; realloc(*to, read);}
                 (*to)[read-1] = 0;
 
                 if (               (query1 && 0 == strcmp(query1, label))
