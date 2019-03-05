@@ -1,13 +1,12 @@
 CC=musl-gcc
 CFLAGS=-static -Ilib/c
 
-all: bin/plash tests/c/pl_parse_subid
+INCLUDES_PLASH_H=bin/plash
+INCLUDES_PLASH_C=tests/c/pl_parse_subid
 
-bin/plash: bin/plash.c lib/c/plash.c
-	$(CC) $(CFLAGS) -o bin/plash bin/plash.c lib/c/plash.c
+all: $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C)
 
-tests/c/pl_parse_subid: tests/c/pl_parse_subid.c lib/c/plash.c
-	$(CC) $(CFLAGS) -o tests/c/pl_parse_subid tests/c/pl_parse_subid.c
+$(INCLUDES_PLASH_H): %: %.c lib/c/plash.c 
 
 clean:
-	rm -f bin/plash tests/c/pl_parse_subid
+	rm -f $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C)
