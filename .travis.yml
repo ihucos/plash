@@ -12,6 +12,8 @@ script:
 
   - (cd opt/plash && make)
 
+  - (cd opt/plash && stat bin/plash.c lib/c/plash.c bin/plash)
+
   - (cd opt/plash && git status -s)
 
   # test that only /opt and /usr are affected by an installation
