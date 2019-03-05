@@ -8,11 +8,11 @@ script:
   # check that all binaries are up to date
   - (cd opt/plash && make --question)
 
-  - git status -s
+  - (cd opt/plash && git status -s)
 
-  - make
+  - (cd opt/plash && make)
 
-  - git status -s
+  - (cd opt/plash && git status -s)
 
   # test that only /opt and /usr are affected by an installation
   - >
