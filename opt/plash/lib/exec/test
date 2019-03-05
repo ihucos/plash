@@ -28,6 +28,10 @@ for script in $testfiles ; do
   plash data touch config/testmode
   plash import-tar $PROJECT_DIR/data/busybox.tar > /dev/null
 
+  if test ! -x "$script"
+  then
+    continue
+  fi
   printf "% -20s" ${script:2} # magic 2 is the length of "./"
   env "$script" > $log 2>&1 &
   if wait $!; then

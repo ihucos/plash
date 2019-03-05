@@ -2,5 +2,6 @@
 .gitignore export-ignore
 .travis.yml export-ignore
 LICENSE export-ignore
+Makefile export-ignore
 README export-ignore
 opt/plash/lib/exec/version export-subst

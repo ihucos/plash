@@ -1,0 +1,18 @@
+#!/bin/bash
+
+: no arguments result in bad exit status code
+(! plash)
+test $? = 1
+
+: help message when no arguments
+[[ "$(plash 2>&1)" == *"plash is a container build"* ]]
+
+: invoking with bad command
+[[ "$(plash cmdnotfoundxxx 2>&1)" == *"no such command"* ]]
+test $? = 1
+
+: test simple command call
+test "$(plash run 1 printf hi)" = "hi"
+
+: test implicit redirection to `run`
+test $(plash -f 1 -- printf hi) = "hi"
