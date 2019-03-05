@@ -8,6 +8,8 @@ script:
   # check that all binaries are up to date
   - (cd opt/plash && make --question)
 
+  - make
+
   # test that only /opt and /usr are affected by an installation
   - >
     test "$(curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz
