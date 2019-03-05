@@ -25,7 +25,6 @@
 
 
 from plash import utils
-from plash import unshare
 import subprocess
 import tarfile
 import sys
@@ -42,9 +41,6 @@ except IndexError:
     utils.die_with_usage()
 nodepath = utils.nodepath_or_die(container)
 tmpout = utils.mkdtemp()
-
-unshare.unshare_if_root()
-unshare.unshare_if_user()
 
 mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
 

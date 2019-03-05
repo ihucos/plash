@@ -107,4 +107,5 @@ except KeyError:
 for l in lowerdir_list:
     check_mount_option_part(l)
 check_mount_option_part(changedir)
+print("will mountXXX")
 mount_func(lowerdir_list, mountpoint, changedir)

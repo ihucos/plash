@@ -38,12 +38,7 @@ def catch_and_die(exceptions,
 
 
 def get_plash_data():
-    if os.getuid():
-        default = '~/.plashdata'
-    else:
-        default = '/var/lib/plash'
-    dir = os.environ.get('PLASH_DATA', default)
-    return os.path.expanduser(dir)
+    return os.environ['PLASH_DATA']
 
 
 def color(stri, color, isatty_fd_check=2):
