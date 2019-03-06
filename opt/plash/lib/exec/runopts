@@ -42,7 +42,8 @@ with utils.catch_and_die([getopt.GetoptError], debug='runopts'):
 #
 # find out the mountpoint
 #
-if not os.getuid() and os.environ.get('PLASH_NO_UNSHARE'):
+
+if os.environ.get('PLASH_NO_MOUNT_NS'):
     mountpoint = tempfile.mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
 else:
     mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
@@ -66,7 +67,6 @@ for opt_key, opt_value in user_opts:
 
 if not container:
     die('runopts: missing -c option')
-
 
 #
 # mount root filesystem

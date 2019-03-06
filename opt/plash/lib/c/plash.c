@@ -227,7 +227,8 @@ void pl_setup_user_ns(){
 	}
 
 	unshare(CLONE_NEWUSER
-	       ) != -1 || pl_fatal("could not unshare user namespace");
+	       ) != -1 || pl_fatal("could not unshare user namespace "
+                                   "(maybe try `sysctl -w kernel.unprivileged_userns_clone=1`)");
 
 	kill(master_child, SIGUSR1);
 	waitid(P_PID, master_child, &master_child_sinfo, WEXITED
@@ -253,13 +254,4 @@ void pl_setup_user_ns(){
 	free(uid_str);
 	free(gid_str);
 	free(pid_str);
-}
-
-void pl_unshare(){
-        if (getuid()) pl_setup_user_ns();
-        if (unshare(CLONE_NEWNS) == -1) pl_fatal("could not unshare user namespace");
-        if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
-                if (errno != EINVAL) pl_fatal("could not change propagation of /");
-                errno = 0;
-        }
 }
