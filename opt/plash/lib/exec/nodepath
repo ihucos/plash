@@ -14,7 +14,7 @@
 import os
 import sys
 
-from plash.utils import (catch_and_die, die, die_with_usage, get_plash_data,
+from plash.utils import (catch_and_die, die, die_with_usage,
                          handle_build_args, handle_help_flag, nodepath_or_die)
 
 handle_help_flag()
@@ -34,7 +34,7 @@ if container == '0' and not sys.argv[2:3] == ['--allow-root-container']:
 try:
     with catch_and_die([OSError], ignore=FileNotFoundError, debug='readlink'):
         nodepath = os.readlink(
-            os.path.join(get_plash_data(), 'index', container))
+            os.path.join(os.environ["PLASH_DATA"], 'index', container))
     with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
         os.stat(nodepath)
 except FileNotFoundError:

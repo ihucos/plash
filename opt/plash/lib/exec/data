@@ -19,7 +19,7 @@ from plash import utils
 
 utils.handle_help_flag()
 
-plash_data = utils.get_plash_data()
+plash_data = os.environ["PLASH_DATA"]
 shell = utils.get_default_user_shell()
 if not sys.argv[1:]:
     print(plash_data)

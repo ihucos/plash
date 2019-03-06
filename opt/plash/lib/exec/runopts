@@ -45,7 +45,7 @@ with utils.catch_and_die([getopt.GetoptError], debug='runopts'):
 if not os.getuid() and os.environ.get('PLASH_NO_UNSHARE'):
     mountpoint = tempfile.mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
 else:
-    mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
+    mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
 
 #
 # parse user options

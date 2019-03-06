@@ -20,7 +20,7 @@ from plash import utils
 utils.handle_help_flag()
 utils.assert_initialized()
 
-plash_data = utils.get_plash_data()
+plash_data = os.environ["PLASH_DATA"]
 
 print('output_stable: false')
 
@@ -106,7 +106,7 @@ print(killed)
 sys.stdout.write('removed_tmpdirs: ')
 sys.stdout.flush()
 deleted_tmps = 0
-tmp = os.path.join(utils.get_plash_data(), 'tmp')
+tmp = os.path.join(os.environ["PLASH_DATA"], 'tmp')
 for file in os.listdir(tmp):
     abs_file = os.path.join(tmp, file)
 

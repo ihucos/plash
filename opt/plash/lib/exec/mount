@@ -15,7 +15,7 @@ from os.path import join
 from subprocess import CalledProcessError, check_call
 
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, get_plash_data, handle_build_args,
+                         die_with_usage, handle_build_args,
                          handle_help_flag, nodepath_or_die)
 
 handle_help_flag()
@@ -44,7 +44,7 @@ while True:
 # use the symlinks and not the full paths because the arg size is limited
 # On my setup i get 58 (EDIT: should be more now) layers before an error,
 # we could have multiple mount calls to overcome this
-plash_data = get_plash_data()
+plash_data = os.environ["PLASH_DATA"]
 lowerdir_list = [
     join(plash_data, 'index', i, '_data', 'root') for i in container_ids_path
 ]
@@ -95,7 +95,7 @@ def check_mount_option_part(dir):
 
 known_union_tastes = {'overlay': mount_overlay, 'unionfs-fuse': mount_unionfs}
 
-with open(os.path.join(get_plash_data(), 'config', 'union_taste')) as f:
+with open(os.path.join(os.environ["PLASH_DATA"], 'config', 'union_taste')) as f:
     union_taste = f.read().rstrip('\n')
 
 try:
