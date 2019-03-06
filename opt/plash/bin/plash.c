@@ -51,7 +51,19 @@ int main(int argc, char* argv[]) {
         if (setenv("PATH", path ? newpath : bindir, 1) == -1)
                  pl_fatal("setenv");
 
-        if (!(strcmp("test", argv[1]) == 0)){
+        if ( 
+                strcmp("add-layer",    argv[1]) == 0 ||
+                strcmp("clean",        argv[1]) == 0 ||
+                strcmp("copy",         argv[1]) == 0 ||
+                strcmp("import-tar",   argv[1]) == 0 ||
+                strcmp("purge",        argv[1]) == 0 ||
+                strcmp("rm",           argv[1]) == 0 ||
+                strcmp("runopts",      argv[1]) == 0 ||
+                strcmp("shallow-copy", argv[1]) == 0 ||
+                strcmp("shrink",       argv[1]) == 0 ||
+                strcmp("sudo",         argv[1]) == 0 ||
+                strcmp("with-mount",   argv[1]) == 0
+        ){
                 if (getuid()) {
                         pl_setup_user_ns();
                         // call once in first invocation
