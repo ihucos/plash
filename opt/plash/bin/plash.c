@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
              *pylibdir =   pl_path("../lib/py"),
              *path =       getenv("PATH"),
              *plash_data = getenv("PLASH_DATA"),
+             *plash_no_unshare = getenv("PLASH_NO_UNSHARE"),
              *home,
              *libexecfile,
              *newpath;
@@ -52,28 +53,23 @@ int main(int argc, char* argv[]) {
                  pl_fatal("setenv");
 
         if ( 
-                strcmp("add-layer",    argv[1]) == 0 ||
-                strcmp("clean",        argv[1]) == 0 ||
-                strcmp("copy",         argv[1]) == 0 ||
-                strcmp("import-tar",   argv[1]) == 0 ||
-                strcmp("purge",        argv[1]) == 0 ||
-                strcmp("rm",           argv[1]) == 0 ||
-                strcmp("runopts",      argv[1]) == 0 ||
-                strcmp("shallow-copy", argv[1]) == 0 ||
-                strcmp("shrink",       argv[1]) == 0 ||
-                strcmp("sudo",         argv[1]) == 0 ||
-                strcmp("with-mount",   argv[1]) == 0
+                (
+                        plash_no_unshare == NULL || plash_no_unshare[0] == '\0'
+                ) && (
+                        strcmp("clean",        argv[1]) == 0 ||
+                        strcmp("copy",         argv[1]) == 0 ||
+                        strcmp("import-tar",   argv[1]) == 0 ||
+                        strcmp("purge",        argv[1]) == 0 ||
+                        strcmp("rm",           argv[1]) == 0 ||
+                        strcmp("runopts",      argv[1]) == 0 ||
+                        strcmp("shallow-copy", argv[1]) == 0 ||
+                        strcmp("shrink",       argv[1]) == 0 ||
+                        strcmp("sudo",         argv[1]) == 0 ||
+                        strcmp("with-mount",   argv[1]) == 0
+                )
         ){
-                if (getuid()) {
-                        pl_setup_user_ns();
-                        // call once in first invocation
-
-                        if (unshare(CLONE_NEWNS) == -1) pl_fatal("could not unshare user namespace");
-                        if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
-                                if (errno != EINVAL) pl_fatal("could not change propagation of /");
-                                errno = 0;
-                        }
-                }
+                pl_unshare();
+                setenv("PLASH_NO_UNSHARE", "1", 0);
         }
 
         argv++;

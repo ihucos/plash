@@ -254,3 +254,12 @@ void pl_setup_user_ns(){
 	free(gid_str);
 	free(pid_str);
 }
+
+void pl_unshare(){
+        if (getuid()) pl_setup_user_ns();
+        if (unshare(CLONE_NEWNS) == -1) pl_fatal("could not unshare user namespace");
+        if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
+                if (errno != EINVAL) pl_fatal("could not change propagation of /");
+                errno = 0;
+        }
+}

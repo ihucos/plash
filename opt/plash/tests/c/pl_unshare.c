@@ -5,6 +5,6 @@
 #include <plash.h>
 
 int main(){
-        pl_setup_user_ns();
+        pl_unshare();
         assert(getuid() == 0);
 }
