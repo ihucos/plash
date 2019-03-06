@@ -1,9 +1,13 @@
+#define _GNU_SOURCE
 #include <errno.h>
+#include <pwd.h>
+#include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
+#include <sys/mount.h>
 #include <sys/types.h>
-#include <pwd.h>
+#include <unistd.h>
 
 #include <plash.h>
 
@@ -47,14 +51,18 @@ int main(int argc, char* argv[]) {
         if (setenv("PATH", path ? newpath : bindir, 1) == -1)
                  pl_fatal("setenv");
 
-        // unshare!
-        fprintf(stderr, "entering plash\n");
-        if (getuid()) {
-                fprintf(stderr, "before getuid %d\n", getuid());
-                fprintf(stderr, "doing the unshare dance\n");
-                pl_setup_user_ns();
-                fprintf(stderr, "after getuid %d\n", getuid());
-        };
+        if (!(strcmp("test", argv[1]) == 0)){
+                if (getuid()) {
+                        pl_setup_user_ns();
+                        // call once in first invocation
+
+                        if (unshare(CLONE_NEWNS) == -1) pl_fatal("could not unshare user namespace");
+                        if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
+                                if (errno != EINVAL) pl_fatal("could not change propagation of /");
+                                errno = 0;
+                        }
+                }
+        }
 
         argv++;
         execvp(libexecfile, argv);
