@@ -19,7 +19,7 @@
 #        specified multiple times
 
 
-ALWAYS_EXPORT = ['TERM', 'DISPLAY', 'HOME']
+ALWAYS_EXPORT = ['TERM', 'DISPLAY', 'HOME', 'PLASH_DATA']
 
 
 import getopt
@@ -40,13 +40,11 @@ with utils.catch_and_die([getopt.GetoptError], debug='runopts'):
     user_opts, user_args = getopt.getopt(sys.argv[1:], 'c:d:m:')
 
 #
-# find out the mountpoint
+# prepare an empty mountpoint
 #
-
-if os.environ.get('PLASH_NO_MOUNT_NS'):
-    mountpoint = tempfile.mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
-else:
-    mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
+mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
+with catch_and_die([CalledProcessError]):
+    check_call(['mount', '-t', "tmpfs", "tmpfs", mountpoint], stdout=2)
 
 #
 # parse user options

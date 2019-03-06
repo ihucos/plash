@@ -30,7 +30,6 @@ int main(int argc, char* argv[]) {
              *libexecfile,
              *newpath;
 
-
         if (! plash_data){
             pwd = getpwuid(getuid());
             if (! pwd) pl_fatal("could not determine your home directory");
