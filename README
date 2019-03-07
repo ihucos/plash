@@ -28,7 +28,7 @@ Plash is a tool to run, build and manage containers.
 Unlike containers, plash instances are just chrooted, user-mapped processes
 that interact naturally with the host operating system and each other. Plash
 attempts to find the sweet spot between the isolation of containers and the
-simplicity of processes. An example:
+familiarity of processes. An example:
 
 user@devbox:~/myproject$ plash -f ubuntu --apt gitg
 root@devbox:~/myproject# gitg
