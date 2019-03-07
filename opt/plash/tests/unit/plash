@@ -23,8 +23,20 @@ test "$(plash run 1 printf hi)" = "hi"
 : test implicit redirection to 'run'
 test $(plash -f 1 -- printf hi) = "hi"
 
-: test PLASH_NO_UNSHARE
+: test PLASH_NO_UNSHARE simple
 (
 export PLASH_NO_UNSHARE=1
-test "$(plash sudo id)" = "$(id)"
+test "$(plash sudo readlink /proc/self/ns/mnt)" = "$(readlink /proc/self/ns/mnt)"
+)
+
+: test PLASH_NO_UNSHARE empty value
+(
+export PLASH_NO_UNSHARE=
+test ! "$(plash sudo readlink /proc/self/ns/mnt)" = "$(readlink /proc/self/ns/mnt)"
+)
+
+: test PLASH_NO_UNSHARE not set
+(
+unset PLASH_NO_UNSHARE # just in case
+test ! "$(plash sudo readlink /proc/self/ns/mnt)" = "$(readlink /proc/self/ns/mnt)"
 )

@@ -96,11 +96,14 @@ int main(int argc, char* argv[]) {
         if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
                     int unshare_user = in_arrary(UNSHARE_USER, argv[1]);
                     int unshare_all = in_arrary(UNSHARE_USER_AND_MOUNT, argv[1]);
-                    if ((unshare_user || unshare_all)  && getuid()) pl_setup_user_ns();
+                    if ((unshare_user || unshare_all)  && getuid())
+                        pl_setup_user_ns();
                     if (unshare_all){
-                            if (unshare(CLONE_NEWNS) == -1) pl_fatal("could not unshare mount namespace");
+                            if (unshare(CLONE_NEWNS) == -1)
+                                pl_fatal("could not unshare mount namespace");
                             if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
-                                    if (errno != EINVAL) pl_fatal("could not change propagation of /");
+                                    if (errno != EINVAL)
+                                        pl_fatal("could not change propagation of /");
                                     errno = 0;
                             }
                     }
