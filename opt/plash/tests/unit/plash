@@ -40,3 +40,9 @@ test ! "$(plash sudo readlink /proc/self/ns/mnt)" = "$(readlink /proc/self/ns/mn
 unset PLASH_NO_UNSHARE # just in case
 test ! "$(plash sudo readlink /proc/self/ns/mnt)" = "$(readlink /proc/self/ns/mnt)"
 )
+
+: test PLASH_DATA is set
+test ! -z ${PLASH_DATA+x} 
+
+: test PLASH_DATA can be overwritten
+test "$(PLASH_DATA=myvalue12 plash sudo printenv PLASH_DATA)" == myvalue12
