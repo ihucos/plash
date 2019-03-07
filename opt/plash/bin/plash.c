@@ -19,16 +19,13 @@ char* UNSHARE_USER[] = {
         "import-tar",
         "purge",
         "rm",
-        "shallow-copy",
         "shrink",
-        "sudo",
-        "with-mount",
         NULL
 };
 
 char* UNSHARE_USER_AND_MOUNT[] = {
         "runopts",
-        "shalow-copy",
+        "shallow-copy",
         "sudo",
         "with-mount",
         NULL
