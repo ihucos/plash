@@ -7,29 +7,39 @@ import sys
 import os
 from os import listdir
 from os.path import dirname, join, islink
+import re
 
 from plash.utils import handle_help_flag
+
+FIRST_SENTENCE_RE = "# usage: .*?\n(?:#\n)*?# (.*?)\.".replace("#", "(?:#|//)")
 
 handle_help_flag()
 
 bin = dirname(sys.argv[0])
-progs = [i for i in listdir(bin) if not i.startswith('.')]
+progs = [i for i in listdir(bin) if os.access(join(bin, i), os.X_OK)]
 max_prog_lenght = len('plash ') + max(len(prog) for prog in progs)
 for prog in sorted(progs):
     prog_path = join(bin, prog)
+
+    if os.access(prog_path + ".c", os.F_OK):
+        prog_path += ".c"
+        cmt_len = 2
+    else:
+        cmt_len = 1
+
     if islink(prog_path):
         #continue # it's an alias
         links_to = os.readlink(prog_path)
         first_sentence = 'Alias for `plash {}`'.format(links_to)
     else:
-        first_sentence = '<empty>'
         with open(prog_path) as f:
-            lines = f.readlines()
-        for line, next_line, next_next_line in zip(lines, lines[1:], lines[2:]):
-            if line.startswith('# usage:'):
-                first_sentence = next_line[2:-1].split('.')[0]
-                if not first_sentence:  # try the next line
-                    first_sentence = next_next_line[2:-1].split('.')[0]
+            content = f.read()
+        found = re.findall(FIRST_SENTENCE_RE, content)
+        if not found:
+            first_sentence = '<empty>'
+        else:
+            first_sentence = found[0]
+          
 
     assert first_sentence
     print(('plash ' + prog).ljust(max_prog_lenght), first_sentence)

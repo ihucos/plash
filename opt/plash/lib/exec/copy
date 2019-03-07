@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # usage: plash copy CONTAINER DIR
 #
-# Copy the container's root filesystem to directory
+# Copy the container's root filesystem to directory.
 
 from os.path import abspath
 import os

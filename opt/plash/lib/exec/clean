@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # usage: plash clean
-# Cleanup internal states
+#
+# Cleanup internal states.
 #
 # there may be some abstraction leaks with cleaning up fuse mountpoints that
 # will be handled better in the future. File a bug if this subcommand behaves
