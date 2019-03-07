@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# we need to run this inside plash sudo to unshare the mount namespace
-plash sudo bash -xeu << "EndOfMessage"
-
 tmp=$(mktemp -d)
 plash mount 1 $tmp
 grep  $tmp' '  /proc/mounts >/dev/null || {
@@ -19,5 +16,3 @@ changesdir=$tmp/'!@#$%^&*()'
 mkdir $tmp/mp
 mkdir $changesdir
 (! plash mount 1 /tmp/mp "$changesdir" )
-
-EndOfMessage

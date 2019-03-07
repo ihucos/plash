@@ -41,7 +41,6 @@ int in_arrary(char *array[], char *element){
         return 0;
 }
 
-
 int main(int argc, char* argv[]) {
 
         if (argc <= 1){
