@@ -12,11 +12,9 @@
 import os
 import sys
 
-from plash.unshare import unshare_if_user
 from plash.utils import catch_and_die, get_default_user_shell, handle_help_flag
 
 handle_help_flag()
-unshare_if_user()
 cmd = sys.argv[1:]
 if not cmd:
     cmd = [get_default_user_shell()]

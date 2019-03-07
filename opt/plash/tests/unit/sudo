@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -eux
 
 : user inside plash sudo is root
@@ -12,3 +12,9 @@ set +e
 out=$(plash sudo cmdnotfound 2>&1)
 set -e
 test "$out" = 'cmdnotfound: command not found'
+
+: different user and mount namespace
+test ! "$(readlink /proc/self/ns/{mnt,user})" = "$(plash sudo readlink /proc/self/ns/{mnt,user})"
+
+: same other mount namespaces
+test "$(readlink /proc/self/ns/{cgroup,ipc,net,pid,uts})" = "$(plash sudo readlink /proc/self/ns/{cgroup,ipc,net,pid,uts})"

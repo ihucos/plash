@@ -31,14 +31,14 @@ from subprocess import DEVNULL, CalledProcessError, Popen
 from sys import exit
 
 from plash.utils import (assert_initialized, die, die_with_usage,
-                         get_plash_data, handle_build_args, handle_help_flag,
+                         handle_build_args, handle_help_flag,
                          mkdtemp, nodepath_or_die)
 
 assert_initialized()
 handle_help_flag()
 handle_build_args()
 
-plash_tmp = join(get_plash_data(), 'tmp')
+plash_tmp = join(os.environ["PLASH_DATA"], 'tmp')
 
 try:
     container = sys.argv[1]

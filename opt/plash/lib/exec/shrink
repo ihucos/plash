@@ -11,14 +11,11 @@ import sys
 import tempfile
 from collections import Counter
 
-from plash import unshare, utils
-
-# allows changing subuids in the fs
-unshare.unshare_if_user()
+from plash import utils
 
 DELETE_PERCENT = 50
 
-index_dir = os.path.join(utils.get_plash_data(), 'index')
+index_dir = os.path.join(os.environ["PLASH_DATA"], 'index')
 links = os.listdir(index_dir)
 
 node_deletation_effect = Counter()

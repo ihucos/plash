@@ -1,18 +1,48 @@
 #!/bin/bash
 
+set -eux
+
 : no arguments result in bad exit status code
-(! plash)
+set +e
+plash
 test $? = 1
+set -e
 
 : help message when no arguments
 [[ "$(plash 2>&1)" == *"plash is a container build"* ]]
 
-: invoking with bad command
+: invoking with unknown command
 [[ "$(plash cmdnotfoundxxx 2>&1)" == *"no such command"* ]]
-test $? = 1
+
+: invoking bad command
+[[ "$(plash ../blaaah 2>&1)" == *"invalid command"* ]]
 
 : test simple command call
 test "$(plash run 1 printf hi)" = "hi"
 
-: test implicit redirection to `run`
+: test implicit redirection to 'run'
 test $(plash -f 1 -- printf hi) = "hi"
+
+: test PLASH_NO_UNSHARE simple
+(
+export PLASH_NO_UNSHARE=1
+test "$(plash sudo readlink /proc/self/ns/mnt)" = "$(readlink /proc/self/ns/mnt)"
+)
+
+: test PLASH_NO_UNSHARE empty value
+(
+export PLASH_NO_UNSHARE=
+test ! "$(plash sudo readlink /proc/self/ns/mnt)" = "$(readlink /proc/self/ns/mnt)"
+)
+
+: test PLASH_NO_UNSHARE not set
+(
+unset PLASH_NO_UNSHARE # just in case
+test ! "$(plash sudo readlink /proc/self/ns/mnt)" = "$(readlink /proc/self/ns/mnt)"
+)
+
+: test PLASH_DATA is set
+test ! -z ${PLASH_DATA+x} 
+
+: test PLASH_DATA can be overwritten
+test "$(PLASH_DATA=myvalue12 plash sudo printenv PLASH_DATA)" == myvalue12

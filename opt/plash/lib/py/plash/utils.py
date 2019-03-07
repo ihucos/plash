@@ -37,15 +37,6 @@ def catch_and_die(exceptions,
         die(msg, exit=exit)
 
 
-def get_plash_data():
-    if os.getuid():
-        default = '~/.plashdata'
-    else:
-        default = '/var/lib/plash'
-    dir = os.environ.get('PLASH_DATA', default)
-    return os.path.expanduser(dir)
-
-
 def color(stri, color, isatty_fd_check=2):
     if os.environ.get('TERM') != 'dumb' and os.isatty(isatty_fd_check):
         return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
@@ -153,7 +144,7 @@ def plash_map(*args):
 
 
 def assert_initialized():
-    last_inited = join(get_plash_data(), 'index', '0')
+    last_inited = join(os.environ["PLASH_DATA"], 'index', '0')
     if not os.path.exists(last_inited):
         die('first run `plash init`')
 
@@ -172,5 +163,5 @@ def run_write_read(cmd, input, cwd=None):
 def mkdtemp():
     import tempfile
     return tempfile.mkdtemp(
-        dir=os.path.join(get_plash_data(), 'tmp'),
+        dir=os.path.join(os.environ["PLASH_DATA"], 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))

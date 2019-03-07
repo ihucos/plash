@@ -19,7 +19,7 @@
 #        specified multiple times
 
 
-ALWAYS_EXPORT = ['TERM', 'DISPLAY', 'HOME']
+ALWAYS_EXPORT = ['TERM', 'DISPLAY', 'HOME', 'PLASH_DATA']
 
 
 import getopt
@@ -30,7 +30,6 @@ import tempfile
 from subprocess import CalledProcessError, check_call
 
 from plash import utils
-from plash.unshare import unshare_if_root, unshare_if_user
 from plash.utils import (assert_initialized, catch_and_die, die,
                          handle_help_flag, mkdtemp)
 
@@ -41,12 +40,11 @@ with utils.catch_and_die([getopt.GetoptError], debug='runopts'):
     user_opts, user_args = getopt.getopt(sys.argv[1:], 'c:d:m:')
 
 #
-# find out the mountpoint
+# prepare an empty mountpoint
 #
-if not os.getuid() and os.environ.get('PLASH_NO_UNSHARE'):
-    mountpoint = tempfile.mkdtemp(dir='/var/tmp', prefix='plash-mountpoint-{}-'.format(os.getpid()))
-else:
-    mountpoint = os.path.join(utils.get_plash_data(), 'mnt')
+mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
+with catch_and_die([CalledProcessError]):
+    check_call(['mount', '-t', "tmpfs", "tmpfs", mountpoint], stdout=2)
 
 #
 # parse user options
@@ -67,13 +65,6 @@ for opt_key, opt_value in user_opts:
 
 if not container:
     die('runopts: missing -c option')
-
-#
-# enter different namespace
-#
-unshare_if_root()
-unshare_if_user()
-
 
 #
 # mount root filesystem

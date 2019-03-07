@@ -22,19 +22,16 @@
 import os
 import sys
 from os.path import join
-from plash import unshare
 
-from plash.utils import (catch_and_die, die_with_usage, get_plash_data,
+from plash.utils import (catch_and_die, die_with_usage,
                          handle_build_args, handle_help_flag, mkdtemp,
                          nodepath_or_die)
 
 
-unshare.unshare_if_user()
-
 handle_help_flag()
 handle_build_args()
 
-plash_data = get_plash_data()
+plash_data = os.environ["PLASH_DATA"]
 
 try:
     base_container = sys.argv[1]

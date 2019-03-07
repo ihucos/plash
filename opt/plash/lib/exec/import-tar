@@ -10,9 +10,8 @@ import tarfile
 from os.path import join
 from subprocess import CalledProcessError, check_call
 
-from plash.unshare import unshare_if_user
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, get_plash_data, handle_help_flag,
+                         die_with_usage, handle_help_flag,
                          mkdtemp)
 
 handle_help_flag()
@@ -44,7 +43,6 @@ with catch_and_die([tarfile.TarError], debug_class=True):
         else:
             t = PlashTarFile.open(tar_file)
 
-unshare_if_user()
 t.extractall(rootfs)
 
 # we want /etc/resolv to not be a symlink or to exist as a file - otherwise moutning over it later does not work

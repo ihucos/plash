@@ -1,5 +1,4 @@
 #!/bin/bash
-set -xeu
 
 tmp=$(mktemp -d)
 plash mount 1 $tmp
