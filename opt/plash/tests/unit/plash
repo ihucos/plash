@@ -14,7 +14,7 @@ test $? = 1
 : test simple command call
 test "$(plash run 1 printf hi)" = "hi"
 
-: test implicit redirection to `run`
+: test implicit redirection to 'run'
 test $(plash -f 1 -- printf hi) = "hi"
 
 : test PLASH_NO_UNSHARE

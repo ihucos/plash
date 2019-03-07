@@ -12,8 +12,27 @@
 #include <plash.h>
 
 
-char* UNSHARE_ALL[] = { "runopts", "xy", NULL };
-char* UNSHARE_MOUNT[] = { "runopts", "xy", NULL };
+char* UNSHARE_USER[] = {
+        "add-layer",
+        "clean",
+        "copy",
+        "import-tar",
+        "purge",
+        "rm",
+        "shallow-copy",
+        "shrink",
+        "sudo",
+        "with-mount",
+        NULL
+};
+
+char* UNSHARE_USER_AND_MOUNT[] = {
+        "runopts",
+        "shalow-copy",
+        "sudo",
+        "with-mount",
+        NULL
+};
 
 
 int in_arrary(char *array[], char *element){
@@ -26,8 +45,6 @@ int in_arrary(char *array[], char *element){
 
 
 int main(int argc, char* argv[]) {
-        
-        return in_arrary(UNSHARE_ALL, "xyx");
 
         if (argc <= 1){
                 fprintf(stderr, "plash is a container build and run engine, try --help\n");
@@ -68,10 +85,10 @@ int main(int argc, char* argv[]) {
                  pl_fatal("setenv");
 
         if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
-                    int unshare_all = in_arrary(UNSHARE_ALL, argv[1]);
-                    int unshare_mount = in_arrary(UNSHARE_MOUNT, argv[1]);
-                    if (unshare_all && getuid()) pl_setup_user_ns();
-                    if (unshare_all || unshare_mount){
+                    int unshare_user = in_arrary(UNSHARE_USER, argv[1]);
+                    int unshare_all = in_arrary(UNSHARE_USER_AND_MOUNT, argv[1]);
+                    if ((unshare_user || unshare_all)  && getuid()) pl_setup_user_ns();
+                    if (unshare_all){
                             if (unshare(CLONE_NEWNS) == -1) pl_fatal("could not unshare mount namespace");
                             if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
                                     if (errno != EINVAL) pl_fatal("could not change propagation of /");
