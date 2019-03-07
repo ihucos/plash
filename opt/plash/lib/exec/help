@@ -23,9 +23,6 @@ for prog in sorted(progs):
 
     if os.access(prog_path + ".c", os.F_OK):
         prog_path += ".c"
-        cmt_len = 2
-    else:
-        cmt_len = 1
 
     if islink(prog_path):
         #continue # it's an alias
