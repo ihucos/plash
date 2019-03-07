@@ -16,3 +16,9 @@ test "$(plash run 1 printf hi)" = "hi"
 
 : test implicit redirection to `run`
 test $(plash -f 1 -- printf hi) = "hi"
+
+: test PLASH_NO_UNSHARE
+(
+export PLASH_NO_UNSHARE
+test "$(plash sudo id)" = "$(id)"
+)

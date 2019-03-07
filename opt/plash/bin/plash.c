@@ -11,7 +11,23 @@
 
 #include <plash.h>
 
+
+char* UNSHARE_ALL[] = { "runopts", "xy", NULL };
+char* UNSHARE_MOUNT[] = { "runopts", "xy", NULL };
+
+
+int in_arrary(char *array[], char *element){
+        size_t i;
+        for (i = 0; array[i]; i++){
+                if (strcmp(array[i], element) == 0) return 1;
+        }
+        return 0;
+}
+
+
 int main(int argc, char* argv[]) {
+        
+        return in_arrary(UNSHARE_ALL, "xyx");
 
         if (argc <= 1){
                 fprintf(stderr, "plash is a container build and run engine, try --help\n");
@@ -52,19 +68,17 @@ int main(int argc, char* argv[]) {
                  pl_fatal("setenv");
 
         if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
-                if (getuid()) pl_setup_user_ns();
-                if (
-                        strcmp("runopts",        argv[1]) == 0 ||
-                        strcmp("with-mount",     argv[1]) == 0 ||
-                        strcmp("sudo",           argv[1]) == 0 ||
-                        strcmp("shallow-copy",   argv[1]) == 0
-                ){
-                        if (unshare(CLONE_NEWNS) == -1) pl_fatal("could not unshare mount namespace");
-                        if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
-                                if (errno != EINVAL) pl_fatal("could not change propagation of /");
-                                errno = 0;
-                        }
-                }
+                    int unshare_all = in_arrary(UNSHARE_ALL, argv[1]);
+                    int unshare_mount = in_arrary(UNSHARE_MOUNT, argv[1]);
+                    if (unshare_all && getuid()) pl_setup_user_ns();
+                    if (unshare_all || unshare_mount){
+                            if (unshare(CLONE_NEWNS) == -1) pl_fatal("could not unshare mount namespace");
+                            if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
+                                    if (errno != EINVAL) pl_fatal("could not change propagation of /");
+                                    errno = 0;
+                            }
+                    }
+
         }
 
         argv++;
