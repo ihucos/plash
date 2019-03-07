@@ -35,32 +35,31 @@ with open(path.join(docs_out, 'index.html'), 'w') as f:
     f.write(render('index.html', progs=progs, macros=macros))
 
 filedocs = []
-binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')]
+binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')
+                if os.access(path.join(EXEC_DIR, i), os.X_OK)]
 for subcommand in binfiles:
-    if subcommand.startswith('.'):
-        continue
-
-    try:
-        with open(path.join(TESTS_DIR, subcommand)) as f:
-            test_code = f.read()
-    except FileNotFoundError:
-        test_code = None
 
     fname = path.join(EXEC_DIR, subcommand)
+
+    if os.access(fname + ".c", os.F_OK):
+        fname += ".c"
+
     with open(fname) as f:
         read = f.read()
     lines = read.splitlines()
 
     # get doc out of source code
     doc = []
-    before_doc = [lines.pop(0)]
+    if lines[0].startswith("#!/"):
+        before_doc = [lines.pop(0)]
+    else:
+        before_doc = []
     while lines:
         line = lines.pop(0)
-        if not line.startswith('#'):
+        if not line.startswith('#') and not line.startswith("//"):
             break
         doc.append(line)
     filedocs.append({
-        'test_code': test_code,
         'code': read,
         'before_doc': '\n'.join(before_doc),
         'doc': '\n'.join(doc),
