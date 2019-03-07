@@ -13,8 +13,6 @@ test " ${1:-}" = ' --help' && {
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$DIR/../.."
 
-PS4='+ ${BASH_SOURCE:=?}:${LINENO:=?} '
-
 log=$(mktemp)
 program_exit=0
 cd $PROJECT_DIR/tests
