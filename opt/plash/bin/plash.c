@@ -60,6 +60,24 @@ int main(int argc, char* argv[]) {
              *libexecfile,
              *newpath;
 
+        //
+        // validate user input
+        //
+        // FIXME: TODO: XXX
+
+        if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
+                pl_fatal("asprintf");
+
+        if (asprintf(&newpath, "%s:%s", bindir, path) == -1)
+                pl_fatal("asprintf");
+
+        //
+        // setup environment variables
+        //
+        if (setenv("PYTHONPATH", pylibdir , 1) == -1)
+                pl_fatal("setenv");
+        if (setenv("PATH", path ? newpath : bindir, 1) == -1)
+                 pl_fatal("setenv");
         if (! plash_data){
             pwd = getpwuid(getuid());
             if (! pwd) pl_fatal("could not determine your home directory");
@@ -69,18 +87,9 @@ int main(int argc, char* argv[]) {
                     pl_fatal("setenv");
         }
 
-        if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
-                pl_fatal("asprintf");
-
-        if (asprintf(&newpath, "%s:%s", bindir, path) == -1)
-                pl_fatal("asprintf");
-
-        if (setenv("PYTHONPATH", pylibdir , 1) == -1)
-                pl_fatal("setenv");
-
-        if (setenv("PATH", path ? newpath : bindir, 1) == -1)
-                 pl_fatal("setenv");
-
+        //
+        // setup unsharing
+        //
         if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
                     int unshare_user = in_arrary(UNSHARE_USER, argv[1]);
                     int unshare_all = in_arrary(UNSHARE_USER_AND_MOUNT, argv[1]);
@@ -92,9 +101,11 @@ int main(int argc, char* argv[]) {
                                     errno = 0;
                             }
                     }
-
         }
 
+        //
+        // exec lib/exec/<command>
+        //
         argv++;
         execvp(libexecfile, argv);
         if (errno == ENOENT){
