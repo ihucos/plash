@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <ctype.h>
 #include <errno.h>
 #include <pwd.h>
 #include <sched.h>
@@ -60,20 +61,22 @@ int main(int argc, char* argv[]) {
              *libexecfile,
              *newpath;
 
-        //
-        // validate user input
-        //
-        // FIXME: TODO: XXX
-
         if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
                 pl_fatal("asprintf");
 
-        if (asprintf(&newpath, "%s:%s", bindir, path) == -1)
-                pl_fatal("asprintf");
+        //
+        // validate user input
+        //
+        unsigned char c;
+        char *s = argv[1];
+        while ( ( c = *s ) && ( isalpha(c) || c == '-' ) ) ++s;
+        if (*s != '\0') pl_fatal("invalid command: %s", argv[1]);
 
         //
         // setup environment variables
         //
+        if (asprintf(&newpath, "%s:%s", bindir, path) == -1)
+                pl_fatal("asprintf");
         if (setenv("PYTHONPATH", pylibdir , 1) == -1)
                 pl_fatal("setenv");
         if (setenv("PATH", path ? newpath : bindir, 1) == -1)

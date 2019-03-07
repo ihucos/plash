@@ -11,8 +11,11 @@ set -e
 : help message when no arguments
 [[ "$(plash 2>&1)" == *"plash is a container build"* ]]
 
-: invoking with bad command
+: invoking with unknown command
 [[ "$(plash cmdnotfoundxxx 2>&1)" == *"no such command"* ]]
+
+: invoking bad command
+[[ "$(plash ../blaaah 2>&1)" == *"invalid command"* ]]
 
 : test simple command call
 test "$(plash run 1 printf hi)" = "hi"
