@@ -17,11 +17,10 @@
 int main(int argc, char* argv[]) {
         struct passwd *pw = getpwuid(getuid());
         char* default_shell = pw ? pw->pw_shell : "/bin/sh";
-        argv++;
         if (argc <= 1) {
                 execlp(default_shell, default_shell, NULL);
         } else {
-                execvp(argv[0], argv);
+                execvp(argv[1], argv+1);
         }
-        pl_fatal("could not exec \"%s\"", argv[0]);
+        pl_fatal("could not exec \"%s\"", argv[1]);
 }
