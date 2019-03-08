@@ -16,12 +16,15 @@ FIRST_SENTENCE_RE = "# usage: .*?\n(?:#\n)*?# (.*?)\.".replace("#", "(?:#|//)")
 libexecdir = os.path.dirname(sys.argv[0])
 if len(sys.argv) >= 2:
     cmd = sys.argv[1]
-    with open(os.path.join(libexecdir, cmd)) as f:
+    prog_path =  os.path.join(libexecdir, cmd)
+    if os.access(prog_path + ".c", os.F_OK):
+        prog_path += ".c"
+    with open(prog_path) as f:
         do_print = False
         for line in f.readlines():
-            if line.startswith('# usage:'):
+            if line.startswith('# usage:') or line.startswith('// usage:'):
                 do_print = True
-            elif line and not line.startswith('#'):
+            elif line and not (line.startswith('#') or line.startswith('//')):
                 break
             if do_print:
                 print(line[2:].rstrip('\n'))

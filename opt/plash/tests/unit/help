@@ -12,3 +12,9 @@ plash help
 
 : test help message for one program
 [[ $(plash help help) = *"usage: plash help"* ]]
+
+: test help message for one program that is writte in C
+[[ $(plash help sudo) = *"usage: plash sudo"* ]]
+
+: call for each command
+plash help | head -n -1 | cut -d' ' -f2 | xargs -L1 plash help
