@@ -38,9 +38,10 @@ root@devbox:~/myproject# gitg
 # Some features
 ###
 
-- Unprivileged users
+- Unprivileged users are first-class citizens.
 - No daemons, no homemade suid helpers.
-- Portable, runs in: Travis CI, docker, plash
+- Portale: runs in many platforms like CI environments, itself and other
+  container software.
 
 
 ###
