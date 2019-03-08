@@ -11,7 +11,7 @@ from urllib.error import URLError
 from urllib.request import urlopen
 
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, handle_help_flag)
+                         die_with_usage)
 
 LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'
 UBUNTU_ABC = 'pqrstuvwxyzabcdefghijklmno'  # rotate manually every 10 years or so
@@ -25,7 +25,6 @@ DEBIAN_RELESES = [
     'wheezy'
 ]
 
-handle_help_flag()
 assert_initialized()
 
 try:

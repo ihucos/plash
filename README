@@ -274,6 +274,7 @@ It's like choosing the first Pokemon.
 - Find out what this program is and especially what it not is.
 - Say no to features, say yes to solved used cases.
 - Postpone compromises.
+- Ditch everything that turns out too fiddly.
 - Be as vanilla as you can be
 - Be humble, don't oversell your abstraction layer.
 - Work toward a timeless, finished product that will require no maintainance.

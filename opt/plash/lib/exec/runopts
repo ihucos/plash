@@ -31,9 +31,8 @@ from subprocess import CalledProcessError, check_call
 
 from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         handle_help_flag, mkdtemp)
+                         mkdtemp)
 
-handle_help_flag()
 assert_initialized()
 
 with utils.catch_and_die([getopt.GetoptError], debug='runopts'):

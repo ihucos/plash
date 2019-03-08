@@ -11,9 +11,8 @@
 import sys
 from os import execlp
 
-from plash.utils import die_with_usage, handle_build_args, handle_help_flag
+from plash.utils import die_with_usage, handle_build_args
 
-handle_help_flag()
 handle_build_args()
 
 try:

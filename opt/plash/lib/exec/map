@@ -26,10 +26,9 @@ import sys
 from os.path import join
 
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, handle_help_flag,
+                         die_with_usage,
                          mkdtemp, nodepath_or_die)
 
-handle_help_flag()
 assert_initialized()
 
 plash_data = os.environ["PLASH_DATA"]

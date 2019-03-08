@@ -11,7 +11,8 @@ test "$(echo 'echo itsbash' | plash sudo)" = 'itsbash'
 set +e
 out=$(plash sudo cmdnotfound 2>&1)
 set -e
-test "$out" = 'cmdnotfound: command not found'
+[[ "$out" = *'No such file or directory'* ]]
+[[ "$out" = *'cmdnotfound'* ]]
 
 : different user and mount namespace
 test ! "$(readlink /proc/self/ns/{mnt,user})" = "$(plash sudo readlink /proc/self/ns/{mnt,user})"

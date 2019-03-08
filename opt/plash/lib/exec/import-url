@@ -12,7 +12,7 @@ from urllib.request import urlopen, urlretrieve
 
 import plash
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, handle_help_flag, mkdtemp)
+                         die_with_usage, mkdtemp)
 
 MAX_SIGNATURE_LENGTH = 8192
 
@@ -25,7 +25,6 @@ def reporthook(count, block_size, total_size):
             sys.stderr.write('\n')
 
 
-handle_help_flag()
 assert_initialized()
 
 try:

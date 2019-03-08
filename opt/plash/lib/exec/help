@@ -1,35 +1,62 @@
 #!/usr/bin/env python3
 #
-# usage: plash help
-# List all available subcommands.
+# usage: plash help [SUBCOMMAND]
+# Prints help. List all commands or prints a help text for one
+# command.
 
 import sys
 import os
 from os import listdir
 from os.path import dirname, join, islink
+import re
 
-from plash.utils import handle_help_flag
+from plash import utils
 
-handle_help_flag()
+FIRST_SENTENCE_RE = "# usage: .*?\n(?:#\n)*?# (.*?)\.".replace("#", "(?:#|//)")
+
+
+libexecdir = os.path.dirname(sys.argv[0])
+if len(sys.argv) >= 2:
+    cmd = sys.argv[1]
+    prog_path =  os.path.join(libexecdir, cmd)
+    if os.access(prog_path + ".c", os.F_OK):
+        prog_path += ".c"
+    try:
+        with open(prog_path) as f:
+            do_print = False
+            for line in f.readlines():
+                if line.startswith('# usage:') or line.startswith('// usage:'):
+                    do_print = True
+                elif line and not (line.startswith('#') or line.startswith('//')):
+                    break
+                if do_print:
+                    print(line[2:].rstrip('\n'))
+    except FileNotFoundError:
+        utils.die("no such command: {}".format(cmd))
+    sys.exit(0)
 
 bin = dirname(sys.argv[0])
-progs = [i for i in listdir(bin) if not i.startswith('.')]
+progs = [i for i in listdir(bin) if os.access(join(bin, i), os.X_OK)]
 max_prog_lenght = len('plash ') + max(len(prog) for prog in progs)
 for prog in sorted(progs):
     prog_path = join(bin, prog)
+
+    if os.access(prog_path + ".c", os.F_OK):
+        prog_path += ".c"
+
     if islink(prog_path):
         #continue # it's an alias
         links_to = os.readlink(prog_path)
         first_sentence = 'Alias for `plash {}`'.format(links_to)
     else:
-        first_sentence = '<empty>'
         with open(prog_path) as f:
-            lines = f.readlines()
-        for line, next_line, next_next_line in zip(lines, lines[1:], lines[2:]):
-            if line.startswith('# usage:'):
-                first_sentence = next_line[2:-1].split('.')[0]
-                if not first_sentence:  # try the next line
-                    first_sentence = next_next_line[2:-1].split('.')[0]
+            content = f.read()
+        found = re.findall(FIRST_SENTENCE_RE, content)
+        if not found:
+            first_sentence = '<empty>'
+        else:
+            first_sentence = found[0]
+          
 
     assert first_sentence
     print(('plash ' + prog).ljust(max_prog_lenght), first_sentence)

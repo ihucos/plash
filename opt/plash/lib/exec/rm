@@ -11,9 +11,8 @@ import sys
 from shutil import rmtree
 
 from plash.utils import (die_with_usage, handle_build_args,
-                         handle_help_flag, mkdtemp, nodepath_or_die)
+                         mkdtemp, nodepath_or_die)
 
-handle_help_flag()
 handle_build_args()
 
 try:

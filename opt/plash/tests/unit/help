@@ -1,5 +1,22 @@
-#!/bin/sh
+#!/bin/bash
 set -xeu
 
 : calling it returns success
 plash help
+
+
+: calling it lists some commands
+[[ $(plash help) = *"plash run"* ]]
+[[ $(plash help) = *"plash sudo"* ]]
+[[ $(plash help) = *"plash with-mount"* ]]
+
+: test help message for one program
+[[ $(plash help help) = *"usage: plash help"* ]]
+
+: test help message for one program that is writte in C
+[[ $(plash help sudo) = *"usage: plash sudo"* ]]
+
+: call for each command
+plash help | head -n -1 | cut -d' ' -f2 | xargs -L1 plash help
+
+[[ "$(plash help xxxx 2>&1)" = *"no such command: xxx"* ]]
