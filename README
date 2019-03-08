@@ -167,10 +167,10 @@ Check out the tutorial: http://plash.io/
 Note: in this sectiont the focus is on usability, not immaculate accuracy.
 
 For unprivileged use:
-  - unionfs-fuse if not Ubuntu
-  - Kernel >= 4.18 or Ubuntu
-  - Support for user and mount namespaces
-
+  - optional newuidmap/newgidmap for setuid/setgid support
+  - unionfs-fuse or Ubuntu
+  - vanilla kernel >= 4.18 or Ubuntu
+  
 For privileged use:
   - Support for mount namespaces
 
