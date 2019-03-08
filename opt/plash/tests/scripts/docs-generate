@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -eux
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+: simple gen-docs invocation
+tmpd=$(mktemp -d)
+"$DIR"/../../scripts/docs-generate "$tmpd"
+
+: test an index is created
+stat "$tmpd"/index.html
