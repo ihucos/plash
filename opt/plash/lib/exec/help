@@ -10,6 +10,8 @@ from os import listdir
 from os.path import dirname, join, islink
 import re
 
+from plash import utils
+
 FIRST_SENTENCE_RE = "# usage: .*?\n(?:#\n)*?# (.*?)\.".replace("#", "(?:#|//)")
 
 
@@ -19,15 +21,18 @@ if len(sys.argv) >= 2:
     prog_path =  os.path.join(libexecdir, cmd)
     if os.access(prog_path + ".c", os.F_OK):
         prog_path += ".c"
-    with open(prog_path) as f:
-        do_print = False
-        for line in f.readlines():
-            if line.startswith('# usage:') or line.startswith('// usage:'):
-                do_print = True
-            elif line and not (line.startswith('#') or line.startswith('//')):
-                break
-            if do_print:
-                print(line[2:].rstrip('\n'))
+    try:
+        with open(prog_path) as f:
+            do_print = False
+            for line in f.readlines():
+                if line.startswith('# usage:') or line.startswith('// usage:'):
+                    do_print = True
+                elif line and not (line.startswith('#') or line.startswith('//')):
+                    break
+                if do_print:
+                    print(line[2:].rstrip('\n'))
+    except FileNotFoundError:
+        utils.die("no such command: {}".format(cmd))
     sys.exit(0)
 
 bin = dirname(sys.argv[0])
