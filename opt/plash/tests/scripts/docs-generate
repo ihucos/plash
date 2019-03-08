@@ -4,6 +4,12 @@ set -eux
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+# skip if jinja2 is not installed
+if ! $(python3 -c 'import jinja2'); then
+  echo "SKIP MARKER"
+  exit 1
+fi
+
 : simple gen-docs invocation
 tmpd=$(mktemp -d)
 "$DIR"/../../scripts/docs-generate "$tmpd"
