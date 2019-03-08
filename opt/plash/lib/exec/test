@@ -5,18 +5,13 @@
 
 set -eu
 
-test " ${1:-}" = ' --help' && {
-  echo 'usage: plash test [TEST-PREFIX]'
-  exit 2
-}
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$DIR/../.."
 
 log=$(mktemp)
 program_exit=0
 cd $PROJECT_DIR/tests
-testfiles=$(find . -type f ! -iname "*.sw*" -ipath "./${1:-}*" | sort)
+testfiles=$(find . -type f -executable -ipath "./${1:-}*" | sort)
 for script in $testfiles ; do
 
   # setup test env
@@ -26,10 +21,6 @@ for script in $testfiles ; do
   plash data touch config/testmode
   plash import-tar $PROJECT_DIR/data/busybox.tar > /dev/null
 
-  if test ! -x "$script"
-  then
-    continue
-  fi
   printf "% -20s" ${script:2} # magic 2 is the length of "./"
   env "$script" > $log 2>&1 &
   if wait $!; then
