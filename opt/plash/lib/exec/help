@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 #
-# usage: plash help
-# List all available subcommands.
+# usage: plash help [SUBCOMMAND]
+# Prints help. List all commands or prints a help text for one
+# command.
 
 import sys
 import os
@@ -9,11 +10,22 @@ from os import listdir
 from os.path import dirname, join, islink
 import re
 
-from plash.utils import handle_help_flag
-
 FIRST_SENTENCE_RE = "# usage: .*?\n(?:#\n)*?# (.*?)\.".replace("#", "(?:#|//)")
 
-handle_help_flag()
+
+libexecdir = os.path.dirname(sys.argv[0])
+if len(sys.argv) >= 2:
+    cmd = sys.argv[1]
+    with open(os.path.join(libexecdir, cmd)) as f:
+        do_print = False
+        for line in f.readlines():
+            if line.startswith('# usage:'):
+                do_print = True
+            elif line and not line.startswith('#'):
+                break
+            if do_print:
+                print(line[2:].rstrip('\n'))
+    sys.exit(0)
 
 bin = dirname(sys.argv[0])
 progs = [i for i in listdir(bin) if os.access(join(bin, i), os.X_OK)]

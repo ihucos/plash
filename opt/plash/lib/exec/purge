@@ -9,9 +9,6 @@ import os
 import sys
 from shutil import rmtree
 
-from plash.utils import handle_help_flag
-
-handle_help_flag()
 plash_data = os.environ["PLASH_DATA"]
 
 if sys.argv[1:2] == ['--yes'] or input('Delete all build data? [y/N] ') == 'y':

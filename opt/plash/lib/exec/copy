@@ -10,7 +10,6 @@ import sys
 
 from plash import utils
 
-utils.handle_help_flag()
 utils.assert_initialized()
 utils.handle_build_args()
 

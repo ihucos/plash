@@ -31,11 +31,10 @@ from subprocess import DEVNULL, CalledProcessError, Popen
 from sys import exit
 
 from plash.utils import (assert_initialized, die, die_with_usage,
-                         handle_build_args, handle_help_flag,
+                         handle_build_args,
                          mkdtemp, nodepath_or_die)
 
 assert_initialized()
-handle_help_flag()
 handle_build_args()
 
 plash_tmp = join(os.environ["PLASH_DATA"], 'tmp')

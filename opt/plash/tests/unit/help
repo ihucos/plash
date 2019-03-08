@@ -1,5 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 set -xeu
 
 : calling it returns success
 plash help
+
+
+: calling it lists some commands
+[[ $(plash help) = *"plash run"* ]]
+[[ $(plash help) = *"plash sudo"* ]]
+[[ $(plash help) = *"plash with-mount"* ]]
+
+: test help message for one program
+[[ $(plash help help) = *"usage: plash help"* ]]

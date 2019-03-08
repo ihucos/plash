@@ -18,7 +18,6 @@ from time import time
 
 from plash import utils
 
-utils.handle_help_flag()
 utils.assert_initialized()
 
 plash_data = os.environ["PLASH_DATA"]

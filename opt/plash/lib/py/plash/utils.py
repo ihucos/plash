@@ -70,20 +70,6 @@ def die_with_usage(*, hint=False):
     sys.exit(2)
 
 
-def handle_help_flag():
-    if len(sys.argv) >= 2 and sys.argv[1] in ('--help', '-h'):
-        with open(sys.argv[0]) as f:
-            do_print = False
-            for line in f.readlines():
-                if line.startswith('# usage:'):
-                    do_print = True
-                elif line and not line.startswith('#'):
-                    break
-                if do_print:
-                    print(line[2:].rstrip('\n'))
-        sys.exit(0)
-
-
 def filter_positionals(args):
     positional = []
     filtered_args = []

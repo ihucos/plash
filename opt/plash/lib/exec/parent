@@ -10,9 +10,7 @@
 from os.path import basename, dirname
 from sys import argv
 
-from plash.utils import die, die_with_usage, handle_help_flag, nodepath_or_die
-
-handle_help_flag()
+from plash.utils import die, die_with_usage, nodepath_or_die
 
 try:
     container = argv[1]

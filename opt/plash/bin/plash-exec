@@ -16,10 +16,8 @@ import sys
 
 import plash
 from plash.eval import get_hint_values
-from plash.utils import (assert_initialized, catch_and_die, die,
-                         handle_help_flag, run_write_read)
+from plash.utils import (assert_initialized, catch_and_die, die, run_write_read)
 
-handle_help_flag()
 assert_initialized()
 
 try:
