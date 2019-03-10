@@ -35,13 +35,24 @@ root@devbox:~/myproject# gitg
 
 
 ###
-# Some features
+# Why plash?
 ###
 
-- Unprivileged users are first-class citizens.
-- No daemons, no homemade suid helpers.
-- Portale: runs in many platforms like CI environments, itself and other
-  container software.
+* Security
+Plash instances are run as unprivileged users without any privileged daemons or
+homemade setuid helpers. There is no setup step or sandboxing attempts with
+elevated privileges.  Therefore it is difficult to have privilege escalation
+bugs since there is no code in plash that runs with escalated privileges. All
+capabilities and attributes are inherited from it's parent processes.  The
+process starting a plash container and the plash container itself have the same
+access rights. With plash you can leverage other tools and facilities for
+additional security like running your program by a different user.
+
+* Familiarity
+Plash "containers" are just processes. You can list them with `ps`, send
+signals to them with `kill`, write AppArmor profiles, start them with another
+user for more isolation, run them inside another container software and so on.
+Plash integrates well with the existing ecosystem.
 
 
 ###
