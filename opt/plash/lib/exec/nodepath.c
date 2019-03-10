@@ -24,11 +24,12 @@
 
 
 int main(int argc, char* argv[]) {
+        
+        // FIXME: input validation!!
 
-	char *container;
-	char *indexlink;
-	char *nodepath;
-	char *plash_data = getenv("PLASH_DATA");
+	char *nodepath,
+             *plash_data = getenv("PLASH_DATA");
+
         assert(plash_data);
 
 	if (argc < 2){
@@ -41,13 +42,12 @@ int main(int argc, char* argv[]) {
             pl_fatal("container must not be the special root container ('0')");
 	}
 
+        if (chdir(plash_data) == -1) pl_fatal("chdir");
+        if (chdir("index") == -1)    pl_fatal("chdir");
 
-	asprintf(&indexlink, "%s/index/%s", plash_data, argv[1]
-		) != -1 || pl_fatal("asprintf");
-	if (NULL == (nodepath = realpath(indexlink, NULL))){
+	if (! (nodepath = realpath(argv[1], NULL))){
 		errno = 0;
-		pl_fatal("no container %s", argv[1]);
+		pl_fatal("no container: %s", argv[1]);
 	}
-	free(indexlink);
-	printf("%s\n", nodepath);
+	puts(nodepath);
 }

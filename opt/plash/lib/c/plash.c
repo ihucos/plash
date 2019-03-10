@@ -255,3 +255,35 @@ void pl_setup_user_ns(){
 	free(gid_str);
 	free(pid_str);
 }
+
+char* pl_check_output(char* argv[]){
+  int link[2];
+  pid_t pid;
+  char foo[4096];
+
+  if (pipe(link)==-1)
+    pl_fatal("pipe");
+
+  if ((pid = fork()) == -1)
+    pl_fatal("fork");
+
+  if(pid == 0) {
+
+    dup2 (link[1], STDOUT_FILENO);
+    close(link[0]);
+    close(link[1]);
+    puts(argv[0]);
+    //execvp(argv[0], argv);
+    pl_fatal("exec");
+
+  } else {
+
+    close(link[1]);
+    int nbytes = read(link[0], foo, sizeof(foo));
+    printf("Output: (%.*s)\n", nbytes, foo);
+    wait(NULL);
+
+  }
+  return 0;
+}
+

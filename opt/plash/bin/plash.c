@@ -33,6 +33,14 @@ char* UNSHARE_USER_AND_MOUNT[] = {
 };
 
 
+char* DONT_HANDLE_BUILD_ARGUMENTS[] = {
+        "help",
+        "sudo",
+        "build",
+        NULL
+};
+
+
 int in_arrary(char *array[], char *element){
         size_t i;
         for (i = 0; array[i]; i++){
@@ -62,6 +70,19 @@ int main(int argc, char* argv[]) {
 
         if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
                 pl_fatal("asprintf");
+        //
+        // handle build arguments
+        //
+        if (argc > 2 && strlen(argv[2]) >= 2 && argv[2][0] == '-'
+                     && ! in_arrary(DONT_HANDLE_BUILD_ARGUMENTS, argv[1])){
+                size_t i = 0;
+                while(argv[i] && strcmp(argv[i], "--") != 0) i++;
+                argv[i] = NULL;
+                argv[1] = "build";
+                // while(*argv){puts(argv[0]); argv++;}
+                char *container = pl_check_output(argv);
+                return 1;
+        }
 
         //
         // validate user input
