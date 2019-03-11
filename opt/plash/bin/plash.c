@@ -37,6 +37,8 @@ char* DONT_HANDLE_BUILD_ARGUMENTS[] = {
         "help",
         "sudo",
         "build",
+        "eval",
+        "runopts",
         NULL
 };
 
@@ -70,6 +72,7 @@ int main(int argc, char* argv[]) {
 
         if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
                 pl_fatal("asprintf");
+
         //
         // handle build arguments
         //
@@ -79,9 +82,10 @@ int main(int argc, char* argv[]) {
                 while(argv[i] && strcmp(argv[i], "--") != 0) i++;
                 argv[i] = NULL;
                 argv[1] = "build";
-                // while(*argv){puts(argv[0]); argv++;}
+                //while(*argv){puts(argv[0]); argv++;}
                 char *container = pl_check_output(argv);
-                return 1;
+                printf("X%sX\n", container);
+                return 11;
         }
 
         //

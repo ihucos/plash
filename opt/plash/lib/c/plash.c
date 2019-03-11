@@ -258,32 +258,28 @@ void pl_setup_user_ns(){
 
 char* pl_check_output(char* argv[]){
   int link[2];
-  pid_t pid;
-  char foo[4096];
+  char static output[4096];
 
-  if (pipe(link)==-1)
-    pl_fatal("pipe");
+  if (pipe(link) == -1) pl_fatal("pipe");
 
-  if ((pid = fork()) == -1)
-    pl_fatal("fork");
+  switch(fork()){
+        case -1:
+                 pl_fatal("fork");
 
-  if(pid == 0) {
+        case 0:
+                if (dup2(link[1], STDOUT_FILENO) == -1) pl_fatal("dup2");
+                if (close(link[0]) ==               -1) pl_fatal("close");
+                if (close(link[1]) ==               -1) pl_fatal("close");
+                execvp(argv[0], argv);
+                pl_fatal("exec");
 
-    dup2 (link[1], STDOUT_FILENO);
-    close(link[0]);
-    close(link[1]);
-    puts(argv[0]);
-    //execvp(argv[0], argv);
-    pl_fatal("exec");
-
-  } else {
-
-    close(link[1]);
-    int nbytes = read(link[0], foo, sizeof(foo));
-    printf("Output: (%.*s)\n", nbytes, foo);
-    wait(NULL);
-
-  }
-  return 0;
+        default:
+                if (close(link[1]) == -1) pl_fatal("close");
+                if(read(link[0], output, sizeof(output)) == -1)
+                    pl_fatal("read");
+                output[strcspn(output, "\n")] = 0;
+                if (!output[0]) exit(1);
+                return output;
+    }
 }
 
