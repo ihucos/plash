@@ -51,8 +51,8 @@ users.
 * Lightweight
 Plash is designed for quick command line usage and pick ups more lightweight
 use cases like: I want to use gimp from Arch Linux now (`plash -R gimp --
-gimp`) or needing something more advanced than a virtualenv but simpler than
-Docker.
+gimp`) or needing something more advanced than a virtualenv but more
+unobtrusive than Docker.
 
 * Transparent
 Plash "containers" are just processes. You can list them with `ps`, send
