@@ -185,22 +185,26 @@ Check out the tutorial: http://plash.io/
 Note: in this section the focus is on usability, not immaculate accuracy.
 
 For unprivileged use:
+  - linux Kernel >= 4.18
   - optional newuidmap/newgidmap for setuid/setgid support
-  - unionfs-fuse or Ubuntu
-  - vanilla kernel >= 4.18 or Ubuntu
+  - unionfs-fuse
+  - python3
   
-For privileged use:
-  - Support for mount namespaces
-
 Failsafe mode:
   - root access
+  - any Linux Kernel
   - chroot system call
-  - a `mount` binary
+  - mount system call
   - overlay or unionfs-fuse
+  - python3
 
-  Warning: The failsafe mode does not clean up mountpoints. It is designed to
+  WARNING: The failsafe mode does not clean up mountpoints. It is designed to
   run inside another short lived container/machine/mount namespace. Enable with
   `export PLASH_NO_UNSHARE=1`
+
+For privileged use:
+  - all from failsafe mode
+  - support for mount namespaces
 
 
 ###
