@@ -253,9 +253,9 @@ you have to decide for one of them right after initializing a build directory.
 ###
 
 Plash will fallback to single user mapping if newuidmap/newgidmap is not
-installed or the user is not configured properly in "/etc/subuid" and
-"/etc/subgid". Especially the apt package managers need this configuration to
-work properly inside plash.
+installed or subuids/subgids for the current user are not configured properly
+in "/etc/subuid" and "/etc/subgid". Especially the apt package manager need
+this configuration to work properly inside plash.
 
 
 ###
