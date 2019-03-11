@@ -103,7 +103,7 @@ state is reached. There never ever will be a "plash 2" or "plash 3".
 # Plashfiles
 ###
 
-Plashfiles are executable build files featuring an lightweight configuration
+Plashfiles are executable build files featuring a lightweight configuration
 management language. There may be many use cases like packaging scripts or
 bigger programs in a portable way. Here is an example:
 
