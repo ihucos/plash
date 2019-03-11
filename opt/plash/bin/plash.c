@@ -33,12 +33,16 @@ char* UNSHARE_USER_AND_MOUNT[] = {
 };
 
 
-char* DONT_HANDLE_BUILD_ARGUMENTS[] = {
-        "help",
-        "sudo",
-        "build",
-        "eval",
-        "runopts",
+char* HANDLE_BUILD_ARGUMENTS[] = {
+        "add-layer",
+        "copy",
+        "create",
+        "export-tar",
+        "mount",
+        "rm",
+        "run",
+        "shallow-copy",
+        "with-mount",
         NULL
 };
 
@@ -50,6 +54,36 @@ int in_arrary(char *array[], char *element){
         }
         return 0;
 }
+
+
+
+void build_argv(char *argv[]){
+                size_t i = 0, c = 0;
+                char *container, *origcmd = argv[1];
+
+
+                // transform argv
+                // from: plash run -U xeyes -- xeyes
+                // to:   plash build -U xeyes
+                while(argv[i] && strcmp(argv[i], "--") != 0) i++;
+                argv[i] = NULL;
+                argv[1] = "build";
+
+                // run argv
+                container = pl_check_output(argv);
+
+                // transform argv
+                // from: plash build -U xeyes
+                // to:   plash run 42 xeyes
+                argv[c++] = "plash";
+                argv[c++] = origcmd;
+                argv[c++] = container;
+                for(i++; argv[i]; i++){
+                        argv[c++] = argv[i];
+                }
+                argv[c++] = NULL;
+                //while(*argv){puts(argv[0]); argv++;}
+        }
 
 int main(int argc, char* argv[]) {
 
@@ -77,16 +111,7 @@ int main(int argc, char* argv[]) {
         // handle build arguments
         //
         if (argc > 2 && strlen(argv[2]) >= 2 && argv[2][0] == '-'
-                     && ! in_arrary(DONT_HANDLE_BUILD_ARGUMENTS, argv[1])){
-                size_t i = 0;
-                while(argv[i] && strcmp(argv[i], "--") != 0) i++;
-                argv[i] = NULL;
-                argv[1] = "build";
-                //while(*argv){puts(argv[0]); argv++;}
-                char *container = pl_check_output(argv);
-                printf("X%sX\n", container);
-                return 11;
-        }
+                     && in_arrary(HANDLE_BUILD_ARGUMENTS, argv[1])) build_argv(argv);
 
         //
         // validate user input

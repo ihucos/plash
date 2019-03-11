@@ -11,7 +11,6 @@ import sys
 from plash import utils
 
 utils.assert_initialized()
-utils.handle_build_args()
 
 try:
     container, outdir = sys.argv[1:3]

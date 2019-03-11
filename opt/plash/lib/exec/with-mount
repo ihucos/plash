@@ -16,10 +16,8 @@ import sys
 from subprocess import CalledProcessError, check_call
 
 from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, get_default_user_shell, handle_build_args,
-                         mkdtemp)
+                         die_with_usage, get_default_user_shell mkdtemp)
 
-handle_build_args()
 assert_initialized()
 
 try:
