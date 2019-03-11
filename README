@@ -186,13 +186,13 @@ Note: in this section the focus is on usability, not immaculate accuracy.
 
 For unprivileged use:
   - linux Kernel >= 4.18
-  - optional newuidmap/newgidmap for setuid/setgid support
   - unionfs-fuse
+  - optional newuidmap/newgidmap for setuid/setgid support
   - python3
   
 Failsafe mode:
-  - root access
   - any Linux Kernel
+  - root access
   - chroot system call
   - mount system call
   - overlay or unionfs-fuse
