@@ -337,8 +337,8 @@ Some python3, some C. Very little code, very maintainable.
 
 * How does plash compare to Docker?
 Docker is a bloated SUV you have to bring to the car workshop every week, for
-random alterations, features and new advertising stickers. Plash is a raw fixed
-gear bike, but the welds are still hot and nobody checked the bolts yet.
+random alterations, features and new advertising stickers. Plash is a nice
+fixed gear bike, but the welds are still hot and nobody checked the bolts yet.
 
 * Can I run this in production?
 You can. It probably still has some warts, what I can guarantee is to
