@@ -28,7 +28,7 @@ Plash is a tool to run, build and manage containers.
 Unlike containers, plash instances are just chrooted, user-mapped processes
 that interact naturally with the host operating system and each other. Plash
 attempts to find the sweet spot between the isolation of containers and the
-trivial resource availability of processes. An example:
+trivial resource availability of a processe. An example:
 
 user@devbox:~/myproject$ plash -f ubuntu --apt gitg
 root@devbox:~/myproject# gitg
@@ -38,21 +38,27 @@ root@devbox:~/myproject# gitg
 # Why plash?
 ###
 
-* Security
+* Secure
 Plash instances are run as unprivileged users without any privileged daemons or
 homemade setuid helpers. There is no setup step or sandboxing attempts with
-elevated privileges.  Therefore it is difficult to have privilege escalation
-bugs since there is no code in plash that runs with escalated privileges. All
-capabilities and attributes are inherited from it's parent processes.  The
-process starting a plash container and the plash container itself have the same
-access rights. With plash you can leverage other tools and facilities for
-additional security like running your program by a different user.
+elevated privileges. Therefore it is difficult to have privilege escalation
+bugs since there is no code in plash that runs with escalated privileges at
+all. The process starting a plash container and the plash container itself have
+the same access rights. With plash you can leverage other existing tools and
+facilities for additional security like simply creating and using additional
+users.
 
-* Familiarity
+* Lightweight
+Plash is designed for quick command line usage and pick ups more lightweight
+use cases like: I want to use gimp from Arch Linux now (`plash -R gimp --
+gimp`) or needing something more advanced than a virtualenv but simpler than
+Docker.
+
+* Transparent
 Plash "containers" are just processes. You can list them with `ps`, send
-signals to them with `kill`, write AppArmor profiles, start them with another
-user for more isolation, run them inside another container software and so on.
-Plash integrates well with the existing ecosystem.
+signals to them with `kill`, write AppArmor profiles or run them within another
+container software and so on. Plash integrates well with the existing
+ecosystem.
 
 
 ###
@@ -90,16 +96,16 @@ Examples:
 
 One goal of plash is to have strong backwards compatibility. As the project
 matures, less and less breaking changes will be introduced until a finished
-state is reached.
+state is reached. There never ever will be a "plash 2" or "plash 3".
 
 
 ###
 # Plashfiles
 ###
 
-Plashfiles are executable build files featuring an extendable, lightweight
-configuration management language. There may be many use cases like packaging
-scripts or bigger programs in a portable way. Here is an example:
+Plashfiles are executable build files featuring an lightweight configuration
+management language. There may be many use cases like packaging scripts or
+bigger programs in a portable way. Here is an example:
 
 $ cat ~/bin/gtk-hello-world
 #!/usr/bin/env plash-exec
@@ -190,7 +196,7 @@ Failsafe mode:
   - root access
   - chroot system call
   - a `mount` binary
-  - Linux kernel or unionfs-fuse
+  - overlay or unionfs-fuse
 
   Warning: The failsafe mode does not clean up mountpoints. It is designed to
   run inside another short lived container/machine/mount namespace. Enable with
@@ -236,6 +242,16 @@ system. If you can, go with "overlay".
 
 Note that "overlay" and "unionfs-fuse" may not be compatible to each other, so
 you have to decide for one of them right after initializing a build directory.
+
+
+###
+# setuid/setgid support
+###
+
+Plash will fallback to single user mapping if newuidmap/newgidmap is not
+installed or the user is not configured properly in "/etc/subuid" and
+"/etc/subgid". Especially the apt package managers need this configuration to
+work properly inside plash.
 
 
 ###
