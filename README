@@ -182,7 +182,7 @@ Check out the tutorial: http://plash.io/
 # Requirements
 ###
 
-Note: in this sectiont the focus is on usability, not immaculate accuracy.
+Note: in this section the focus is on usability, not immaculate accuracy.
 
 For unprivileged use:
   - optional newuidmap/newgidmap for setuid/setgid support
