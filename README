@@ -336,19 +336,9 @@ plash is licensed under the MIT Licence.
 Some python3, some C. Very little code, very maintainable.
 
 * How does plash compare to Docker?
-There are no efforts to implement features like image distribution, process
-management, or orchestration in plash. Instead plash works nicely with docker
-or other software in the ecosystem. You can use plash to run docker in your
-system or run your plash containers inside docker. If you for exampling are
-using docker but want to have containers inside your docker container, you
-could use plash. You can also access docker images from plash or export plash
-images to docker. Another use case is to build docker images inside docker
-containers.  They are two software with completely different philosophies.
-Docker is kind of a big framework that tries to solve all your container
-related problems. Plash on the other hand tries to be a flexible minimalistic
-command line tool that is only concerned with the essential needs of using
-containers. Both approaches are totally valid and very different. Comparing the
-code base between the two projects is also difficult.
+Docker is a bloated SUV you have to bring to the car workshop every week, for
+random alterations, features and new advertising stickers. Plash is a raw fixed
+gear bike, but the welds are still hot and nobody checked the bolts yet.
 
 * Can I run this in production?
 You can. It probably still has some warts, what I can guarantee is to
