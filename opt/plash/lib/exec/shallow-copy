@@ -31,7 +31,6 @@ import sys
 import os
 import io
 
-utils.handle_help_flag()
 utils.handle_build_args()
 
 try:

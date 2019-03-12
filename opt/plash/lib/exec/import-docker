@@ -12,7 +12,6 @@ try:
     image = sys.argv[1]
 except IndexError:
     utils.die_with_usage()
-utils.handle_help_flag()
 
 with utils.catch_and_die([FileNotFoundError, subprocess.CalledProcessError]):
     subprocess.check_call(['docker', 'pull', image], stdout=2)
