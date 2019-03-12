@@ -56,34 +56,6 @@ int in_arrary(char *array[], char *element){
 }
 
 
-
-void build_argv(char *argv[]){
-                size_t i = 0, c = 0;
-                char *container, *origcmd = argv[1];
-
-                // transform argv
-                // from: plash run -U xeyes -- xeyes
-                // to:   plash build -U xeyes
-                while(argv[i] && strcmp(argv[i], "--") != 0) i++;
-                argv[i] = NULL;
-                argv[1] = "build";
-
-                // run argv
-                container = pl_check_output(argv);
-
-                // transform argv
-                // from: plash build -U xeyes
-                // to:   plash run 42 xeyes
-                argv[c++] = "plash";
-                argv[c++] = origcmd;
-                argv[c++] = container;
-                for(i++; argv[i]; i++){
-                        argv[c++] = argv[i];
-                }
-                argv[c++] = NULL;
-                //while(*argv){puts(argv[0]); argv++;}
-        }
-
 void expand_implicit_run(int *argc_ptr, char ***argv_ptr){
         // from: plash -A xeyes -- xeyes
         //  to: plash run -A xeyes -- xeyes
@@ -110,6 +82,7 @@ int main(int argc, char* argv[]) {
                 return 1;
         }
 
+        if (strlen(argv[1]) >= 2 && argv[1][1] == '-' && ! )
         expand_implicit_run(&argc, &argv);
         for ( ; *argv; argv++) puts(*argv);
         exit(4);
