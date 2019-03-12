@@ -84,6 +84,25 @@ void build_argv(char *argv[]){
                 //while(*argv){puts(argv[0]); argv++;}
         }
 
+void expand_implicit_run(int *argc_ptr, char ***argv_ptr){
+        // from: plash -A xeyes -- xeyes
+        //  to: plash run -A xeyes -- xeyes
+
+        int argc = *argc_ptr;
+        char **newargv;
+        char **argv = *argv_ptr;
+
+        if (!(newargv = malloc((argc + 2) * sizeof(char*))))
+               pl_fatal("malloc");
+
+        *(newargv++) = *(argv++);
+        *(newargv++) = "run";
+        while(*(newargv++) = *(argv++));
+
+        *argv_ptr = newargv - argc - 2;
+        *argc_ptr = argc + 1;
+}
+
 int main(int argc, char* argv[]) {
 
         if (argc <= 1){
@@ -91,18 +110,10 @@ int main(int argc, char* argv[]) {
                 return 1;
         }
 
-        //
-        // handle implicit run
-        //
-        if (argv[1][0] == '-'){
-           char* newargv[argc + 2];
-           newargv[0] = argv[0];
-           newargv[1] = "run";
-           size_t i;
-           for(i = 0; i < (argc + 1); i++) newargv[i+2] = argv[i+1];
-           argv = newargv;
-           perror("oops");
-        }
+        expand_implicit_run(&argc, &argv);
+        for ( ; *argv; argv++) puts(*argv);
+        exit(4);
+
 
         struct passwd *pwd;
         char *bindir =           pl_path("../bin"),
