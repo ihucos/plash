@@ -107,24 +107,40 @@ void D(char *arr[]){
 
 void build_argv(int argc, char *argv[]){
 
-                char *buildargs[argc];
+                char *build_array[argc];
 
-                char **build = buildargs,
+                char **build = build_array,
                      **new_argv = argv,
                      **orig_argv = argv;
 
-                *build++ = *argv++;
-                *build++ = "build";
-                argv++; // pop subcommand
+                // "new_argv" and "build" get  argv[0] as first element
+                *new_argv++ = *build++ = *argv++;
 
+                // build has "build" as second element
+                *build++ = "build";
+
+                // new_argv gets argv[1] as second element
+                *new_argv++ = *argv++;
+
+                // wind up all to the "build" variable until the end or "--" is
+                // reached
                 while((*argv && strcmp(*argv, "--") != 0))
                         *build++ = *argv++;
+
+                // chop "--" from our buffer, if any
+                if (*argv) argv++;
+
+                // "build" is done
                 *build++ = NULL;
+
+                // new_argv's third element is a freshly builded container id
+                *new_argv++ = pl_check_output(build_array);
+
 
                 while(*argv) *new_argv++ = *argv++;
                 *new_argv++ = NULL;
 
-                D(buildargs);
+                D(build_array);
                 D(orig_argv);
                 exit(1);
 
