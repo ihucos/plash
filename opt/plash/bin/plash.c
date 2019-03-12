@@ -13,47 +13,59 @@
 #include <plash.h>
 
 
-char* UNSHARE_USER[] = {
-        "add-layer",
-        "clean",
-        "copy",
-        "import-tar",
-        "purge",
-        "rm",
-        "shrink",
-        NULL
+#define SUBC_UNSHARE_USER      (1 << 0)
+#define SUBC_UNSHARE_MOUNT     (1 << 1)
+#define SUBC_BUILD             (1 << 2)
+
+
+struct subc {
+        char *name;
+        unsigned int flags;
 };
 
-char* UNSHARE_USER_AND_MOUNT[] = {
-        "runopts",
-        "shallow-copy",
-        "sudo",
-        "with-mount",
-        NULL
+struct subc subcommands_array[] = {
+        {"add-layer",     SUBC_BUILD | SUBC_UNSHARE_USER},
+        {"build",         },
+        {"clean",         SUBC_UNSHARE_USER},
+        {"copy",          SUBC_BUILD | SUBC_UNSHARE_USER},
+        {"create",        SUBC_BUILD},
+        {"data",          },
+        {"eval",          },
+        {"export-tar",    SUBC_BUILD | SUBC_UNSHARE_USER},
+
+        {"help",          },
+        {"-h",            },
+        {"--help",        },
+
+        {"help-macros",   },
+        {"--help-macros", },
+
+        {"import-docker", },
+        {"import-lxc",    },
+        {"import-tar",    },
+        {"import-url",    },
+        {"init",          },
+        {"map",           },
+        {"mount",         SUBC_BUILD},
+        {"nodepath",      },
+        {"parent",        },
+        {"purge",         SUBC_UNSHARE_USER},
+        {"rm",            SUBC_BUILD | SUBC_UNSHARE_USER},
+        {"run",           SUBC_BUILD},
+        {"runopts",       SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
+        {"shallow-copy",  SUBC_BUILD | SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
+        {"shrink",        SUBC_UNSHARE_USER},
+        {"sudo",          SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
+        {"test",          },
+
+        {"version",       },
+        {"--version",     },
+
+        {"with-mount",    SUBC_BUILD | SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
+
+        {NULL, 0},
+
 };
-
-
-char* HANDLE_BUILD_ARGUMENTS[] = {
-        "add-layer",
-        "copy",
-        "create",
-        "export-tar",
-        "mount",
-        "rm",
-        "run",
-        "shallow-copy",
-        "with-mount",
-        NULL
-};
-
-
-int in_arrary(char *array[], char *element){
-        size_t i;
-        for (i = 0; array[i]; i++){
-                if (strcmp(array[i], element) == 0) return 1;
-        }
-        return 0;
-}
 
 
 void expand_implicit_run(int *argc_ptr, char ***argv_ptr){
@@ -82,12 +94,6 @@ int main(int argc, char* argv[]) {
                 return 1;
         }
 
-        if (strlen(argv[1]) >= 2 && argv[1][1] == '-' && ! )
-        expand_implicit_run(&argc, &argv);
-        for ( ; *argv; argv++) puts(*argv);
-        exit(4);
-
-
         struct passwd *pwd;
         char *bindir =           pl_path("../bin"),
              *libexecdir =       pl_path("../lib/exec"),
@@ -100,14 +106,27 @@ int main(int argc, char* argv[]) {
              *libexecfile,
              *newpath;
 
+        //
+        // load subcommand to currcmd
+        //
+        struct subc *currcmd;
+        for(
+            currcmd = subcommands_array;
+            currcmd->name && strcmp(currcmd->name, argv[1]) != 0;
+            currcmd++
+        );
+        if (! currcmd->name)
+                pl_fatal("no such command: %s (try `plash help`)", argv[1]);
+
+
         if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
                 pl_fatal("asprintf");
 
-        //
-        // handle build arguments
-        //
-        if (argc > 2 && strlen(argv[2]) >= 2 && argv[2][0] == '-'
-                     && in_arrary(HANDLE_BUILD_ARGUMENTS, argv[1])) build_argv(argv);
+        ////
+        //// handle build arguments
+        ////
+        //if (argc > 2 && strlen(argv[2]) >= 2 && argv[2][0] == '-'
+        //             && in_arrary(HANDLE_BUILD_ARGUMENTS, argv[1])) build_argv(argv);
 
         //
         // validate user input
@@ -139,11 +158,13 @@ int main(int argc, char* argv[]) {
         // setup unsharing
         //
         if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
-                    int unshare_user = in_arrary(UNSHARE_USER, argv[1]);
-                    int unshare_all = in_arrary(UNSHARE_USER_AND_MOUNT, argv[1]);
-                    if ((unshare_user || unshare_all)  && getuid())
+
+                    if (currcmd->flags | SUBC_UNSHARE_USER && getuid())
+                            perror(argv[1]);
                         pl_setup_user_ns();
-                    if (unshare_all){
+
+                    if (currcmd->flags | SUBC_UNSHARE_MOUNT){
+                            perror(argv[1]);
                             if (unshare(CLONE_NEWNS) == -1)
                                 pl_fatal("could not unshare mount namespace");
                             if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
@@ -159,15 +180,5 @@ int main(int argc, char* argv[]) {
         //
         argv++;
         execvp(libexecfile, argv);
-        if (errno == ENOENT){
-                if (argv[0][0] == '-'){
-                        argv--;
-                        argv[0] = "run";
-                        execvp(libexecrun, argv);
-                } else {
-                        errno = 0;
-                        pl_fatal("no such command: %s (try `plash help`)", argv[0]);
-                }
-        }
         pl_fatal("could not exec %s", libexecfile);
 }
