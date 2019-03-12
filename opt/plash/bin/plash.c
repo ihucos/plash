@@ -99,14 +99,38 @@ int find_subcommand_flags(char *cmd){
         return currcmd->flags;
 }
 
-int main(int argc, char* argv[]) {
+void build_argv(char *argv[]){
+                size_t i = 0, c = 0;
+                char *container, *origcmd = argv[1];
 
-        if (argc <= 1){
-                fprintf(stderr, "plash is a container build and run engine, try --help\n");
-                return 1;
+                // transform argv
+                // from: plash run -U xeyes -- xeyes
+                // to:   plash build -U xeyes
+                while(argv[i] && strcmp(argv[i], "--") != 0) i++;
+                argv[i] = NULL;
+                argv[1] = "build";
+
+                // run argv
+                //while(*argv){puts(argv[0]); argv++;}
+                container = pl_check_output(argv);
+
+                // transform argv
+                // from: plash build -U xeyes
+                // to:   plash run 42 xeyes
+                argv[c++] = "plash";
+                argv[c++] = origcmd;
+                argv[c++] = container;
+                for(i++; argv[i]; i++){
+                        argv[c++] = argv[i];
+                }
+                argv[c++] = NULL;
         }
 
+
+int main(int argc, char* argv[]) {
+
         struct passwd *pwd;
+        int subc_flags;
         char *bindir =           pl_path("../bin"),
              *libexecdir =       pl_path("../lib/exec"),
              *libexecrun =       pl_path("../lib/exec/run"),
@@ -118,10 +142,15 @@ int main(int argc, char* argv[]) {
              *libexecfile,
              *newpath;
 
+        if (argc <= 1){
+                fprintf(stderr, "plash is a container build and run engine, try --help\n");
+                return 1;
+        }
+
         //
-        // load subcommand to currcmd
+        // load subcommand flags and handle implicit run
         //
-        int subc_flags = find_subcommand_flags(argv[1]);
+        subc_flags = find_subcommand_flags(argv[1]);
         if (-1 == subc_flags){
                 if (! (strlen(argv[1]) >= 2 && argv[1][0] == '-')){
                         pl_fatal("no such command: %s (try `plash help`)", argv[1]);
@@ -131,15 +160,11 @@ int main(int argc, char* argv[]) {
                 subc_flags = find_subcommand_flags("run");
         }
 
-
-        if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
-                pl_fatal("asprintf");
-
-        ////
-        //// handle build arguments
-        ////
-        //if (argc > 2 && strlen(argv[2]) >= 2 && argv[2][0] == '-'
-        //             && in_arrary(HANDLE_BUILD_ARGUMENTS, argv[1])) build_argv(argv);
+        //
+        // handle build arguments
+        //
+        if (argc > 2 && strlen(argv[2]) >= 2 && argv[2][0] == '-'
+                && subc_flags & SUBC_BUILD) build_argv(argv);
 
         //
         // validate user input
@@ -172,10 +197,10 @@ int main(int argc, char* argv[]) {
         //
         if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
 
-                    if (subc_flags | SUBC_UNSHARE_USER && getuid())
+                    if (subc_flags & SUBC_UNSHARE_USER && getuid())
                         pl_setup_user_ns();
 
-                    if (subc_flags | SUBC_UNSHARE_MOUNT){
+                    if (subc_flags & SUBC_UNSHARE_MOUNT){
                             if (unshare(CLONE_NEWNS) == -1)
                                 pl_fatal("could not unshare mount namespace");
                             if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
@@ -189,7 +214,8 @@ int main(int argc, char* argv[]) {
         //
         // exec lib/exec/<command>
         //
-        argv++;
-        execvp(libexecfile, argv);
+        if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
+                pl_fatal("asprintf");
+        execvp(libexecfile, argv + 1);
         pl_fatal("could not exec %s", libexecfile);
 }
