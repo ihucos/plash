@@ -99,31 +99,48 @@ int find_subcommand_flags(char *cmd){
         return currcmd->flags;
 }
 
-void build_argv(char *argv[]){
-                size_t i = 0, c = 0;
-                char *container, *origcmd = argv[1];
+void D(char *arr[]){
+        int ai;
+        for(ai=0; arr[ai]; ai++) fprintf(stderr, "%s, ", arr[ai]);
+        fprintf(stderr, "\n");
+}
 
-                // transform argv
-                // from: plash run -U xeyes -- xeyes
-                // to:   plash build -U xeyes
-                while(argv[i] && strcmp(argv[i], "--") != 0) i++;
-                argv[i] = NULL;
-                argv[1] = "build";
+void build_argv(int argc, char *argv[]){
 
-                // run argv
-                //while(*argv){puts(argv[0]); argv++;}
-                container = pl_check_output(argv);
+                D(argv);
 
-                // transform argv
-                // from: plash build -U xeyes
-                // to:   plash run 42 xeyes
-                argv[c++] = "plash";
-                argv[c++] = origcmd;
-                argv[c++] = container;
-                for(i++; argv[i]; i++){
-                        argv[c++] = argv[i];
+                char *buildargs[argc],
+                     *cmdargs[argc];
+                int bi = 0,
+                    ci = 0,
+                    ai,
+                    collect_buildargs = 1;
+
+                buildargs[bi++] = argv[0];
+                buildargs[bi++] = "build";
+
+                cmdargs[ci++] = argv[0];
+                cmdargs[ci++] = argv[1];
+                ci++;
+
+                for(ai = 2; argv[ai]; ai++){
+                        if (collect_buildargs){
+                                if (strcmp(argv[ai], "--") == 0){
+                                        collect_buildargs = 0;
+                                        continue;
+                                }
+                                buildargs[bi++] = argv[ai];
+                        } else {
+                                cmdargs[ci++] = argv[ai];
+                        }
                 }
-                argv[c++] = NULL;
+                buildargs[bi++] = NULL;
+                cmdargs[ci++] = NULL;
+
+                cmdargs[2] = pl_check_output(buildargs);
+
+                for(int i=0; argv[i]; i++) argv[i] = cmdargs[i];
+                D(argv);
         }
 
 
@@ -164,7 +181,10 @@ int main(int argc, char* argv[]) {
         // handle build arguments
         //
         if (argc > 2 && strlen(argv[2]) >= 2 && argv[2][0] == '-'
-                && subc_flags & SUBC_BUILD) build_argv(argv);
+                && subc_flags & SUBC_BUILD) {
+
+                build_argv(argc, argv);
+        };
 
         //
         // validate user input
