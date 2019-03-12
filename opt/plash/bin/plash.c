@@ -61,7 +61,6 @@ void build_argv(char *argv[]){
                 size_t i = 0, c = 0;
                 char *container, *origcmd = argv[1];
 
-
                 // transform argv
                 // from: plash run -U xeyes -- xeyes
                 // to:   plash build -U xeyes
@@ -90,6 +89,19 @@ int main(int argc, char* argv[]) {
         if (argc <= 1){
                 fprintf(stderr, "plash is a container build and run engine, try --help\n");
                 return 1;
+        }
+
+        //
+        // handle implicit run
+        //
+        if (argv[1][0] == '-'){
+           char* newargv[argc + 2];
+           newargv[0] = argv[0];
+           newargv[1] = "run";
+           size_t i;
+           for(i = 0; i < (argc + 1); i++) newargv[i+2] = argv[i+1];
+           argv = newargv;
+           perror("oops");
         }
 
         struct passwd *pwd;
