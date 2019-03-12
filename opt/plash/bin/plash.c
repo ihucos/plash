@@ -107,16 +107,15 @@ void D(char *arr[]){
 
 void build_argv(int argc, char *argv[]){
 
-                char *build_array[argc];
-
-                char **build = build_array,
+                char  *build_array[argc],
+                     **build = build_array,
                      **new_argv = argv,
                      **orig_argv = argv;
 
                 // "new_argv" and "build" get  argv[0] as first element
                 *new_argv++ = *build++ = *argv++;
 
-                // build has "build" as second element
+                // variable "build" has string "build" as second element
                 *build++ = "build";
 
                 // new_argv gets argv[1] as second element
@@ -137,31 +136,9 @@ void build_argv(int argc, char *argv[]){
                 *new_argv++ = pl_check_output(build_array);
 
 
+                // wind up all the rest to new_argv
                 while(*argv) *new_argv++ = *argv++;
                 *new_argv++ = NULL;
-
-                D(build_array);
-                D(orig_argv);
-                exit(1);
-
-                //for(argv += 2; *argv; argv++){
-                //        if (collect_buildargs){
-                //                if (strcmp(*argv, "--") == 0){
-                //                        collect_buildargs = 0;
-                //                        continue;
-                //                }
-                //                *build++ = *argv;
-                //        } else {
-                //                *new++ = *argv;
-                //        }
-                //}
-                //*build++ = NULL;
-                //*new++ = NULL;
-
-                ////orig_argv[2] = pl_check_output(buildargs);
-
-                //D(new - 3);
-                //exit(1);
         }
 
 
