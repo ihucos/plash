@@ -18,13 +18,15 @@
 #define SUBC_UNSHARE_MOUNT     (1 << 1)
 #define SUBC_BUILD             (1 << 2)
 
+#define IS_PARAM(argv) (strlen(argv) >= 2 && argv[0] == '-')
 
-struct subc {
+
+struct cmd_conf {
         char *name;
         int flags;
 };
 
-struct subc subcommands_array[] = {
+struct cmd_conf commands_array[] = {
         {"add-layer",     SUBC_BUILD | SUBC_UNSHARE_USER},
         {"build",         },
         {"clean",         SUBC_UNSHARE_USER},
@@ -69,6 +71,18 @@ struct subc subcommands_array[] = {
 };
 
 
+int get_cmd_flags(char *cmd){
+        struct cmd_conf *thiscmd;
+        for(
+            thiscmd = commands_array;
+            thiscmd->name && strcmp(thiscmd->name, cmd) != 0;
+            thiscmd++
+        );
+        if (! thiscmd->name) return -1;
+        return thiscmd->flags;
+}
+
+
 void expand_implicit_run(int *argc_ptr, char ***argv_ptr){
         // from: plash -A xeyes -- xeyes
         //  to: plash run -A xeyes -- xeyes
@@ -86,17 +100,6 @@ void expand_implicit_run(int *argc_ptr, char ***argv_ptr){
 
         *argv_ptr = newargv - argc - 2;
         *argc_ptr = argc + 1;
-}
-
-int find_subcommand_flags(char *cmd){
-        struct subc *currcmd;
-        for(
-            currcmd = subcommands_array;
-            currcmd->name && strcmp(currcmd->name, cmd) != 0;
-            currcmd++
-        );
-        if (! currcmd->name) return -1;
-        return currcmd->flags;
 }
 
 void D(char *arr[]){
@@ -145,7 +148,7 @@ void build_argv(int argc, char *argv[]){
 int main(int argc, char* argv[]) {
 
         struct passwd *pwd;
-        int subc_flags;
+        int flags;
         char *bindir =           pl_path("../bin"),
              *libexecdir =       pl_path("../lib/exec"),
              *libexecrun =       pl_path("../lib/exec/run"),
@@ -165,32 +168,19 @@ int main(int argc, char* argv[]) {
         //
         // load subcommand flags and handle implicit run
         //
-        subc_flags = find_subcommand_flags(argv[1]);
-        if (-1 == subc_flags){
-                if (! (strlen(argv[1]) >= 2 && argv[1][0] == '-')){
+        flags = get_cmd_flags(argv[1]);
+        if (-1 == flags){
+                if (! IS_PARAM(argv[1]))
                         pl_fatal("no such command: %s (try `plash help`)", argv[1]);
-                }
                 expand_implicit_run(&argc, &argv);
                 assert(strcmp(argv[1], "run") == 0);
-                subc_flags = find_subcommand_flags("run");
+                flags = get_cmd_flags("run");
         }
 
         //
         // handle build arguments
         //
-        if (argc > 2 && strlen(argv[2]) >= 2 && argv[2][0] == '-'
-                && subc_flags & SUBC_BUILD) {
-
-                build_argv(argc, argv);
-        };
-
-        //
-        // validate user input
-        //
-        unsigned char c;
-        char *s = argv[1];
-        while ( ( c = *s ) && ( isalpha(c) || c == '-' ) ) ++s;
-        if (*s != '\0') pl_fatal("invalid command: %s", argv[1]);
+        if (flags & SUBC_BUILD && IS_PARAM(argv[2])) build_argv(argc, argv);
 
         //
         // setup environment variables
@@ -215,10 +205,10 @@ int main(int argc, char* argv[]) {
         //
         if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
 
-                    if (subc_flags & SUBC_UNSHARE_USER && getuid())
+                    if (flags & SUBC_UNSHARE_USER && getuid())
                         pl_setup_user_ns();
 
-                    if (subc_flags & SUBC_UNSHARE_MOUNT){
+                    if (flags & SUBC_UNSHARE_MOUNT){
                             if (unshare(CLONE_NEWNS) == -1)
                                 pl_fatal("could not unshare mount namespace");
                             if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
