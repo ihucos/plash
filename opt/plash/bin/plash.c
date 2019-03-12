@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <pwd.h>
@@ -20,7 +21,7 @@
 
 struct subc {
         char *name;
-        unsigned int flags;
+        int flags;
 };
 
 struct subc subcommands_array[] = {
@@ -87,6 +88,17 @@ void expand_implicit_run(int *argc_ptr, char ***argv_ptr){
         *argc_ptr = argc + 1;
 }
 
+int find_subcommand_flags(char *cmd){
+        struct subc *currcmd;
+        for(
+            currcmd = subcommands_array;
+            currcmd->name && strcmp(currcmd->name, cmd) != 0;
+            currcmd++
+        );
+        if (! currcmd->name) return -1;
+        return currcmd->flags;
+}
+
 int main(int argc, char* argv[]) {
 
         if (argc <= 1){
@@ -109,14 +121,15 @@ int main(int argc, char* argv[]) {
         //
         // load subcommand to currcmd
         //
-        struct subc *currcmd;
-        for(
-            currcmd = subcommands_array;
-            currcmd->name && strcmp(currcmd->name, argv[1]) != 0;
-            currcmd++
-        );
-        if (! currcmd->name)
-                pl_fatal("no such command: %s (try `plash help`)", argv[1]);
+        int subc_flags = find_subcommand_flags(argv[1]);
+        if (-1 == subc_flags){
+                if (! (strlen(argv[1]) >= 2 && argv[1][0] == '-')){
+                        pl_fatal("no such command: %s (try `plash help`)", argv[1]);
+                }
+                expand_implicit_run(&argc, &argv);
+                assert(strcmp(argv[1], "run") == 0);
+                subc_flags = find_subcommand_flags("run");
+        }
 
 
         if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
@@ -159,12 +172,10 @@ int main(int argc, char* argv[]) {
         //
         if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
 
-                    if (currcmd->flags | SUBC_UNSHARE_USER && getuid())
-                            perror(argv[1]);
+                    if (subc_flags | SUBC_UNSHARE_USER && getuid())
                         pl_setup_user_ns();
 
-                    if (currcmd->flags | SUBC_UNSHARE_MOUNT){
-                            perror(argv[1]);
+                    if (subc_flags | SUBC_UNSHARE_MOUNT){
                             if (unshare(CLONE_NEWNS) == -1)
                                 pl_fatal("could not unshare mount namespace");
                             if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
