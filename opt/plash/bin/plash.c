@@ -107,40 +107,45 @@ void D(char *arr[]){
 
 void build_argv(int argc, char *argv[]){
 
-                D(argv);
+                char *buildargs[argc];
 
-                char *buildargs[argc],
-                     *cmdargs[argc];
-                int bi = 0,
-                    ci = 0,
-                    ai,
-                    collect_buildargs = 1;
+                char **build = buildargs,
+                     **new_argv = argv,
+                     **orig_argv = argv;
 
-                buildargs[bi++] = argv[0];
-                buildargs[bi++] = "build";
+                *build++ = *argv++;
+                *build++ = "build";
+                argv++; // pop subcommand
 
-                cmdargs[ci++] = argv[0];
-                cmdargs[ci++] = argv[1];
-                ci++;
+                while((*argv && strcmp(*argv, "--") != 0))
+                        *build++ = *argv++;
+                *build++ = NULL;
 
-                for(ai = 2; argv[ai]; ai++){
-                        if (collect_buildargs){
-                                if (strcmp(argv[ai], "--") == 0){
-                                        collect_buildargs = 0;
-                                        continue;
-                                }
-                                buildargs[bi++] = argv[ai];
-                        } else {
-                                cmdargs[ci++] = argv[ai];
-                        }
-                }
-                buildargs[bi++] = NULL;
-                cmdargs[ci++] = NULL;
+                while(*argv) *new_argv++ = *argv++;
+                *new_argv++ = NULL;
 
-                cmdargs[2] = pl_check_output(buildargs);
+                D(buildargs);
+                D(orig_argv);
+                exit(1);
 
-                for(int i=0; argv[i]; i++) argv[i] = cmdargs[i];
-                D(argv);
+                //for(argv += 2; *argv; argv++){
+                //        if (collect_buildargs){
+                //                if (strcmp(*argv, "--") == 0){
+                //                        collect_buildargs = 0;
+                //                        continue;
+                //                }
+                //                *build++ = *argv;
+                //        } else {
+                //                *new++ = *argv;
+                //        }
+                //}
+                //*build++ = NULL;
+                //*new++ = NULL;
+
+                ////orig_argv[2] = pl_check_output(buildargs);
+
+                //D(new - 3);
+                //exit(1);
         }
 
 
