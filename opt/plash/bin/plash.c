@@ -147,19 +147,7 @@ void reexec_consume_build_args(int argc, char *argv[]){
 
 
 int main(int argc, char* argv[]) {
-
-        struct passwd *pwd;
         int flags;
-        char *bindir =               pl_path("../bin"),
-             *libexecdir =           pl_path("../lib/exec"),
-             *libexecrun =           pl_path("../lib/exec/run"),
-             *pylibdir =             pl_path("../lib/py"),
-             *path_env =             getenv("PATH"),
-             *plash_data_env =       getenv("PLASH_DATA"),
-             *plash_no_unshare_env = getenv("PLASH_NO_UNSHARE"),
-             *home,
-             *libexecfile,
-             *newpath;
 
         if (argc <= 1){
                 fprintf(stderr, "plash is a container build and run engine, try --help\n");
@@ -181,6 +169,20 @@ int main(int argc, char* argv[]) {
         //
         if (flags & SUBC_BUILD && IS_CLI_PARAM(argv[2]))
                 reexec_consume_build_args(argc, argv);
+
+
+        struct passwd *pwd;
+        char *bindir =               pl_path("../bin"),
+             *libexecdir =           pl_path("../lib/exec"),
+             *libexecrun =           pl_path("../lib/exec/run"),
+             *pylibdir =             pl_path("../lib/py"),
+             *path_env =             getenv("PATH"),
+             *plash_data_env =       getenv("PLASH_DATA"),
+             *plash_no_unshare_env = getenv("PLASH_NO_UNSHARE"),
+             *home,
+             *libexecfile,
+             *newpath;
+
 
         //
         // setup environment variables
