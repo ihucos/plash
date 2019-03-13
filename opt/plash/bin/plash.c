@@ -18,15 +18,22 @@
 #define SUBC_UNSHARE_MOUNT     (1 << 1)
 #define SUBC_BUILD             (1 << 2)
 
-#define IS_PARAM(argv) (strlen(argv) >= 2 && argv[0] == '-')
+#define IS_CLI_PARAM(argv) (strlen(argv) >= 2 && argv[0] == '-')
 
 
-struct cmd_conf {
+struct cmdconf_entry {
         char *name;
         int flags;
 };
 
-struct cmd_conf commands_array[] = {
+
+void D(char *arr[]){
+        int ai;
+        for(ai=0; arr[ai]; ai++) fprintf(stderr, "%s, ", arr[ai]);
+        fprintf(stderr, "\n");
+}
+
+struct cmdconf_entry all_cmdconfs[] = {
         {"add-layer",     SUBC_BUILD | SUBC_UNSHARE_USER},
         {"build",         },
         {"clean",         SUBC_UNSHARE_USER},
@@ -65,97 +72,91 @@ struct cmd_conf commands_array[] = {
         {"--version",     },
 
         {"with-mount",    SUBC_BUILD | SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
-
         {NULL, 0},
 
 };
 
 
-int get_cmd_flags(char *cmd){
-        struct cmd_conf *thiscmd;
+int lookup_cmdconf_flags(char *cmd){
+        struct cmdconf_entry *currcmd;
         for(
-            thiscmd = commands_array;
-            thiscmd->name && strcmp(thiscmd->name, cmd) != 0;
-            thiscmd++
+            currcmd = all_cmdconfs;
+            currcmd->name && strcmp(currcmd->name, cmd) != 0;
+            currcmd++
         );
-        if (! thiscmd->name) return -1;
-        return thiscmd->flags;
+        return currcmd->name ? currcmd->flags : -1;
 }
 
 
-void expand_implicit_run(int *argc_ptr, char ***argv_ptr){
-        // from: plash -A xeyes -- xeyes
-        //  to: plash run -A xeyes -- xeyes
+void reexec_insert_run(int argc, char **argv){
+        //  it: plash -A xeyes -- xeyes
+        // out: plash run -A xeyes -- xeyes
 
-        int argc = *argc_ptr;
-        char **newargv;
-        char **argv = *argv_ptr;
-
-        if (!(newargv = malloc((argc + 2) * sizeof(char*))))
-               pl_fatal("malloc");
+        char *newargv_array[argc + 2];
+        char **newargv = newargv_array;
 
         *(newargv++) = *(argv++);
         *(newargv++) = "run";
         while(*(newargv++) = *(argv++));
 
-        *argv_ptr = newargv - argc - 2;
-        *argc_ptr = argc + 1;
+        execvp(newargv_array[0], newargv_array);
+        pl_fatal("execvp");
 }
 
-void D(char *arr[]){
-        int ai;
-        for(ai=0; arr[ai]; ai++) fprintf(stderr, "%s, ", arr[ai]);
-        fprintf(stderr, "\n");
+
+void reexec_consume_build_args(int argc, char *argv[]){
+        //  in: plash run -A xeyes -- xeyes
+        // out: plash run 42 xeyes
+
+        char  *build_array[argc],
+             **build = build_array,
+             **new_argv = argv,
+             **orig_argv = argv;
+
+        // "new_argv" and "build" get  argv[0] as first element
+        *new_argv++ = *build++ = *argv++;
+
+        // variable "build" has string "build" as second element
+        *build++ = "build";
+
+        // new_argv gets argv[1] as second element
+        *new_argv++ = *argv++;
+
+        // wind up all to the "build" variable until the end or "--" is
+        // reached
+        while((*argv && strcmp(*argv, "--") != 0))
+                *build++ = *argv++;
+
+        // chop "--" from our buffer, if any
+        if (*argv) argv++;
+
+        // "build" is done
+        *build++ = NULL;
+
+        // new_argv's third element is a freshly builded container id
+        *new_argv++ = pl_check_output(build_array);
+
+
+        // wind up all the rest to new_argv
+        while(*argv) *new_argv++ = *argv++;
+        *new_argv++ = NULL;
+
+        execvp(orig_argv[0], orig_argv);
+        pl_fatal("execvp");
 }
-
-void build_argv(int argc, char *argv[]){
-
-                char  *build_array[argc],
-                     **build = build_array,
-                     **new_argv = argv,
-                     **orig_argv = argv;
-
-                // "new_argv" and "build" get  argv[0] as first element
-                *new_argv++ = *build++ = *argv++;
-
-                // variable "build" has string "build" as second element
-                *build++ = "build";
-
-                // new_argv gets argv[1] as second element
-                *new_argv++ = *argv++;
-
-                // wind up all to the "build" variable until the end or "--" is
-                // reached
-                while((*argv && strcmp(*argv, "--") != 0))
-                        *build++ = *argv++;
-
-                // chop "--" from our buffer, if any
-                if (*argv) argv++;
-
-                // "build" is done
-                *build++ = NULL;
-
-                // new_argv's third element is a freshly builded container id
-                *new_argv++ = pl_check_output(build_array);
-
-
-                // wind up all the rest to new_argv
-                while(*argv) *new_argv++ = *argv++;
-                *new_argv++ = NULL;
-        }
 
 
 int main(int argc, char* argv[]) {
 
         struct passwd *pwd;
         int flags;
-        char *bindir =           pl_path("../bin"),
-             *libexecdir =       pl_path("../lib/exec"),
-             *libexecrun =       pl_path("../lib/exec/run"),
-             *pylibdir =         pl_path("../lib/py"),
-             *path =             getenv("PATH"),
-             *plash_data =       getenv("PLASH_DATA"),
-             *plash_no_unshare = getenv("PLASH_NO_UNSHARE"),
+        char *bindir =               pl_path("../bin"),
+             *libexecdir =           pl_path("../lib/exec"),
+             *libexecrun =           pl_path("../lib/exec/run"),
+             *pylibdir =             pl_path("../lib/py"),
+             *path_env =             getenv("PATH"),
+             *plash_data_env =       getenv("PLASH_DATA"),
+             *plash_no_unshare_env = getenv("PLASH_NO_UNSHARE"),
              *home,
              *libexecfile,
              *newpath;
@@ -168,30 +169,29 @@ int main(int argc, char* argv[]) {
         //
         // load subcommand flags and handle implicit run
         //
-        flags = get_cmd_flags(argv[1]);
+        flags = lookup_cmdconf_flags(argv[1]);
         if (-1 == flags){
-                if (! IS_PARAM(argv[1]))
-                        pl_fatal("no such command: %s (try `plash help`)", argv[1]);
-                expand_implicit_run(&argc, &argv);
-                assert(strcmp(argv[1], "run") == 0);
-                flags = get_cmd_flags("run");
+                if (IS_CLI_PARAM(argv[1]))
+                        reexec_insert_run(argc, argv);
+                pl_fatal("no such command: %s (try `plash help`)", argv[1]);
         }
 
         //
         // handle build arguments
         //
-        if (flags & SUBC_BUILD && IS_PARAM(argv[2])) build_argv(argc, argv);
+        if (flags & SUBC_BUILD && IS_CLI_PARAM(argv[2]))
+                reexec_consume_build_args(argc, argv);
 
         //
         // setup environment variables
         //
-        if (asprintf(&newpath, "%s:%s", bindir, path) == -1)
+        if (asprintf(&newpath, "%s:%s", bindir, path_env) == -1)
                 pl_fatal("asprintf");
         if (setenv("PYTHONPATH", pylibdir , 1) == -1)
                 pl_fatal("setenv");
-        if (setenv("PATH", path ? newpath : bindir, 1) == -1)
+        if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
                  pl_fatal("setenv");
-        if (! plash_data){
+        if (! plash_data_env){
             pwd = getpwuid(getuid());
             if (! pwd) pl_fatal("could not determine your home directory");
             if (asprintf(&home, "%s/.plashdata", pwd->pw_dir) == -1)
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
         //
         // setup unsharing
         //
-        if (!plash_no_unshare || plash_no_unshare[0] == '\0'){
+        if (!plash_no_unshare_env || plash_no_unshare_env[0] == '\0'){
 
                     if (flags & SUBC_UNSHARE_USER && getuid())
                         pl_setup_user_ns();
