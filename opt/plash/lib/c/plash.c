@@ -285,10 +285,11 @@ char* pl_check_output(char* argv[]){
 
 
 void pl_usage(){
-        char c;
+
         FILE *fp;
-	char *progc = NULL;
-        char *prog = realpath("/proc/self/exe", NULL);
+        char c,
+	     *progc = NULL,
+             *prog = realpath("/proc/self/exe", NULL);
 
         if (prog == NULL) pl_fatal("realpath");
 

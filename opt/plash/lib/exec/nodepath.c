@@ -12,37 +12,46 @@
 #define _GNU_SOURCE
 #include <assert.h>
 #include <ctype.h>
+#include <errno.h>
+#include <inttypes.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include <plash.h>
 
 
 int main(int argc, char* argv[]) {
-        
-        // FIXME: input validation!!
 
+        int i;
 	char *nodepath,
-             *plash_data = getenv("PLASH_DATA");
-
-        assert(plash_data);
+             *plash_data_env;
 
 	if (argc < 2){
 	    // plash_die_with_usage();
 	    pl_usage();
 	}
 
+        //
+        // validate input
+        //
+        while(isdigit(argv[1][i])) i++;
+        if (argv[1][i])
+                pl_fatal("container arg must be a positive number");
+
+
+        plash_data_env = getenv("PLASH_DATA");
+        assert(plash_data_env);
+
 	if (0 == strcmp(argv[1], "0") && (
 		argc <= 2 || 0 != strcmp(argv[2], "--allow-root-container"))){
             pl_fatal("container must not be the special root container ('0')");
 	}
 
-        if (chdir(plash_data) == -1) pl_fatal("chdir");
+        if (chdir(plash_data_env) == -1) pl_fatal("chdir");
         if (chdir("index") == -1)    pl_fatal("chdir");
 
 	if (! (nodepath = realpath(argv[1], NULL))){
