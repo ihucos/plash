@@ -15,8 +15,9 @@
 
 
 #define SUBC_UNSHARE_USER      (1 << 0)
-#define SUBC_UNSHARE_MOUNT     (1 << 1)
-#define SUBC_BUILD             (1 << 2)
+#define SUBC_COMMAND_NOT_FOUND (1 << 1)
+#define SUBC_UNSHARE_MOUNT     (1 << 2)
+#define SUBC_BUILD             (1 << 3)
 
 #define IS_CLI_PARAM(argv) (strlen(argv) >= 2 && argv[0] == '-')
 
@@ -72,19 +73,19 @@ struct cmdconf_entry all_cmdconfs[] = {
         {"--version",     },
 
         {"with-mount",    SUBC_BUILD | SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
-        {NULL, 0},
+        {NULL, SUBC_COMMAND_NOT_FOUND},
 
 };
 
 
-int lookup_cmdconf_flags(char *cmd){
+int get_cmd_flags(char *cmd){
         struct cmdconf_entry *currcmd;
         for(
             currcmd = all_cmdconfs;
             currcmd->name && strcmp(currcmd->name, cmd) != 0;
             currcmd++
         );
-        return currcmd->name ? currcmd->flags : -1;
+        return currcmd->flags;
 }
 
 
@@ -136,7 +137,6 @@ void reexec_consume_build_args(int argc, char *argv[]){
         // new_argv's third element is a freshly builded container id
         *new_argv++ = pl_check_output(build_array);
 
-
         // wind up all the rest to new_argv
         while(*argv) *new_argv++ = *argv++;
         *new_argv++ = NULL;
@@ -157,8 +157,8 @@ int main(int argc, char* argv[]) {
         //
         // load subcommand flags and handle implicit run
         //
-        flags = lookup_cmdconf_flags(argv[1]);
-        if (-1 == flags){
+        flags = get_cmd_flags(argv[1]);
+        if (flags & SUBC_COMMAND_NOT_FOUND){
                 if (IS_CLI_PARAM(argv[1]))
                         reexec_insert_run(argc, argv);
                 pl_fatal("no such command: %s (try `plash help`)", argv[1]);
@@ -169,7 +169,6 @@ int main(int argc, char* argv[]) {
         //
         if (flags & SUBC_BUILD && IS_CLI_PARAM(argv[2]))
                 reexec_consume_build_args(argc, argv);
-
 
         struct passwd *pwd;
         char *bindir =               pl_path("../bin"),
@@ -182,7 +181,6 @@ int main(int argc, char* argv[]) {
              *home,
              *libexecfile,
              *newpath;
-
 
         //
         // setup environment variables
