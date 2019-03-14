@@ -26,33 +26,26 @@
 
 int main(int argc, char* argv[]) {
 
-        int i;
+        int i = 0;
 	char *nodepath,
              *plash_data_env;
 
-	if (argc < 2){
-	    // plash_die_with_usage();
-	    pl_usage();
-	}
+	if (argc < 2) pl_usage();
 
-        //
-        // validate input
-        //
+        // validate/normalize input
         while(isdigit(argv[1][i])) i++;
-        if (argv[1][i])
+        if (!i || argv[1][i])
                 pl_fatal("container arg must be a positive number");
-
-
-        plash_data_env = getenv("PLASH_DATA");
-        assert(plash_data_env);
 
 	if (0 == strcmp(argv[1], "0") && (
 		argc <= 2 || 0 != strcmp(argv[2], "--allow-root-container"))){
             pl_fatal("container must not be the special root container ('0')");
 	}
 
+        plash_data_env = getenv("PLASH_DATA");
+        assert(plash_data_env);
         if (chdir(plash_data_env) == -1) pl_fatal("chdir");
-        if (chdir("index") == -1)    pl_fatal("chdir");
+        if (chdir("index") ==     -1)    pl_fatal("chdir");
 
 	if (! (nodepath = realpath(argv[1], NULL))){
 		errno = 0;
