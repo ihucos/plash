@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 
         plash_data_env = getenv("PLASH_DATA");
         assert(plash_data_env);
-        if (chdir(plash_data_env) == -1) pl_fatal("chdir");
+        if (chdir(plash_data_env) == -1) pl_fatal("chdir: %s", plash_data_env);
         if (chdir("index") ==     -1)    pl_fatal("chdir");
 
 	if (! (nodepath = realpath(argv[1], NULL))){
