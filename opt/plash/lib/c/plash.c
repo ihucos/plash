@@ -283,3 +283,29 @@ char* pl_check_output(char* argv[]){
     }
 }
 
+
+void pl_usage(){
+        char c;
+        FILE *fp;
+	char *progc = NULL;
+        char *prog = realpath("/proc/self/exe", NULL);
+
+        if (prog == NULL) pl_fatal("realpath");
+
+	if (asprintf(&progc, "%s.c", prog) == -1)
+		pl_fatal("asprintf");
+
+	if ((fp = fopen(progc, "r")) == NULL)
+	        pl_fatal("fopen");
+
+        if (getc(fp) == EOF) pl_fatal("getc");
+        if (getc(fp) == EOF) pl_fatal("getc");
+        if (getc(fp) == EOF) pl_fatal("getc");
+        while (c != '\n'){
+                if ((c = getc(fp)) == EOF) pl_fatal("getc");
+	        write(STDERR_FILENO, &c, 1);
+        }
+
+	exit(1);
+
+}

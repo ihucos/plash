@@ -1,4 +1,4 @@
-// usage: plash nodepath CONTAINER [--allow-root-container] 
+// usage: plash nodepath CONTAINER [--allow-root-container]
 // Prints the path to a given container. The --allow-root-container option
 // allows the root container ("0") to be specified as container.
 //
@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
 	if (argc < 2){
 	    // plash_die_with_usage();
-	    pl_fatal("this is usage");
+	    pl_usage();
 	}
 
 	if (0 == strcmp(argv[1], "0") && (
