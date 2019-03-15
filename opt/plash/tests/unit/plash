@@ -52,4 +52,9 @@ test "$(PLASH_DATA=myvalue12 plash sudo printenv PLASH_DATA)" == myvalue12
 test "$(echo 'echo itsshell' | plash -f 1)" = 'itsshell'
 test "$(echo 'echo itsshell' | plash run -f 1)" = 'itsshell'
 test "$(echo 'echo itsshell' | plash -f 1 --invalidate-layer)" = 'itsshell'
-[[ "$(plash -- 2>&1)" == *"no such command"* ]]
+[[ "$(plash --  2>&1)" == *"no such command"* ]]
+[[ "$(plash -   2>&1)" == *"no such command"* ]]
+[[ "$(plash a b c   2>&1)" == *"no such command"* ]]
+[[ "$(plash nodepath -f 1   2>&1)" == *"/layer/0"* ]]
+[[ "$(plash nodepath -- 1   2>&1)" == *"/layer/0"* ]]
+[[ "$(plash nodepath -- -a   2>&1)" == *"got: -a" ]]

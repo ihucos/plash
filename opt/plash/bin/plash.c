@@ -19,8 +19,6 @@
 #define SUBC_UNSHARE_MOUNT     (1 << 2)
 #define SUBC_BUILD             (1 << 3)
 
-#define IS_CLI_PARAM(argv) (strlen(argv) >= 2 && argv[0] == '-')
-
 
 struct cmdconf_entry {
         char *name;
@@ -58,7 +56,7 @@ struct cmdconf_entry all_cmdconfs[] = {
         {"init",          },
         {"map",           },
         {"mount",         SUBC_BUILD},
-        {"nodepath",      },
+        {"nodepath",      SUBC_BUILD},
         {"parent",        },
         {"purge",         SUBC_UNSHARE_USER},
         {"rm",            SUBC_BUILD | SUBC_UNSHARE_USER},
@@ -77,6 +75,14 @@ struct cmdconf_entry all_cmdconfs[] = {
 
 };
 
+int is_cli_param(char *param){
+        switch(strlen(param)){
+                case 1: return 0;
+                case 2: return param[0] == '-' && param[1] != '-';
+                default: return param[0] == '-';
+        }
+}
+
 
 int get_cmd_flags(char *cmd){
         struct cmdconf_entry *currcmd;
@@ -88,6 +94,14 @@ int get_cmd_flags(char *cmd){
         return currcmd->flags;
 }
 
+void reexec_pop_first_arg(char **argv){
+        char *cmd = argv[1];
+        argv[1] = argv[0];
+        argv[2] = cmd;
+        argv++;
+        execvp(argv[0], argv);
+        pl_fatal("execvp");
+}
 
 void reexec_insert_run(int argc, char **argv){
         //  it: plash -A xeyes -- xeyes
@@ -159,7 +173,7 @@ int main(int argc, char* argv[]) {
         //
         flags = get_cmd_flags(argv[1]);
         if (flags & SUBC_COMMAND_NOT_FOUND){
-                if (IS_CLI_PARAM(argv[1]))
+                if (is_cli_param(argv[1]))
                         reexec_insert_run(argc, argv);
                 pl_fatal("no such command: %s (try `plash help`)", argv[1]);
         }
@@ -167,8 +181,14 @@ int main(int argc, char* argv[]) {
         //
         // handle build arguments
         //
-        if (flags & SUBC_BUILD && IS_CLI_PARAM(argv[2]))
+        if (flags & SUBC_BUILD && is_cli_param(argv[2]))
                 reexec_consume_build_args(argc, argv);
+
+        // FIXME: NOT WORKING BECUSE IT REBUILDS AGAIN!
+        // pop any "--" as first argument
+        //
+        if(argv[2] && strcmp(argv[2], "--") == 0)
+                reexec_pop_first_arg(argv);
 
         struct passwd *pwd;
         char *bindir =               pl_path("../bin"),

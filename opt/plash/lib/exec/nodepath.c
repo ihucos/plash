@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
         // validate/normalize input
         while(isdigit(argv[1][i])) i++;
         if (!i || argv[1][i])
-                pl_fatal("container arg must be a positive number");
+                pl_fatal("container arg must be a positive number, got: %s", argv[1]);
 
 	if (0 == strcmp(argv[1], "0") && (
 		argc <= 2 || 0 != strcmp(argv[2], "--allow-root-container"))){
