@@ -94,15 +94,6 @@ int get_cmd_flags(char *cmd){
         return currcmd->flags;
 }
 
-void reexec_pop_first_arg(char **argv){
-        char *cmd = argv[1];
-        argv[1] = argv[0];
-        argv[2] = cmd;
-        argv++;
-        execvp(argv[0], argv);
-        pl_fatal("execvp");
-}
-
 void reexec_insert_run(int argc, char **argv){
         //  it: plash -A xeyes -- xeyes
         // out: plash run -A xeyes -- xeyes
@@ -184,11 +175,14 @@ int main(int argc, char* argv[]) {
         if (flags & SUBC_BUILD && is_cli_param(argv[2]))
                 reexec_consume_build_args(argc, argv);
 
-        // FIXME: NOT WORKING BECUSE IT REBUILDS AGAIN!
         // pop any "--" as first argument
         //
-        if(argv[2] && strcmp(argv[2], "--") == 0)
-                reexec_pop_first_arg(argv);
+        if(argv[2] && strcmp(argv[2], "--") == 0){
+                char *cmd = argv[1];
+                argv[1] = argv[0];
+                argv[2] = cmd;
+                argv++;
+        }
 
         struct passwd *pwd;
         char *bindir =               pl_path("../bin"),
