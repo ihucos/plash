@@ -14,10 +14,10 @@
 #include <plash.h>
 
 
-#define SUBC_UNSHARE_USER      (1 << 0)
-#define SUBC_COMMAND_NOT_FOUND (1 << 1)
-#define SUBC_UNSHARE_MOUNT     (1 << 2)
-#define SUBC_BUILD             (1 << 3)
+#define CF_UNSHARE_USER      (1 << 0)
+#define CF_COMMAND_NOT_FOUND (1 << 1)
+#define CF_UNSHARE_MOUNT     (1 << 2)
+#define CF_BUILD             (1 << 3)
 
 
 struct cmdconf_entry {
@@ -33,14 +33,14 @@ void D(char *arr[]){
 }
 
 struct cmdconf_entry all_cmdconfs[] = {
-        {"add-layer",     SUBC_BUILD | SUBC_UNSHARE_USER},
+        {"add-layer",     CF_BUILD | CF_UNSHARE_USER},
         {"build",         },
-        {"clean",         SUBC_UNSHARE_USER},
-        {"copy",          SUBC_BUILD | SUBC_UNSHARE_USER},
-        {"create",        SUBC_BUILD},
+        {"clean",         CF_UNSHARE_USER},
+        {"copy",          CF_BUILD | CF_UNSHARE_USER},
+        {"create",        CF_BUILD},
         {"data",          },
         {"eval",          },
-        {"export-tar",    SUBC_BUILD | SUBC_UNSHARE_USER},
+        {"export-tar",    CF_BUILD | CF_UNSHARE_USER},
 
         {"help",          },
         {"-h",            },
@@ -55,23 +55,23 @@ struct cmdconf_entry all_cmdconfs[] = {
         {"import-url",    },
         {"init",          },
         {"map",           },
-        {"mount",         SUBC_BUILD},
-        {"nodepath",      SUBC_BUILD},
+        {"mount",         CF_BUILD},
+        {"nodepath",      CF_BUILD},
         {"parent",        },
-        {"purge",         SUBC_UNSHARE_USER},
-        {"rm",            SUBC_BUILD | SUBC_UNSHARE_USER},
-        {"run",           SUBC_BUILD},
-        {"runopts",       SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
-        {"shallow-copy",  SUBC_BUILD | SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
-        {"shrink",        SUBC_UNSHARE_USER},
-        {"sudo",          SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
+        {"purge",         CF_UNSHARE_USER},
+        {"rm",            CF_BUILD | CF_UNSHARE_USER},
+        {"run",           CF_BUILD},
+        {"runopts",       CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
+        {"shallow-copy",  CF_BUILD | CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
+        {"shrink",        CF_UNSHARE_USER},
+        {"sudo",          CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
         {"test",          },
 
         {"version",       },
         {"--version",     },
 
-        {"with-mount",    SUBC_BUILD | SUBC_UNSHARE_USER | SUBC_UNSHARE_MOUNT},
-        {NULL, SUBC_COMMAND_NOT_FOUND},
+        {"with-mount",    CF_BUILD | CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
+        {NULL, CF_COMMAND_NOT_FOUND},
 
 };
 
@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
         // load subcommand flags and handle implicit run
         //
         flags = get_cmd_flags(argv[1]);
-        if (flags & SUBC_COMMAND_NOT_FOUND){
+        if (flags & CF_COMMAND_NOT_FOUND){
                 if (is_cli_param(argv[1]))
                         reexec_insert_run(argc, argv);
                 pl_fatal("no such command: %s (try `plash help`)", argv[1]);
@@ -172,9 +172,10 @@ int main(int argc, char* argv[]) {
         //
         // handle build arguments
         //
-        if (flags & SUBC_BUILD && is_cli_param(argv[2]))
+        if (flags & CF_BUILD && is_cli_param(argv[2]))
                 reexec_consume_build_args(argc, argv);
 
+        //
         // pop any "--" as first argument
         //
         if(argv[2] && strcmp(argv[2], "--") == 0){
@@ -219,10 +220,10 @@ int main(int argc, char* argv[]) {
         //
         if (!plash_no_unshare_env || plash_no_unshare_env[0] == '\0'){
 
-                    if (flags & SUBC_UNSHARE_USER && getuid())
+                    if (flags & CF_UNSHARE_USER && getuid())
                         pl_setup_user_ns();
 
-                    if (flags & SUBC_UNSHARE_MOUNT){
+                    if (flags & CF_UNSHARE_MOUNT){
                             if (unshare(CLONE_NEWNS) == -1)
                                 pl_fatal("could not unshare mount namespace");
                             if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
