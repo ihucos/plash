@@ -29,4 +29,4 @@ plash nodepath 0 --allow-root-container
 [[ "$(PLASH_DATA=/xxx plash nodepath 1 2>&1)" = *"/xxx: No such file or directory" ]]
 
 : no argument gets help message
-[[ "$(plash nodepath)" = *"usage: "* ]]
+[[ "$(plash nodepath 2>&1)" = *"usage: "* ]]
