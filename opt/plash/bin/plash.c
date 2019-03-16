@@ -62,6 +62,7 @@ struct cmdconf_entry all_cmdconfs[] = {
         {"purge",         CF_UNSHARE_USER},
         {"rm",            CF_BUILD | CF_UNSHARE_USER},
         {"run",           CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
+        {"runopts",       CF_UNSHARE_USER | CF_UNSHARE_MOUNT},  // for now
         {"shallow-copy",  CF_BUILD | CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
         {"shrink",        CF_UNSHARE_USER},
         {"sudo",          CF_UNSHARE_USER | CF_UNSHARE_MOUNT},

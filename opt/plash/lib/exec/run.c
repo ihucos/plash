@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/mount.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -44,6 +45,9 @@ int main(int argc, char* argv[]){
                 pl_fatal("asprintf");
         templ_array = &templ;
         tmpdir = mkdtemp(*templ_array);
+
+        if (mount("tmpfs", mountpoint, "tmpfs", MS_MGC_VAL, NULL) < 0)
+                pl_fatal("mount");
 
         pid_t pid = fork(); 
         if ( pid == 0 ) {
