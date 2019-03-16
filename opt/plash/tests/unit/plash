@@ -14,8 +14,8 @@ set -e
 : invoking with unknown command
 [[ "$(plash cmdnotfoundxxx 2>&1)" == *"no such command"* ]]
 
-: invoking bad command
-[[ "$(plash ../blaaah 2>&1)" == *"invalid command"* ]]
+: invoking command that could be a valid path
+[[ "$(plash ../blaaah 2>&1)" == *"no such command"* ]]
 
 : test simple command call
 test "$(plash run 1 printf hi)" = "hi"
@@ -46,3 +46,15 @@ test ! -z ${PLASH_DATA+x}
 
 : test PLASH_DATA can be overwritten
 test "$(PLASH_DATA=myvalue12 plash sudo printenv PLASH_DATA)" == myvalue12
+
+
+: different invocations to test rexecing by argv
+test "$(echo 'echo itsshell' | plash -f 1)" = 'itsshell'
+test "$(echo 'echo itsshell' | plash run -f 1)" = 'itsshell'
+test "$(echo 'echo itsshell' | plash -f 1 --invalidate-layer)" = 'itsshell'
+[[ "$(plash --  2>&1)" == *"no such command"* ]]
+[[ "$(plash -   2>&1)" == *"no such command"* ]]
+[[ "$(plash a b c   2>&1)" == *"no such command"* ]]
+[[ "$(plash nodepath -f 1   2>&1)" == *"/layer/0"* ]]
+[[ "$(plash nodepath -- 1   2>&1)" == *"/layer/0"* ]]
+[[ "$(plash nodepath -- -a   2>&1)" == *"got: -a" ]]

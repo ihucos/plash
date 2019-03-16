@@ -11,3 +11,22 @@ layerup=$(plash build -f $newcont --layer --invalidate-layer)
 nodepath=$(plash nodepath $layerup)
 echo $nodepath | grep $newcont
 echo $nodepath | grep $layerup
+
+: test positive number validation
+[[ "$(plash nodepath xx   2>&1)" = *"positive number"* ]]
+[[ "$(plash nodepath 222x 2>&1)" = *"positive number"* ]]
+[[ "$(plash nodepath x222 2>&1)" = *"positive number"* ]]
+[[ "$(plash nodepath -- -1   2>&1)" = *"positive number"* ]]
+[[ "$(plash nodepath ""   2>&1)" = *"positive number"* ]]
+
+
+: test querying for the special root container
+[[ "$(plash nodepath 0 2>&1)" = *"special root container"* ]]
+[[ "$(plash nodepath 0 --allow-root-container 2>&1)" = *"/layer/0" ]]
+plash nodepath 0 --allow-root-container
+
+: check bad PLASH_DATA error
+[[ "$(PLASH_DATA=/xxx plash nodepath 1 2>&1)" = *"/xxx: No such file or directory" ]]
+
+: no argument gets help message
+[[ "$(plash nodepath 2>&1)" = *"usage: "* ]]

@@ -255,3 +255,58 @@ void pl_setup_user_ns(){
 	free(gid_str);
 	free(pid_str);
 }
+
+char* pl_check_output(char* argv[]){
+  int link[2];
+  char static output[4096];
+
+  if (pipe(link) == -1) pl_fatal("pipe");
+
+  switch(fork()){
+        case -1:
+                 pl_fatal("fork");
+
+        case 0:
+                if (dup2(link[1], STDOUT_FILENO) == -1) pl_fatal("dup2");
+                if (close(link[0]) ==               -1) pl_fatal("close");
+                if (close(link[1]) ==               -1) pl_fatal("close");
+                execvp(argv[0], argv);
+                pl_fatal("exec");
+
+        default:
+                if (close(link[1]) == -1) pl_fatal("close");
+                if(read(link[0], output, sizeof(output)) == -1)
+                    pl_fatal("read");
+                output[strcspn(output, "\n")] = 0;
+                if (!output[0]) exit(1);
+                return output;
+    }
+}
+
+
+void pl_usage(){
+
+        FILE *fp;
+        char c,
+	     *progc = NULL,
+             *prog = realpath("/proc/self/exe", NULL);
+
+        if (prog == NULL) pl_fatal("realpath");
+
+	if (asprintf(&progc, "%s.c", prog) == -1)
+		pl_fatal("asprintf");
+
+	if ((fp = fopen(progc, "r")) == NULL)
+	        pl_fatal("fopen");
+
+        if (getc(fp) == EOF) pl_fatal("getc");
+        if (getc(fp) == EOF) pl_fatal("getc");
+        if (getc(fp) == EOF) pl_fatal("getc");
+        while (c != '\n'){
+                if ((c = getc(fp)) == EOF) pl_fatal("getc");
+	        write(STDERR_FILENO, &c, 1);
+        }
+
+	exit(1);
+
+}
