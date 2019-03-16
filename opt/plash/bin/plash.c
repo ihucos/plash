@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
         //
         // handle build arguments
         //
-        if (flags & CF_BUILD && is_cli_param(argv[2]))
+        if (argc > 2 && flags & CF_BUILD && is_cli_param(argv[2]))
                 reexec_consume_build_args(argc, argv);
 
         //
