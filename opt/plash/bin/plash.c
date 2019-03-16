@@ -35,6 +35,7 @@ void D(char *arr[]){
 struct cmdconf_entry all_cmdconfs[] = {
         {"add-layer",     CF_BUILD | CF_UNSHARE_USER},
         {"build",         },
+        {"chroot",        CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
         {"clean",         CF_UNSHARE_USER},
         {"copy",          CF_BUILD | CF_UNSHARE_USER},
         {"create",        CF_BUILD},
@@ -60,8 +61,7 @@ struct cmdconf_entry all_cmdconfs[] = {
         {"parent",        },
         {"purge",         CF_UNSHARE_USER},
         {"rm",            CF_BUILD | CF_UNSHARE_USER},
-        {"run",           CF_BUILD},
-        {"runopts",       CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
+        {"run",           CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
         {"shallow-copy",  CF_BUILD | CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
         {"shrink",        CF_UNSHARE_USER},
         {"sudo",          CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
