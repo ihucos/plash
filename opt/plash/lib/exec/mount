@@ -12,8 +12,9 @@ import os
 import shutil
 import sys
 from os.path import join
-from subprocess import CalledProcessError, check_call
+from subprocess import CalledProcessError, check_call, DEVNULL
 
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, nodepath_or_die)
 
@@ -84,6 +85,23 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
         ], stdout=2)
 
 
+def mount_fuse_overlayfs(lowerdirs_list, mountpoint, changedir):
+    if not changedir:
+        changedir = utils.mkdtemp()
+    workdir = os.path.join(changedir, 'work')
+    upperdir = os.path.join(changedir, 'data')
+    os.makedirs(workdir, exist_ok=True)
+    os.makedirs(upperdir, exist_ok=True)
+    with catch_and_die([CalledProcessError]):
+        check_call([
+            '/home/ihucos/plash/fuse-overlayfs', '-o',
+            'lowerdir={lowerdir}{workdir}{upperdir}'.format(
+                lowerdir=':'.join(lowerdir_list),
+                upperdir=',upperdir=' + upperdir if upperdir else '',
+                workdir=',workdir=' + workdir if workdir else ''), mountpoint
+        ])
+
+
 def check_mount_option_part(dir):
     if dir and not dir.replace('.', '').replace('/', '').replace(
             '_', '').replace('-', '').isalnum():
@@ -104,4 +122,4 @@ except KeyError:
 for l in lowerdir_list:
     check_mount_option_part(l)
 check_mount_option_part(changedir)
-mount_func(lowerdir_list, mountpoint, changedir)
+mount_fuse_overlayfs(lowerdir_list, mountpoint, changedir)
