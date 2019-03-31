@@ -18,34 +18,33 @@ int main(int argc, char* argv[]) {
 	char i,
 	     *token,
 	     *str,
-	     *origpwd = get_current_dir_name(),
-	     *mounts[] = {
-	             "./dev",
-		     "./home",
-		     "./proc",
-		     "./root",
-		     "./sys",
-		     "./tmp",
-		     "./etc/resolv.conf"
-		};
+	     *origpwd = get_current_dir_name();
 
         if (argc < 2) pl_usage();
 
 	if (!origpwd)  pl_fatal("get_current_dir_name");
 
-	if (chdir(argv[1]) < 0) pl_fatal("cd %s", argv[1]);
 
-	for(i = 0; i < sizeof(mounts) / sizeof(char*); i++){
-		if (0 < mount(mounts[i]+1, mounts[i], "none",
-		                MS_MGC_VAL|MS_BIND|MS_REC, NULL)){
-			if (errno != ENOENT){
-				pl_fatal("rbind %s to %s%s",
-				          mounts[i]+1, origpwd, mounts[i]+1);
-			}
-		}
+
+        while ((getopt(argc, argv, "m:")) != -1);
+	if (chdir(argv[optind]) < 0) pl_fatal("cd %s", argv[1]);
+        optind = 0;
+
+        int c;
+        while ((c = getopt (argc, argv, "m:")) != -1)
+                switch (c) {
+                        case 'm':
+                                // check for absolute
+		                if (0 < mount(optarg, optarg+1, "none",
+		                                MS_MGC_VAL|MS_BIND|MS_REC, NULL)){
+		                	if (errno != ENOENT){
+		                		pl_fatal("rbind for %s", optarg);
+		                	}
+		                }
+                                break;
 	}
 
-	if (chroot(".") < 0)  pl_fatal("could not chroot to %s",
+	if (chroot(argv[optind]) < 0)  pl_fatal("could not chroot to %s",
 	                           get_current_dir_name());
 
 	/* chdir back or fallback to / */
@@ -71,8 +70,6 @@ int main(int argc, char* argv[]) {
 	pl_whitelist_env("PATH");
 	pl_whitelist_env(NULL);
 
-	/* exec away */
-	argv[0] = program_invocation_short_name;
-	execvp(argv[0], argv);
-        pl_fatal("chroot %s/rootfs %s", argv[1], argv[0]);
+	execvp(argv[optind+1], argv + optind + 1);
+        pl_fatal(argv[optind+1]);
 }
