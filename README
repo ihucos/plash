@@ -186,7 +186,7 @@ Note: in this section the focus is on usability, not immaculate accuracy.
 
 For unprivileged use:
   - linux Kernel >= 4.18
-  - unionfs-fuse
+  - unionfs-fuse or fuse-overlayfs
   - optional newuidmap/newgidmap for setuid/setgid support
   - python3
   
@@ -195,7 +195,7 @@ Failsafe mode:
   - root access
   - chroot system call
   - mount system call
-  - overlay or unionfs-fuse
+  - overlay, unionfs-fuse or fuse-overlayfs
   - python3
 
   WARNING: The failsafe mode does not clean up mountpoints. It is designed to
@@ -223,7 +223,7 @@ For privileged use:
 
 - PLASH_INIT_UNION_TASTE
   Tells `plash init` which union filesystem to use for the build data. The
-  default is "unionfs-fuse", the other alternative is "overlay".
+  default is "unionfs-fuse".
 
 - PLASH_NO_UNSHARE
   The failsafe mode. It disables the attempt to create the mountpoints inside a
@@ -246,6 +246,8 @@ system. If you can, go with "overlay".
 
 Note that "overlay" and "unionfs-fuse" may not be compatible to each other, so
 you have to decide for one of them right after initializing a build directory.
+
+Another fuse based filesystem is also supported: "fuse-overlayfs"
 
 
 ###
