@@ -94,7 +94,7 @@ def mount_fuse_overlayfs(lowerdirs_list, mountpoint, changedir):
     os.makedirs(upperdir, exist_ok=True)
     with catch_and_die([CalledProcessError]):
         check_call([
-            '/home/ihucos/plash/fuse-overlayfs', '-o',
+            'fuse-overlayfs', '-o',
             'lowerdir={lowerdir}{workdir}{upperdir}'.format(
                 lowerdir=':'.join(lowerdir_list),
                 upperdir=',upperdir=' + upperdir if upperdir else '',
@@ -108,7 +108,10 @@ def check_mount_option_part(dir):
         die('cowardly dying: bad char(s) in unionfs-fuse/overlay arg: {}'.format(dir))
 
 
-known_union_tastes = {'overlay': mount_overlay, 'unionfs-fuse': mount_unionfs}
+known_union_tastes = {
+    'overlay': mount_overlay,
+    'unionfs-fuse': mount_unionfs,
+    'fuse-overlayfs': mount_fuse_overlayfs}
 
 with open(os.path.join(os.environ["PLASH_DATA"], 'config', 'union_taste')) as f:
     union_taste = f.read().rstrip('\n')
@@ -122,4 +125,4 @@ except KeyError:
 for l in lowerdir_list:
     check_mount_option_part(l)
 check_mount_option_part(changedir)
-mount_fuse_overlayfs(lowerdir_list, mountpoint, changedir)
+mount_func(lowerdir_list, mountpoint, changedir)
