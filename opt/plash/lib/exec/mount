@@ -12,7 +12,7 @@ import os
 import shutil
 import sys
 from os.path import join
-from subprocess import CalledProcessError, check_call, DEVNULL
+from subprocess import CalledProcessError, check_call
 
 from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
@@ -88,6 +88,7 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
 def mount_fuse_overlayfs(lowerdirs_list, mountpoint, changedir):
     if not changedir:
         changedir = utils.mkdtemp()
+        check_mount_option_part(changedir)
     workdir = os.path.join(changedir, 'work')
     upperdir = os.path.join(changedir, 'data')
     os.makedirs(workdir, exist_ok=True)
