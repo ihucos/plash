@@ -59,7 +59,7 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
 
     unionfs = shutil.which('unionfs') or shutil.which('unionfs-fuse') or die(
         'unionfs-fuse seems not to be installed')
-    with catch_and_die([CalledProcessError]):
+    with catch_and_die([CalledProcessError, FileNotFoundError]):
         check_call([
             unionfs, '-o', 'cow', '{upperdir}{lowerdirs}'.format(
                 lowerdirs=lowerdirs_str, upperdir=upperdir_str), mountpoint
@@ -75,7 +75,7 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
     else:
         workdir = None
         upperdir = None
-    with catch_and_die([CalledProcessError]):
+    with catch_and_die([CalledProcessError, FileNotFoundError]):
         check_call([
             'mount', '-t', 'overlay', 'overlay', '-o',
             'lowerdir={lowerdir}{workdir}{upperdir}'.format(
@@ -93,7 +93,7 @@ def mount_fuse_overlayfs(lowerdirs_list, mountpoint, changedir):
     upperdir = os.path.join(changedir, 'data')
     os.makedirs(workdir, exist_ok=True)
     os.makedirs(upperdir, exist_ok=True)
-    with catch_and_die([CalledProcessError]):
+    with catch_and_die([CalledProcessError, FileNotFoundError]):
         check_call([
             'fuse-overlayfs', '-o',
             'lowerdir={lowerdir}{workdir}{upperdir}'.format(
