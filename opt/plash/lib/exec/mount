@@ -14,6 +14,7 @@ import sys
 from os.path import join
 from subprocess import CalledProcessError, check_call
 
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, nodepath_or_die)
 
@@ -58,7 +59,7 @@ def mount_unionfs(lowerdir_list, mountpoint, changedir):
 
     unionfs = shutil.which('unionfs') or shutil.which('unionfs-fuse') or die(
         'unionfs-fuse seems not to be installed')
-    with catch_and_die([CalledProcessError]):
+    with catch_and_die([CalledProcessError, FileNotFoundError]):
         check_call([
             unionfs, '-o', 'cow', '{upperdir}{lowerdirs}'.format(
                 lowerdirs=lowerdirs_str, upperdir=upperdir_str), mountpoint
@@ -74,7 +75,7 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
     else:
         workdir = None
         upperdir = None
-    with catch_and_die([CalledProcessError]):
+    with catch_and_die([CalledProcessError, FileNotFoundError]):
         check_call([
             'mount', '-t', 'overlay', 'overlay', '-o',
             'lowerdir={lowerdir}{workdir}{upperdir}'.format(
@@ -84,13 +85,34 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
         ], stdout=2)
 
 
+def mount_fuse_overlayfs(lowerdirs_list, mountpoint, changedir):
+    if not changedir:
+        changedir = utils.mkdtemp()
+        check_mount_option_part(changedir)
+    workdir = os.path.join(changedir, 'work')
+    upperdir = os.path.join(changedir, 'data')
+    os.makedirs(workdir, exist_ok=True)
+    os.makedirs(upperdir, exist_ok=True)
+    with catch_and_die([CalledProcessError, FileNotFoundError]):
+        check_call([
+            'fuse-overlayfs', '-o',
+            'lowerdir={lowerdir}{workdir}{upperdir}'.format(
+                lowerdir=':'.join(lowerdir_list),
+                upperdir=',upperdir=' + upperdir if upperdir else '',
+                workdir=',workdir=' + workdir if workdir else ''), mountpoint
+        ])
+
+
 def check_mount_option_part(dir):
     if dir and not dir.replace('.', '').replace('/', '').replace(
             '_', '').replace('-', '').isalnum():
         die('cowardly dying: bad char(s) in unionfs-fuse/overlay arg: {}'.format(dir))
 
 
-known_union_tastes = {'overlay': mount_overlay, 'unionfs-fuse': mount_unionfs}
+known_union_tastes = {
+    'overlay': mount_overlay,
+    'unionfs-fuse': mount_unionfs,
+    'fuse-overlayfs': mount_fuse_overlayfs}
 
 with open(os.path.join(os.environ["PLASH_DATA"], 'config', 'union_taste')) as f:
     union_taste = f.read().rstrip('\n')
