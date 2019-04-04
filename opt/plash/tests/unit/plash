@@ -65,9 +65,8 @@ unset PLASH_DATA
 HOME=/myh plash sudo printenv PLASH_DATA
 )" = /myh/.plashdata
 
-homedir=$(getent passwd "$(id -u)" | cut -d: -f6)
 test "$(
 unset PLASH_DATA
 unset HOME
 plash sudo printenv PLASH_DATA
-)" = "$homedir"/.plashdata
+)" = "$(id -nu)"/.plashdata
