@@ -29,6 +29,10 @@ def run(*cmds):
     'directly emit shell script'
     return '\n'.join(cmds)
 
+@register_macro()
+def inline(*cmds):
+    'emit all arguments in one line'
+    return ' '.join(cmds)
 
 @register_macro()
 @shell_escape_args
