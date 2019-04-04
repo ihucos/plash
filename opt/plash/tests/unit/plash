@@ -58,3 +58,16 @@ test "$(echo 'echo itsshell' | plash -f 1 --invalidate-layer)" = 'itsshell'
 [[ "$(plash nodepath -f 1   2>&1)" == *"/layer/0"* ]]
 [[ "$(plash nodepath -- 1   2>&1)" == *"/layer/0"* ]]
 [[ "$(plash nodepath -- -a   2>&1)" == *"got: -a" ]]
+
+: test that HOME env is taken into consideration for PLASH
+test "$(
+unset PLASH_DATA
+HOME=/myh plash sudo printenv PLASH_DATA
+)" = /myh/.plashdata
+
+homedir=$(getent passwd "$(id -u)" | cut -d: -f6)
+test "$(
+unset PLASH_DATA
+unset HOME
+plash sudo printenv PLASH_DATA
+)" = "$homedir"/.plashdata

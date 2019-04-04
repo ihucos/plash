@@ -191,9 +191,9 @@ int main(int argc, char* argv[]) {
              *libexecrun =           pl_path("../lib/exec/run"),
              *pylibdir =             pl_path("../lib/py"),
              *path_env =             getenv("PATH"),
+             *home_env =             getenv("HOME"),
              *plash_data_env =       getenv("PLASH_DATA"),
              *plash_no_unshare_env = getenv("PLASH_NO_UNSHARE"),
-             *home,
              *libexecfile,
              *newpath;
 
@@ -207,11 +207,15 @@ int main(int argc, char* argv[]) {
         if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
                  pl_fatal("setenv");
         if (! plash_data_env){
-            pwd = getpwuid(getuid());
-            if (! pwd) pl_fatal("could not determine your home directory");
-            if (asprintf(&home, "%s/.plashdata", pwd->pw_dir) == -1)
+            if (! home_env){
+                pwd = getpwuid(getuid());
+                if (! pwd)
+                    pl_fatal("could not determine your home directory");
+                home_env = pwd->pw_dir;
+            }
+            if (asprintf(&home_env, "%s/.plashdata", home_env) == -1)
                     pl_fatal("asprintf");
-            if (setenv("PLASH_DATA", home , 1) == -1)
+            if (setenv("PLASH_DATA", home_env , 1) == -1)
                     pl_fatal("setenv");
         }
 
