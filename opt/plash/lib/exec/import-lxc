@@ -32,26 +32,33 @@ DEPRECTATED_IMAGE_NAMES = {
     'xenial': 'ubuntu:xenial',
 }
 
+
 def use_current(version):
     return int(version == 'current')
+
 
 def use_version_number(version):
     try:
         return tuple(int(i) for i in version.split('.'))
     except ValueError:
-        return (-1,)
+        return (-1, )
+
 
 def use_index(order):
     order_lower = [i.lower() for i in order]
+
     def quantifier(version):
         try:
             return order_lower.index(version.lower())
         except ValueError:
             return -1
+
     return quantifier
+
 
 def use_alphabet(version):
     return version
+
 
 def use_ubuntu(version):
     return UBUNTU_ABC.find(version[0].lower())
@@ -78,7 +85,7 @@ assert_initialized()
 
 try:
     image_name = sys.argv[1]
-    dry_run =  sys.argv[2:3] == ['--dry']
+    dry_run = sys.argv[2:3] == ['--dry']
 except IndexError:
     die_with_usage()
 
@@ -98,17 +105,22 @@ for distro, version, arch, variant, date, _, _, _ in matches:
     versions.setdefault(distro, [])
     versions[distro].append(version)
 
+
 def die_image_not_found():
-    all_images = sorted([':'.join(i) for i in urls] + list(FIND_NEWEST_VERSION.keys()))
-    die('image not found ({}), but there is: {}'.format(repr(image_name),
-                ' '.join(all_images)))
+    all_images = sorted([':'.join(i)
+                         for i in urls] + list(FIND_NEWEST_VERSION.keys()))
+    die('image not found ({}), but there is: {}'.format(
+        repr(image_name), ' '.join(all_images)))
+
 
 # handle eventual deprecated image
 try:
     orig_image_name = image_name
     image_name = DEPRECTATED_IMAGE_NAMES[image_name]
-    print('plash: rename image (due to indefinitely supported deprecation): {} -> {}'.format(
-        orig_image_name, image_name), file=sys.stderr)
+    print(
+        'plash: rename image (due to indefinitely supported deprecation): {} -> {}'
+        .format(orig_image_name, image_name),
+        file=sys.stderr)
 except KeyError:
     pass
 
