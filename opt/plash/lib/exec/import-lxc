@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 #
-# usage: plash import-lxc IMAGE-NAME
+# usage: plash import-lxc IMAGE-NAME [--dry]
 # Import image from linuxcontainers.org
+# if --dry is set, the image url is printed but not imported
 
 import re
 import os
@@ -17,6 +18,19 @@ LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs
 
 UBUNTU_ABC = 'tuvwxyzabcdefghijklmnopqrs'  # rotate manually every decade or so
 
+DEPRECTATED_IMAGE_NAMES = {
+    # 'plamo': ... plamo is really forgotten for now until it maybe appears in FIND_NEWEST_VERSION
+    'cosmic': 'ubuntu_cosmic',
+    'disco': 'ubuntu:disco',
+    'edge': 'alpine:edge',
+    'eoan': 'ubuntu:eoan',
+    'jessie': 'debian:jessie',
+    'sid': 'debian:sid',
+    'stretch': 'debian:stretch',
+    'trusty': 'ubuntu:trusty',
+    'tumbleweed': 'opensuse:tumbleweed',
+    'xenial': 'ubuntu:xenial',
+}
 
 def use_current(version):
     return int(version == 'current')
@@ -60,19 +74,11 @@ FIND_NEWEST_VERSION = {
     'ubuntu-core': use_version_number,
 }
 
-
-DEBIAN_RELESES = [
-    # well, some constant in some file to keep updated... That here should only be fine until 2022 or something
-    'bullseye',
-    'buster',
-    'stretch',
-    'jessie',
-    'wheezy'
-]
 assert_initialized()
 
 try:
     image_name = sys.argv[1]
+    dry_run =  sys.argv[2:3] == ['--dry']
 except IndexError:
     die_with_usage()
 
@@ -85,12 +91,8 @@ matches = re.findall(
 versions = {}
 urls = {}
 for distro, version, arch, variant, date, _, _, _ in matches:
-    if not variant == 'default':
+    if variant != 'default' or arch != 'amd64':
         continue
-
-    if arch != 'amd64':  # only support this right now
-        continue
-
     url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
     urls[(distro, version)] = url
     versions.setdefault(distro, [])
@@ -101,9 +103,14 @@ def die_image_not_found():
     die('image not found ({}), but there is: {}'.format(repr(image_name),
                 ' '.join(all_images)))
 
-#from pprint import pprint
-#pprint(urls)
-#pprint(versions)
+# handle eventual deprecated image
+try:
+    orig_image_name = image_name
+    image_name = DEPRECTATED_IMAGE_NAMES[image_name]
+    print('plash: rename image (due to indefinitely supported deprecation): {} -> {}'.format(
+        orig_image_name, image_name), file=sys.stderr)
+except KeyError:
+    pass
 
 if not ':' in image_name:
     try:
@@ -115,7 +122,7 @@ if not ':' in image_name:
     latest_version = list(sorted_versions)[-1]
     image_key = (image_name, latest_version)
 else:
-    image_key = image_name.split(':')
+    image_key = tuple(image_name.split(':'))
 
 try:
     url = urls[image_key]
@@ -123,4 +130,7 @@ except KeyError:
     die_image_not_found()
 
 signature_url = '{}.asc'.format(url)
-os.execlp('plash', 'plash', 'import-url', url, signature_url)
+if dry_run:
+    print(url)
+else:
+    os.execlp('plash', 'plash', 'import-url', url, signature_url)
