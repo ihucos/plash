@@ -19,8 +19,8 @@ LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs
 UBUNTU_ABC = 'tuvwxyzabcdefghijklmnopqrs'  # rotate manually every decade or so
 
 DEPRECTATED_IMAGE_NAMES = {
-    # 'plamo': ... plamo is really forgotten for now until it maybe appears in FIND_NEWEST_VERSION
-    'cosmic': 'ubuntu_cosmic',
+    # 'plamo': ... 'plamo' is really forgotten for
+    'cosmic': 'ubuntu:cosmic',
     'disco': 'ubuntu:disco',
     'edge': 'alpine:edge',
     'eoan': 'ubuntu:eoan',
@@ -64,7 +64,7 @@ def use_ubuntu(version):
     return UBUNTU_ABC.find(version[0].lower())
 
 
-FIND_NEWEST_VERSION = {
+USE_NEWEST_VERSION = {
     'alpine': use_version_number,
     'archlinux': use_current,
     'centos': use_version_number,
@@ -108,7 +108,7 @@ for distro, version, arch, variant, date, _, _, _ in matches:
 
 def die_image_not_found():
     all_images = sorted([':'.join(i)
-                         for i in urls] + list(FIND_NEWEST_VERSION.keys()))
+                         for i in urls] + list(USE_NEWEST_VERSION.keys()))
     die('image not found ({}), but there is: {}'.format(
         repr(image_name), ' '.join(all_images)))
 
@@ -126,7 +126,7 @@ except KeyError:
 
 if not ':' in image_name:
     try:
-        version_quantifier = FIND_NEWEST_VERSION[image_name]
+        version_quantifier = USE_NEWEST_VERSION[image_name]
     except KeyError:
         die_image_not_found()
 
