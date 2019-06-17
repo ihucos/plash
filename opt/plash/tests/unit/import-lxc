@@ -4,3 +4,26 @@ set -xeu
 cont=$(plash import-lxc alpine:edge)
 plash run $cont ls
 (! plash import-lxc unknownos)
+
+: dry import some images
+plash import-lxc alpine --dry
+plash import-lxc archlinux --dry
+plash import-lxc centos --dry
+plash import-lxc debian --dry
+plash import-lxc devuan --dry
+plash import-lxc fedora --dry
+plash import-lxc gentoo --dry
+plash import-lxc kali --dry
+plash import-lxc opensuse --dry
+plash import-lxc openwrt --dry
+plash import-lxc oracle --dry
+plash import-lxc sabayon --dry
+plash import-lxc ubuntu --dry
+plash import-lxc ubuntu-core --dry
+
+: dry import deprecated image
+plash import-lxc trusty --dry
+
+: dry import with version
+plash import-lxc ubuntu:cosmic --dry
+plash import-lxc archlinux:current --dry
