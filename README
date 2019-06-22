@@ -88,6 +88,7 @@ Examples:
 - https://github.com/ihucos/noapt                        Use Ubuntu packages in other Linux distributions
 - https://github.com/ihucos/megaman                      Use Arch Linux packages in other Linux distributions.
 - https://github.com/ihucos/plash-plash                  Example of running plash in plash
+- https://zpkg.plash.io/                                 A meta package manager
 
 
 ###
