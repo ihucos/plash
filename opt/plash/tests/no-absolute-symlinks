@@ -1,0 +1,13 @@
+#/bin/sh
+
+set -eux
+
+cont=$(plash build -f 1 --invalidate-layer)
+plash map blah "$cont"
+
+
+DIR=$(plash data)
+cd "$DIR"
+find  .  -not -path '*/_data/root/' -not -path './tmp/*'
+exit 1
+
