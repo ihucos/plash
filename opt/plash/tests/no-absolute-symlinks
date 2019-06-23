@@ -5,9 +5,8 @@ set -eux
 cont=$(plash build -f 1 --invalidate-layer)
 plash map blah "$cont"
 
-
+: test that all symlinks are relative
 DIR=$(plash data)
 cd "$DIR"
-find  .  -not -path '*/_data/root/' -not -path './tmp/*'
-exit 1
-
+plash sudo find .  -not -path '*/_data/root/*' -not -path './tmp' -not -path './tmp/*' -exec readlink {} \; | \
+python3 -c 'import sys; assert all(l[0] == "." for l in sys.stdin.readlines()), "no all lines are a relative path"'
