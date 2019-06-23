@@ -69,7 +69,9 @@ while True:
     try:
         # Register that we are using this new_node_path,
         # so it does not gets lost in the 'build' folder tree if this program crashes.
-        os.symlink(new_node_path, join(plash_data, 'index', node_id_candidate))
+        dst = join(plash_data, 'index', node_id_candidate)
+        src = os.path.relpath(new_node_path, os.path.dirname(dst))
+        os.symlink(src, dst)
     except FileExistsError:
         continue
     break
