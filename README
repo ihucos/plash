@@ -273,7 +273,7 @@ this configuration to work properly inside plash.
 - Don't complain or warn via stderr, do it or don't do it.
 - Only be as smart as necessary and keep it simple and stupid (KISS).
 - Still be able to run this in five years without any maintenance work.
-- Define well what this project is and especially what it not is.
+- Define well what this project is and especially what it is not.
 - Say no to features, say yes to solved use cases.
 - Postpone compromises.
 - Ditch everything that turns out too fiddly.
@@ -308,6 +308,7 @@ this configuration to work properly inside plash.
 
 - There is some bug in unionfs-fuse that impedes nested plash instances with
   unionfs: https://github.com/ihucos/plash/issues/69
+  But fuse-overlayfs and overlay work fine.
 
 
 ###
