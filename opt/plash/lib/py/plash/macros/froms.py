@@ -1,4 +1,3 @@
-import atexit
 import subprocess
 from functools import wraps
 

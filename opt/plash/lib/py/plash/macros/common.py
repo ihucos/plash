@@ -7,8 +7,8 @@ import sys
 import uuid
 
 from plash.eval import (eval, hint, join_result, register_macro,
-                        shell_escape_args, state)
-from plash.utils import catch_and_die, hashstr, plash_map, run_write_read
+                        shell_escape_args)
+from plash.utils import hashstr, run_write_read
 
 
 @register_macro()
