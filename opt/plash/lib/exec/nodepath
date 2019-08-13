@@ -35,7 +35,6 @@ try:
     with catch_and_die([OSError], ignore=FileNotFoundError, debug='stat'):
         os.stat(nodepath)
 except FileNotFoundError:
-    asdf
     die('no container {}'.format(repr(container)), exit=3)
 
 print(nodepath)
