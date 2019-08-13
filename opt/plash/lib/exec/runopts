@@ -68,9 +68,10 @@ if not container:
 #
 # mount root filesystem
 #
-with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash', 'mount', container, mountpoint] + (
-        [changesdir] if changesdir else []))
+if changesdir:
+    utils.plash_call('mount', container, mountpoint, changesdir)
+else:
+    utils.plash_call('mount', container, mountpoint)
 
 
 

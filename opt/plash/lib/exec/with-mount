@@ -31,8 +31,7 @@ if not cmd:
 
 mountpoint = mkdtemp()
 
-with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash', 'mount', container, mountpoint])
+plash_call('mount', container, mountpoint)
 os.chdir(mountpoint)
 try:
     os.execlp(cmd[0], *cmd)

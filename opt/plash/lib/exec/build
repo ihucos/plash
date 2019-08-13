@@ -58,7 +58,7 @@ os.environ['PS4'] = color('--> ', 4)
 for layer in layers:
     cache_key = hashstr(b':'.join([current_container.encode(),
                                    layer.encode()]))
-    next_container = plash_map(cache_key.encode())
+    next_container = plash_map(cache_key)
     if not next_container:
 
         # build and cache it
@@ -79,7 +79,7 @@ for layer in layers:
         if exit:
             # plash create already prints a nice error message
             sys.exit(1)
-        plash_map(cache_key.encode(), next_container)
+        plash_map(cache_key, next_container)
         info('--:')
     current_container = next_container
 build_container = current_container

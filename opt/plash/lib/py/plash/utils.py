@@ -75,8 +75,7 @@ def nodepath_or_die(container, allow_root_container=False):
 
     extra = [] if not allow_root_container else ['--allow-root-container']
     with catch_and_die([subprocess.CalledProcessError], silent=True):
-        return subprocess.check_output(
-            ['plash', 'nodepath', str(container)] + extra, ).decode().strip('\n')
+        return plash_call('nodepath', str(container), *extra)
 
 
 def get_default_shell(passwd_file):
@@ -96,10 +95,10 @@ def get_default_user_shell():
 def plash_map(*args):
     from subprocess import check_output
     'thin wrapper around plash map'
-    out = check_output(['plash', 'map'] + list(args))
+    out = plash_call('map', *args)
     if out == '':
         return None
-    return out.decode().strip('\n')
+    return out
 
 
 def assert_initialized():
@@ -124,3 +123,27 @@ def mkdtemp():
     return tempfile.mkdtemp(
         dir=os.path.join(os.environ["PLASH_DATA"], 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
+
+
+def plash_call(plash_cmd, *args):
+    import runpy
+    thisdir = os.path.dirname(os.path.abspath(__file__))
+    execdir = os.path.abspath(os.path.join(thisdir, '..', '..', 'exec'))
+    runfile = os.path.join(execdir, plash_cmd)
+    r, w = os.pipe()
+    child = os.fork()
+    if not child:
+        os.dup2(w, 1)
+        os.close(r)
+        os.close(w)
+        sys.argv = [sys.argv[0]] + list(args)
+        runpy.run_path(runfile)
+        sys.exit(0)
+    os.close(w)
+    _, status = os.wait()
+    exit = (status >> 8)
+    # XXX check for abnormal exit
+    if exit:
+        sys.exit(1)
+    out = os.fdopen(r).read()
+    return out.strip('\n')

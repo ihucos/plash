@@ -41,8 +41,7 @@ tmpout = utils.mkdtemp()
 
 mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
 
-with utils.catch_and_die([subprocess.CalledProcessError], silent=True):
-    subprocess.check_call(['plash', 'mount', container, mountpoint])
+utils.plash_call('mount', container, mountpoint)
 
 io_bytes = io.BytesIO()
 dirs_only_tar = tarfile.open(fileobj=io_bytes, mode='w:xz')
