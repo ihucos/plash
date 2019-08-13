@@ -22,7 +22,7 @@ node_deletation_effect = Counter()
 nodepaths = {}
 for container_id in links:
     try:
-        nodepath = os.readlink(os.path.join(index_dir, container_id))
+        nodepath = os.path.realpath(os.path.join(index_dir, container_id))
         os.stat(
             nodepath)  # raises the file not found if containers was deleted
     except FileNotFoundError:

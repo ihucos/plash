@@ -50,7 +50,9 @@ def map_set(map_key, container_id):
     nodepath = nodepath_or_die(container_id)
     with catch_and_die([OSError], debug='mkdtemp'):
         tmpdir = mkdtemp()
-        os.symlink(nodepath, join(tmpdir, 'link'))
+        dst = join(tmpdir, 'link')
+        src = os.path.relpath(nodepath, join(plash_data, 'map'))
+        os.symlink(src, dst)
 
         # rename will overwrite atomically the map key if it already exists,
         # just symlink would not
@@ -69,7 +71,7 @@ def map_rm(map_key):
 
 def map_get(map_key):
     try:
-        nodepath = os.readlink(join(plash_data, 'map', map_key))
+        nodepath = os.path.realpath(join(plash_data, 'map', map_key))
     except FileNotFoundError:
         return
     if os.path.exists(nodepath):
