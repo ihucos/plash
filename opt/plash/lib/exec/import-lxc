@@ -7,7 +7,6 @@
 import re
 import os
 import sys
-from subprocess import CalledProcessError, check_call
 from urllib.error import URLError
 from urllib.request import urlopen
 
