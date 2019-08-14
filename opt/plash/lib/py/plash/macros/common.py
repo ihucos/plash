@@ -3,7 +3,7 @@ import sys
 
 from plash.eval import (eval, hint, join_result, register_macro,
                         shell_escape_args)
-from plash.utils import hashstr, run_write_read
+from plash.utils import hashstr
 
 
 @register_macro()
@@ -79,7 +79,7 @@ def eval_file(file):
     with open(fname) as f:
         inscript = f.read()
 
-    sh = run_write_read(['plash', 'eval'], inscript.encode()).decode()
+    sh = utils.plash_call('eval', strip=False, input=inscript)
 
     # we remove an possibly existing newline
     # because else this macros would add one
@@ -94,7 +94,7 @@ def eval_string(stri):
     'evaluate expressions passed as string'
     import shlex
     tokens = shlex.split(stri)
-    return run_write_read(['plash', 'eval'], '\n'.join(tokens).encode()).decode()
+    return utils.plash_call('eval', input='\n'.join(tokens), strip=False)
 
 
 @register_macro()

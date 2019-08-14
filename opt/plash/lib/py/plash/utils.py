@@ -145,8 +145,13 @@ def plash_exec(plash_cmd, *args):
         py_exec(runfile, *args)
 
 
-def plash_call(plash_cmd, *args, strip=True, return_exit_code=False, stdout_to_stderr=False):
+def plash_call(plash_cmd, *args,
+        strip=True, return_exit_code=False, stdout_to_stderr=False, input=None):
     r, w = os.pipe()
+
+    if input:
+        r2, w2 = os.pipe()
+
     child = os.fork()
     if not child:
         if stdout_to_stderr:
@@ -155,7 +160,18 @@ def plash_call(plash_cmd, *args, strip=True, return_exit_code=False, stdout_to_s
             os.dup2(w, 1)
         os.close(r)
         os.close(w)
+
+        if input:
+            os.dup2(r2, 0)
+            os.close(r2)
+            os.close(w2)
+
         plash_exec(plash_cmd, *args)
+
+    if input:
+        f = os.fdopen(w2, 'w')
+        f.write(input)
+        f.close()
 
     os.close(w)
     _, status = os.wait()
