@@ -54,6 +54,8 @@ int main(int argc, char* argv[]) {
                 return 1;
         }
 
+        if (is_cli_param(argv[1]))
+            reexec_insert_run(argc, argv);
 
         //
         // pop any "--" as first argument
@@ -123,9 +125,6 @@ int main(int argc, char* argv[]) {
 
         if (errno != ENOENT)
                 pl_fatal("could not exec %s", libexecfile);
-
-        if (is_cli_param(argv[1]))
-            reexec_insert_run(argc, argv);
         errno = 0;
         pl_fatal("no such command: %s (try `plash help`)", argv[1]);
 }
