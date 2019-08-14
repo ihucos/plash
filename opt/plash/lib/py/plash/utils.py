@@ -125,7 +125,7 @@ def mkdtemp():
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
 
 
-def plash_call(plash_cmd, *args):
+def plash_call(plash_cmd, *args, strip=True, return_exit_code=False, stdout_to_stderr=False):
     import runpy
     thisdir = os.path.dirname(os.path.abspath(__file__))
     execdir = os.path.abspath(os.path.join(thisdir, '..', '..', 'exec'))
@@ -133,7 +133,10 @@ def plash_call(plash_cmd, *args):
     r, w = os.pipe()
     child = os.fork()
     if not child:
-        os.dup2(w, 1)
+        if stdout_to_stderr:
+            os.dup2(2, 1)
+        else:
+            os.dup2(w, 1)
         os.close(r)
         os.close(w)
         sys.argv = [sys.argv[0]] + list(args)
@@ -143,7 +146,41 @@ def plash_call(plash_cmd, *args):
     _, status = os.wait()
     exit = (status >> 8)
     # XXX check for abnormal exit
+
+    if return_exit_code:
+        return exit
+
     if exit:
         sys.exit(1)
     out = os.fdopen(r).read()
-    return out.strip('\n')
+    if strip:
+        out = out.strip('\n\r ')
+    return out
+
+
+def filter_positionals(args):
+    positional = []
+    filtered_args = []
+    found_first_opt = False
+    while args:
+        arg = args.pop(0)
+        if not arg.startswith('-') and not found_first_opt:
+            positional.append(arg)
+        elif arg == '--':
+            positional += args
+            args = None
+        else:
+            filtered_args.append(arg)
+            found_first_opt = True
+    return positional, filtered_args
+
+
+def handle_build_args():
+    import subprocess
+    if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
+        cmd, args = filter_positionals(sys.argv[1:])
+        with catch_and_die([subprocess.CalledProcessError], silent=True):
+            out = subprocess.check_output(['plash', 'build'] + args)
+        container_id = out[:-1]
+        os.execlp(sys.argv[0], sys.argv[0], container_id, *cmd)
+

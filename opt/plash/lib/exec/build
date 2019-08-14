@@ -28,19 +28,16 @@
 
 import os
 import re
-import subprocess
 import sys
-from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output
 
 from plash.eval import get_hint_values, hint, remove_hint_values
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, color, die,
                          hashstr, info, nodepath_or_die, plash_map)
 
 assert_initialized()
 
-with catch_and_die([CalledProcessError], silent=True):
-    script = subprocess.check_output(
-        ['plash', 'eval'] + sys.argv[1:], stdin=sys.stdin).decode()
+script = utils.plash_call('eval', *sys.argv[1:], strip=False)
 
 hints = dict(get_hint_values(script))
 image_hint = hints.get('image')
@@ -61,24 +58,18 @@ for layer in layers:
     next_container = plash_map(cache_key)
     if not next_container:
 
-        # build and cache it
-        p = Popen(
-            ['plash', 'create', current_container, 'env', '-i', 'sh', '-l'],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE)
-
+        shell = (
+        
         # for some reason in ubuntu the path is not exported
         # in a way this is a hack and should be fixed in ubuntu
-        p.stdin.write(b'export PATH\n')
-
-        p.stdin.write(b'set -ex\n')
-        p.stdin.write(layer.encode())
-        p.stdin.close()
-        next_container = p.stdout.read().decode().strip('\n')
-        exit = p.wait()
-        if exit:
-            # plash create already prints a nice error message
-            sys.exit(1)
+        'export PATH\n'
+        'set -ex\n'
+        + layer
+        )
+        next_container = utils.run_write_read( 
+            ['plash', 'create', current_container, 'env', '-i', 'sh', '-l'],
+            shell.encode()
+        ).decode().strip('\n')
         plash_map(cache_key, next_container)
         info('--:')
     current_container = next_container
