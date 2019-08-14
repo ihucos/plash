@@ -74,8 +74,7 @@ def nodepath_or_die(container, allow_root_container=False):
     import subprocess
 
     extra = [] if not allow_root_container else ['--allow-root-container']
-    with catch_and_die([subprocess.CalledProcessError], silent=True):
-        return plash_call('nodepath', str(container), *extra)
+    return plash_call('nodepath', str(container), *extra)
 
 
 def get_default_shell(passwd_file):
@@ -124,12 +123,17 @@ def mkdtemp():
         dir=os.path.join(os.environ["PLASH_DATA"], 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
 
+def plash_exec(plash_cmd, *args):
+        import runpy
+
+        thisdir = os.path.dirname(os.path.abspath(__file__))
+        execdir = os.path.abspath(os.path.join(thisdir, '..', '..', 'exec'))
+        runfile = os.path.join(execdir, plash_cmd)
+        sys.argv = [sys.argv[0]] + list(args)
+        runpy.run_path(runfile)
+        sys.exit(0)
 
 def plash_call(plash_cmd, *args, strip=True, return_exit_code=False, stdout_to_stderr=False):
-    import runpy
-    thisdir = os.path.dirname(os.path.abspath(__file__))
-    execdir = os.path.abspath(os.path.join(thisdir, '..', '..', 'exec'))
-    runfile = os.path.join(execdir, plash_cmd)
     r, w = os.pipe()
     child = os.fork()
     if not child:
@@ -139,9 +143,8 @@ def plash_call(plash_cmd, *args, strip=True, return_exit_code=False, stdout_to_s
             os.dup2(w, 1)
         os.close(r)
         os.close(w)
-        sys.argv = [sys.argv[0]] + list(args)
-        runpy.run_path(runfile)
-        sys.exit(0)
+        plash_exec(plash_cmd, *args)
+
     os.close(w)
     _, status = os.wait()
     exit = (status >> 8)

@@ -14,66 +14,12 @@
 #include <plash.h>
 
 
-#define CF_UNSHARE_USER      (1 << 0)
-#define CF_COMMAND_NOT_FOUND (1 << 1)
-#define CF_UNSHARE_MOUNT     (1 << 2)
-#define CF_BUILD             (1 << 3)
-
-
-struct cmdconf_entry {
-        char *name;
-        int flags;
-};
-
-
 void D(char *arr[]){
         int ai;
         for(ai=0; arr[ai]; ai++) fprintf(stderr, "%s, ", arr[ai]);
         fprintf(stderr, "\n");
 }
 
-struct cmdconf_entry all_cmdconfs[] = {
-        {"add-layer",     CF_BUILD | CF_UNSHARE_USER},
-        {"build",         },
-        {"clean",         CF_UNSHARE_USER},
-        {"copy",          CF_BUILD | CF_UNSHARE_USER},
-        {"create",        CF_BUILD},
-        {"data",          },
-        {"eval",          },
-        {"export-tar",    CF_BUILD | CF_UNSHARE_USER},
-
-        {"help",          },
-        {"-h",            },
-        {"--help",        },
-
-        {"help-macros",   },
-        {"--help-macros", },
-
-        {"import-docker", },
-        {"import-lxc",    },
-        {"import-tar",    },
-        {"import-url",    },
-        {"init",          },
-        {"map",           },
-        {"mount",         CF_BUILD},
-        {"nodepath",      CF_BUILD},
-        {"parent",        },
-        {"purge",         CF_UNSHARE_USER},
-        {"rm",            CF_BUILD | CF_UNSHARE_USER},
-        {"run",           CF_BUILD},
-        {"runopts",       CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
-        {"shallow-copy",  CF_BUILD | CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
-        {"shrink",        CF_UNSHARE_USER},
-        {"sudo",          CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
-        {"test",          },
-
-        {"version",       },
-        {"--version",     },
-
-        {"with-mount",    CF_BUILD | CF_UNSHARE_USER | CF_UNSHARE_MOUNT},
-        {NULL, CF_COMMAND_NOT_FOUND},
-
-};
 
 int is_cli_param(char *param){
         switch(strlen(param)){
@@ -83,16 +29,6 @@ int is_cli_param(char *param){
         }
 }
 
-
-int get_cmd_flags(char *cmd){
-        struct cmdconf_entry *currcmd;
-        for(
-            currcmd = all_cmdconfs;
-            currcmd->name && strcmp(currcmd->name, cmd) != 0;
-            currcmd++
-        );
-        return currcmd->flags;
-}
 
 void reexec_insert_run(int argc, char **argv){
         //  it: plash -A xeyes -- xeyes
@@ -110,47 +46,6 @@ void reexec_insert_run(int argc, char **argv){
 }
 
 
-void reexec_consume_build_args(int argc, char *argv[]){
-        //  in: plash run -A xeyes -- xeyes
-        // out: plash run 42 xeyes
-
-        char  *build_array[argc],
-             **build = build_array,
-             **new_argv = argv,
-             **orig_argv = argv;
-
-        // "new_argv" and "build" get  argv[0] as first element
-        *new_argv++ = *build++ = *argv++;
-
-        // variable "build" has string "build" as second element
-        *build++ = "build";
-
-        // new_argv gets argv[1] as second element
-        *new_argv++ = *argv++;
-
-        // wind up all to the "build" variable until the end or "--" is
-        // reached
-        while((*argv && strcmp(*argv, "--") != 0))
-                *build++ = *argv++;
-
-        // chop "--" from our buffer, if any
-        if (*argv) argv++;
-
-        // "build" is done
-        *build++ = NULL;
-
-        // new_argv's third element is a freshly builded container id
-        *new_argv++ = pl_check_output(build_array);
-
-        // wind up all the rest to new_argv
-        while(*argv) *new_argv++ = *argv++;
-        *new_argv++ = NULL;
-
-        execvp(orig_argv[0], orig_argv);
-        pl_fatal("execvp");
-}
-
-
 int main(int argc, char* argv[]) {
         int flags;
 
@@ -159,21 +54,6 @@ int main(int argc, char* argv[]) {
                 return 1;
         }
 
-        //
-        // load subcommand flags and handle implicit run
-        //
-        flags = get_cmd_flags(argv[1]);
-        if (flags & CF_COMMAND_NOT_FOUND){
-                if (is_cli_param(argv[1]))
-                        reexec_insert_run(argc, argv);
-                pl_fatal("no such command: %s (try `plash help`)", argv[1]);
-        }
-
-        //
-        // handle build arguments
-        //
-        if (argc > 2 && flags & CF_BUILD && is_cli_param(argv[2]))
-                reexec_consume_build_args(argc, argv);
 
         //
         // pop any "--" as first argument
@@ -223,18 +103,14 @@ int main(int argc, char* argv[]) {
         // setup unsharing
         //
         if (!plash_no_unshare_env || plash_no_unshare_env[0] == '\0'){
-
-                    if (flags & CF_UNSHARE_USER && getuid())
-                        pl_setup_user_ns();
-
-                    if (flags & CF_UNSHARE_MOUNT){
-                            if (unshare(CLONE_NEWNS) == -1)
-                                pl_fatal("could not unshare mount namespace");
-                            if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
-                                    if (errno != EINVAL)
-                                        pl_fatal("could not change propagation of /");
-                                    errno = 0;
-                            }
+                    // XXXX don't unsahre if program is 'mount'!!!!
+                    pl_setup_user_ns();
+                    if (unshare(CLONE_NEWNS) == -1)
+                        pl_fatal("could not unshare mount namespace");
+                    if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
+                            if (errno != EINVAL)
+                                pl_fatal("could not change propagation of /");
+                            errno = 0;
                     }
         }
 
@@ -244,5 +120,12 @@ int main(int argc, char* argv[]) {
         if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
                 pl_fatal("asprintf");
         execvp(libexecfile, argv + 1);
-        pl_fatal("could not exec %s", libexecfile);
+
+        if (errno != ENOENT)
+                pl_fatal("could not exec %s", libexecfile);
+
+        if (is_cli_param(argv[1]))
+            reexec_insert_run(argc, argv);
+        errno = 0;
+        pl_fatal("no such command: %s (try `plash help`)", argv[1]);
 }

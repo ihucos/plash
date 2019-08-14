@@ -34,9 +34,7 @@ except ValueError:
 
 changesdir = utils.mkdtemp()
 
-os.execlp(
-    'plash',
-    'plash',
+utils.plash_exec(
     'runopts',
     *((
         '-c',

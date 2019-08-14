@@ -27,7 +27,6 @@ import os
 import subprocess
 import sys
 from os.path import join
-from subprocess import DEVNULL, CalledProcessError, Popen
 from sys import exit
 
 from plash import utils
@@ -76,5 +75,5 @@ exit = utils.plash_call(*(
 if exit:
     die("build failed with exit status {}".format(exit), exit=4)
 
-os.execlp('plash', 'add-layer', 'add-layer', container,
+utils.plash_exec('add-layer', 'add-layer', container,
           os.path.join(changesdir, 'data'))
