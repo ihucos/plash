@@ -35,6 +35,7 @@ from plash.utils import (assert_initialized, die, die_with_usage,
                          mkdtemp, nodepath_or_die)
 
 assert_initialized()
+utils.handle_build_args()
 
 plash_tmp = join(os.environ["PLASH_DATA"], 'tmp')
 

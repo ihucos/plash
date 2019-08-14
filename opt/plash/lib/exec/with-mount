@@ -20,6 +20,7 @@ from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, get_default_user_shell, mkdtemp)
 
 assert_initialized()
+utils.handle_build_args()
 
 try:
     container = sys.argv[1]

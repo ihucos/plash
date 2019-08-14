@@ -11,7 +11,10 @@
 import sys
 from os import execlp
 
+from plash import utils
 from plash.utils import die_with_usage
+
+utils.handle_build_args()
 
 try:
     container = sys.argv[1]
