@@ -71,8 +71,6 @@ def die_with_usage(*, hint=False):
 
 
 def nodepath_or_die(container, allow_root_container=False):
-    import subprocess
-
     extra = [] if not allow_root_container else ['--allow-root-container']
     return plash_call('nodepath', str(container), *extra)
 
@@ -168,12 +166,13 @@ def plash_call(plash_cmd, *args,
 
         plash_exec(plash_cmd, *args)
 
+    os.close(w)
+
     if input:
         f = os.fdopen(w2, 'w')
         f.write(input)
         f.close()
 
-    os.close(w)
     _, status = os.wait()
     exit = (status >> 8)
     # XXX check for abnormal exit
