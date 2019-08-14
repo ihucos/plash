@@ -7,7 +7,6 @@ from os.path import join
 ERROR_COLOR = 1
 INFO_COLOR = 4
 
-
 def hashstr(stri):
     import hashlib
     return hashlib.sha1(stri).hexdigest()
@@ -127,10 +126,10 @@ def py_exec(file, *args):
 
         sys.argv = [sys.argv[0]] + list(args)
 
-        import time
-        t = time.time()
+        #import time
+        #t = time.time()
         runpy.run_path(file)
-        print(time.time() - t, file, *args, file=sys.stderr)
+        #print(time.time() - t, file, *args, file=sys.stderr)
 
         sys.exit(0)
 
