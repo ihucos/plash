@@ -80,5 +80,5 @@ def from_github(user_repo_pair, file='plashfile'):
         user_repo_pair, file)
     with utils.catch_and_die([Exception], debug=url):
         resp = urlopen(url)
-    plashstr = resp.read()
+    plashstr = resp.read().decode()
     return utils.plash_call('build', '--eval-stdin', input=plashstr)

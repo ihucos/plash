@@ -3,7 +3,7 @@ import sys
 
 from plash.eval import (eval, hint, join_result, register_macro,
                         shell_escape_args)
-from plash.utils import hashstr
+from plash import utils
 
 
 @register_macro()
@@ -142,7 +142,7 @@ class HashPaths:
             hasher.update(fname.encode())
             hasher.update(perm)
 
-            hasher.update(hashstr(fread).encode())
+            hasher.update(utils.hashstr(fread).encode())
 
         hash = hasher.hexdigest()
         return ": hash: {}".format(hash)

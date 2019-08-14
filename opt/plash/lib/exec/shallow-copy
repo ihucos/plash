@@ -31,7 +31,7 @@ import sys
 import os
 import io
 
-utils.hande_build_args()
+utils.handle_build_args()
 
 try:
     container = sys.argv[1]
