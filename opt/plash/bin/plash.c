@@ -107,7 +107,8 @@ int main(int argc, char* argv[]) {
         //
         // setup unsharing
         //
-        if (!plash_no_unshare_env || plash_no_unshare_env[0] == '\0'){
+        if ((!plash_no_unshare_env || plash_no_unshare_env[0] == '\0') &&
+                        strcmp(argv[1], "mount")){
                     // XXXX don't unsahre if program is 'mount'!!!!
                     pl_setup_user_ns();
                     if (unshare(CLONE_NEWNS) == -1)
