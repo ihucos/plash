@@ -75,5 +75,5 @@ exit = utils.plash_call(*(
 if exit:
     die("build failed with exit status {}".format(exit), exit=4)
 
-utils.plash_exec('add-layer', 'add-layer', container,
+utils.plash_exec('add-layer', container,
           os.path.join(changesdir, 'data'))

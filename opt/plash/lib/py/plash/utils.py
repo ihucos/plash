@@ -123,15 +123,22 @@ def mkdtemp():
         dir=os.path.join(os.environ["PLASH_DATA"], 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
 
-def plash_exec(plash_cmd, *args):
+
+def py_exec(file, *args):
         import runpy
+
+        sys.argv = [sys.argv[0]] + list(args)
+        runpy.run_path(file)
+        sys.exit(0)
+
+
+def plash_exec(plash_cmd, *args):
 
         thisdir = os.path.dirname(os.path.abspath(__file__))
         execdir = os.path.abspath(os.path.join(thisdir, '..', '..', 'exec'))
         runfile = os.path.join(execdir, plash_cmd)
-        sys.argv = [sys.argv[0]] + list(args)
-        runpy.run_path(runfile)
-        sys.exit(0)
+        py_exec(runfile, *args)
+
 
 def plash_call(plash_cmd, *args, strip=True, return_exit_code=False, stdout_to_stderr=False):
     r, w = os.pipe()
@@ -182,8 +189,6 @@ def handle_build_args():
     import subprocess
     if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
         cmd, args = filter_positionals(sys.argv[1:])
-        with catch_and_die([subprocess.CalledProcessError], silent=True):
-            out = subprocess.check_output(['plash', 'build'] + args)
-        container_id = out[:-1]
-        os.execlp(sys.argv[0], sys.argv[0], container_id, *cmd)
+        container_id = plash_call('build', *args)
+        py_exec(sys.argv[0], container_id, *cmd)
 
