@@ -43,7 +43,7 @@ tmpout = utils.mkdtemp()
 
 mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
 
-utils.plash_call('mount', container, mountpoint)
+utils.plash_call('mount', '--', container, mountpoint)
 
 io_bytes = io.BytesIO()
 dirs_only_tar = tarfile.open(fileobj=io_bytes, mode='w:xz')

@@ -71,7 +71,7 @@ def die_with_usage(*, hint=False):
 
 def nodepath_or_die(container, allow_root_container=False):
     extra = [] if not allow_root_container else ['--allow-root-container']
-    return plash_call('nodepath', str(container), *extra)
+    return plash_call('nodepath', '--', str(container), *extra)
 
 
 def get_default_shell(passwd_file):
@@ -89,7 +89,6 @@ def get_default_user_shell():
 
 
 def plash_map(*args):
-    from subprocess import check_output
     'thin wrapper around plash map'
     out = plash_call('map', *args)
     if out == '':
@@ -196,8 +195,9 @@ def filter_positionals(args):
 
 
 def handle_build_args():
-    import subprocess
-    if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
+    if sys.argv[1] == '--':
+        sys.argv = [sys.argv[0]] + sys.argv[2:]
+    elif len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
         cmd, args = filter_positionals(sys.argv[1:])
         container_id = plash_call('build', *args)
         py_exec(sys.argv[0], container_id, *cmd)

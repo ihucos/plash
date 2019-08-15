@@ -66,7 +66,7 @@ for layer in layers:
         'set -ex\n'
         + layer
         )
-        next_container = utils.plash_call('create', current_container, 'env', '-i', 'sh', '-l',
+        next_container = utils.plash_call('create', '--', current_container, 'env', '-i', 'sh', '-l',
             input=shell)
         plash_map(cache_key, next_container)
         info('--:')

@@ -17,12 +17,12 @@ import sys
 from plash import utils
 from plash.utils import (catch_and_die, die, die_with_usage)
 
+utils.handle_build_args()
+
 try:
     container = sys.argv[1]
 except IndexError:
     die_with_usage()
-
-utils.handle_build_args()
 
 if not container.isdigit():
     die("container id must be a positive number, got {}".format(repr(container)))

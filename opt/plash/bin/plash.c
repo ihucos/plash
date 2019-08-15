@@ -61,16 +61,6 @@ int main(int argc, char* argv[]) {
                 !strcmp(argv[1], "--help-macros")))
             reexec_insert_run(argc, argv);
 
-        //
-        // pop any "--" as first argument
-        //
-        if(argv[2] && strcmp(argv[2], "--") == 0){
-                char *cmd = argv[1];
-                argv[1] = argv[0];
-                argv[2] = cmd;
-                argv++;
-        }
-
         struct passwd *pwd;
         char *bindir =               pl_path("../bin"),
              *libexecdir =           pl_path("../lib/exec"),
