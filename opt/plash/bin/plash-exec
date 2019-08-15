@@ -16,7 +16,8 @@ import sys
 
 import plash
 from plash.eval import get_hint_values
-from plash.utils import (assert_initialized, catch_and_die, die, run_write_read)
+from plash import utils
+from plash.utils import (assert_initialized, catch_and_die, die)
 
 # we need to set PLASH_DATA, since the plash launcher is not doing it for us
 os.environ.setdefault("PLASH_DATA", os.path.expanduser("~/.plashdata"))
@@ -38,10 +39,10 @@ os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
 with open(file) as f:
     script = f.read()
 
-with catch_and_die([subprocess.CalledProcessError], silent=True):
-    build_shell_script = run_write_read(['plash', 'eval'],
-                                        script.encode(),
-                                        cwd=plashfile_dir).decode()
+build_shell_script = utils.plash_call('eval',
+    input=script,
+    cwd=plashfile_dir,
+    strip=False)
 hint_values = get_hint_values(build_shell_script)
 
 envs = []
@@ -57,13 +58,10 @@ if exec is None:
 
 run_args = [exec] + args
 
-with catch_and_die([subprocess.CalledProcessError], silent=True):
-    run_container = run_write_read(
-        ['plash', 'build', '--run-stdin'],
-        build_shell_script.encode(),
-        cwd=plashfile_dir,
-        ).decode().strip('\n')
+run_container = utils.plash_call('build', '--run-stdin',
+    input=build_shell_script,
+    cwd=plashfile_dir,
+    )
 
-cmd = ['plash', 'plash', 'run', run_container] + envs + run_args
-
-os.execlp(*cmd)
+cmd = ['run', run_container] + envs + run_args
+utils.plash_exec(*cmd)

@@ -103,17 +103,6 @@ def assert_initialized():
         die('first run `plash init`')
 
 
-def run_write_read(cmd, input, cwd=None):
-    import subprocess
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd)
-    p.stdin.write(input)
-    p.stdin.close()
-    exit = p.wait()
-    if exit:
-        raise subprocess.CalledProcessError(exit, cmd)
-    return p.stdout.read()
-
-
 def mkdtemp():
     import tempfile
     return tempfile.mkdtemp(
@@ -143,7 +132,7 @@ def plash_exec(plash_cmd, *args):
 
 
 def plash_call(plash_cmd, *args,
-        strip=True, return_exit_code=False, stdout_to_stderr=False, input=None):
+        strip=True, return_exit_code=False, stdout_to_stderr=False, input=None, cwd=None):
     r, w = os.pipe()
 
     if input:
@@ -151,6 +140,8 @@ def plash_call(plash_cmd, *args,
 
     child = os.fork()
     if not child:
+        if cwd:
+            os.chdir(cwd)
         if stdout_to_stderr:
             os.dup2(2, 1)
         else:
