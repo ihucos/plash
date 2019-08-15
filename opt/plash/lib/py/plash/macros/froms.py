@@ -1,4 +1,3 @@
-import subprocess
 from functools import wraps
 
 from plash import utils

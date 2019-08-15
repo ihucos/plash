@@ -19,9 +19,7 @@
 # Parameters may be interpreted as build instruction.
 
 import os
-import shlex
 import sys
-from subprocess import check_call
 
 from plash import utils
 
