@@ -8,6 +8,9 @@
 import os
 import sys
 from shutil import rmtree
+from plash import utils
+
+utils.unshare_user()
 
 plash_data = os.environ["PLASH_DATA"]
 

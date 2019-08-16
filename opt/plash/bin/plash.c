@@ -96,21 +96,6 @@ int main(int argc, char* argv[]) {
         }
 
         //
-        // setup unsharing
-        //
-        if ((!plash_no_unshare_env || plash_no_unshare_env[0] == '\0') &&
-                        strcmp(argv[1], "mount")){
-                    pl_setup_user_ns();
-                    if (unshare(CLONE_NEWNS) == -1)
-                        pl_fatal("could not unshare mount namespace");
-                    if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
-                            if (errno != EINVAL)
-                                pl_fatal("could not change propagation of /");
-                            errno = 0;
-                    }
-        }
-
-        //
         // exec lib/exec/<command>
         //
         if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)

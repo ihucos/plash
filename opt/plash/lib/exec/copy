@@ -11,6 +11,7 @@ from plash import utils
 
 utils.assert_initialized()
 utils.handle_build_args()
+utils.unshare_user()
 
 try:
     container, outdir = sys.argv[1:3]

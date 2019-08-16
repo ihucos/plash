@@ -310,3 +310,14 @@ void pl_usage(){
 	exit(1);
 
 }
+
+
+void pl_setup_mount_ns(){
+        if (unshare(CLONE_NEWNS) == -1)
+            pl_fatal("could not unshare mount namespace");
+        if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
+                if (errno != EINVAL)
+                    pl_fatal("could not change propagation of /");
+                errno = 0;
+        }
+}

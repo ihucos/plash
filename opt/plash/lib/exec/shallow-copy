@@ -32,6 +32,8 @@ import os
 import io
 
 utils.handle_build_args()
+utils.unshare_user()
+utils.unshare_mount()
 
 try:
     container = sys.argv[1]

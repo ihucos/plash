@@ -18,6 +18,7 @@ from time import time
 from plash import utils
 
 utils.assert_initialized()
+utils.unshare_user()
 
 plash_data = os.environ["PLASH_DATA"]
 

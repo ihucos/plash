@@ -33,7 +33,9 @@ from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          mkdtemp)
 
-assert_initialized()
+utils.assert_initialized()
+utils.unshare_user()
+utils.unshare_mount()
 
 with utils.catch_and_die([getopt.GetoptError], debug='runopts'):
     user_opts, user_args = getopt.getopt(sys.argv[1:], 'c:d:m:')

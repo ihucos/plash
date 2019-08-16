@@ -3,6 +3,7 @@ import os
 import sys
 from contextlib import contextmanager
 from os.path import join
+import ctypes
 
 ERROR_COLOR = 1
 INFO_COLOR = 4
@@ -207,3 +208,15 @@ def handle_build_args():
         container_id = plash_call('build', *args)
         py_exec(sys.argv[0], container_id, *cmd)
 
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+clib = os.path.realpath(os.path.join(dir_path, '../../c/plash.o'))
+
+lib = ctypes.CDLL(clib)
+
+def unshare_user():
+    if os.getuid():
+        lib.pl_setup_user_ns()
+
+def unshare_mount():
+    lib.pl_setup_mount_ns()
