@@ -57,7 +57,7 @@ test "$(echo 'echo itsshell' | plash -f 1 --invalidate-layer)" = 'itsshell'
 [[ "$(plash a b c   2>&1)" == *"no such command"* ]]
 [[ "$(plash nodepath -f 1   2>&1)" == *"/layer/0"* ]]
 [[ "$(plash nodepath -- 1   2>&1)" == *"/layer/0"* ]]
-[[ "$(plash nodepath -- -a   2>&1)" == *"got: -a" ]]
+[[ "$(plash nodepath -- -a   2>&1)" == *"got '-a'" ]]
 
 : test that HOME env is taken into consideration for PLASH
 test "$(

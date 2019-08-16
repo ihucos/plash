@@ -71,7 +71,7 @@ def die_with_usage(*, hint=False):
 
 def nodepath_or_die(container, allow_root_container=False):
     extra = [] if not allow_root_container else ['--allow-root-container']
-    return plash_call('nodepath', '--', str(container), *extra)
+    return plash_call('nodepath', str(container), *extra)
 
 
 def get_default_shell(passwd_file):
@@ -127,7 +127,12 @@ def plash_exec(plash_cmd, *args):
         thisdir = os.path.dirname(os.path.abspath(__file__))
         execdir = os.path.abspath(os.path.join(thisdir, '..', '..', 'exec'))
         runfile = os.path.join(execdir, plash_cmd)
-        py_exec(runfile, *args)
+        with open(runfile, 'rb') as f:
+            is_python = f.read(23) == b"#!/usr/bin/env python3\n"
+        if is_python:
+            py_exec(runfile, *args)
+        else:
+            os.execlp(runfile, runfile, *args)
 
 
 def plash_call(plash_cmd, *args,
@@ -195,7 +200,7 @@ def filter_positionals(args):
 
 
 def handle_build_args():
-    if sys.argv[1] == '--':
+    if len(sys.argv) >= 2 and sys.argv[1] == '--':
         sys.argv = [sys.argv[0]] + sys.argv[2:]
     elif len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
         cmd, args = filter_positionals(sys.argv[1:])

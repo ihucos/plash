@@ -16,7 +16,7 @@ echo $nodepath | grep $layerup
 [[ "$(plash nodepath xx   2>&1)" = *"positive number"* ]]
 [[ "$(plash nodepath 222x 2>&1)" = *"positive number"* ]]
 [[ "$(plash nodepath x222 2>&1)" = *"positive number"* ]]
-[[ "$(plash nodepath -- -1   2>&1)" = *"positive number"* ]]
+[[ "$(plash nodepath -1   2>&1)" = *"positive number"* ]]
 [[ "$(plash nodepath ""   2>&1)" = *"positive number"* ]]
 
 
