@@ -69,7 +69,6 @@ int main(int argc, char* argv[]) {
              *path_env =             getenv("PATH"),
              *home_env =             getenv("HOME"),
              *plash_data_env =       getenv("PLASH_DATA"),
-             *plash_no_unshare_env = getenv("PLASH_NO_UNSHARE"),
              *libexecfile,
              *newpath;
 

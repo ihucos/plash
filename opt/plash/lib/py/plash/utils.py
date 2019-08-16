@@ -214,13 +214,10 @@ clib = os.path.realpath(os.path.join(dir_path, '../../c/plash.o'))
 
 lib = ctypes.CDLL(clib)
 
+
 def unshare_user():
-    if os.environ.get('PLASH_NO_UNSHARE'):
-        return
-    if os.getuid():
-        lib.pl_setup_user_ns()
+    lib.pl_unshare_user()
+
 
 def unshare_mount():
-    if os.environ.get('PLASH_NO_UNSHARE'):
-        return
-    lib.pl_setup_mount_ns()
+    lib.pl_unshare_mount()

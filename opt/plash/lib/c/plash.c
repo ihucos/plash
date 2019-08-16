@@ -321,3 +321,18 @@ void pl_setup_mount_ns(){
                 errno = 0;
         }
 }
+
+
+void pl_unshare_user(){
+    char *env = getenv("PLASH_NO_UNSHARE");
+    if (env && env[0] != '\0') return;
+
+    if (getuid()) pl_setup_user_ns();
+}
+
+void pl_unshare_mount(){
+    char *env = getenv("PLASH_NO_UNSHARE");
+    if (env && env[0] != '\0') return;
+
+    pl_setup_mount_ns();
+}
