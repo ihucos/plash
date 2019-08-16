@@ -6,6 +6,8 @@ void pl_whitelist_env(char *env_name);
 
 void pl_setup_user_ns();
 
+void pl_setup_mount_ns();
+
 char* pl_check_output(char* argv[]);
 
 void pl_usage();

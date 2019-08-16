@@ -16,6 +16,8 @@
 
 int main(int argc, char* argv[]) {
         struct passwd *pw = getpwuid(getuid());
+        pl_setup_user_ns();
+        pl_setup_mount_ns();
         char* default_shell = pw ? pw->pw_shell : "/bin/sh";
         if (argc <= 1) {
                 execlp(default_shell, default_shell, NULL);
