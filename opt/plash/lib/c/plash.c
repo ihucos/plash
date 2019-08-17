@@ -310,3 +310,29 @@ void pl_usage(){
 	exit(1);
 
 }
+
+
+void pl_setup_mount_ns(){
+        if (unshare(CLONE_NEWNS) == -1)
+            pl_fatal("could not unshare mount namespace");
+        if (mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) == -1){
+                if (errno != EINVAL)
+                    pl_fatal("could not change propagation of /");
+                errno = 0;
+        }
+}
+
+
+void pl_unshare_user(){
+    char *env = getenv("PLASH_NO_UNSHARE");
+    if (env && env[0] != '\0') return;
+
+    if (getuid()) pl_setup_user_ns();
+}
+
+void pl_unshare_mount(){
+    char *env = getenv("PLASH_NO_UNSHARE");
+    if (env && env[0] != '\0') return;
+
+    pl_setup_mount_ns();
+}

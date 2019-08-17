@@ -1,14 +1,9 @@
-import hashlib
 import os
-import shlex
-import stat
-import subprocess
 import sys
-import uuid
 
 from plash.eval import (eval, hint, join_result, register_macro,
                         shell_escape_args)
-from plash.utils import hashstr, run_write_read
+from plash import utils
 
 
 @register_macro()
@@ -39,6 +34,7 @@ def inline(*cmds):
 @join_result
 def import_env(*envs):
     'import environment variables from host'
+    import shlex
     for env in envs:
         parts = env.split(':', 1)
         if len(parts) == 1:
@@ -53,6 +49,7 @@ def import_env(*envs):
 @register_macro()
 def invalidate_layer():
     'invalidate the cache of the current layer'
+    import uuid
     return ': invalidate cache with {}'.format(uuid.uuid4())
 
 
@@ -82,7 +79,7 @@ def eval_file(file):
     with open(fname) as f:
         inscript = f.read()
 
-    sh = run_write_read(['plash', 'eval'], inscript.encode()).decode()
+    sh = utils.plash_call('eval', strip=False, input=inscript)
 
     # we remove an possibly existing newline
     # because else this macros would add one
@@ -95,14 +92,15 @@ def eval_file(file):
 @register_macro()
 def eval_string(stri):
     'evaluate expressions passed as string'
+    import shlex
     tokens = shlex.split(stri)
-
-    return run_write_read(['plash', 'eval'], '\n'.join(tokens).encode()).decode()
+    return utils.plash_call('eval', input='\n'.join(tokens), strip=False)
 
 
 @register_macro()
 def eval_stdin():
     'evaluate expressions read from stdin'
+    import subprocess
     cmd = ['plash', 'eval']
     p = subprocess.Popen(cmd, stdin=sys.stdin, stdout=sys.stdout)
     exit = p.wait()
@@ -126,6 +124,8 @@ class HashPaths:
                 yield fname
 
     def __call__(self, *paths):
+        import hashlib
+        import stat
 
         collect_files = []
         for path in paths:
@@ -142,7 +142,7 @@ class HashPaths:
             hasher.update(fname.encode())
             hasher.update(perm)
 
-            hasher.update(hashstr(fread).encode())
+            hasher.update(utils.hashstr(fread).encode())
 
         hash = hasher.hexdigest()
         return ": hash: {}".format(hash)

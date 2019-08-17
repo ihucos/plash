@@ -3,10 +3,10 @@ import os
 import sys
 from contextlib import contextmanager
 from os.path import join
+import ctypes
 
 ERROR_COLOR = 1
 INFO_COLOR = 4
-
 
 def hashstr(stri):
     import hashlib
@@ -71,12 +71,8 @@ def die_with_usage(*, hint=False):
 
 
 def nodepath_or_die(container, allow_root_container=False):
-    import subprocess
-
     extra = [] if not allow_root_container else ['--allow-root-container']
-    with catch_and_die([subprocess.CalledProcessError], silent=True):
-        return subprocess.check_output(
-            ['plash', 'nodepath', str(container)] + extra, ).decode().strip('\n')
+    return plash_call('nodepath', str(container), *extra)
 
 
 def get_default_shell(passwd_file):
@@ -94,12 +90,11 @@ def get_default_user_shell():
 
 
 def plash_map(*args):
-    from subprocess import check_output
     'thin wrapper around plash map'
-    out = check_output(['plash', 'map'] + list(args))
+    out = plash_call('map', *args)
     if out == '':
         return None
-    return out.decode().strip('\n')
+    return out
 
 
 def assert_initialized():
@@ -108,19 +103,121 @@ def assert_initialized():
         die('first run `plash init`')
 
 
-def run_write_read(cmd, input, cwd=None):
-    import subprocess
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd)
-    p.stdin.write(input)
-    p.stdin.close()
-    exit = p.wait()
-    if exit:
-        raise subprocess.CalledProcessError(exit, cmd)
-    return p.stdout.read()
-
-
 def mkdtemp():
     import tempfile
     return tempfile.mkdtemp(
         dir=os.path.join(os.environ["PLASH_DATA"], 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
+
+
+def py_exec(file, *args):
+        import runpy
+
+        sys.argv = [sys.argv[0]] + list(args)
+
+        #import time
+        #t = time.time()
+        runpy.run_path(file)
+        #print(time.time() - t, file, *args, file=sys.stderr)
+
+        sys.exit(0)
+
+
+def plash_exec(plash_cmd, *args):
+
+        thisdir = os.path.dirname(os.path.abspath(__file__))
+        execdir = os.path.abspath(os.path.join(thisdir, '..', '..', 'exec'))
+        runfile = os.path.join(execdir, plash_cmd)
+        with open(runfile, 'rb') as f:
+            is_python = f.read(23) == b"#!/usr/bin/env python3\n"
+        if is_python:
+            py_exec(runfile, *args)
+        else:
+            os.execlp(runfile, runfile, *args)
+
+
+def plash_call(plash_cmd, *args,
+        strip=True, return_exit_code=False, stdout_to_stderr=False, input=None, cwd=None):
+    r, w = os.pipe()
+
+    if input:
+        r2, w2 = os.pipe()
+
+    child = os.fork()
+    if not child:
+        if cwd:
+            os.chdir(cwd)
+        if stdout_to_stderr:
+            os.dup2(2, 1)
+        else:
+            os.dup2(w, 1)
+        os.close(r)
+        os.close(w)
+
+        if input:
+            os.dup2(r2, 0)
+            os.close(r2)
+            os.close(w2)
+
+        plash_exec(plash_cmd, *args)
+
+    os.close(w)
+
+    if input:
+        f = os.fdopen(w2, 'w')
+        f.write(input)
+        f.close()
+
+    _, status = os.wait()
+    exit = (status >> 8)
+    # XXX check for abnormal exit
+
+    if return_exit_code:
+        return exit
+
+    if exit:
+        sys.exit(1)
+    out = os.fdopen(r).read()
+    if strip:
+        out = out.strip('\n\r ')
+    return out
+
+
+def filter_positionals(args):
+    positional = []
+    filtered_args = []
+    found_first_opt = False
+    while args:
+        arg = args.pop(0)
+        if not arg.startswith('-') and not found_first_opt:
+            positional.append(arg)
+        elif arg == '--':
+            positional += args
+            args = None
+        else:
+            filtered_args.append(arg)
+            found_first_opt = True
+    return positional, filtered_args
+
+
+def handle_build_args():
+    if len(sys.argv) >= 2 and sys.argv[1] == '--':
+        sys.argv = [sys.argv[0]] + sys.argv[2:]
+    elif len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
+        cmd, args = filter_positionals(sys.argv[1:])
+        container_id = plash_call('build', *args)
+        py_exec(sys.argv[0], container_id, *cmd)
+
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+clib = os.path.realpath(os.path.join(dir_path, '../../c/plash.o'))
+
+lib = ctypes.CDLL(clib)
+
+
+def unshare_user():
+    lib.pl_unshare_user()
+
+
+def unshare_mount():
+    lib.pl_unshare_mount()

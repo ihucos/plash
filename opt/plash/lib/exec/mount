@@ -19,6 +19,7 @@ from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, nodepath_or_die)
 
 assert_initialized()
+utils.handle_build_args()
 
 try:
     container, mountpoint = sys.argv[1:3]

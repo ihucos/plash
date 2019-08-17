@@ -23,9 +23,12 @@ import os
 import sys
 from os.path import join
 
+from plash import utils
 from plash.utils import (catch_and_die, die_with_usage,
                          mkdtemp, nodepath_or_die)
 
+utils.handle_build_args()
+utils.unshare_user()
 
 plash_data = os.environ["PLASH_DATA"]
 

@@ -1,4 +1,3 @@
-import subprocess
 from functools import wraps
 
 from plash import utils
@@ -26,24 +25,21 @@ def cache_container_hint(cache_key_templ):
 @cache_container_hint('docker:{}')
 def from_docker(image):
     'use image from local docker'
-    return subprocess.check_output(['plash', 'import-docker',
-                                    image]).decode().rstrip('\n')
+    utils.plash_call('import-docker', image)
 
 
 @register_macro()
 @cache_container_hint('lxc:{}')
 def from_lxc(image):
     'use images from images.linuxcontainers.org'
-    return subprocess.check_output(['plash', 'import-lxc',
-                                    image]).decode().rstrip('\n')
+    return utils.plash_call('import-lxc', image)
 
 
 @register_macro()
 @cache_container_hint('url:{}')
 def from_url(url):
     'import image from an url'
-    return subprocess.check_output(['plash', 'import-url',
-                                    url]).decode().rstrip('\n')
+    return utils.plash_call('import-url', url)
 
 
 @register_macro()
@@ -59,8 +55,7 @@ class MapDoesNotExist(Exception):
 @register_macro()
 def from_map(map_key):
     'use resolved map as image'
-    image_id = subprocess.check_output(['plash', 'map',
-                                        map_key]).decode().strip('\n')
+    image_id = utils.plash_call('map', map_key)
     if not image_id:
         raise MapDoesNotExist('map {} not found'.format(repr(map_key)))
     return hint('image', image_id)
@@ -84,6 +79,5 @@ def from_github(user_repo_pair, file='plashfile'):
         user_repo_pair, file)
     with utils.catch_and_die([Exception], debug=url):
         resp = urlopen(url)
-    plashstr = resp.read()
-    return utils.run_write_read(['plash', 'build', '--eval-stdin'],
-                                plashstr).decode().rstrip('\n')
+    plashstr = resp.read().decode()
+    return utils.plash_call('build', '--eval-stdin', input=plashstr)

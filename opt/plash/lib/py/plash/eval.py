@@ -108,7 +108,6 @@ def get_hint_values(script):
 @register_macro('import')
 def import_(*modules):
     'import macros from any python module'
-    output = []
     for module_name in modules:
         importlib.import_module(module_name)
 

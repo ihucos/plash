@@ -9,6 +9,7 @@ import sys
 import tarfile
 from os.path import join
 
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage,
                          mkdtemp)
@@ -53,4 +54,4 @@ with open(resolvconf, 'w') as f:
     f.seek(0)
     f.truncate()
 
-os.execlp('plash', 'plash', 'add-layer', '0', rootfs)
+utils.plash_exec('add-layer', '0', rootfs)

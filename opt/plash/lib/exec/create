@@ -24,16 +24,16 @@
 # 44
 
 import os
-import subprocess
 import sys
 from os.path import join
-from subprocess import DEVNULL, CalledProcessError, Popen
 from sys import exit
 
+from plash import utils
 from plash.utils import (assert_initialized, die, die_with_usage,
                          mkdtemp, nodepath_or_die)
 
 assert_initialized()
+utils.handle_build_args()
 
 plash_tmp = join(os.environ["PLASH_DATA"], 'tmp')
 
@@ -46,9 +46,8 @@ except IndexError:
 nodepath_or_die(container)
 
 changesdir = mkdtemp()
-p = subprocess.Popen(
+exit = utils.plash_call(*(
     [
-        'plash',
         'runopts',
         '-c',
         container,
@@ -56,6 +55,7 @@ p = subprocess.Popen(
         changesdir,
         '-m',
         '/home',
+    # mount errors should be ignored in runopts (there is an issue for that)
     ] + (['-m', '/root'] if os.access('/root', os.R_OK) else []) + [
         '-m',
         '/etc/resolv.conf',
@@ -66,13 +66,13 @@ p = subprocess.Popen(
         '-m',
         '/proc',
         '--',
-    ] + cmd,
-    stdout=2
+    ] + cmd),
+    stdout_to_stderr=True,
+    return_exit_code=True
 )  # redirect stdout to stderr because we are passing the container id through stdout
 
-exit = p.wait()
 if exit:
     die("build failed with exit status {}".format(exit), exit=4)
 
-os.execlp('plash', 'add-layer', 'add-layer', container,
+utils.plash_exec('add-layer', container,
           os.path.join(changesdir, 'data'))

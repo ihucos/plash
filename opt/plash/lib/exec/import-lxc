@@ -10,6 +10,7 @@ import sys
 from urllib.error import URLError
 from urllib.request import urlopen
 
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage)
 
@@ -144,4 +145,4 @@ signature_url = '{}.asc'.format(url)
 if dry_run:
     print(url)
 else:
-    os.execlp('plash', 'plash', 'import-url', url, signature_url)
+    utils.plash_exec('import-url', url, signature_url)

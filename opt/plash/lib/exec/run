@@ -19,11 +19,11 @@
 # Parameters may be interpreted as build instruction.
 
 import os
-import shlex
 import sys
-from subprocess import check_call
 
 from plash import utils
+
+utils.handle_build_args()
 
 try:
     container_id, *cmd = sys.argv[1:]
@@ -32,9 +32,7 @@ except ValueError:
 
 changesdir = utils.mkdtemp()
 
-os.execlp(
-    'plash',
-    'plash',
+utils.plash_exec(
     'runopts',
     *((
         '-c',

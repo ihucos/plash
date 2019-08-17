@@ -11,6 +11,7 @@ from urllib.error import URLError
 from urllib.request import urlopen, urlretrieve
 
 import plash
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, mkdtemp)
 
@@ -70,4 +71,4 @@ if gpg_signature_url:
             die('signature check failed')
 
 sys.stderr.write('plash: extracting...\n')
-os.execlp('plash', 'plash', 'import-tar', downloaded_rootfs)
+utils.plash_exec('import-tar', downloaded_rootfs)
