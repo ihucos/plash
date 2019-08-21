@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
 
   plash_data = getenv("PLASH_DATA");
   assert(plash_data);
+  assert(plash_data[0] == '/');
 
   char *templ;
   if (asprintf(&templ,
@@ -69,7 +70,6 @@ int main(int argc, char *argv[]) {
   off_t node_id_candidate;
   for (;;) {
 
-      char *src_relative;
       char *dst;
 
       if (chdir(plash_data) == -1)
@@ -93,20 +93,14 @@ int main(int argc, char *argv[]) {
             pl_fatal("chdir");
 
 
-      if (asprintf(&src, "%s/%ld", nodepath, node_id_candidate) == -1)
+      if (asprintf(&src, "..%s/%ld", nodepath + strlen(plash_data), node_id_candidate) == -1)
           pl_fatal("asprintf");
        
-       // convert src to relative path.  Use the property that
-       // plash_data is a prefix of nodepath
-       // XXX strdup with no check
-       src_relative = strdup(src) + strlen(plash_data) - 2;
-       src_relative[0] = '.';
-       src_relative[1] = '.';
 
       if (asprintf(&dst, "%ld", node_id_candidate) == -1)
           pl_fatal("asprintf");
 
-       symlink(src_relative, dst);
+       symlink(src, dst);
        if (errno == EEXIST){
            // if taken, try again
            continue;
