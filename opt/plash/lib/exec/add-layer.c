@@ -30,19 +30,18 @@
 
 int main(int argc, char *argv[]) {
 
-  char *linkpath;
-  char *node_id_str;
-  char *nodepath;
-  char *plash_data;
-  char *prepared_new_node;
-  char *templ;
   off_t node_id;
+  int fd;
+  char *linkpath,
+       *node_id_str,
+       *nodepath,
+       *plash_data,
+       *prepared_new_node,
+       *templ;
 
-  if (argc != 3)
-    pl_usage();
+  if (argc != 3) pl_usage();
 
   pl_unshare_user();
-
   nodepath = pl_check_output((char*[]){
         "plash", "nodepath", argv[1], "--allow-root-container", NULL});
 
@@ -50,62 +49,28 @@ int main(int argc, char *argv[]) {
   assert(plash_data);
   assert(plash_data[0] == '/');
 
-
   if (asprintf(&templ,
                "%s/tmp/plashtmp_%d_%d_XXXXXX",
                plash_data,
                getsid(0),
-               getpid)
-          == -1)
-    pl_fatal("asprintf");
-
-  prepared_new_node = mkdtemp(templ);
-
-  if (chmod(prepared_new_node, 0755) == -1)
-        pl_fatal("chmod");
-
-  if (chdir(prepared_new_node) == -1)
-        pl_fatal("chdir");
-
-  if (mkdir("_data", 0755) == -1)
-        pl_fatal("mkdir");
-
-   if (rename(argv[2], "_data/root") == -1)
-       pl_fatal("rename: %s", argv[2]);
-
-
-   if (chdir(plash_data) == -1)
-         pl_fatal("chdir");
-   
-    int fd = open("id_counter", O_WRONLY | O_APPEND);
-    if (fd < 0)
-        pl_fatal("open");
-
-    if (write(fd, "A", 1) != 1)
-        pl_fatal("write");
-
-    node_id = lseek(fd, 0, SEEK_CUR);
-   if (asprintf(&node_id_str, "%ld", node_id) == -1)
-       pl_fatal("asprintf");
-
-    if (node_id == -1)
-        pl_fatal("lseek");
-
-    if (close(fd) == -1)
-        pl_fatal("close");
-    
-   if (chdir("index") == -1)
-         pl_fatal("chdir");
-
-
-   if (asprintf(&linkpath, "..%s/%ld", nodepath + strlen(plash_data), node_id) == -1)
-       pl_fatal("asprintf");
-
-    if (symlink(linkpath, node_id_str) == -1)
-        pl_fatal("symlink");
-
-   if (rename(prepared_new_node, linkpath) == -1)
-        pl_fatal("rename");
-   puts(node_id_str);
+               getpid)                             == -1)   pl_fatal("asprintf");
+  if ((prepared_new_node = mkdtemp(templ))         == NULL) pl_fatal("mkdtemp");
+  if (chmod(prepared_new_node, 0755)               == -1)   pl_fatal("chmod");
+  if (chdir(prepared_new_node)                     == -1)   pl_fatal("chdir");
+  if (mkdir("_data", 0755)                         == -1)   pl_fatal("mkdir");
+  if (rename(argv[2], "_data/root")                == -1)   pl_fatal("rename: %s", argv[2]);
+  if (chdir(plash_data)                            == -1)   pl_fatal("chdir");
+  if ((fd = open("id_counter", O_WRONLY | O_APPEND)) == -1)   pl_fatal("open");
+  if (write(fd, "A", 1)                            != 1)    pl_fatal("write");
+  if ((node_id = lseek(fd, 0, SEEK_CUR))             == -1)   pl_fatal("lseek");
+  if (asprintf(&node_id_str, "%ld", node_id)       == -1)   pl_fatal("asprintf");
+  if (close(fd)                                    == -1)   pl_fatal("close");
+  if (chdir("index")                               == -1)   pl_fatal("chdir");
+  if (asprintf(&linkpath, "..%s/%ld",
+               nodepath + strlen(plash_data),
+               node_id)                            == -1)   pl_fatal("asprintf");
+  if (symlink(linkpath, node_id_str)               == -1)   pl_fatal("symlink");
+  if (rename(prepared_new_node, linkpath)          == -1)   pl_fatal("rename");
+  puts(node_id_str);
 
 }
