@@ -1,7 +1,7 @@
 CC=musl-gcc
 CFLAGS=-static -Ilib/c
 
-INCLUDES_PLASH_H=bin/plash tests/c/pl_setup_user_ns lib/exec/sudo lib/exec/nodepath
+INCLUDES_PLASH_H=bin/plash tests/c/pl_setup_user_ns lib/exec/sudo lib/exec/nodepath lib/exec/add-layer
 INCLUDES_PLASH_C=tests/c/pl_parse_subid
 
 

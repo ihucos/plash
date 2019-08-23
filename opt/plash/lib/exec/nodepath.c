@@ -33,8 +33,7 @@ int main(int argc, char* argv[]) {
 	if (argc < 2) pl_usage();
 
         // validate/normalize input
-        while(isdigit(argv[1][i])) i++;
-        if (!i || argv[1][i])
+        if (!argv[1][0] || strspn(argv[1], "0123456789") != strlen(argv[1]))
                 pl_fatal("container arg must be a positive number, got: %s", argv[1]);
 
 	if (0 == strcmp(argv[1], "0") && (
@@ -44,8 +43,9 @@ int main(int argc, char* argv[]) {
 
         plash_data_env = getenv("PLASH_DATA");
         assert(plash_data_env);
-        if (chdir(plash_data_env) == -1) pl_fatal("chdir: %s", plash_data_env);
-        if (chdir("index") ==     -1)    pl_fatal("chdir");
+        if (chdir(plash_data_env) == -1 ||
+            chdir("index") == -1)
+            pl_fatal("run `plash init`: chdir: %s", plash_data_env);
 
 	if (! (nodepath = realpath(argv[1], NULL))){
 		errno = 0;
