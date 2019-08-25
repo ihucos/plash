@@ -15,3 +15,11 @@ void pl_usage();
 void pl_unshare_mount();
 
 void pl_unshare_user();
+
+void pl_whitelist_envs_from_env(const char *export_env);
+
+void pl_bind_mount(const char* src, const char* dst);
+
+void pl_chdir(const char* newdir);
+
+void pl_chroot(const char* rootfs);

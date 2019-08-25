@@ -130,6 +130,48 @@ void pl_whitelist_env(char *env_name){
 }
 
 
+void pl_whitelist_envs_from_env(const char *export_env){
+        char *str;
+        char *token;
+	if ((str = getenv(export_env))) {
+		str = strdup(str);
+		token = strtok(str, ":");
+		while(token){
+			pl_whitelist_env(token);
+			token = strtok(NULL, ":");
+		}
+		free(str);
+	}
+}
+
+
+void pl_bind_mount(const char* src, const char* dst){
+	if (0 < mount(src, dst, "none",
+	                MS_MGC_VAL|MS_BIND|MS_REC, NULL)){
+		if (errno != ENOENT){
+			pl_fatal("rbind %s to %s", src, dst);
+		}
+	}
+}
+
+
+void pl_chdir(const char* newdir){
+	if (-1 == chdir(newdir)){
+		if (-1 == chdir("/"))
+			pl_fatal("chdir(\"/\")");
+	}
+}
+
+
+void pl_chroot(const char* rootfs){
+	char *origpwd = get_current_dir_name();
+	if (!origpwd) pl_fatal("get_current_dir_name");
+	chroot(rootfs
+	      ) != -1 || pl_fatal("could not chroot to %s", rootfs);
+        pl_chdir(origpwd);
+}
+
+
 int pl_fork_exec_newmap(fork_exec_newmap_t args){
         char *from = NULL;
         char *to = NULL;
