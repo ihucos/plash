@@ -41,8 +41,16 @@ int main(int argc, char* argv[]) {
   assert(plash_data);
   assert(plash_data[0] == '/');
 
+  // validate map name
+  if (!argv[1][0])
+    pl_fatal("empty map name not allowed");
+  else if (strchr(argv[1], '/') != NULL)
+    pl_fatal("'/' not allowed in map name");
+
   if (  chdir(plash_data)  == -1   ) pl_fatal("chdir");
   if (  chdir("map")       == -1   ) pl_fatal("chdir");
+
+  
 
   if (argc == 2){
     nodepath = realpath(argv[1], NULL);
@@ -53,7 +61,7 @@ int main(int argc, char* argv[]) {
 
   else if (argc == 3 && !argv[2][0]){
     if (unlink(argv[1]) == -1){
-      if (errno == ENOENT) {errno=0; pl_fatal("no such map: %s", argv[1]);}
+      if (errno == ENOENT) {return 0;}
       pl_fatal("unlink");
     }
   } else if (argc == 3){
