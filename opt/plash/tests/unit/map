@@ -29,3 +29,10 @@ plash map mkey ''
 
 : no '/' in key
 (! plash map hi/da 1)
+
+: exit code 1 if called with no arguments
+set +e
+plash map
+e=$?
+set -e
+[[ $e = 1 ]]
