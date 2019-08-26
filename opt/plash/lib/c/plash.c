@@ -154,7 +154,6 @@ void pl_bind_mount(const char* src, const char* dst){
 	}
 }
 
-
 void pl_chdir(const char* newdir){
 	if (-1 == chdir(newdir)){
 		if (-1 == chdir("/"))

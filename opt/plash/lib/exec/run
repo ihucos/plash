@@ -45,10 +45,16 @@ utils.plash_exec(
         changesdir,
         '-m',
         '/tmp',
-        '-m',
+        '-r',
         '/home',
-    ) +
-      # only mount /root if it is readable
-      (('-m', '/root') if os.access('/root', os.R_OK) else
-       ()) + ('-m', '/etc/resolv.conf', '-m', '/sys', '-m', '/dev', '-m',
-              '/proc', '--') + tuple(cmd)))
+        '-m',
+        '/root',
+        '-m',
+        '/etc/resolv.conf',
+        '-m',
+        '/sys',
+        '-m',
+        '/dev',
+        '-m',
+        '/proc',
+        '--') + tuple(cmd)))

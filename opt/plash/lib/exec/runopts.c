@@ -26,7 +26,7 @@
 
 #include <plash.h>
 
-#define OPTSTRING "c:d:m:"
+#define OPTSTRING "c:d:m:r:"
   
 int main(int argc, char *argv[]) { 
   int opt; 
@@ -80,10 +80,12 @@ int main(int argc, char *argv[]) {
 
   optind = 1;
   while((opt = getopt(argc, argv, OPTSTRING)) != -1) { 
-      if (opt == 'm') {
+      switch(opt){
+      case 'm':
         if (!optarg[0] == '/')
           pl_fatal("mount path must be absolute");
         pl_bind_mount(optarg, optarg + 1);
+        break;
       }  
   }  
 

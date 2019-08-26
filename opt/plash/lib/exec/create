@@ -45,6 +45,9 @@ except IndexError:
 
 nodepath_or_die(container)
 
+# use with login shell
+cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
+
 changesdir = mkdtemp()
 exit = utils.plash_call(*(
     [
@@ -55,8 +58,8 @@ exit = utils.plash_call(*(
         changesdir,
         '-m',
         '/home',
-    # mount errors should be ignored in runopts (there is an issue for that)
-    ] + (['-m', '/root'] if os.access('/root', os.R_OK) else []) + [
+        '-m',
+        '/root',
         '-m',
         '/etc/resolv.conf',
         '-m',
