@@ -97,23 +97,16 @@ int main(int argc, char *argv[]) {
   chroot(".") != -1 || pl_fatal("chroot");
   pl_chdir(origpwd);
 
-  char **args = calloc(100, sizeof(char*)); // overflow!
-  size_t i = 0;
-  args[i++] = "/bin/sh";
-  args[i++] = "-lc";
-  args[i++] = "exec env \"$@\"";
-  args[i++] = "--";
   if (argv[optind] == NULL){
     pwd = getpwuid(0);
-    args[i++] = (pwd == NULL) ? pwd->pw_shell : "/bin/sh";
+    argv[0] = (pwd == NULL) ? pwd->pw_shell : "/bin/sh";
+    argv[1] = NULL;
   } else {
-    for(; argv[optind]; optind++)
-      args[i++] = argv[optind];
+    argv += optind;
   }
-  args[i++] = NULL;
 
-  execvp(args[0], args);
-  fprintf(stderr, "%s: command not found\n", args[0]);
+  execvp(argv[0], argv);
+  fprintf(stderr, "%s: command not found\n", argv[0]);
   return 127; 
 } 
 

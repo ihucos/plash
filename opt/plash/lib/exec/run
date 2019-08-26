@@ -30,6 +30,10 @@ try:
 except ValueError:
     utils.die_with_usage()
 
+
+# use with login shell
+cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
+
 changesdir = utils.mkdtemp()
 
 utils.plash_exec(
