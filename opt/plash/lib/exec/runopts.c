@@ -2,7 +2,7 @@
 //
 // Run a container specifying lower level options.  Usually you'll want to use
 // `plash run` instead. If no command is specified the containers default root
-// shell will be executed.
+// shell will be executed as login shell.
 //
 // Supported options:
 //
@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
   assert(plash_data);
 
   // don't let getopt print error messages
+  opterr = 0;
     
   //
   // get some user options
