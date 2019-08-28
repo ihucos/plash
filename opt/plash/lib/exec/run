@@ -46,7 +46,7 @@ utils.plash_exec(
         changesdir,
         '-m',
         '/tmp',
-        '-r',
+        '-m',
         '/home',
         '-m',
         '/root',

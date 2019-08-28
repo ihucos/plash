@@ -27,21 +27,25 @@
 
 #include <plash.h>
 
-#define OPTSTRING "c:d:m:r:"
+#define OPTSTRING "c:d:m:"
   
 int main(int argc, char *argv[]) { 
+  char *changesdir = NULL,
+       *container = NULL,
+       *nodepath,
+       *plash_data,
+       *origpwd;
   int opt; 
-  char *changesdir = NULL;
-  char *container = NULL;
-  char *nodepath;
-  char *plash_data;
-  char *origpwd;
   struct passwd *pwd;
 
   plash_data = getenv("PLASH_DATA");
   assert(plash_data);
-    
 
+  // don't let getopt print error messages
+    
+  //
+  // get some user options
+  //
   while((opt = getopt(argc, argv, OPTSTRING)) != -1) {  
       switch(opt) {  
           case 'c':
@@ -61,6 +65,9 @@ int main(int argc, char *argv[]) {
   nodepath = pl_check_output((char*[]){
         "plash", "nodepath", container, NULL});
 
+  //
+  // get "userspace root"
+  //
   pl_unshare_user();
   pl_unshare_mount();
 
@@ -73,23 +80,29 @@ int main(int argc, char *argv[]) {
   if (mount("tmpfs", "mnt", "tmpfs", MS_MGC_VAL, NULL) == -1) pl_fatal("mount");
 
   //
-  // mount root filesystem
+  // mount root filesystem at the empty mountpoint
   //
   pl_check_output((char*[]){"plash", "mount", container, "mnt", changesdir, NULL});
 
-  if (chdir("mnt") == -1) pl_fatal("chdir");
 
+  //
+  // mount requested mounts
+  //
+  if (chdir("mnt") == -1) pl_fatal("chdir");
   optind = 1;
   while((opt = getopt(argc, argv, OPTSTRING)) != -1) { 
       switch(opt){
-      case 'm':
-        if (!optarg[0] == '/')
-          pl_fatal("mount path must be absolute");
-        pl_bind_mount(optarg, optarg + 1);
-        break;
+        case 'm':
+          if (!optarg[0] == '/')
+            pl_fatal("mount path must be absolute");
+          pl_bind_mount(optarg, optarg + 1);
+          break;
       }  
   }  
 
+  //
+  // only allow certain envs
+  //
   pl_whitelist_env("TERM");
   pl_whitelist_env("DISPLAY");
   pl_whitelist_env("HOME");
@@ -97,156 +110,34 @@ int main(int argc, char *argv[]) {
   pl_whitelist_envs_from_env("PLASH_EXPORT");
   pl_whitelist_env(NULL);
     
+  //
+  // chroot, then reconstruct working directory
+  //
   chroot(".") != -1 || pl_fatal("chroot");
   pl_chdir(origpwd);
 
 
+  //
+  // put the command to run in argv
+  //
   if (argv[optind] == NULL){
+
+    // check we have the memory
+    assert(argv[0] != NULL && argv[1] != NULL && argv[2] != NULL);
+
     pwd = getpwuid(0);
     argv[0] = (pwd == NULL) ? pwd->pw_shell : "/bin/sh";
     argv[1] = "-l";
     argv[2] = NULL;
   } else {
+    // rewind argv to where the positional arguments begin
     argv += optind;
   }
+
+  //
+  // exec!
+  //
   execvp(argv[0], argv);
   fprintf(stderr, "%s: command not found\n", argv[0]);
   return 127; 
 } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//ALWAYS_EXPORT = ['TERM', 'DISPLAY', 'HOME', 'PLASH_DATA']
-//
-//
-//import getopt
-//import os
-//import re
-//import sys
-//import tempfile
-//from subprocess import CalledProcessError, check_call
-//
-//from plash import utils
-//from plash.utils import (assert_initialized, catch_and_die, die,
-//                         mkdtemp)
-//
-//utils.assert_initialized()
-//utils.unshare_user()
-//utils.unshare_mount()
-//
-//with utils.catch_and_die([getopt.GetoptError], debug='runopts'):
-//    user_opts, user_args = getopt.getopt(sys.argv[1:], 'c:d:m:')
-//
-//#
-//# prepare an empty mountpoint
-//#
-//mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
-//with catch_and_die([CalledProcessError]):
-//    check_call(['mount', '-t', "tmpfs", "tmpfs", mountpoint], stdout=2)
-//
-//#
-//# parse user options
-//#
-//container = None
-//changesdir = None
-//mounts = []
-//for opt_key, opt_value in user_opts:
-//
-//    if opt_key == '-c':
-//        container = opt_value
-//
-//    elif opt_key == '-d':
-//        changesdir = opt_value
-//
-//    if opt_key == '-m':
-//        mounts.append(opt_value)
-//
-//if not container:
-//    die('runopts: missing -c option')
-//
-//#
-//# mount root filesystem
-//#
-//if changesdir:
-//    utils.plash_call('mount', '--', container, mountpoint, changesdir)
-//else:
-//    utils.plash_call('mount', '--', container, mountpoint)
-//
-//
-//
-//#
-//# mount requested mounts if they exist
-//#
-//for mount in mounts:
-//    mount_to = os.path.join(mountpoint, mount.lstrip('/'))
-//    if os.path.exists(mount_to):
-//        with catch_and_die([CalledProcessError]):
-//            check_call(['mount', '--rbind', mount, mount_to], stdout=2)
-//
-//
-//#
-//# setup chroot and exec inside it
-//#
-//
-//pwd_at_start = os.getcwd()
-//
-//# I had problems opening the files after the chroot (LookupError: unknown encoding: ascii)
-//
-//# read PATH from /etc/login.defs if available
-//envs = []
-//for env in os.environ.get('PLASH_EXPORT', '').split(':') + ALWAYS_EXPORT:
-//    if env:
-//        try:
-//            envs.append('{}={}'.format(env, os.environ[env]))
-//        except KeyError:
-//            pass
-//
-//if not user_args:
-//    cmd = [utils.get_default_shell(os.path.join(mountpoint, 'etc/passwd'))]
-//else:
-//    cmd = user_args
-//
-//os.chroot(mountpoint)
-//try:
-//    os.chdir(pwd_at_start)
-//except (ValueError, OSError):
-//    os.chdir('/')
-//
-//with catch_and_die([OSError]):
-//    try:
-//        os.execve('/bin/sh', ['sh', '-lc', 'exec env "$@"', '--'] + envs + cmd, {})
-//    except FileNotFoundError:
-//        sys.stderr.write('{}: command not found\n'.format(cmd[0]))
-//        sys.exit(127)
