@@ -301,6 +301,9 @@ char* pl_check_output(char* argv[]){
   int link[2];
   char static output[4096];
 
+  // output shall always start as an empty string
+  output[0] = '\n';
+
   if (pipe(link) == -1) pl_fatal("pipe");
 
   switch(fork()){

@@ -32,7 +32,6 @@
 int main(int argc, char *argv[]) { 
   char *changesdir = NULL,
        *container = NULL,
-       *nodepath,
        *plash_data,
        *origpwd;
   int opt; 
@@ -63,8 +62,10 @@ int main(int argc, char *argv[]) {
   } 
   if (container == NULL) pl_usage();
 
-  nodepath = pl_check_output((char*[]){
-        "plash", "nodepath", container, NULL});
+  int link[2];
+  char static output[4096];
+
+  if (pipe(link) == -1) pl_fatal("pipe");
 
   //
   // get "userspace root"
@@ -83,8 +84,10 @@ int main(int argc, char *argv[]) {
   //
   // mount root filesystem at the empty mountpoint
   //
-  pl_check_output((char*[]){"plash", "mount", container, "mnt", changesdir, NULL});
-
+  puts("what");
+  // IMPLEMENT!!
+  pl_check_call((char*[]){"plash", "mount", container, "mnt", changesdir, NULL});
+  puts("whot");
 
   //
   // mount requested mounts
