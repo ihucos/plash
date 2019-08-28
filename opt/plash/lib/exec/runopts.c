@@ -23,6 +23,7 @@
 #include <sys/mount.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <string.h>
 
 #include <plash.h>
 
@@ -99,14 +100,15 @@ int main(int argc, char *argv[]) {
   chroot(".") != -1 || pl_fatal("chroot");
   pl_chdir(origpwd);
 
+
   if (argv[optind] == NULL){
     pwd = getpwuid(0);
     argv[0] = (pwd == NULL) ? pwd->pw_shell : "/bin/sh";
-    argv[1] = NULL;
+    argv[1] = "-l";
+    argv[2] = NULL;
   } else {
     argv += optind;
   }
-
   execvp(argv[0], argv);
   fprintf(stderr, "%s: command not found\n", argv[0]);
   return 127; 
