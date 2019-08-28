@@ -32,7 +32,8 @@ except ValueError:
 
 
 # use with login shell
-cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
+if cmd:
+    cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
 
 changesdir = utils.mkdtemp()
 

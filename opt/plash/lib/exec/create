@@ -46,7 +46,8 @@ except IndexError:
 nodepath_or_die(container)
 
 # use with login shell
-cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
+if cmd:
+  cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
 
 changesdir = mkdtemp()
 exit = utils.plash_call(*(
