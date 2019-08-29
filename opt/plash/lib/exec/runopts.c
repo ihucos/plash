@@ -79,10 +79,7 @@ int main(int argc, char *argv[]) {
   //
   // mount root filesystem at the empty mountpoint
   //
-  puts("what");
-  // IMPLEMENT!!
   pl_check_call((char*[]){"plash", "mount", container, "mnt", changesdir, NULL});
-  puts("whot");
 
   //
   // mount requested mounts
