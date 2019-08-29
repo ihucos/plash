@@ -300,9 +300,7 @@ void pl_setup_user_ns(){
 char* pl_check_output(char* argv[]){
   int link[2];
   char static output[4096];
-
-  // output shall always start as an empty string
-  output[0] = '\n';
+  memset(output, 0, sizeof(output));
 
   if (pipe(link) == -1) pl_fatal("pipe");
 
@@ -327,6 +325,22 @@ char* pl_check_output(char* argv[]){
     }
 }
 
+void pl_check_call(char* argv[]){
+  int status, exit_status;
+  pid_t pid = fork();
+  switch(pid){
+        case -1:
+            pl_fatal("fork");
+        case 0:
+            execvp(argv[0], argv);
+            pl_fatal("could not exec");
+        default:
+            waitpid(pid, &status, 0);
+            if (! WIFEXITED(status)) pl_fatal("child exited abnormally");
+            exit_status = WEXITSTATUS(status);  
+            if (exit_status) exit(1);
+  }
+}
 
 void pl_usage(){
 

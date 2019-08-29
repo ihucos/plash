@@ -10,6 +10,8 @@ void pl_setup_mount_ns();
 
 char* pl_check_output(char* argv[]);
 
+char* pl_check_call(char* argv[]);
+
 void pl_usage();
 
 void pl_unshare_mount();

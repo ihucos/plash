@@ -62,11 +62,6 @@ int main(int argc, char *argv[]) {
   } 
   if (container == NULL) pl_usage();
 
-  int link[2];
-  char static output[4096];
-
-  if (pipe(link) == -1) pl_fatal("pipe");
-
   //
   // get "userspace root"
   //
