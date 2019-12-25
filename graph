@@ -1,0 +1,72 @@
+digraph world {
+
+// edges to nodepath and init not shown for a better overview
+
+// those are with a C source code
+"add-layer" [style="filled"]
+"map" [style="filled"]
+"nodepath" [style="filled"]
+"parent" [style="filled"]
+"runopts" [style="filled"]
+"sudo" [style="filled"]
+
+
+
+clean
+help
+init
+parent
+purge
+"list-macros"
+shrink
+sudo
+version
+
+
+
+
+build -> map
+build -> create
+build -> eval
+
+
+copy -> "with-mount"
+
+create -> runopts
+create -> "add-layer"
+
+"export-tar" -> "with-mount"
+
+
+"import-docker" -> "import-tar"
+
+"import-lxc" -> "import-url"
+
+"import-tar" -> "add-layer"
+
+"import-url" -> "import-tar"
+
+
+
+run -> runopts
+
+runopts -> mount
+
+"shallow-copy" -> mount
+
+test -> data
+test -> "import-tar"
+
+"with-mount" -> mount
+
+//"with-mount" -> init
+//"import-lxc" -> init
+//build -> init
+//create -> init
+//mount -> init
+//clean -> init
+//"import-tar" -> init
+//"import-url" -> init
+//copy -> init
+
+}
