@@ -75,3 +75,5 @@ test "$out" = hi
 
 : test that no arguments mean a shell is started
 test "$(echo 'echo iamshell' | plash runopts -c 1)" = iamshell
+
+[[ "$(plash runopts -c 1 notexist 2>&1 1>/dev/null)" = *"notexist: command not found"* ]] 
