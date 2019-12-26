@@ -2,6 +2,9 @@ digraph world {
 
 // edges to nodepath and init not shown for a better overview
 
+
+rankdir = LR;       // horizontal graph
+
 // those are with a C source code
 "add-layer" [style="filled"]
 "map" [style="filled"]
@@ -11,10 +14,10 @@ digraph world {
 "sudo" [style="filled"]
 
 
-
 clean
 help
 init
+rank=same
 parent
 purge
 "list-macros"
@@ -25,48 +28,23 @@ version
 
 
 
-build -> map
-build -> create
-build -> eval
-
-
+build -> {map create eval}
 copy -> "with-mount"
-
-create -> runopts
-create -> "add-layer"
-
+create -> {runopts "add-layer"}
 "export-tar" -> "with-mount"
-
-
 "import-docker" -> "import-tar"
-
 "import-lxc" -> "import-url"
-
 "import-tar" -> "add-layer"
-
 "import-url" -> "import-tar"
-
-
-
 run -> runopts
-
 runopts -> mount
-
 "shallow-copy" -> mount
-
-test -> data
-test -> "import-tar"
-
+test -> {"import-tar" data}
 "with-mount" -> mount
 
-//"with-mount" -> init
-//"import-lxc" -> init
-//build -> init
-//create -> init
-//mount -> init
-//clean -> init
-//"import-tar" -> init
-//"import-url" -> init
-//copy -> init
+subgraph cluster_1 {
+"C" [style="filled"]
+label = "Legend";
+}
 
 }
