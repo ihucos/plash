@@ -113,7 +113,7 @@ int pl_parse_subid(
 
 
 void pl_whitelist_env(char *env_name){
-	char *n, *v;
+	char *n, *v, *swap;
 	static size_t env_counter = 0;
 	if (!env_name)
 		environ[env_counter++] = NULL;
@@ -123,8 +123,12 @@ void pl_whitelist_env(char *env_name){
 			    n = env_name, v = environ[i];
 			    *n && *v && *n == *v;
 			    n++, v++);
-				if (*v == '=' && *n == 0)
-					environ[env_counter++] = environ[i];
+				if (*v == '=' && *n == 0) {
+                                    swap = environ[env_counter];
+				    environ[env_counter] = environ[i];
+                                    environ[i] = swap;
+                                    env_counter++;
+                                }
 		}
 	}
 }

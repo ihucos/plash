@@ -54,8 +54,13 @@ int main(int argc, char *argv[]) {
           case 'd':
               changesdir = optarg;
               break;
+          case 'm':
+              if (!(optarg[0] == '/'))
+                  pl_fatal("mount path must be absolute");
+              break;
           case ':':
               pl_usage();
+              break;
           case '?':
               pl_usage();
       }  
@@ -85,12 +90,10 @@ int main(int argc, char *argv[]) {
   // mount requested mounts
   //
   if (chdir("mnt") == -1) pl_fatal("chdir");
-  optind = 1;
+  optind = 1; // reset the getopt
   while((opt = getopt(argc, argv, OPTSTRING)) != -1) { 
       switch(opt){
         case 'm':
-          if (!optarg[0] == '/')
-            pl_fatal("mount path must be absolute");
           pl_bind_mount(optarg, optarg + 1);
           break;
       }  

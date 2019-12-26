@@ -1,5 +1,65 @@
 #!/bin/bash
-set eux
+set -eux
+
+: simplest invocation
+plash runopts -c 1 true
+
+: cant write if not change dir specified
+! plash runopts -c 1 touch /da
+
+: can write if changedir specified
+tmpdir=$(mktemp -d)
+plash runopts -c 1 -d "$tmpdir" touch /da true
 
 : test that nonexistent mount requests are ignored
 plash runopts -c 1 -m /doesnotexist -- true
+
+: test a mountpoint
+tmp=$(mktemp)
+changesdir=$(mktemp -d)
+plash runopts -c 1 -d $changesdir -m /etc/passwd cat /etc/passwd > $tmp
+cat $tmp
+cmp /etc/passwd $tmp
+
+: mounts get cleanuped
+new=$(plash create 1 ls)
+before=$(cat /proc/mounts | grep "/index/$new" | wc -l)
+plash runopts -c $new ls
+after=$(cat /proc/mounts | grep "index/$new" | wc -l)
+test $before = $after
+
+: test exit status propagation
+set +e
+plash runopts -c 1 sh -c 'exit 123'
+exit=$?
+set -e
+test $exit = 123
+
+: test using relative mount path
+out=$(plash runopts -c 1 -m relativepath 2>&1; true)
+[[ "$out" = *"mount path must be absolute"* ]]
+
+: check the current dir is mapped
+cd /tmp
+out=$(plash runopts -c 1 pwd)
+test "$out" = $(pwd)
+cd -
+
+: check that environment variables are NOT exported to the container
+out=$(MYENV=123 plash runopts -c 1 sh -c 'echo $MYENV')
+test "$out" = ""
+
+: check export via PLASH_EXPORT
+out=$(PLASH_EXPORT=MYENV MYENV=123 V=a plash runopts -c 1 sh -c 'echo $MYENV$V')
+test $out = "123"
+
+: check export via PLASH_EXPORT - multiple vars
+out=$(PLASH_EXPORT='MYENV:V' V=a MYENV=123 plash runopts -c 1 sh -c 'echo $MYENV$V')
+test $out = "123a"
+
+: behavior when command not found
+set +e
+out=$(plash runopts -c 1 mycmdnotfound 2>&1)
+exit=$?
+set -e
+test "$exit" = 127
