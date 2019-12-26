@@ -18,7 +18,6 @@ import sys
 from plash import utils
 
 plash_data = os.environ["PLASH_DATA"]
-shell = utils.get_default_user_shell()
 if not sys.argv[1:]:
     print(plash_data)
 else:

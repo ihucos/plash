@@ -29,17 +29,20 @@
 #include <plash.h>
 
 #define OPTSTRING "c:d:m:"
+
+
+char* get_default_shell(){
+  struct passwd *pwd = getpwuid(0);
+  if (pwd == NULL){
+      return "/bin/sh";
+  } else {
+      return pwd->pw_shell;
+  }
+}
   
 int main(int argc, char *argv[]) { 
-  char *changesdir = NULL,
-       *container = NULL,
-       *plash_data,
-       *origpwd,
-       *default_shell;
-  int opt; 
-  struct passwd *pwd;
 
-  plash_data = getenv("PLASH_DATA");
+  char *plash_data = getenv("PLASH_DATA");
   assert(plash_data);
 
   // don't let getopt print error messages
@@ -48,6 +51,9 @@ int main(int argc, char *argv[]) {
   //
   // save and validate the user arguments
   //
+  int opt; 
+  char *changesdir = NULL;
+  char *container = NULL;
   while((opt = getopt(argc, argv, OPTSTRING)) != -1) {  
       switch(opt) {  
           case 'c':
@@ -75,7 +81,7 @@ int main(int argc, char *argv[]) {
   pl_unshare_user();
   pl_unshare_mount();
 
-  origpwd = get_current_dir_name();
+  char *origpwd = get_current_dir_name();
 
   //
   // prepare an empty mountpoint
@@ -119,22 +125,21 @@ int main(int argc, char *argv[]) {
 
 
   //
+  // build up the arguments to run
+  //
+  char** run_args = argv + optind; 
+  if (*run_args == NULL){
+    run_args = (char*[]) {get_default_shell(), "-l", NULL};
+  } else {
+    run_args = argv + optind; 
+  }
+
+  //
   // exec!
   //
-  if (argv[optind] == NULL){
-
-    pwd = getpwuid(0);
-    default_shell = (pwd == NULL) ? pwd->pw_shell : "/bin/sh";
-
-    execlp(default_shell, default_shell, "-l", NULL);
-  } else {
-    // use the positional arguments
-    execvp(
-           *(argv + optind),
-             argv + optind);
-  }
+  execvp(*run_args, run_args);
   if (errno == ENOENT){
-      fprintf(stderr, "%s: command not found\n", argv[0]);
+      fprintf(stderr, "%s: command not found\n", *run_args);
       return 127; 
   }
   pl_fatal("exec");
