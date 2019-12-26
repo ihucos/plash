@@ -121,7 +121,6 @@ int main(int argc, char *argv[]) {
   //
   // exec!
   //
-  // XXXX MAYBE LET RUN AND CREATE DO this
   if (argv[optind] == NULL){
 
     pwd = getpwuid(0);
@@ -134,8 +133,7 @@ int main(int argc, char *argv[]) {
            *(argv + optind),
              argv + optind);
   }
-  // XXXXXXXXXXXXXXXXXX THIS HANDLING HEEEHHRE
-  if (errno == ENONENT){
+  if (errno == ENOENT){
       fprintf(stderr, "%s: command not found\n", argv[0]);
       return 127; 
   }
