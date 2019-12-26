@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
   opterr = 0;
     
   //
-  // save and validate some user options
+  // save and validate the user arguments
   //
   while((opt = getopt(argc, argv, OPTSTRING)) != -1) {  
       switch(opt) {  
@@ -121,6 +121,7 @@ int main(int argc, char *argv[]) {
   //
   // exec!
   //
+  // XXXX MAYBE LET RUN AND CREATE DO this
   if (argv[optind] == NULL){
 
     pwd = getpwuid(0);
