@@ -1,29 +1,12 @@
 #!/bin/sh
 set -xeu
 
-: create an empty file
+: create an empty file - changedir is used for runopts
 plash run 1 touch /a
 
-: run a program on the base layer of a container
-plash build -f 1
+: run a simple program
 out=$(plash run 1 echo hellow)
 test "$out" = hellow
 
-: run something with an layer
-new=$(plash create 1 true)
-out=$(plash run $new echo hi)
-test "$out" = hi
-
 : test auto build
 plash run -f 1 --invalidate-layer -- ls
-
-: behavior when the command was not found
-set +e
-out=$(plash run 1 mycmdnotfound 2>&1)
-exit=$?
-set -e
-test "$exit" = 127
-
-: test variable setting
-out=$(plash run 1 MYV=101 printenv MYV)
-test "$out" = 101

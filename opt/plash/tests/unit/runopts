@@ -63,3 +63,12 @@ out=$(plash runopts -c 1 mycmdnotfound 2>&1)
 exit=$?
 set -e
 test "$exit" = 127
+
+: test variable setting
+out=$(plash run 1 MYV=101 printenv MYV)
+test "$out" = 101
+
+: run something with a layer
+new=$(plash create 1 true)
+out=$(plash runopts -c $new echo hi)
+test "$out" = hi
