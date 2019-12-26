@@ -72,3 +72,6 @@ test "$out" = 101
 new=$(plash create 1 true)
 out=$(plash runopts -c $new echo hi)
 test "$out" = hi
+
+: test that no arguments mean a shell is started
+test "$(echo 'echo iamshell' | plash runopts -c 1)" = iamshell

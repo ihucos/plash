@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <string.h>
+#include <errno.h>
 
 #include <plash.h>
 
@@ -33,7 +34,8 @@ int main(int argc, char *argv[]) {
   char *changesdir = NULL,
        *container = NULL,
        *plash_data,
-       *origpwd;
+       *origpwd,
+       *default_shell;
   int opt; 
   struct passwd *pwd;
 
@@ -44,7 +46,7 @@ int main(int argc, char *argv[]) {
   opterr = 0;
     
   //
-  // get some user options
+  // save and validate some user options
   //
   while((opt = getopt(argc, argv, OPTSTRING)) != -1) {  
       switch(opt) {  
@@ -117,26 +119,24 @@ int main(int argc, char *argv[]) {
 
 
   //
-  // put the command to run in argv
+  // exec!
   //
   if (argv[optind] == NULL){
 
-    // check we have the memory
-    assert(argv[0] != NULL && argv[1] != NULL && argv[2] != NULL);
-
     pwd = getpwuid(0);
-    argv[0] = (pwd == NULL) ? pwd->pw_shell : "/bin/sh";
-    argv[1] = "-l";
-    argv[2] = NULL;
-  } else {
-    // rewind argv to where the positional arguments begin
-    argv += optind;
-  }
+    default_shell = (pwd == NULL) ? pwd->pw_shell : "/bin/sh";
 
-  //
-  // exec!
-  //
-  execvp(argv[0], argv);
-  fprintf(stderr, "%s: command not found\n", argv[0]);
-  return 127; 
+    execlp(default_shell, default_shell, "-l", NULL);
+  } else {
+    // use the positional arguments
+    execvp(
+           *(argv + optind),
+             argv + optind);
+  }
+  // XXXXXXXXXXXXXXXXXX THIS HANDLING HEEEHHRE
+  if (errno == ENONENT){
+      fprintf(stderr, "%s: command not found\n", argv[0]);
+      return 127; 
+  }
+  pl_fatal("exec");
 } 
