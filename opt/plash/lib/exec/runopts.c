@@ -31,7 +31,7 @@
 #define OPTSTRING "c:d:m:"
 
 
-char* get_default_shell(){
+char* get_default_root_shell(){
   struct passwd *pwd = getpwuid(0);
   if (pwd == NULL){
       return "/bin/sh";
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
   //
   char** run_args = argv + optind; 
   if (*run_args == NULL){
-    run_args = (char*[]) {get_default_shell(), "-l", NULL};
+    run_args = (char*[]) {get_default_root_shell(), "-l", NULL};
   } else {
     run_args = argv + optind; 
   }
