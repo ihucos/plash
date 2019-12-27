@@ -16,8 +16,14 @@ import sys
 from subprocess import CalledProcessError, check_call
 
 from plash import utils
-from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, get_default_user_shell, mkdtemp)
+from plash.utils import (
+    assert_initialized,
+    catch_and_die,
+    die,
+    die_with_usage,
+    get_default_user_shell,
+    mkdtemp,
+)
 
 utils.assert_initialized()
 utils.handle_build_args()
@@ -35,10 +41,10 @@ if not cmd:
 
 mountpoint = mkdtemp()
 
-utils.plash_call('mount', '--', container, mountpoint)
+utils.plash_call("mount", "--", container, mountpoint)
 os.chdir(mountpoint)
 try:
     os.execlp(cmd[0], *cmd)
 except FileNotFoundError:
-    sys.stderr.write('{}: command not found'.format(cmd[0]))
+    sys.stderr.write("{}: command not found".format(cmd[0]))
     sys.exit(127)

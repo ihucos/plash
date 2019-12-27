@@ -4,7 +4,8 @@
 
 #include <plash.h>
 
-int main(){
-        if (getuid()) pl_setup_user_ns();
-        assert(getuid() == 0);
+int main() {
+  if (getuid())
+    pl_setup_user_ns();
+  assert(getuid() == 0);
 }

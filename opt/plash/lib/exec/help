@@ -18,26 +18,26 @@ FIRST_SENTENCE_RE = "# usage: .*?\n(?:#\n)*?# (.*?)\.".replace("#", "(?:#|//)")
 libexecdir = os.path.dirname(sys.argv[0])
 if len(sys.argv) >= 2:
     cmd = sys.argv[1]
-    prog_path =  os.path.join(libexecdir, cmd)
+    prog_path = os.path.join(libexecdir, cmd)
     if os.access(prog_path + ".c", os.F_OK):
         prog_path += ".c"
     try:
         with open(prog_path) as f:
             do_print = False
             for line in f.readlines():
-                if line.startswith('# usage:') or line.startswith('// usage:'):
+                if line.startswith("# usage:") or line.startswith("// usage:"):
                     do_print = True
-                elif line and not (line.startswith('#') or line.startswith('//')):
+                elif line and not (line.startswith("#") or line.startswith("//")):
                     break
                 if do_print:
-                    print(line[2:].rstrip('\n'))
+                    print(line[2:].rstrip("\n"))
     except FileNotFoundError:
         utils.die("no such command: {}".format(cmd))
     sys.exit(0)
 
 bin = dirname(sys.argv[0])
 progs = [i for i in listdir(bin) if os.access(join(bin, i), os.X_OK)]
-max_prog_lenght = len('plash ') + max(len(prog) for prog in progs)
+max_prog_lenght = len("plash ") + max(len(prog) for prog in progs)
 for prog in sorted(progs):
     prog_path = join(bin, prog)
 
@@ -45,19 +45,18 @@ for prog in sorted(progs):
         prog_path += ".c"
 
     if islink(prog_path):
-        #continue # it's an alias
+        # continue # it's an alias
         links_to = os.readlink(prog_path)
-        first_sentence = 'Alias for `plash {}`'.format(links_to)
+        first_sentence = "Alias for `plash {}`".format(links_to)
     else:
         with open(prog_path) as f:
             content = f.read()
         found = re.findall(FIRST_SENTENCE_RE, content)
         if not found:
-            first_sentence = '<empty>'
+            first_sentence = "<empty>"
         else:
             first_sentence = found[0]
-          
 
     assert first_sentence
-    print(('plash ' + prog).ljust(max_prog_lenght), first_sentence)
-print(('plash ' + '-*').ljust(max_prog_lenght), 'Fallback to `plash run`')
+    print(("plash " + prog).ljust(max_prog_lenght), first_sentence)
+print(("plash " + "-*").ljust(max_prog_lenght), "Fallback to `plash run`")

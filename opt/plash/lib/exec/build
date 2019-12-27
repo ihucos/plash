@@ -32,44 +32,50 @@ import sys
 
 from plash.eval import get_hint_values, hint, remove_hint_values
 from plash import utils
-from plash.utils import (assert_initialized, catch_and_die, color, die,
-                         hashstr, info, nodepath_or_die, plash_map)
+from plash.utils import (
+    assert_initialized,
+    catch_and_die,
+    color,
+    die,
+    hashstr,
+    info,
+    nodepath_or_die,
+    plash_map,
+)
 
 assert_initialized()
 
-script = utils.plash_call('eval', *sys.argv[1:], strip=False)
+script = utils.plash_call("eval", *sys.argv[1:], strip=False)
 
 hints = dict(get_hint_values(script))
-image_hint = hints.get('image')
+image_hint = hints.get("image")
 if not image_hint:
-    die('no image specified', exit=2)
+    die("no image specified", exit=2)
 
 # split the script in its layers
-layers = script.split(hint('layer') + '\n')
+layers = script.split(hint("layer") + "\n")
 layers = [remove_hint_values(l) for l in layers]
 layers = [l for l in layers if l]
 
 current_container = image_hint
 nodepath_or_die(current_container)
-os.environ['PS4'] = color('--> ', 4)
+os.environ["PS4"] = color("--> ", 4)
 for layer in layers:
-    cache_key = hashstr(b':'.join([current_container.encode(),
-                                   layer.encode()]))
+    cache_key = hashstr(b":".join([current_container.encode(), layer.encode()]))
     next_container = plash_map(cache_key)
     if not next_container:
 
         shell = (
-        
-        # for some reason in ubuntu the path is not exported
-        # in a way this is a hack and should be fixed in ubuntu
-        'export PATH\n'
-        'set -ex\n'
-        + layer
+            # for some reason in ubuntu the path is not exported
+            # in a way this is a hack and should be fixed in ubuntu
+            "export PATH\n"
+            "set -ex\n" + layer
         )
-        next_container = utils.plash_call('create', '--', current_container, 'env', '-i', 'sh', '-l',
-            input=shell)
+        next_container = utils.plash_call(
+            "create", "--", current_container, "env", "-i", "sh", "-l", input=shell
+        )
         plash_map(cache_key, next_container)
-        info('--:')
+        info("--:")
     current_container = next_container
 build_container = current_container
 

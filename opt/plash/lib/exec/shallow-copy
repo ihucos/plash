@@ -23,7 +23,6 @@
 # See https://en.wikipedia.org/wiki/Object_copying#Shallow_copy
 
 
-
 from plash import utils
 import subprocess
 import tarfile
@@ -43,12 +42,12 @@ except IndexError:
 nodepath = utils.nodepath_or_die(container)
 tmpout = utils.mkdtemp()
 
-mountpoint = os.path.join(os.environ["PLASH_DATA"], 'mnt')
+mountpoint = os.path.join(os.environ["PLASH_DATA"], "mnt")
 
-utils.plash_call('mount', '--', container, mountpoint)
+utils.plash_call("mount", "--", container, mountpoint)
 
 io_bytes = io.BytesIO()
-dirs_only_tar = tarfile.open(fileobj=io_bytes, mode='w:xz')
+dirs_only_tar = tarfile.open(fileobj=io_bytes, mode="w:xz")
 
 file_list = []
 for subdir, dirs, files in os.walk(mountpoint):
@@ -64,17 +63,15 @@ for subdir, dirs, files in os.walk(mountpoint):
 
 dirs_only_tar.close()
 io_bytes.seek(0)
-subprocess.call(['umount', mountpoint])
+subprocess.call(["umount", mountpoint])
 
 # write all directories (empty) to tmpout
-tar = tarfile.open(fileobj=io_bytes, mode='r')
+tar = tarfile.open(fileobj=io_bytes, mode="r")
 tar.extractall(tmpout)
 
 plash_data = os.environ["PLASH_DATA"]
-parts = list(reversed(nodepath.split('/layer/')[-1].split('/')))
-resolve_paths = [
-    os.path.join(plash_data, 'index', i, '_data', 'root') for i in parts
-]
+parts = list(reversed(nodepath.split("/layer/")[-1].split("/")))
+resolve_paths = [os.path.join(plash_data, "index", i, "_data", "root") for i in parts]
 
 for file in file_list:
     target = os.path.join(tmpout, file)

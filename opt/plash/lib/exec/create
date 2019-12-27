@@ -29,13 +29,18 @@ from os.path import join
 from sys import exit
 
 from plash import utils
-from plash.utils import (assert_initialized, die, die_with_usage,
-                         mkdtemp, nodepath_or_die)
+from plash.utils import (
+    assert_initialized,
+    die,
+    die_with_usage,
+    mkdtemp,
+    nodepath_or_die,
+)
 
 assert_initialized()
 utils.handle_build_args()
 
-plash_tmp = join(os.environ["PLASH_DATA"], 'tmp')
+plash_tmp = join(os.environ["PLASH_DATA"], "tmp")
 
 try:
     container = sys.argv[1]
@@ -47,30 +52,33 @@ nodepath_or_die(container)
 
 # use with login shell
 if cmd:
-  cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
+    cmd = ["sh", "-lc", 'exec env "$@"', "--"] + cmd
 
 changesdir = mkdtemp()
-exit = utils.plash_call(*(
-    [
-        'runopts',
-        '-c',
-        container,
-        '-d',
-        changesdir,
-        '-m',
-        '/home',
-        '-m',
-        '/root',
-        '-m',
-        '/etc/resolv.conf',
-        '-m',
-        '/sys',
-        '-m',
-        '/dev',
-        '-m',
-        '/proc',
-        '--',
-    ] + cmd),
+exit = utils.plash_call(
+    *(
+        [
+            "runopts",
+            "-c",
+            container,
+            "-d",
+            changesdir,
+            "-m",
+            "/home",
+            "-m",
+            "/root",
+            "-m",
+            "/etc/resolv.conf",
+            "-m",
+            "/sys",
+            "-m",
+            "/dev",
+            "-m",
+            "/proc",
+            "--",
+        ]
+        + cmd
+    ),
     stdout_to_stderr=True,
     return_exit_code=True
 )  # redirect stdout to stderr because we are passing the container id through stdout
@@ -78,5 +86,4 @@ exit = utils.plash_call(*(
 if exit:
     die("build failed with exit status {}".format(exit), exit=4)
 
-utils.plash_exec('add-layer', container,
-          os.path.join(changesdir, 'data'))
+utils.plash_exec("add-layer", container, os.path.join(changesdir, "data"))

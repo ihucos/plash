@@ -22,7 +22,7 @@ utils.unshare_user()
 
 plash_data = os.environ["PLASH_DATA"]
 
-print('output_stable: false')
+print("output_stable: false")
 
 
 def remove_broken_links(dir):
@@ -43,47 +43,49 @@ def remove_broken_links(dir):
 #
 # Remove all broken links in $PLASH_DATA/index
 #
-sys.stdout.write('unlinked_indexes: ')
+sys.stdout.write("unlinked_indexes: ")
 sys.stdout.flush()
-index_dir = os.path.join(plash_data, 'index')
+index_dir = os.path.join(plash_data, "index")
 count = remove_broken_links(index_dir)
 print(count)
 
 #
 # Remove all broken links in $PLASH_DATA/map
 #
-sys.stdout.write('unlinked_maps: ')
+sys.stdout.write("unlinked_maps: ")
 sys.stdout.flush()
-maps_dir = os.path.join(plash_data, 'map')
+maps_dir = os.path.join(plash_data, "map")
 count = remove_broken_links(maps_dir)
 print(count)
 
 #
 # remove unused fuse mount processes
 #
-sys.stdout.write('killed_fuses: ')
+sys.stdout.write("killed_fuses: ")
 sys.stdout.flush()
-used_mountpoint = os.path.join(plash_data, 'mnt')
+used_mountpoint = os.path.join(plash_data, "mnt")
 mnt_ns_counter = Counter()
 running_unionfs = {}
 killed = 0
-for pid in os.listdir('/proc'):
+for pid in os.listdir("/proc"):
     if not pid.isdigit():
         continue
 
     # read process mount namespace and command line arguments
     try:
-        mntns = os.readlink(os.path.join('/proc', pid, 'ns', 'mnt'))
-        cmdline_path = os.path.join('/proc', pid, 'cmdline')
+        mntns = os.readlink(os.path.join("/proc", pid, "ns", "mnt"))
+        cmdline_path = os.path.join("/proc", pid, "cmdline")
         with open(cmdline_path) as f:
-            cmd = f.read().split('\0')[:-1]
+            cmd = f.read().split("\0")[:-1]
     except OSError:
         continue
 
     # collect unionfs processes mounted at this plash data
-    if cmd and os.path.basename(
-            cmd[0]) in ('unionfs',
-                        'unionfs-fuse') and (cmd[-1] == used_mountpoint):
+    if (
+        cmd
+        and os.path.basename(cmd[0]) in ("unionfs", "unionfs-fuse")
+        and (cmd[-1] == used_mountpoint)
+    ):
         running_unionfs[pid] = mntns
 
     mnt_ns_counter.update([mntns])
@@ -103,15 +105,15 @@ print(killed)
 #
 # Remove unused tmp dirs in $PLASH_DATA/tmp
 #
-sys.stdout.write('removed_tmpdirs: ')
+sys.stdout.write("removed_tmpdirs: ")
 sys.stdout.flush()
 deleted_tmps = 0
-tmp = os.path.join(os.environ["PLASH_DATA"], 'tmp')
+tmp = os.path.join(os.environ["PLASH_DATA"], "tmp")
 for file in os.listdir(tmp):
     abs_file = os.path.join(tmp, file)
 
     try:
-        _, sid, pid, *_ = file.split('_')
+        _, sid, pid, *_ = file.split("_")
         pid = int(pid)
     except ValueError:
         continue

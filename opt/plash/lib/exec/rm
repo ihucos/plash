@@ -11,8 +11,7 @@ import sys
 from shutil import rmtree
 
 from plash import utils
-from plash.utils import (die_with_usage,
-                         mkdtemp, nodepath_or_die)
+from plash.utils import die_with_usage, mkdtemp, nodepath_or_die
 
 utils.handle_build_args()
 utils.unshare_user()

@@ -20,7 +20,7 @@ except ValueError:
 
 tmpout = utils.mkdtemp()
 
-utils.plash_call('with-mount', '--', container, 'cp', '-r', '.', tmpout)
+utils.plash_call("with-mount", "--", container, "cp", "-r", ".", tmpout)
 
 with utils.catch_and_die([OSError]):
     os.rename(tmpout, outdir)

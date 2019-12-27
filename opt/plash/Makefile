@@ -15,3 +15,7 @@ lib/c/plash.o: lib/c/plash.c
 clean:
 	rm -f $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C) lib/c/plash.o
 
+format:
+	find . -iname *.h -o -iname *.c | xargs clang-format -i -style="{CommentPragmas: '^ usage:'}"
+	file lib/exec/* | grep -i python | cut -d':' -f1 | xargs black
+	black .

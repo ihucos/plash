@@ -14,10 +14,12 @@ except IndexError:
     utils.die_with_usage()
 
 with utils.catch_and_die([FileNotFoundError, subprocess.CalledProcessError]):
-    subprocess.check_call(['docker', 'pull', image], stdout=2)
-    container = subprocess.check_output(['docker', 'create', image,
-                                         'sh']).decode().rstrip('\n')
+    subprocess.check_call(["docker", "pull", image], stdout=2)
+    container = (
+        subprocess.check_output(["docker", "create", image, "sh"]).decode().rstrip("\n")
+    )
     docker_export = subprocess.Popen(
-        ['docker', 'export', container], stdout=subprocess.PIPE)
+        ["docker", "export", container], stdout=subprocess.PIPE
+    )
     atexit.register(lambda: docker_export.kill())
-    subprocess.check_call(['plash', 'import-tar'], stdin=docker_export.stdout)
+    subprocess.check_call(["plash", "import-tar"], stdin=docker_export.stdout)

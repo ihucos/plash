@@ -12,18 +12,20 @@ from urllib.request import urlopen, urlretrieve
 
 import plash
 from plash import utils
-from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage, mkdtemp)
+from plash.utils import assert_initialized, catch_and_die, die, die_with_usage, mkdtemp
 
 MAX_SIGNATURE_LENGTH = 8192
 
 
 def reporthook(count, block_size, total_size):
     if total_size not in (0, -1):
-        sys.stderr.write('plash: fetching {}%\r'.format(
-            round(100 * count * min(block_size / total_size, 1))))
+        sys.stderr.write(
+            "plash: fetching {}%\r".format(
+                round(100 * count * min(block_size / total_size, 1))
+            )
+        )
         if count * block_size >= total_size:
-            sys.stderr.write('\n')
+            sys.stderr.write("\n")
 
 
 assert_initialized()
@@ -37,29 +39,30 @@ try:
 except IndexError:
     gpg_signature_url = None
 
-gpg_keyring = os.path.abspath(os.path.join(
-    os.path.dirname(plash.__file__), '..', '..', '..', 'data', 'trusted_gpg_keyring'))
+gpg_keyring = os.path.abspath(
+    os.path.join(
+        os.path.dirname(plash.__file__), "..", "..", "..", "data", "trusted_gpg_keyring"
+    )
+)
 
-downloaded_rootfs = os.path.join(mkdtemp(), 'rootfs')
+downloaded_rootfs = os.path.join(mkdtemp(), "rootfs")
 with catch_and_die(
-    [HTTPException, ValueError, URLError],
-        debug='geturl({})'.format(repr(url))):
+    [HTTPException, ValueError, URLError], debug="geturl({})".format(repr(url))
+):
     urlretrieve(url, downloaded_rootfs, reporthook=reporthook)
 
 if gpg_signature_url:
     signature = urlopen(gpg_signature_url).read(MAX_SIGNATURE_LENGTH)
     try:
         p = subprocess.Popen(
-            [
-                'gpgv', '--quiet', '--keyring', gpg_keyring, '-',
-                downloaded_rootfs
-            ],
+            ["gpgv", "--quiet", "--keyring", gpg_keyring, "-", downloaded_rootfs],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE)
+            stdin=subprocess.PIPE,
+        )
     except FileNotFoundError:
         sys.stderr.write(
-            'plash: WARNING: not verifying image signature, gpgv not in PATH\n'
+            "plash: WARNING: not verifying image signature, gpgv not in PATH\n"
         )
     else:
         p.stdin.write(signature)
@@ -68,7 +71,7 @@ if gpg_signature_url:
         out = p.stderr.read().decode()
         if exit:
             sys.stderr.write(out)
-            die('signature check failed')
+            die("signature check failed")
 
-sys.stderr.write('plash: extracting...\n')
-utils.plash_exec('import-tar', downloaded_rootfs)
+sys.stderr.write("plash: extracting...\n")
+utils.plash_exec("import-tar", downloaded_rootfs)

@@ -16,11 +16,9 @@
 //
 // $ plash map myfavorite ''
 //
-// $ plash map myfavorite 
+// $ plash map myfavorite
 // $
 
-
-#include <assert.h>
 #include <assert.h>
 #include <errno.h>
 #include <libgen.h>
@@ -33,51 +31,51 @@
 
 char *plash_data;
 
-
-void get(char const *linkpath){
-    char *nodepath;
-    nodepath = realpath(linkpath, NULL);
-    if (nodepath == NULL){
-      if (errno == ENOENT) return;
-      pl_fatal("realpath");
-    }
-    puts(basename(nodepath));
+void get(char const *linkpath) {
+  char *nodepath;
+  nodepath = realpath(linkpath, NULL);
+  if (nodepath == NULL) {
+    if (errno == ENOENT)
+      return;
+    pl_fatal("realpath");
+  }
+  puts(basename(nodepath));
 }
 
-
-void del(char const *linkpath){
-    if (unlink(linkpath) == -1){
-      if (errno == ENOENT) return;
-      pl_fatal("unlink");
-    }
+void del(char const *linkpath) {
+  if (unlink(linkpath) == -1) {
+    if (errno == ENOENT)
+      return;
+    pl_fatal("unlink");
+  }
 }
 
+void set(char const *linkpath, char *container_id) {
+  char *nodepath, *templ, *tmpdir;
 
-void set(char const *linkpath, char *container_id){
-    char *nodepath,
-         *templ,
-         *tmpdir;
+  nodepath =
+      pl_check_output((char *[]){"plash", "nodepath", container_id, NULL});
 
-    nodepath = pl_check_output((char*[]){
-        "plash", "nodepath", container_id, NULL});
-
-    if (    asprintf(&templ,
-                     "%s/tmp/plashtmp_%d_%d_XXXXXX",
-                     plash_data, getsid(0), getpid)        == -1   ) pl_fatal("asprintf");
-    if (    (tmpdir = mkdtemp(templ))                      == NULL ) pl_fatal("mkdtemp");
-    if (    chdir(tmpdir)                                  == -1   ) pl_fatal("chdir");
-    if (    asprintf(&nodepath, "..%s",
-                     nodepath + strlen(plash_data))        == -1   ) pl_fatal("asprintf");
-    if (    symlink(nodepath, "link")                      == -1   ) pl_fatal("symlink");
-    if (    rename("link", linkpath)                       == -1   ) pl_fatal("rename");
+  if (asprintf(&templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", plash_data, getsid(0),
+               getpid) == -1)
+    pl_fatal("asprintf");
+  if ((tmpdir = mkdtemp(templ)) == NULL)
+    pl_fatal("mkdtemp");
+  if (chdir(tmpdir) == -1)
+    pl_fatal("chdir");
+  if (asprintf(&nodepath, "..%s", nodepath + strlen(plash_data)) == -1)
+    pl_fatal("asprintf");
+  if (symlink(nodepath, "link") == -1)
+    pl_fatal("symlink");
+  if (rename("link", linkpath) == -1)
+    pl_fatal("rename");
 }
 
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
   char *linkpath;
 
-  if (argc < 2){
+  if (argc < 2) {
     pl_usage();
   }
 
@@ -91,18 +89,16 @@ int main(int argc, char* argv[]) {
   else if (strchr(argv[1], '/') != NULL)
     pl_fatal("'/' not allowed in map name");
 
-  
   // the location of the symlink for this map key
   if (asprintf(&linkpath, "%s/map/%s", plash_data, argv[1]) == -1)
     pl_fatal("asprintf");
 
-  if (argc == 2){
+  if (argc == 2) {
     get(linkpath);
-  }
-  else if (argc == 3 && !argv[2][0]){
+  } else if (argc == 3 && !argv[2][0]) {
     del(linkpath);
-  } else if (argc == 3){
+  } else if (argc == 3) {
     set(linkpath, argv[2]);
-  } else pl_usage();
-
+  } else
+    pl_usage();
 }

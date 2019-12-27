@@ -14,14 +14,14 @@ utils.unshare_user()
 
 plash_data = os.environ["PLASH_DATA"]
 
-if sys.argv[1:2] == ['--yes'] or input('Delete all build data? [y/N] ') == 'y':
+if sys.argv[1:2] == ["--yes"] or input("Delete all build data? [y/N] ") == "y":
 
     #
     # don't delete the dir itself because it could be a mount
     #
 
     try:
-        os.unlink(os.path.join(plash_data, 'id_counter'))
+        os.unlink(os.path.join(plash_data, "id_counter"))
     except FileNotFoundError:
         pass
 
