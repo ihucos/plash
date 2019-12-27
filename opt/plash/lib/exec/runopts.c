@@ -123,7 +123,6 @@ int main(int argc, char *argv[]) {
   chroot(".") != -1 || pl_fatal("chroot");
   pl_chdir(origpwd);
 
-
   //
   // build up the arguments to run
   //
