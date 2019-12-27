@@ -273,6 +273,7 @@ this configuration to work properly inside plash.
 - Don't complain or warn via stderr, do it or don't do it.
 - Only be as smart as necessary and keep it simple and stupid (KISS).
 - Still be able to run this in five years without any maintenance work.
+- No baggage, no worries.
 - Define well what this project is and especially what it is not.
 - Say no to features, say yes to solved use cases.
 - Postpone compromises.
