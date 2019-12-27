@@ -30,6 +30,11 @@ try:
 except ValueError:
     utils.die_with_usage()
 
+
+# use with login shell
+if cmd:
+    cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
+
 changesdir = utils.mkdtemp()
 
 utils.plash_exec(
@@ -43,8 +48,14 @@ utils.plash_exec(
         '/tmp',
         '-m',
         '/home',
-    ) +
-      # only mount /root if it is readable
-      (('-m', '/root') if os.access('/root', os.R_OK) else
-       ()) + ('-m', '/etc/resolv.conf', '-m', '/sys', '-m', '/dev', '-m',
-              '/proc', '--') + tuple(cmd)))
+        '-m',
+        '/root',
+        '-m',
+        '/etc/resolv.conf',
+        '-m',
+        '/sys',
+        '-m',
+        '/dev',
+        '-m',
+        '/proc',
+        '--') + tuple(cmd)))
