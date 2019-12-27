@@ -23,33 +23,31 @@
 
 #include <plash.h>
 
+int main(int argc, char *argv[]) {
 
-int main(int argc, char* argv[]) {
+  int i = 0;
+  char *nodepath, *plash_data_env;
 
-        int i = 0;
-	char *nodepath,
-             *plash_data_env;
+  if (argc < 2)
+    pl_usage();
 
-	if (argc < 2) pl_usage();
+  // validate/normalize input
+  if (!argv[1][0] || strspn(argv[1], "0123456789") != strlen(argv[1]))
+    pl_fatal("container arg must be a positive number, got: %s", argv[1]);
 
-        // validate/normalize input
-        if (!argv[1][0] || strspn(argv[1], "0123456789") != strlen(argv[1]))
-                pl_fatal("container arg must be a positive number, got: %s", argv[1]);
+  if (0 == strcmp(argv[1], "0") &&
+      (argc <= 2 || 0 != strcmp(argv[2], "--allow-root-container"))) {
+    pl_fatal("container must not be the special root container ('0')");
+  }
 
-	if (0 == strcmp(argv[1], "0") && (
-		argc <= 2 || 0 != strcmp(argv[2], "--allow-root-container"))){
-            pl_fatal("container must not be the special root container ('0')");
-	}
+  plash_data_env = getenv("PLASH_DATA");
+  assert(plash_data_env);
+  if (chdir(plash_data_env) == -1 || chdir("index") == -1)
+    pl_fatal("run `plash init`: chdir: %s", plash_data_env);
 
-        plash_data_env = getenv("PLASH_DATA");
-        assert(plash_data_env);
-        if (chdir(plash_data_env) == -1 ||
-            chdir("index") == -1)
-            pl_fatal("run `plash init`: chdir: %s", plash_data_env);
-
-	if (! (nodepath = realpath(argv[1], NULL))){
-		errno = 0;
-		pl_fatal("no container: %s", argv[1]);
-	}
-	puts(nodepath);
+  if (!(nodepath = realpath(argv[1], NULL))) {
+    errno = 0;
+    pl_fatal("no container: %s", argv[1]);
+  }
+  puts(nodepath);
 }

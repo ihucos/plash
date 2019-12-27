@@ -33,29 +33,34 @@ except ValueError:
 
 # use with login shell
 if cmd:
-    cmd = ['sh', '-lc', 'exec env "$@"', '--'] + cmd
+    cmd = ["sh", "-lc", 'exec env "$@"', "--"] + cmd
 
 changesdir = utils.mkdtemp()
 
 utils.plash_exec(
-    'runopts',
-    *((
-        '-c',
-        container_id,
-        '-d',
-        changesdir,
-        '-m',
-        '/tmp',
-        '-m',
-        '/home',
-        '-m',
-        '/root',
-        '-m',
-        '/etc/resolv.conf',
-        '-m',
-        '/sys',
-        '-m',
-        '/dev',
-        '-m',
-        '/proc',
-        '--') + tuple(cmd)))
+    "runopts",
+    *(
+        (
+            "-c",
+            container_id,
+            "-d",
+            changesdir,
+            "-m",
+            "/tmp",
+            "-m",
+            "/home",
+            "-m",
+            "/root",
+            "-m",
+            "/etc/resolv.conf",
+            "-m",
+            "/sys",
+            "-m",
+            "/dev",
+            "-m",
+            "/proc",
+            "--",
+        )
+        + tuple(cmd)
+    )
+)

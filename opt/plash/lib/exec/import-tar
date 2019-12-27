@@ -10,9 +10,7 @@ import tarfile
 from os.path import join
 
 from plash import utils
-from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage,
-                         mkdtemp)
+from plash.utils import assert_initialized, catch_and_die, die, die_with_usage, mkdtemp
 
 assert_initialized()
 
@@ -28,9 +26,9 @@ class PlashTarFile(tarfile.TarFile):
             tarfile.TarFile.makedev(self, tarinfo, targetpath)
         except OSError as exc:
             print(
-                'plash: ignoring dev file: {} ({})'.format(
-                    tarinfo.path, exc.strerror),
-                file=sys.stderr)
+                "plash: ignoring dev file: {} ({})".format(tarinfo.path, exc.strerror),
+                file=sys.stderr,
+            )
 
 
 rootfs = mkdtemp()
@@ -38,20 +36,20 @@ rootfs = mkdtemp()
 with catch_and_die([tarfile.TarError], debug_class=True):
     with catch_and_die([OSError]):
         if tar_file is None:
-            t = PlashTarFile.open(fileobj=sys.stdin.buffer, mode='r|')
+            t = PlashTarFile.open(fileobj=sys.stdin.buffer, mode="r|")
         else:
             t = PlashTarFile.open(tar_file)
 
 t.extractall(rootfs)
 
 # we want /etc/resolv to not be a symlink or to exist as a file - otherwise moutning over it later does not work
-resolvconf = join(rootfs, 'etc/resolv.conf')
+resolvconf = join(rootfs, "etc/resolv.conf")
 try:
     os.unlink(resolvconf)
 except FileNotFoundError:
     pass
-with open(resolvconf, 'w') as f:
+with open(resolvconf, "w") as f:
     f.seek(0)
     f.truncate()
 
-utils.plash_exec('add-layer', '0', rootfs)
+utils.plash_exec("add-layer", "0", rootfs)

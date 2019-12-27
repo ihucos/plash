@@ -11,37 +11,36 @@ from urllib.error import URLError
 from urllib.request import urlopen
 
 from plash import utils
-from plash.utils import (assert_initialized, catch_and_die, die,
-                         die_with_usage)
+from plash.utils import assert_initialized, catch_and_die, die, die_with_usage
 
-LXC_URL_TEMPL = 'https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz'
+LXC_URL_TEMPL = "https://images.linuxcontainers.org/images/{}/{}/{}/{}/{}/rootfs.tar.xz"
 
-UBUNTU_ABC = 'tuvwxyzabcdefghijklmnopqrs'  # rotate manually every decade or so
+UBUNTU_ABC = "tuvwxyzabcdefghijklmnopqrs"  # rotate manually every decade or so
 
 DEPRECTATED_IMAGE_NAMES = {
     # 'plamo': ... 'plamo' is really forgotten for
-    'cosmic': 'ubuntu:cosmic',
-    'disco': 'ubuntu:disco',
-    'edge': 'alpine:edge',
-    'eoan': 'ubuntu:eoan',
-    'jessie': 'debian:jessie',
-    'sid': 'debian:sid',
-    'stretch': 'debian:stretch',
-    'trusty': 'ubuntu:trusty',
-    'tumbleweed': 'opensuse:tumbleweed',
-    'xenial': 'ubuntu:xenial',
+    "cosmic": "ubuntu:cosmic",
+    "disco": "ubuntu:disco",
+    "edge": "alpine:edge",
+    "eoan": "ubuntu:eoan",
+    "jessie": "debian:jessie",
+    "sid": "debian:sid",
+    "stretch": "debian:stretch",
+    "trusty": "ubuntu:trusty",
+    "tumbleweed": "opensuse:tumbleweed",
+    "xenial": "ubuntu:xenial",
 }
 
 
 def use_current(version):
-    return int(version == 'current')
+    return int(version == "current")
 
 
 def use_version_number(version):
     try:
-        return tuple(int(i) for i in version.split('.'))
+        return tuple(int(i) for i in version.split("."))
     except ValueError:
-        return (-1, )
+        return (-1,)
 
 
 def use_index(order):
@@ -65,40 +64,41 @@ def use_ubuntu(version):
 
 
 USE_NEWEST_VERSION = {
-    'alpine': use_version_number,
-    'archlinux': use_current,
-    'centos': use_version_number,
-    'debian': use_index(['jessie', 'stretch', 'buster', 'bullseye']),
-    'devuan': use_alphabet,
-    'fedora': use_version_number,
-    'gentoo': use_current,
-    'kali': use_current,
-    'opensuse': use_version_number,
-    'openwrt': use_current,
-    'oracle': use_version_number,
-    'sabayon': use_current,
-    'ubuntu': use_ubuntu,
-    'ubuntu-core': use_version_number,
+    "alpine": use_version_number,
+    "archlinux": use_current,
+    "centos": use_version_number,
+    "debian": use_index(["jessie", "stretch", "buster", "bullseye"]),
+    "devuan": use_alphabet,
+    "fedora": use_version_number,
+    "gentoo": use_current,
+    "kali": use_current,
+    "opensuse": use_version_number,
+    "openwrt": use_current,
+    "oracle": use_version_number,
+    "sabayon": use_current,
+    "ubuntu": use_ubuntu,
+    "ubuntu-core": use_version_number,
 }
 
 assert_initialized()
 
 try:
     image_name = sys.argv[1]
-    dry_run = sys.argv[2:3] == ['--dry']
+    dry_run = sys.argv[2:3] == ["--dry"]
 except IndexError:
     die_with_usage()
 
 with catch_and_die([URLError]):
-    content = urlopen('https://images.linuxcontainers.org/').read().decode()
+    content = urlopen("https://images.linuxcontainers.org/").read().decode()
 matches = re.findall(
-    '<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>',
-    content)
+    "<tr><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td></tr>",
+    content,
+)
 
 versions = {}
 urls = {}
 for distro, version, arch, variant, date, _, _, _ in matches:
-    if variant != 'default' or arch != 'amd64':
+    if variant != "default" or arch != "amd64":
         continue
     url = LXC_URL_TEMPL.format(distro, version, arch, variant, date)
     urls[(distro, version)] = url
@@ -107,10 +107,12 @@ for distro, version, arch, variant, date, _, _, _ in matches:
 
 
 def die_image_not_found():
-    all_images = sorted([':'.join(i)
-                         for i in urls] + list(USE_NEWEST_VERSION.keys()))
-    die('image not found ({}), but there is: {}'.format(
-        repr(image_name), ' '.join(all_images)))
+    all_images = sorted([":".join(i) for i in urls] + list(USE_NEWEST_VERSION.keys()))
+    die(
+        "image not found ({}), but there is: {}".format(
+            repr(image_name), " ".join(all_images)
+        )
+    )
 
 
 # handle eventual deprecated image
@@ -118,13 +120,15 @@ try:
     orig_image_name = image_name
     image_name = DEPRECTATED_IMAGE_NAMES[image_name]
     print(
-        'plash: rename image (due to indefinitely supported deprecation): {} -> {}'
-        .format(orig_image_name, image_name),
-        file=sys.stderr)
+        "plash: rename image (due to indefinitely supported deprecation): {} -> {}".format(
+            orig_image_name, image_name
+        ),
+        file=sys.stderr,
+    )
 except KeyError:
     pass
 
-if not ':' in image_name:
+if not ":" in image_name:
     try:
         version_quantifier = USE_NEWEST_VERSION[image_name]
     except KeyError:
@@ -134,15 +138,15 @@ if not ':' in image_name:
     latest_version = list(sorted_versions)[-1]
     image_key = (image_name, latest_version)
 else:
-    image_key = tuple(image_name.split(':'))
+    image_key = tuple(image_name.split(":"))
 
 try:
     url = urls[image_key]
 except KeyError:
     die_image_not_found()
 
-signature_url = '{}.asc'.format(url)
+signature_url = "{}.asc".format(url)
 if dry_run:
     print(url)
 else:
-    utils.plash_exec('import-url', url, signature_url)
+    utils.plash_exec("import-url", url, signature_url)
