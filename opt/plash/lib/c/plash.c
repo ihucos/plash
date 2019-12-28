@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
@@ -396,4 +397,21 @@ void pl_unshare_mount() {
     return;
 
   pl_setup_mount_ns();
+}
+
+char *pl_mkdtemp() {
+  char *tmpdir_templ;
+  char *tmpdir;
+
+  char *plash_data = getenv("PLASH_DATA");
+  assert(plash_data);
+  assert(plash_data[0] == '/');
+
+  if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", plash_data,
+               getsid(0), getpid()) == -1)
+    pl_fatal("asprintf");
+  if ((tmpdir = mkdtemp(tmpdir_templ)) == NULL)
+    pl_fatal("mkdtemp");
+
+  return tmpdir;
 }

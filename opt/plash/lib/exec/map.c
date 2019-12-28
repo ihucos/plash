@@ -51,16 +51,12 @@ void del(char const *linkpath) {
 }
 
 void set(char const *linkpath, char *container_id) {
-  char *nodepath, *templ, *tmpdir;
+  char *nodepath, *tmpdir;
 
   nodepath =
       pl_check_output((char *[]){"plash", "nodepath", container_id, NULL});
 
-  if (asprintf(&templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", plash_data, getsid(0),
-               getpid) == -1)
-    pl_fatal("asprintf");
-  if ((tmpdir = mkdtemp(templ)) == NULL)
-    pl_fatal("mkdtemp");
+  tmpdir = pl_mkdtemp();
   if (chdir(tmpdir) == -1)
     pl_fatal("chdir");
   if (asprintf(&nodepath, "..%s", nodepath + strlen(plash_data)) == -1)
