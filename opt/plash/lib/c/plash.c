@@ -418,10 +418,13 @@ char *pl_mkdtemp() {
 
 void pl_handle_build_args(int *argc, char* argv[]){
 
+  #define ADAPT_ARGC for(*argc = 0; argv[*argc]; (*argc)++);
+
   size_t i, bargs;
   char *plash_cmd, *container;
 
   if (*argc == 1)
+    ADAPT_ARGC
     return;
 
   assert (*argc >= 2);
@@ -436,7 +439,7 @@ void pl_handle_build_args(int *argc, char* argv[]){
      for(i = 1; argv[i]; i++){
       argv[i] = argv[i + 1];
     }
-    (*argc)--;
+    ADAPT_ARGC
     return;
   }
 
@@ -444,14 +447,11 @@ void pl_handle_build_args(int *argc, char* argv[]){
   // mutate argv to correspond to build arguments
   //
   plash_cmd = argv[0];
-  argv[0] = pl_path("build");
+  //argv[0] = pl_path("build");
+  argv[0] = "/home/ihucos/plash/opt/plash/lib/exec/build";
+  //argv[0] = pl_path("build");
   for (bargs = 0; bargs < *argc; bargs++){
     if (strcmp(argv[bargs], "--") == 0){
-
-      //// ignore any "--" as the first argument
-      //if (bargs == 1)
-      //  return;
-
       argv[bargs] = NULL;
       break;
     }
@@ -466,7 +466,8 @@ void pl_handle_build_args(int *argc, char* argv[]){
   // reconstruct argv replacing build args with the builded container
   //
   if (bargs + 1 < *argc)
-    argv[bargs] = "--";
+    // don't use the "--"
+    bargs++;
   i = 0;
   argv[i++] = plash_cmd;
   argv[i++] = container;
@@ -474,6 +475,5 @@ void pl_handle_build_args(int *argc, char* argv[]){
     argv[i++] = argv[bargs];
   argv[i++] = NULL;
 
-  //execv(argv[0], argv);
-  *argc = i;
+  ADAPT_ARGC
 }
