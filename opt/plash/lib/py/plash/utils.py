@@ -125,6 +125,9 @@ def py_exec(file, *args):
 
 def plash_exec(plash_cmd, *args):
 
+    # security validation!
+    assert plash_cmd.replace('-', '').isalpha()
+
     thisdir = os.path.dirname(os.path.abspath(__file__))
     execdir = os.path.abspath(os.path.join(thisdir, "..", "..", "exec"))
     runfile = os.path.join(execdir, plash_cmd)
@@ -188,32 +191,6 @@ def plash_call(
     if strip:
         out = out.strip("\n\r ")
     return out
-
-
-def filter_positionals(args):
-    positional = []
-    filtered_args = []
-    found_first_opt = False
-    while args:
-        arg = args.pop(0)
-        if not arg.startswith("-") and not found_first_opt:
-            positional.append(arg)
-        elif arg == "--":
-            positional += args
-            args = None
-        else:
-            filtered_args.append(arg)
-            found_first_opt = True
-    return positional, filtered_args
-
-
-def handle_build_args():
-    if len(sys.argv) >= 2 and sys.argv[1] == "--":
-        sys.argv = [sys.argv[0]] + sys.argv[2:]
-    elif len(sys.argv) >= 2 and sys.argv[1].startswith("-"):
-        cmd, args = filter_positionals(sys.argv[1:])
-        container_id = plash_call("build", *args)
-        py_exec(sys.argv[0], container_id, *cmd)
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))

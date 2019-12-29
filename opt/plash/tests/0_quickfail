@@ -1,2 +1,2 @@
 #!/bin/sh
-exec plash run -f 1 --run 'touch /myfile' -- ls /myfile
+exec plash b run -f 1 --run 'touch /myfile' -- ls /myfile

@@ -14,8 +14,6 @@ from plash import eval
 from plash.utils import catch_and_die, die
 
 lines = sys.argv[1:]
-if not lines:
-    lines = [line.rstrip("\n") for line in sys.stdin.readlines()]
 
 # a little magic: remove possible shebang
 if lines and lines[0].startswith("#!/"):
