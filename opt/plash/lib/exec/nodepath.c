@@ -24,6 +24,7 @@
 #include <plash.h>
 
 int main(int argc, char *argv[]) {
+  pl_handle_build_args(&argc, argv);
 
   int i = 0;
   char *nodepath, *plash_data_env;

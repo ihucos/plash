@@ -28,4 +28,4 @@ void pl_chroot(const char *rootfs);
 
 char *pl_mkdtemp();
 
-void pl_reexec_builded(int argc, char* argv[]);
+void pl_handle_build_args(int* argc, char* argv[]);

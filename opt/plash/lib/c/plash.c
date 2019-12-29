@@ -416,25 +416,42 @@ char *pl_mkdtemp() {
   return tmpdir;
 }
 
-void pl_reexec_builded(int argc, char* argv[]){
+void pl_handle_build_args(int *argc, char* argv[]){
 
   size_t i, bargs;
   char *plash_cmd, *container;
 
-  assert (argc >= 2);
-  assert (argv[argc] == NULL);
+  if (*argc == 1)
+    return;
+
+  assert (*argc >= 2);
+  assert (argv[*argc] == NULL);
 
   // do nothing if the first argument does not seem like build argument
   if (strncmp(argv[1], "-", 1) != 0)
     return;
+
+  // just remove "--" if it's the first argument
+  if (strcmp(argv[1], "--") == 0){
+     for(i = 1; argv[i]; i++){
+      argv[i] = argv[i + 1];
+    }
+    (*argc)--;
+    return;
+  }
 
   //
   // mutate argv to correspond to build arguments
   //
   plash_cmd = argv[0];
   argv[0] = pl_path("build");
-  for (bargs = 0; bargs < argc; bargs++){
+  for (bargs = 0; bargs < *argc; bargs++){
     if (strcmp(argv[bargs], "--") == 0){
+
+      //// ignore any "--" as the first argument
+      //if (bargs == 1)
+      //  return;
+
       argv[bargs] = NULL;
       break;
     }
@@ -448,7 +465,7 @@ void pl_reexec_builded(int argc, char* argv[]){
   //
   // reconstruct argv replacing build args with the builded container
   //
-  if (bargs + 1 < argc)
+  if (bargs + 1 < *argc)
     argv[bargs] = "--";
   i = 0;
   argv[i++] = plash_cmd;
@@ -457,5 +474,6 @@ void pl_reexec_builded(int argc, char* argv[]){
     argv[i++] = argv[bargs];
   argv[i++] = NULL;
 
-  execv(argv[0], argv);
+  //execv(argv[0], argv);
+  *argc = i;
 }
