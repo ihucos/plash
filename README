@@ -284,7 +284,8 @@ this configuration to work properly inside plash.
 - Don't differentiate root from non-root users (this is a TODO)
 - Crude is better than complex.
 - Only eat your own dog food if you are hungry.
-- Work toward a timeless, finished product that will require no maintenance.
+- Work towards a timeless, finished product that will require no maintenance.
+- Don't write C just because it looks cool, use the right tool for the right job.
 - The right guidelines for the right situation.
 
 
