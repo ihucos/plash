@@ -27,3 +27,5 @@ void pl_chdir(const char *newdir);
 void pl_chroot(const char *rootfs);
 
 char *pl_mkdtemp();
+
+void pl_reexec_builded(int argc, char* argv[]);

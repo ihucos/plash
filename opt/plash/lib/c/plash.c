@@ -415,3 +415,47 @@ char *pl_mkdtemp() {
 
   return tmpdir;
 }
+
+void pl_reexec_builded(int argc, char* argv[]){
+
+  size_t i, bargs;
+  char *plash_cmd, *container;
+
+  assert (argc >= 2);
+  assert (argv[argc] == NULL);
+
+  // do nothing if the first argument does not seem like build argument
+  if (strncmp(argv[1], "-", 1) != 0)
+    return;
+
+  //
+  // mutate argv to correspond to build arguments
+  //
+  plash_cmd = argv[0];
+  argv[0] = pl_path("build");
+  for (bargs = 0; bargs < argc; bargs++){
+    if (strcmp(argv[bargs], "--") == 0){
+      argv[bargs] = NULL;
+      break;
+    }
+  }
+
+  //
+  // run build arguments
+  //
+  container = pl_check_output(argv);
+
+  //
+  // reconstruct argv replacing build args with the builded container
+  //
+  if (bargs + 1 < argc)
+    argv[bargs] = "--";
+  i = 0;
+  argv[i++] = plash_cmd;
+  argv[i++] = container;
+  for (; argv[bargs]; bargs++)
+    argv[i++] = argv[bargs];
+  argv[i++] = NULL;
+
+  execv(argv[0], argv);
+}
