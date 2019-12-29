@@ -418,13 +418,12 @@ char *pl_mkdtemp() {
 
 void pl_handle_build_args(int *argc, char* argv[]){
 
-  #define ADAPT_ARGC for(*argc = 0; argv[*argc]; (*argc)++);
+  #define ALIGN_ARGC for(*argc = 0; argv[*argc]; (*argc)++);
 
   size_t i, bargs;
   char *plash_cmd, *container;
 
   if (*argc == 1)
-    ADAPT_ARGC
     return;
 
   assert (*argc >= 2);
@@ -439,7 +438,7 @@ void pl_handle_build_args(int *argc, char* argv[]){
      for(i = 1; argv[i]; i++){
       argv[i] = argv[i + 1];
     }
-    ADAPT_ARGC
+    ALIGN_ARGC
     return;
   }
 
@@ -448,7 +447,7 @@ void pl_handle_build_args(int *argc, char* argv[]){
   //
   plash_cmd = argv[0];
   //argv[0] = pl_path("build");
-  argv[0] = "/home/ihucos/plash/opt/plash/lib/exec/build";
+  argv[0] = "/home/ihucos/plash/opt/plash/lib/exec/build"; // MEEEEHHH
   //argv[0] = pl_path("build");
   for (bargs = 0; bargs < *argc; bargs++){
     if (strcmp(argv[bargs], "--") == 0){
@@ -475,5 +474,5 @@ void pl_handle_build_args(int *argc, char* argv[]){
     argv[i++] = argv[bargs];
   argv[i++] = NULL;
 
-  ADAPT_ARGC
+  ALIGN_ARGC
 }
