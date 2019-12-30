@@ -112,14 +112,8 @@ def mkdtemp():
 
 def py_exec(file, *args):
     import runpy
-
     sys.argv = [sys.argv[0]] + list(args)
-
-    # import time
-    # t = time.time()
     runpy.run_path(file)
-    # print(time.time() - t, file, *args, file=sys.stderr)
-
     sys.exit(0)
 
 

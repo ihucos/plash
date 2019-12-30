@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+#
+# usage: plash b CMD *BUILD_COMMANDS [-- CMD1 CMD2 CMD3]
+# Builds the given build commands and the call cmd with the builded container
+
+import sys
+import os
+
+from plash import utils
+
+def split_args(args):
+    positional = []
+    filtered_args = []
+    found_first_opt = False
+    while args:
+        arg = args.pop(0)
+        if not arg.startswith("-") and not found_first_opt:
+            positional.append(arg)
+        elif arg == "--":
+            positional += args
+            args = None
+        else:
+            filtered_args.append(arg)
+            found_first_opt = True
+    return positional, filtered_args
+
+try:
+    cmd = sys.argv[1]
+    args = sys.argv[2:]
+except IndexError:
+    utils.die_with_usage() 
+
+cmdargs, buildargs = split_args(args)
+if not buildargs:
+    utils.die("b: no build arguments")
+
+container_id = utils.plash_call("build", *buildargs)
+
+
+plash_path = os.path.dirname(os.path.realpath(__file__))
+if not "PATH" in os.environ:
+    os.environ["PATH"] = plash_path
+else:
+    os.environ["PATH"] = "{}:{}".format(plash_path, os.environ["PATH"])
+with utils.catch_and_die([FileNotFoundError], debug=cmd):
+    os.execlp(cmd, cmd, container_id, *cmdargs)

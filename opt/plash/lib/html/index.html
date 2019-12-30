@@ -55,7 +55,7 @@ $ sudo sh -c 'curl -Lf https://github.com/ihucos/plash/archive/master.tar.gz | t
 $ # for unprivileged usage, ensure you have unionfs-fuse and
 $ # uidmap/shadow-utils installed
 $ plash init
-$ echo 'plash reference' | plash run --from ubuntu --apt figlet -- figlet
+$ echo 'plash reference' | plash b run --from ubuntu --apt figlet -- figlet
        _           _                 __
  _ __ | | __ _ ___| |__    _ __ ___ / _| ___ _ __ ___ _ __   ___ ___
 | '_ \| |/ _` / __| '_ \  | '__/ _ \ |_ / _ \ '__/ _ \ '_ \ / __/ _ \
@@ -123,7 +123,7 @@ $ plash build --from 2 --run 'touch /myfile'
 3
 $
 $ ### build and run in one command
-$ plash run --from alpine --run 'touch /myfile' -- ls /myfile
+$ plash b run --from alpine --run 'touch /myfile' -- ls /myfile
 /myfile
 $
 $ ### less verbose invocation
@@ -137,7 +137,7 @@ $ plash -Ax 'touch /myfile' -lx 'touch /otherfile' -- ls /otherfile
 /otherfile
 $
 $ ### execute a command on the container's rootfs from the host
-$ plash with-mount -A -- ls
+$ plash b with-mount -A -- ls
 bin  dev  etc  home  lib  media  mnt  proc  root  run  sbin  srv  sys  tmp  usr  var
 $
 $ ### use a docker image from a local docker instance
@@ -178,7 +178,7 @@ Python 3.6.6
 myhost:/home/myuser/# exit
 $
 $ ### remove the image (actually the last layer of it)
-$ plash rm --from-github ihucos/python
+$ plash b rm --from-github ihucos/python
 $
 $ ### create an executable build file
 $ ed

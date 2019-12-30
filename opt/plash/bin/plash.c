@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (is_cli_param(argv[1]) &&
-      !(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help") ||
+      !(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help") || !strcmp(argv[1], "-b") ||
         !strcmp(argv[1], "--version") || !strcmp(argv[1], "--help-macros")))
     reexec_insert_run(argc, argv);
 

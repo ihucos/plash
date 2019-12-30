@@ -12,4 +12,4 @@ plash rm $newcont
 
 : delte by build instruction
 plash build -f 1 --run 'touch /plash-rm-test-file'
-plash rm  -f 1 --run 'touch /plash-rm-test-file'
+plash b rm -f 1 --run 'touch /plash-rm-test-file'
