@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 #
-# usage: plash b CMD *BUILD_COMMANDS [-- CMD1 CMD2 CMD3]
-# Builds the given build commands and the call cmd with the builded container
+# usage: plash b PLASHCMD *BUILD_ARGS [-- *CMD_ARGS]
+# Builds the given build commands and call the given plash command with the
+# builded container.
+#
+# Example
+# plash b run -A
+# plash b run --eval-file ./plashfile -- ls
+
 
 import sys
 import os
@@ -30,6 +36,8 @@ try:
     cmd = sys.argv[1]
     args = sys.argv[2:]
 except IndexError:
+    utils.die_with_usage()
+if not args:
     utils.die_with_usage()
 
 cmdargs, buildargs = split_args(args)

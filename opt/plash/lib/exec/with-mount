@@ -45,5 +45,5 @@ os.chdir(mountpoint)
 try:
     os.execlp(cmd[0], *cmd)
 except FileNotFoundError:
-    sys.stderr.write("{}: command not found".format(cmd[0]))
+    sys.stderr.write("{}: command not found\n".format(cmd[0]))
     sys.exit(127)
