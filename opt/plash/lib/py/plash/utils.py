@@ -6,7 +6,6 @@ from os.path import join
 import ctypes
 
 ERROR_COLOR = 1
-INFO_COLOR = 4
 
 
 def hashstr(stri):
@@ -16,9 +15,7 @@ def hashstr(stri):
 
 
 @contextmanager
-def catch_and_die(
-    exceptions, debug=None, debug_class=False, ignore=None, silent=False, exit=1
-):
+def catch_and_die(exceptions, debug=None, debug_class=False, ignore=None, silent=False):
     try:
         yield
     except tuple(exceptions) as exc:
@@ -33,38 +30,24 @@ def catch_and_die(
             debug = exc.__class__.__name__
         if debug:
             msg = "{debug}: {message}".format(debug=debug, message=msg)
-        die(msg, exit=exit)
-
-
-def color(stri, color, isatty_fd_check=2):
-    if os.environ.get("TERM") != "dumb" and os.isatty(isatty_fd_check):
-        return "\033[38;05;{}m".format(int(color)) + stri + "\033[0;0m"
-    return stri
-
-
-def die(msg, exit=1):
-    prog = os.path.basename(sys.argv[0])
-    print("{} {}".format(color("plash error:", ERROR_COLOR), msg), file=sys.stderr)
-    sys.exit(exit)
+        die(msg)
 
 
 def info(msg):
-    print(color(msg, INFO_COLOR), file=sys.stderr)
+    print(msg, file=sys.stderr)
 
 
-def die_with_usage(*, hint=False):
+def die_with_usage():
     prog = os.path.basename(sys.argv[0])
     printed_usage = False
     with open(sys.argv[0]) as f:
         for line in f.readlines():
             if line.startswith("# usage:"):
                 usage_line = line[2:]
-                print("{}: {}".format(prog, usage_line), end="")
+                print(usage_line, file=sys.stderr, end="")
                 printed_usage = True
     assert printed_usage, "could not find usage comment"
-    if hint:
-        print("{}: usage hint: {}".format(prog, hint), file=sys.stderr)
-    sys.exit(2)
+    sys.exit(1)
 
 
 def nodepath_or_die(container, allow_root_container=False):
@@ -200,3 +183,7 @@ def unshare_user():
 
 def unshare_mount():
     lib.pl_unshare_mount()
+
+
+def die(msg):
+    lib.pl_fatal(ctypes.c_char_p(msg.encode()))

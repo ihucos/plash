@@ -1,4 +1,3 @@
-//
 // usage: plash parent CONTAINER
 // Prints the containers parent container.
 //

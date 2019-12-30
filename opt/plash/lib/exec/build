@@ -35,7 +35,6 @@ from plash import utils
 from plash.utils import (
     assert_initialized,
     catch_and_die,
-    color,
     die,
     hashstr,
     info,
@@ -50,7 +49,7 @@ script = utils.plash_call("eval", *sys.argv[1:], strip=False)
 hints = dict(get_hint_values(script))
 image_hint = hints.get("image")
 if not image_hint:
-    die("no image specified", exit=2)
+    die("no image specified")
 
 # split the script in its layers
 layers = script.split(hint("layer") + "\n")
@@ -59,7 +58,7 @@ layers = [l for l in layers if l]
 
 current_container = image_hint
 nodepath_or_die(current_container)
-os.environ["PS4"] = color("--> ", 4)
+os.environ["PS4"] = "--> "
 for layer in layers:
     cache_key = hashstr(b":".join([current_container.encode(), layer.encode()]))
     next_container = plash_map(cache_key)
