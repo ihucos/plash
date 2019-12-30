@@ -33,10 +33,6 @@ def catch_and_die(exceptions, debug=None, debug_class=False, ignore=None, silent
         die(msg)
 
 
-def die(msg):
-    lib.pl_fatal(ctypes.c_char_p(msg.encode()))
-
-
 def info(msg):
     print(msg, file=sys.stderr)
 
@@ -187,3 +183,7 @@ def unshare_user():
 
 def unshare_mount():
     lib.pl_unshare_mount()
+
+
+def die(msg):
+    lib.pl_fatal(ctypes.c_char_p(msg.encode()))
