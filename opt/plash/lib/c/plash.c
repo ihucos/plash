@@ -367,7 +367,6 @@ void pl_usage() {
       pl_fatal("getc");
     write(STDERR_FILENO, &c, 1);
   }
-
   exit(1);
 }
 

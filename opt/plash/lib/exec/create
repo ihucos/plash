@@ -83,6 +83,6 @@ exit = utils.plash_call(
 )  # redirect stdout to stderr because we are passing the container id through stdout
 
 if exit:
-    die("build failed with exit status {}".format(exit), exit=4)
+    die("build failed with exit status {}".format(exit))
 
 utils.plash_exec("add-layer", container, os.path.join(changesdir, "data"))
