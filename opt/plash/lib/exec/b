@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 #
 # usage: plash b PLASHCMD *BUILDARGS [-- *CMDARGS]
-# Builds the given build commands and call the given plash command with the
-# builded container.
+# Build then run utility. Builds the given build commands and calls the given
+# plash command with the builded container.
 #
 # Example
 # $ plash b run -A
