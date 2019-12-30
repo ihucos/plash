@@ -6,6 +6,8 @@ from os.path import join
 import ctypes
 
 ERROR_COLOR = 1
+
+
 def hashstr(stri):
     import hashlib
 
@@ -13,9 +15,7 @@ def hashstr(stri):
 
 
 @contextmanager
-def catch_and_die(
-    exceptions, debug=None, debug_class=False, ignore=None, silent=False
-):
+def catch_and_die(exceptions, debug=None, debug_class=False, ignore=None, silent=False):
     try:
         yield
     except tuple(exceptions) as exc:
@@ -48,7 +48,7 @@ def die_with_usage():
         for line in f.readlines():
             if line.startswith("# usage:"):
                 usage_line = line[2:]
-                print(usage_line, file=sys.stderr, end='')
+                print(usage_line, file=sys.stderr, end="")
                 printed_usage = True
     assert printed_usage, "could not find usage comment"
     sys.exit(1)
