@@ -26,7 +26,6 @@ from plash.utils import (
 )
 
 utils.assert_initialized()
-utils.handle_build_args()
 utils.unshare_user()
 utils.unshare_mount()
 
@@ -41,10 +40,10 @@ if not cmd:
 
 mountpoint = mkdtemp()
 
-utils.plash_call("mount", "--", container, mountpoint)
+utils.plash_call("mount", container, mountpoint)
 os.chdir(mountpoint)
 try:
     os.execlp(cmd[0], *cmd)
 except FileNotFoundError:
-    sys.stderr.write("{}: command not found".format(cmd[0]))
+    sys.stderr.write("{}: command not found\n".format(cmd[0]))
     sys.exit(127)

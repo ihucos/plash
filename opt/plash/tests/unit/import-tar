@@ -2,7 +2,7 @@
 set -ex
 
 tar=$(mktemp)
-plash export-tar -f 1 --run 'touch /myperson' -- $tar
+plash b export-tar -f 1 --run 'touch /myperson' -- $tar
 
 : import simple file
 new=$(plash import-tar $tar)

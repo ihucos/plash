@@ -30,7 +30,7 @@ test "$out" = ""
 : check that `plash clean` removes tmp directories
 out=$(ls "$PLASH_DATA"/tmp)
 test "$out" = "" # assert empty tmp
-plash run -f 1 -- true
+plash b run -f 1 -- true
 out=$(ls "$PLASH_DATA"/tmp)
 echo "$out" | grep plashtmp # assert output contains plashtmp
 plash clean --clean-tmp

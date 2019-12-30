@@ -82,7 +82,7 @@ def eval_file(file):
     with open(fname) as f:
         inscript = f.read()
 
-    sh = utils.plash_call("eval", strip=False, input=inscript)
+    sh = utils.plash_call("eval", "--eval-stdin", strip=False, input=inscript)
 
     # we remove an possibly existing newline
     # because else this macros would add one
@@ -98,19 +98,14 @@ def eval_string(stri):
     import shlex
 
     tokens = shlex.split(stri)
-    return utils.plash_call("eval", input="\n".join(tokens), strip=False)
+    return utils.plash_call("eval", *tokens, strip=False)
 
 
 @register_macro()
 def eval_stdin():
     "evaluate expressions read from stdin"
-    import subprocess
-
-    cmd = ["plash", "eval"]
-    p = subprocess.Popen(cmd, stdin=sys.stdin, stdout=sys.stdout)
-    exit = p.wait()
-    if exit:
-        raise subprocess.CalledProcessError(exit, cmd)
+    tokens = [i.rstrip("\n") for i in sys.stdin.readlines()]
+    return utils.plash_call("eval", *tokens, strip=False)
 
 
 @register_macro()

@@ -4,6 +4,8 @@ set -xeu
 : calling it returns success
 plash help
 
+:  a first doc sentence is always provided
+(! plash help | grep '<empty>')
 
 : calling it lists some commands
 [[ $(plash help) = *"plash run"* ]]

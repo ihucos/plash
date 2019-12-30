@@ -11,8 +11,8 @@
 #
 # Examples:
 # $ mkdir /tmp/mydir
-# $ plash shallow-copy --from ubuntu -- /tmp/mydir/ubuntu
-# $ plash shallow-copy --from ubuntu --apt git -- /tmp/mydir/ubuntu-with-git
+# $ plash b shallow-copy --from ubuntu -- /tmp/mydir/ubuntu
+# $ plash b shallow-copy --from ubuntu --apt git -- /tmp/mydir/ubuntu-with-git
 # $ plash sudo du -sh /tmp/mydir/ubuntu
 # 413M    /tmp/mydir/ubuntu
 # $ plash sudo du -sh /tmp/mydir/ubuntu-with-git/
@@ -30,7 +30,6 @@ import sys
 import os
 import io
 
-utils.handle_build_args()
 utils.unshare_user()
 utils.unshare_mount()
 
@@ -44,7 +43,7 @@ tmpout = utils.mkdtemp()
 
 mountpoint = os.path.join(os.environ["PLASH_DATA"], "mnt")
 
-utils.plash_call("mount", "--", container, mountpoint)
+utils.plash_call("mount", container, mountpoint)
 
 io_bytes = io.BytesIO()
 dirs_only_tar = tarfile.open(fileobj=io_bytes, mode="w:xz")

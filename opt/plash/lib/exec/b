@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+#
+# usage: plash b PLASHCMD *BUILDARGS [-- *CMDARGS]
+# Build then run utility. Builds the given build commands and calls the given
+# plash command with the builded container.
+#
+# Example
+# $ plash b run -A
+# $ plash b run --eval-file ./plashfile -- ls
+
+
+import sys
+import os
+
+from plash import utils
+
+
+def split_args(args):
+    positional = []
+    filtered_args = []
+    found_first_opt = False
+    while args:
+        arg = args.pop(0)
+        if not arg.startswith("-") and not found_first_opt:
+            positional.append(arg)
+        elif arg == "--":
+            positional += args
+            args = None
+        else:
+            filtered_args.append(arg)
+            found_first_opt = True
+    return positional, filtered_args
+
+
+try:
+    cmd = sys.argv[1]
+    args = sys.argv[2:]
+except IndexError:
+    utils.die_with_usage()
+if not args:
+    utils.die_with_usage()
+
+cmdargs, buildargs = split_args(args)
+if not buildargs:
+    utils.die("b: no build arguments")
+
+container_id = utils.plash_call("build", *buildargs)
+
+with utils.catch_and_die([FileNotFoundError], debug=cmd):
+    utils.plash_exec(cmd, container_id, *cmdargs)

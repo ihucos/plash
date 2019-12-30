@@ -20,7 +20,7 @@
 # /home/fulano # exit 0
 # 71
 #
-# $ plash create -f ubuntu -- touch /myfile
+# $ plash b create -f ubuntu -- touch /myfile
 # 44
 
 import os
@@ -38,7 +38,6 @@ from plash.utils import (
 )
 
 assert_initialized()
-utils.handle_build_args()
 
 plash_tmp = join(os.environ["PLASH_DATA"], "tmp")
 

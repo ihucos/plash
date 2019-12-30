@@ -39,6 +39,7 @@ with open(file) as f:
     script = f.read()
 
 build_shell_script = utils.plash_call('eval',
+    "--eval-stdin",
     input=script,
     cwd=plashfile_dir,
     strip=False)
