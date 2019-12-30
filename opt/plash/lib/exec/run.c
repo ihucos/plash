@@ -23,6 +23,13 @@
 
 #include <plash.h>
 
+size_t count_array(char **array) {
+  size_t count = 0;
+  while (array[++count] != NULL)
+    ;
+  return count;
+}
+
 int main(int argc, char **argv) {
 
   if (argc < 2) {
@@ -32,50 +39,48 @@ int main(int argc, char **argv) {
   char *container_id = argv[1];
   char *changesdir = pl_mkdtemp();
 
-  char *cmd_prefix[] = {"runopts",
-                        "-c",
-                        container_id,
-                        "-d",
-                        changesdir,
-                        "-m",
-                        "/tmp",
-                        "-m",
-                        "/home",
-                        "-m",
-                        "/root",
-                        "-m",
-                        "/etc/resolv.conf",
-                        "-m",
-                        "/sys",
-                        "-m",
-                        "/dev",
-                        "-m",
-                        "/proc",
-                        "--",
-                        NULL};
+  char **cmd_prefix = (char *[]){"runopts",
+                                 "-c",
+                                 container_id,
+                                 "-d",
+                                 changesdir,
+                                 "-m",
+                                 "/tmp",
+                                 "-m",
+                                 "/home",
+                                 "-m",
+                                 "/root",
+                                 "-m",
+                                 "/etc/resolv.conf",
+                                 "-m",
+                                 "/sys",
+                                 "-m",
+                                 "/dev",
+                                 "-m",
+                                 "/proc",
+                                 "--",
+                                 NULL};
 
-  char *cmd_wrapper[] = {"sh", "-lc", "exec env \"$@\"", "--", NULL};
+  char **cmd_wrapper = (char *[]){"sh", "-lc", "exec env \"$@\"", "--", NULL};
 
-  char **new_argv =
-      malloc(sizeof(cmd_prefix) + sizeof(cmd_wrapper) + sizeof(char*)*(argc+1));
+  char **exec_argv = malloc((count_array(cmd_prefix) +
+                             count_array(cmd_wrapper) + count_array(argv) + 1) *
+                            sizeof(char *));
+
   size_t index = 0;
-  char **c;
 
-  for (c = cmd_prefix; *c; c++)
-    new_argv[index++] = *c;
+  for (; *cmd_prefix; cmd_prefix++)
+    exec_argv[index++] = *cmd_prefix;
+
   if (argv[2]) // if any command specified
-    for (c = cmd_wrapper; *c; c++)
-      new_argv[index++] = *c;
+    for (; *cmd_wrapper; cmd_wrapper++)
+      exec_argv[index++] = *cmd_wrapper;
 
   argv++;
   argv++;
-  for (c = argv; *c; c++)
-    new_argv[index++] = *c;
-  new_argv[index++] = NULL;
+  while (exec_argv[index++] = *(argv++))
+    ;
 
-  // size_t i = 0;
-  // for (; new_argv[i]; i++) puts(new_argv[i]);
-
-  execv(pl_path("runopts"), new_argv);
+  execv(pl_path("runopts"), exec_argv);
   pl_fatal("exec");
 }
