@@ -36,11 +36,5 @@ if not buildargs:
 
 container_id = utils.plash_call("build", *buildargs)
 
-
-plash_path = os.path.dirname(os.path.realpath(__file__))
-if not "PATH" in os.environ:
-    os.environ["PATH"] = plash_path
-else:
-    os.environ["PATH"] = "{}:{}".format(plash_path, os.environ["PATH"])
 with utils.catch_and_die([FileNotFoundError], debug=cmd):
-    os.execlp(cmd, cmd, container_id, *cmdargs)
+    utils.plash_exec(cmd, container_id, *cmdargs)
