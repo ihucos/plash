@@ -35,10 +35,11 @@ void reexec_insert_run(int argc, char **argv) {
   //  it: plash -A xeyes -- xeyes
   // out: plash run -A xeyes -- xeyes
 
-  char *newargv_array[argc + 2];
+  char *newargv_array[argc + 3];
   char **newargv = newargv_array;
 
   *(newargv++) = *(argv++);
+  *(newargv++) = "b";
   *(newargv++) = "run";
   while (*(newargv++) = *(argv++))
     ;

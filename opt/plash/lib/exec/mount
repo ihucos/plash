@@ -24,7 +24,6 @@ from plash.utils import (
 )
 
 assert_initialized()
-utils.handle_build_args()
 
 try:
     container, mountpoint = sys.argv[1:3]

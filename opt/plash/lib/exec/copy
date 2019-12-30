@@ -10,7 +10,6 @@ import sys
 from plash import utils
 
 utils.assert_initialized()
-utils.handle_build_args()
 utils.unshare_user()
 
 try:
@@ -20,7 +19,7 @@ except ValueError:
 
 tmpout = utils.mkdtemp()
 
-utils.plash_call("with-mount", "--", container, "cp", "-r", ".", tmpout)
+utils.plash_call("with-mount", container, "cp", "-r", ".", tmpout)
 
 with utils.catch_and_die([OSError]):
     os.rename(tmpout, outdir)

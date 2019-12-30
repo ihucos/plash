@@ -23,8 +23,6 @@ import sys
 
 from plash import utils
 
-utils.handle_build_args()
-
 try:
     container_id, *cmd = sys.argv[1:]
 except ValueError:
