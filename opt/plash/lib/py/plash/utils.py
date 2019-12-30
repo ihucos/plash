@@ -187,6 +187,7 @@ def plash_call(
         out = out.strip("\n\r ")
     return out
 
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 clib = os.path.realpath(os.path.join(dir_path, "../../c/plash.o"))
 
@@ -199,6 +200,3 @@ def unshare_user():
 
 def unshare_mount():
     lib.pl_unshare_mount()
-
-def _handle_build_args(argv):
-    d

@@ -27,5 +27,3 @@ void pl_chdir(const char *newdir);
 void pl_chroot(const char *rootfs);
 
 char *pl_mkdtemp();
-
-void pl_handle_build_args(int *argc, char *argv[]);
