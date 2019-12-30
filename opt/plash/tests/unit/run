@@ -15,3 +15,6 @@ plash b run -f 1 --invalidate-layer -- ls
 test "$(echo 'echo iamshell' | plash run 1)" = iamshell
 
 : test variables can be specified as arguments
+
+: use many big arguments
+plash run 1 printf foooobarbasbasbbazzz foooobarbasbasbbazzz foooobarbasbasbbazzz foooobarbasbasbbazzz foooobarbasbasbbazzz foooobarbasbasbbazzz foooobarbasbasbbazzz 

@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
   char *cmd_wrapper[] = {"sh", "-lc", "exec env \"$@\"", "--", NULL};
 
   char **new_argv =
-      malloc(sizeof(cmd_prefix) + sizeof(cmd_wrapper) + sizeof(argv));
+      malloc(sizeof(cmd_prefix) + sizeof(cmd_wrapper) + sizeof(char*)*(argc+1));
   size_t index = 0;
   char **c;
 
