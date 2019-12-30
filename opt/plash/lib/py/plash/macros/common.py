@@ -96,6 +96,7 @@ def eval_file(file):
 def eval_string(stri):
     "evaluate expressions passed as string"
     import shlex
+
     tokens = shlex.split(stri)
     return utils.plash_call("eval", *tokens, strip=False)
 

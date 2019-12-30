@@ -112,6 +112,7 @@ def mkdtemp():
 
 def py_exec(file, *args):
     import runpy
+
     sys.argv = [sys.argv[0]] + list(args)
     runpy.run_path(file)
     sys.exit(0)
@@ -120,7 +121,7 @@ def py_exec(file, *args):
 def plash_exec(plash_cmd, *args):
 
     # security validation!
-    assert plash_cmd.replace('-', '').isalpha()
+    assert plash_cmd.replace("-", "").isalpha()
 
     thisdir = os.path.dirname(os.path.abspath(__file__))
     execdir = os.path.abspath(os.path.join(thisdir, "..", "..", "exec"))

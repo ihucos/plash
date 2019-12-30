@@ -8,6 +8,7 @@ import os
 
 from plash import utils
 
+
 def split_args(args):
     positional = []
     filtered_args = []
@@ -24,11 +25,12 @@ def split_args(args):
             found_first_opt = True
     return positional, filtered_args
 
+
 try:
     cmd = sys.argv[1]
     args = sys.argv[2:]
 except IndexError:
-    utils.die_with_usage() 
+    utils.die_with_usage()
 
 cmdargs, buildargs = split_args(args)
 if not buildargs:
