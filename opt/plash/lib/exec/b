@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 #
-# usage: plash b PLASHCMD *BUILD_ARGS [-- *CMD_ARGS]
+# usage: plash b PLASHCMD *BUILDARGS [-- *CMDARGS]
 # Builds the given build commands and call the given plash command with the
 # builded container.
 #
 # Example
-# plash b run -A
-# plash b run --eval-file ./plashfile -- ls
+# $ plash b run -A
+# $ plash b run --eval-file ./plashfile -- ls
 
 
 import sys
