@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -eux
+
+function utest {
+  [[ "$(plash $1 2>&1 1>/dev/null)" = "usage: plash"* ]]
+}
+
+# those subcommands print their usage if invoked without parameters
+utest add-layer
+utest b
+utest copy
+utest create
+utest export-tar
+utest import-docker
+utest import-lxc
+utest import-url
+utest map
+utest mount
+utest nodepath
+utest parent
+utest rm
+utest run
+utest runopts
+utest shallow-copy
+utest with-mount
