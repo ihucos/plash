@@ -26,7 +26,7 @@
 int main(int argc, char *argv[]) {
 
   int i = 0;
-  char *nodepath, *plash_data_env;
+  char *nodepath, *plash_data;
 
   if (argc < 2)
     pl_usage();
@@ -40,10 +40,9 @@ int main(int argc, char *argv[]) {
     pl_fatal("container must not be the special root container ('0')");
   }
 
-  plash_data_env = getenv("PLASH_DATA");
-  assert(plash_data_env);
-  if (chdir(plash_data_env) == -1 || chdir("index") == -1)
-    pl_fatal("run `plash init`: chdir: %s", plash_data_env);
+  plash_data = pl_call("data");
+  if (chdir(plash_data) == -1 || chdir("index") == -1)
+    pl_fatal("run `plash init`: chdir: %s", plash_data);
 
   if (!(nodepath = realpath(argv[1], NULL))) {
     errno = 0;

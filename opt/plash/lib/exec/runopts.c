@@ -41,8 +41,7 @@ char *get_default_root_shell() {
 
 int main(int argc, char *argv[]) {
 
-  char *plash_data = getenv("PLASH_DATA");
-  assert(plash_data);
+  char *plash_data = pl_call("data");
 
   // don't let getopt print error messages
   opterr = 0;
