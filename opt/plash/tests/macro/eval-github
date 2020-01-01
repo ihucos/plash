@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eux
+
+plash eval --eval-github ihucos/plash-github-test | grep "plash hint: image="
