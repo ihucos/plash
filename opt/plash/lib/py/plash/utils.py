@@ -79,16 +79,17 @@ def plash_map(*args):
 
 
 def assert_initialized():
-    last_inited = join(os.environ["PLASH_DATA"], "index", "0")
+    plash_data = plash_call("data")
+    last_inited = join(plash_data, "index", "0")
     if not os.path.exists(last_inited):
         die("first run `plash init`")
 
 
 def mkdtemp():
     import tempfile
-
+    plash_data = plash_call("data")
     return tempfile.mkdtemp(
-        dir=os.path.join(os.environ["PLASH_DATA"], "tmp"),
+        dir=os.path.join(plash_data, "tmp"),
         prefix="plashtmp_{}_{}_".format(os.getsid(0), os.getpid()),
     )
 

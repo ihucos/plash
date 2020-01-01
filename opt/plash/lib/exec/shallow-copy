@@ -40,8 +40,9 @@ except IndexError:
     utils.die_with_usage()
 nodepath = utils.nodepath_or_die(container)
 tmpout = utils.mkdtemp()
+plash_data = utils.plash_call("data")
 
-mountpoint = os.path.join(os.environ["PLASH_DATA"], "mnt")
+mountpoint = os.path.join(plash_data, "mnt")
 
 utils.plash_call("mount", container, mountpoint)
 
@@ -68,7 +69,6 @@ subprocess.call(["umount", mountpoint])
 tar = tarfile.open(fileobj=io_bytes, mode="r")
 tar.extractall(tmpout)
 
-plash_data = os.environ["PLASH_DATA"]
 parts = list(reversed(nodepath.split("/layer/")[-1].split("/")))
 resolve_paths = [os.path.join(plash_data, "index", i, "_data", "root") for i in parts]
 
