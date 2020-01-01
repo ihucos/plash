@@ -73,10 +73,4 @@ def from_(image):
 @cache_container_hint("github:{}")
 def from_github(user_repo_pair, file="plashfile"):
     "build and use a file (default 'plashfile') from github repo"
-    from urllib.request import urlopen
-
-    url = "https://raw.githubusercontent.com/{}/master/{}".format(user_repo_pair, file)
-    with utils.catch_and_die([Exception], debug=url):
-        resp = urlopen(url)
-    plashstr = resp.read().decode()
-    return utils.plash_call("build", "--eval-stdin", input=plashstr)
+    return utils.plash_call("build", "--eval-github", user_repo_pair, file)
