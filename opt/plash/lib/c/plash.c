@@ -387,9 +387,3 @@ void pl_unshare_mount() {
 
   pl_setup_mount_ns();
 }
-
-
-
-//char *pl_get_plash_data(){
-//  plash_data = pl_check_output((char*[]){"plash", "data", NULL});
-//}
