@@ -68,3 +68,9 @@ stdout=$(mktemp)
 
 : bad option causes bad exit status
 (! plash build --my-bad-opiton)
+
+: check PLASH_EXPORT works while build
+test "$(PLASH_EXPORT=A A=a plash build -f 1 -x 'echo MARKER$A' --invalidate-layer 2>&1 | grep MARKER | grep -v +)" = MARKERa
+
+: check HOME gets always exported while build
+test "$(HOME=a plash build -f 1 -x 'echo MARKER$HOME' --invalidate-layer 2>&1 | grep MARKER | grep -v +)" = MARKERa

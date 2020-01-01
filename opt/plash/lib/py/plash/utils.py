@@ -96,7 +96,7 @@ def mkdtemp():
 def py_exec(file, *args):
     import runpy
 
-    sys.argv = [sys.argv[0]] + list(args)
+    sys.argv = [file] + list(args)
     runpy.run_path(file)
     sys.exit(0)
 

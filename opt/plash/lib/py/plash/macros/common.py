@@ -114,6 +114,18 @@ def run_stdin():
     return sys.stdin.read()
 
 
+@register_macro()
+def eval_github(user_repo_pair, file="plashfile"):
+    "eval a file (default 'plashfile') from a github repo"
+    from urllib.request import urlopen
+
+    url = "https://raw.githubusercontent.com/{}/master/{}".format(user_repo_pair, file)
+    with utils.catch_and_die([Exception], debug=url):
+        resp = urlopen(url)
+    plashstr = resp.read().decode()
+    return utils.plash_call("eval", "--eval-stdin", input=plashstr)
+
+
 class HashPaths:
     "recursively hash files and add as cache key"
 
