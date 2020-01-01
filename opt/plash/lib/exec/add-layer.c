@@ -37,12 +37,11 @@ int main(int argc, char *argv[]) {
   if (argc != 3)
     pl_usage();
 
-  plash_data = getenv("PLASH_DATA");
+  plash_data = pl_call("data");
   assert(plash_data);
   assert(plash_data[0] == '/');
 
-  nodepath = pl_check_output(
-      (char *[]){"plash", "nodepath", argv[1], "--allow-root-container", NULL});
+  nodepath = pl_call("nodepath", argv[1], "--allow-root-container");
 
   pl_unshare_user();
 

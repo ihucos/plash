@@ -94,8 +94,7 @@ int main(int argc, char *argv[]) {
   //
   // mount root filesystem at the empty mountpoint
   //
-  pl_check_call(
-      (char *[]){"plash", "mount", container, "mnt", changesdir, NULL});
+  pl_call("mount", container, "mnt", changesdir); // changesdir is ignored if it is NULL
 
   //
   // mount requested mounts
