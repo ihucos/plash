@@ -72,5 +72,5 @@ def from_(image):
 @register_macro()
 @cache_container_hint("github:{}")
 def from_github(user_repo_pair, file="plashfile"):
-    "build and use a file (default 'plashfile') from github repo"
+    "build and use a file (default 'plashfile') from a github repo"
     return utils.plash_call("build", "--eval-github", user_repo_pair, file)

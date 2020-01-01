@@ -116,7 +116,7 @@ def run_stdin():
 
 @register_macro()
 def eval_github(user_repo_pair, file="plashfile"):
-    "build and use a file (default 'plashfile') from github repo"
+    "eval a file (default 'plashfile') from a github repo"
     from urllib.request import urlopen
 
     url = "https://raw.githubusercontent.com/{}/master/{}".format(user_repo_pair, file)
