@@ -35,6 +35,9 @@ if cmd:
 
 changesdir = utils.mkdtemp()
 
+# XXX think about this BEFORE MERGEEEHHEEEE!!
+# os.environ['PLASH_DATA'] = utils.plash_call("data")
+
 utils.plash_exec(
     "runopts",
     *(
