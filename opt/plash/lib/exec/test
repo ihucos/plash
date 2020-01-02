@@ -15,7 +15,7 @@ testfiles=$(find . -type f -executable -ipath "./${1:-}*" | sort)
 for script in $testfiles ; do
 
   # setup test env
-  tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
+  tmp=$(plash mkdtemp) # if we want to use it inside plash we cant user an overlay mounted fs
   export PLASH_DATA=$tmp
   plash init
   plash data touch config/testmode
