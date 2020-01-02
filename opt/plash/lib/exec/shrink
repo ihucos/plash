@@ -15,7 +15,8 @@ from plash import utils
 
 DELETE_PERCENT = 50
 
-index_dir = os.path.join(os.environ["PLASH_DATA"], "index")
+plash_data = utils.plash_call("data")
+index_dir = os.path.join(plash_data, "index")
 links = os.listdir(index_dir)
 
 node_deletation_effect = Counter()
