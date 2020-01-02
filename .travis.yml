@@ -23,6 +23,3 @@ script:
 
   # test user mode
   - plash test
-
-  - plash mkdtemp
-  - plash -A -- true
