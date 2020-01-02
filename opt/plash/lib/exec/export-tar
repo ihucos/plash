@@ -10,14 +10,13 @@ import sys
 from os import execlp
 
 from plash import utils
-from plash.utils import die_with_usage
 
 utils.unshare_user()
 
 try:
     container = sys.argv[1]
 except IndexError:
-    die_with_usage()
+    utils.die_with_usage()
 
 execlp(
     "plash",

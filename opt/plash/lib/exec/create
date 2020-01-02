@@ -27,14 +27,8 @@ from os.path import join
 from sys import exit
 
 from plash import utils
-from plash.utils import (
-    assert_initialized,
-    die,
-    die_with_usage,
-    nodepath_or_die,
-)
 
-assert_initialized()
+utils.assert_initialized()
 
 plash_data = utils.plash_call("data")
 plash_tmp = join(plash_data, "tmp")
@@ -43,9 +37,9 @@ try:
     container = sys.argv[1]
     cmd = sys.argv[2:]
 except IndexError:
-    die_with_usage()
+    utils.die_with_usage()
 
-nodepath_or_die(container)
+utils.plash_call("nodepath", container)
 
 # use with login shell
 if cmd:
@@ -81,6 +75,6 @@ exit = utils.plash_call(
 )  # redirect stdout to stderr because we are passing the container id through stdout
 
 if exit:
-    die("build failed with exit status {}".format(exit))
+    utils.die("build failed with exit status {}".format(exit))
 
 utils.plash_exec("add-layer", container, os.path.join(changesdir, "data"))

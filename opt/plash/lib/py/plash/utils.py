@@ -33,10 +33,6 @@ def catch_and_die(exceptions, debug=None, debug_class=False, ignore=None, silent
         die(msg)
 
 
-def info(msg):
-    print(msg, file=sys.stderr)
-
-
 def die_with_usage():
     prog = os.path.basename(sys.argv[0])
     printed_usage = False
@@ -48,34 +44,6 @@ def die_with_usage():
                 printed_usage = True
     assert printed_usage, "could not find usage comment"
     sys.exit(1)
-
-
-def nodepath_or_die(container, allow_root_container=False):
-    extra = [] if not allow_root_container else ["--allow-root-container"]
-    return plash_call("nodepath", str(container), *extra)
-
-
-def get_default_shell(passwd_file):
-    with open(passwd_file) as f:
-        #  the first entry is the root entry
-        #  https://security.stackexchange.com/questions/96241/why-require-root-to-be-the-first-entry-in-etc-passwd
-        root_entry = f.readline().rstrip("\n")
-        default_root_shell = root_entry.split(":")[6]
-        return default_root_shell
-
-
-def get_default_user_shell():
-    import pwd
-
-    return pwd.getpwuid(os.getuid()).pw_shell
-
-
-def plash_map(*args):
-    "thin wrapper around plash map"
-    out = plash_call("map", *args)
-    if out == "":
-        return None
-    return out
 
 
 def assert_initialized():

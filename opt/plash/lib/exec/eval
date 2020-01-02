@@ -10,8 +10,8 @@ from itertools import dropwhile
 
 # register the macros
 import plash.macros.all
-from plash import eval
-from plash.utils import catch_and_die, die
+
+from plash import eval, utils
 
 lines = sys.argv[1:]
 
@@ -48,7 +48,9 @@ for token, token_is_escaped in zip(tokens, tokens_escape_status):
         try:
             lsp[-1].append(token)
         except IndexError:
-            die("parse: first token can not be escaped (got {})".format(repr(token)))
+            utils.die(
+                "parse: first token can not be escaped (got {})".format(repr(token))
+            )
     elif token.startswith("--"):
         lsp.append([token[2:]])
     elif token.startswith("-") and not token == "-":
@@ -58,13 +60,13 @@ for token, token_is_escaped in zip(tokens, tokens_escape_status):
         try:
             lsp[-1].append(token)
         except IndexError:
-            die(
+            utils.die(
                 "parse: first token must be an action prefixed by two dashes (got {})".format(
                     repr(token)
                 )
             )
 
-with catch_and_die([eval.MacroNotFoundError, eval.MacroError]):
+with utils.catch_and_die([eval.MacroNotFoundError, eval.MacroError]):
     script = eval.eval(lsp)
 if script and not script.endswith("\n"):
     script += "\n"  # that '\n' is right

@@ -7,14 +7,13 @@
 
 #include <plash.h>
 
-int main(){
-  char *tmpdir;
-  if (asprintf(&tmpdir, "%s/tmp/plashtmp_%d_%d_XXXXXX", pl_call("data"),
+int main() {
+  char *tmpdir, *tmpdir_templ;
+  if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", pl_call("data"),
                getsid(0), getppid()) == -1)
     pl_fatal("asprintf");
-  tmpdir = mkdtemp(tmpdir);
+  tmpdir = mkdtemp(tmpdir_templ);
   if (tmpdir == NULL)
-    pl_fatal("mkdtemp");
+    pl_fatal("mkdtemp: %s", tmpdir_templ);
   puts(tmpdir);
 }
-

@@ -16,7 +16,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-
 #define PL_CHECK_OUTPUT_BUFFER 4096
 
 enum {
@@ -296,7 +295,7 @@ char *_pl_check_output(char *argv[]) {
   int link[2];
   int status, exit_status;
   pid_t pid;
-  char *output = calloc(PL_CHECK_OUTPUT_BUFFER, sizeof(char*));
+  char *output = calloc(PL_CHECK_OUTPUT_BUFFER, sizeof(char *));
 
   if (pipe(link) == -1)
     pl_fatal("pipe");
@@ -331,7 +330,6 @@ char *_pl_check_output(char *argv[]) {
     return output;
   }
 }
-
 
 void pl_usage() {
 

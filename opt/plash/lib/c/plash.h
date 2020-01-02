@@ -1,4 +1,4 @@
-#define pl_call(...) _pl_check_output((char*[]){"plash", __VA_ARGS__, NULL})
+#define pl_call(...) _pl_check_output((char *[]){"plash", __VA_ARGS__, NULL})
 
 char *_pl_check_output(char *argv[]);
 

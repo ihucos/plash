@@ -6,14 +6,14 @@
 import sys
 
 from plash.eval import MacroError, eval, get_macros
-from plash.utils import catch_and_die
+from plash import utils
 
 try:
     import_macros = sys.argv[1]
 except IndexError:
     import_macros = "plash.macros.all"
 
-with catch_and_die([MacroError]):
+with utils.catch_and_die([MacroError]):
     eval([["import", import_macros]])
 
 macros = get_macros()

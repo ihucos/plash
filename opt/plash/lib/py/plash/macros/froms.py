@@ -9,10 +9,10 @@ def cache_container_hint(cache_key_templ):
         @wraps(func)
         def wrapper(*args):
             cache_key = cache_key_templ.format(":".join(args)).replace("/", "%")
-            container_id = utils.plash_map(cache_key)
+            container_id = utils.plash_call("map", cache_key)
             if not container_id:
                 container_id = func(*args)
-                utils.plash_map(cache_key, container_id)
+                utils.plash_call("map", cache_key, container_id)
             return hint("image", container_id)
 
         return wrapper
