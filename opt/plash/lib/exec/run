@@ -35,8 +35,9 @@ if cmd:
 
 changesdir = utils.mkdtemp()
 
-# XXX think about this BEFORE MERGEEEHHEEEE!!
-# os.environ['PLASH_DATA'] = utils.plash_call("data")
+# This is practical to run nested plash instances with the same
+# PLASH_DATA
+os.environ['PLASH_DATA'] = utils.plash_call("data")
 
 utils.plash_exec(
     "runopts",
