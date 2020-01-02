@@ -31,8 +31,7 @@ int main(int argc, char *argv[]) {
 
   off_t node_id;
   int fd;
-  char *linkpath, *node_id_str, *nodepath, *plash_data, *prepared_new_node,
-      *templ;
+  char *linkpath, *node_id_str, *nodepath, *plash_data, *prepared_new_node;
 
   if (argc != 3)
     pl_usage();
@@ -46,11 +45,8 @@ int main(int argc, char *argv[]) {
 
   pl_unshare_user();
 
-  if (asprintf(&templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", plash_data, getsid(0),
-               getpid) == -1)
-    pl_fatal("asprintf");
-  if ((prepared_new_node = mkdtemp(templ)) == NULL)
-    pl_fatal("mkdtemp");
+  prepared_new_node = pl_call("mkdtemp")
+
   if (chmod(prepared_new_node, 0755) == -1)
     pl_fatal("chmod");
   if (chdir(prepared_new_node) == -1)

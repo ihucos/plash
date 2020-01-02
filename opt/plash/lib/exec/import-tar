@@ -10,7 +10,7 @@ import tarfile
 from os.path import join
 
 from plash import utils
-from plash.utils import assert_initialized, catch_and_die, die, die_with_usage, mkdtemp
+from plash.utils import assert_initialized, catch_and_die, die, die_with_usage
 
 assert_initialized()
 
@@ -31,7 +31,7 @@ class PlashTarFile(tarfile.TarFile):
             )
 
 
-rootfs = mkdtemp()
+rootfs = utils.plash_call("mkdtemp")
 
 with catch_and_die([tarfile.TarError], debug_class=True):
     with catch_and_die([OSError]):

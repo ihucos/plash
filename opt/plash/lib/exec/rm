@@ -11,7 +11,8 @@ import sys
 from shutil import rmtree
 
 from plash import utils
-from plash.utils import die_with_usage, mkdtemp, nodepath_or_die
+from plash.utils import die_with_usage, nodepath_or_die
+from plash import utils
 
 utils.unshare_user()
 
@@ -21,6 +22,6 @@ except IndexError:
     die_with_usage()
 
 node = nodepath_or_die(container)
-tmp = mkdtemp()
+tmp = utils.plash_call("mkdtemp")
 os.rename(node, tmp)
 rmtree(tmp)

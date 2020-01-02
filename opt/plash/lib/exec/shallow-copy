@@ -39,7 +39,7 @@ try:
 except IndexError:
     utils.die_with_usage()
 nodepath = utils.nodepath_or_die(container)
-tmpout = utils.mkdtemp()
+tmpout = utils.plash_call("mkdtemp")
 
 mountpoint = os.path.join(os.environ["PLASH_DATA"], "mnt")
 

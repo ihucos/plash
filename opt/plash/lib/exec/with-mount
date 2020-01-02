@@ -22,7 +22,6 @@ from plash.utils import (
     die,
     die_with_usage,
     get_default_user_shell,
-    mkdtemp,
 )
 
 utils.assert_initialized()
@@ -38,7 +37,7 @@ default_shell = get_default_user_shell()
 if not cmd:
     cmd = [default_shell]
 
-mountpoint = mkdtemp()
+mountpoint = utils.plash_call("mkdtemp")
 
 utils.plash_call("mount", container, mountpoint)
 os.chdir(mountpoint)

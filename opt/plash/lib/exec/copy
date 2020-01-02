@@ -17,7 +17,7 @@ try:
 except ValueError:
     utils.die_with_usage()
 
-tmpout = utils.mkdtemp()
+tmpout = utils.plash_call("mkdtemp")
 
 utils.plash_call("with-mount", container, "cp", "-r", ".", tmpout)
 

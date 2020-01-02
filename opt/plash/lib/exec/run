@@ -33,7 +33,7 @@ except ValueError:
 if cmd:
     cmd = ["sh", "-lc", 'exec env "$@"', "--"] + cmd
 
-changesdir = utils.mkdtemp()
+changesdir = utils.plash_call("mkdtemp")
 
 utils.plash_exec(
     "runopts",
