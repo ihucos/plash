@@ -55,16 +55,3 @@ test "$(echo 'echo itsshell' | plash -f 1 --invalidate-layer)" = 'itsshell'
 [[ "$(plash --  2>&1)" == *"no such command"* ]]
 [[ "$(plash -   2>&1)" == *"no such command"* ]]
 [[ "$(plash a b c   2>&1)" == *"no such command"* ]]
-
-: test that HOME env is taken into consideration for PLASH
-test "$(
-unset PLASH_DATA
-HOME=/myh plash sudo printenv PLASH_DATA
-)" = /myh/.plashdata
-
-homedir=$(getent passwd "$(id -u)" | cut -d: -f6)
-test "$(
-unset PLASH_DATA
-unset HOME
-plash sudo printenv PLASH_DATA
-)" = "$homedir"/.plashdata

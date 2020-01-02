@@ -2,6 +2,27 @@
 
 set -eux
 
+: test most features
 out1=$(plash data pwd)
 out2=$(plash data)
 test "$out1" = "$out2"
+
+: test that HOME env is taken into consideration
+test $(
+unset PLASH_DATA
+HOME=xx
+plash data
+) = "xx/.plashdata"
+
+: test that PLASH_DATA is used
+test $(PLASH_DATA=xx plash data) = xx
+
+
+: test fallback to home config in /etc/passwd
+homedir=$(getent passwd "$(id -u)" | cut -d: -f6)
+test "$(
+unset HOME
+unset PLASH_DATA
+plash data
+)" = "$homedir"/.plashdata
+
