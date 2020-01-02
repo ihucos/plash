@@ -1,3 +1,6 @@
+// usage: plash mkdtemp
+// Create a temporary directory in the plash data.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -14,3 +17,4 @@ int main(){
     pl_fatal("mkdtemp");
   puts(tmpdir);
 }
+
