@@ -8,8 +8,6 @@
 # returns 0 (success) as exit code.  For most cases use `plash build` for a
 # higher level interface.
 #
-# Parameters may be interpreted as build instruction.
-#
 # Examples:
 #
 # $ plash create 7 ./buildscript.sh
