@@ -3,8 +3,6 @@
 # usage: plash rm CONTAINER
 # Deletes the given container atomically. There are no guarantees of any
 # behaviour of running containers whose root file system was deleted.
-#
-# Parameters may be interpreted as build instruction.
 
 import os
 import sys

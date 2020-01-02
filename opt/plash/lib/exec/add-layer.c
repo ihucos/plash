@@ -5,7 +5,6 @@
 // a container from scratch.
 //
 // This subcommand is very low-level, usually you would use `plash build`.
-// Parameters may be interpreted as build instruction.
 //
 // Examples:
 //

@@ -5,8 +5,6 @@
 # Execute parameters inside a mounted container. Default parameter is the
 # default shell. Mounting happens inside an isolated mount namespace.
 #
-# Parameters may be interpreted as build instruction.
-#
 # Example to get how much disk space a container is using:
 # $ plash with-mount 70 du -sh
 # 7,2M    .
