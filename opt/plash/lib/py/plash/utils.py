@@ -85,15 +85,6 @@ def assert_initialized():
         die("first run `plash init`")
 
 
-def mkdtemp():
-    import tempfile
-    plash_data = plash_call("data")
-    return tempfile.mkdtemp(
-        dir=os.path.join(plash_data, "tmp"),
-        prefix="plashtmp_{}_{}_".format(os.getsid(0), os.getpid()),
-    )
-
-
 def py_exec(file, *args):
     import runpy
 

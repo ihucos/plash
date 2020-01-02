@@ -38,8 +38,9 @@ try:
     outdir = sys.argv[2]
 except IndexError:
     utils.die_with_usage()
-nodepath = utils.nodepath_or_die(container)
-tmpout = utils.mkdtemp()
+
+nodepath = utils.plash_call("nodepath", container)
+tmpout = utils.plash_call("mkdtemp")
 plash_data = utils.plash_call("data")
 
 mountpoint = os.path.join(plash_data, "mnt")

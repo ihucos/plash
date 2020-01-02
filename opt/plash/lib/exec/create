@@ -33,7 +33,6 @@ from plash.utils import (
     assert_initialized,
     die,
     die_with_usage,
-    mkdtemp,
     nodepath_or_die,
 )
 
@@ -54,7 +53,7 @@ nodepath_or_die(container)
 if cmd:
     cmd = ["sh", "-lc", 'exec env "$@"', "--"] + cmd
 
-changesdir = mkdtemp()
+changesdir = utils.plash_call("mkdtemp")
 exit = utils.plash_call(
     *(
         [

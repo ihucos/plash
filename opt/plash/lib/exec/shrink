@@ -38,7 +38,7 @@ del node_deletation_effect["0"]
 nodes = list(node_deletation_effect.keys())
 nodes.sort(key=int)
 delete_quota = math.ceil(len(nodes) * DELETE_PERCENT / 100.0)
-mastertmp = utils.mkdtemp()
+mastertmp = utils.plash_call("mkdtemp")
 already_deleted = 0
 for container_id in nodes:
     affected = node_deletation_effect[container_id]

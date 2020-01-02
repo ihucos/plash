@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -eux
+
+function has_tmpdir {
+  tmproot="$(plash data realpath tmp)"
+  [[ "$(ls $tmproot)" ]]
+}  
+
+function has_not_tmpdir {
+  ! has_tmpdir
+}  
+
+: test how mkdtemp and clean interact
+has_not_tmpdir
+sh -c "plash mkdtemp" # from a child process
+has_tmpdir
+plash clean
+has_not_tmpdir
+plash mkdtemp
+has_tmpdir
+plash clean
+has_tmpdir
+
+: create tmp dir and check its properites
+tmpdir="$(plash mkdtemp)"
+[[ "$tmpdir" = *"$$"* ]]
+[[ "$tmpdir" = "$PLASH_DATA"* ]]
+
+: write a file and a directory inside a tmp dir
+tmpdir="$(plash mkdtemp)"
+touch "$tmpdir/file"
+mkdir "$tmpdir/dir"

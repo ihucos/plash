@@ -12,7 +12,7 @@ from urllib.request import urlopen, urlretrieve
 
 import plash
 from plash import utils
-from plash.utils import assert_initialized, catch_and_die, die, die_with_usage, mkdtemp
+from plash.utils import assert_initialized, catch_and_die, die, die_with_usage
 
 MAX_SIGNATURE_LENGTH = 8192
 
@@ -45,7 +45,8 @@ gpg_keyring = os.path.abspath(
     )
 )
 
-downloaded_rootfs = os.path.join(mkdtemp(), "rootfs")
+tmpdir = utils.plash_call("mkdtemp")
+downloaded_rootfs = os.path.join(tmpdir, "rootfs")
 with catch_and_die(
     [HTTPException, ValueError, URLError], debug="geturl({})".format(repr(url))
 ):

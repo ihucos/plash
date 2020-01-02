@@ -112,7 +112,7 @@ def mount_overlay(lowerdirs_list, mountpoint, changedir):
 
 def mount_fuse_overlayfs(lowerdirs_list, mountpoint, changedir):
     if not changedir:
-        changedir = utils.mkdtemp()
+        changedir = utils.plash_call("mkdtemp")
         check_mount_option_part(changedir)
     workdir = os.path.join(changedir, "work")
     upperdir = os.path.join(changedir, "data")
