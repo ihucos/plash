@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
   pl_unshare_user();
 
-  prepared_new_node = pl_call("mkdtemp")
+  prepared_new_node = pl_call("mkdtemp");
 
   if (chmod(prepared_new_node, 0755) == -1)
     pl_fatal("chmod");

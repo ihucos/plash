@@ -51,12 +51,11 @@ void del(char const *linkpath) {
 }
 
 void set(char const *linkpath, char *container_id) {
-  char *nodepath
+  char *nodepath;
 
   nodepath = pl_call("nodepath", container_id);
 
-  tmpdir = pl_call("mkdtemp")
-  if (chdir(tmpdir) == -1)
+  if (chdir(pl_call("mkdtemp")) == -1)
     pl_fatal("chdir");
   if (asprintf(&nodepath, "..%s", nodepath + strlen(plash_data)) == -1)
     pl_fatal("asprintf");

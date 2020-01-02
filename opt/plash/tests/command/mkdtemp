@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -eux
+
+: create tmp dir and check its properites
+tmpdir=$(plash mkdtemp)
+[[ "$tmpdir" = *"$$"* ]]
+[[ "$tmpdir" = "$PLASH_DATA"* ]]
