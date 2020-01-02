@@ -22,9 +22,9 @@
 
 #include <plash.h>
 
-char *get_home() {
-  char *home_env;
+char *get_home_dir() {
   struct passwd *pwd;
+  char *home_env;
   if (!(home_env = getenv("HOME"))) {
     pwd = getpwuid(getuid());
     if (!pwd)
@@ -37,7 +37,7 @@ char *get_home() {
 char *get_plash_data() {
   char *plash_data;
   if (!(plash_data = getenv("PLASH_DATA"))) {
-    if (asprintf(&plash_data, "%s/.plashdata", get_home()) == -1)
+    if (asprintf(&plash_data, "%s/.plashdata", get_home_dir()) == -1)
       pl_fatal("asprintf");
   }
   return plash_data;
@@ -46,11 +46,13 @@ char *get_plash_data() {
 int main(int argc, char *argv[]) {
   char *plash_data = get_plash_data();
 
+  // if no arguments, print the plash data directory
   if (argc == 1) {
     puts(plash_data);
     return 0;
   }
 
+  // if arguments given, cd to plash data and exec the arguments
   if (chdir(plash_data) == -1)
     pl_fatal("chdir %s", plash_data);
   argv++;
