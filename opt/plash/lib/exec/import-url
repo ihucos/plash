@@ -12,7 +12,6 @@ from urllib.request import urlopen, urlretrieve
 
 import plash
 from plash import utils
-from plash.utils import assert_initialized, catch_and_die, die, die_with_usage
 
 MAX_SIGNATURE_LENGTH = 8192
 
@@ -28,12 +27,12 @@ def reporthook(count, block_size, total_size):
             sys.stderr.write("\n")
 
 
-assert_initialized()
+utils.assert_initialized()
 
 try:
     url = sys.argv[1]
 except IndexError:
-    die_with_usage()
+    utils.die_with_usage()
 try:
     gpg_signature_url = sys.argv[2]
 except IndexError:
@@ -47,7 +46,7 @@ gpg_keyring = os.path.abspath(
 
 tmpdir = utils.plash_call("mkdtemp")
 downloaded_rootfs = os.path.join(tmpdir, "rootfs")
-with catch_and_die(
+with utils.catch_and_die(
     [HTTPException, ValueError, URLError], debug="geturl({})".format(repr(url))
 ):
     urlretrieve(url, downloaded_rootfs, reporthook=reporthook)
@@ -72,7 +71,7 @@ if gpg_signature_url:
         out = p.stderr.read().decode()
         if exit:
             sys.stderr.write(out)
-            die("signature check failed")
+            utils.die("signature check failed")
 
 sys.stderr.write("plash: extracting...\n")
 utils.plash_exec("import-tar", downloaded_rootfs)

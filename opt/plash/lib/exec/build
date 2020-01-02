@@ -32,36 +32,27 @@ import sys
 
 from plash.eval import get_hint_values, hint, remove_hint_values
 from plash import utils
-from plash.utils import (
-    assert_initialized,
-    catch_and_die,
-    die,
-    hashstr,
-    info,
-    nodepath_or_die,
-    plash_map,
-)
 
-assert_initialized()
+utils.assert_initialized()
 
 script = utils.plash_call("eval", *sys.argv[1:], strip=False)
 
 hints = dict(get_hint_values(script))
 image_hint = hints.get("image")
 if not image_hint:
-    die("no image specified")
+    utils.die("no image specified")
 
 # split the script in its layers
 layers = script.split(hint("layer") + "\n")
 layers = [remove_hint_values(l) for l in layers]
 layers = [l for l in layers if l]
 
+utils.plash_call("nodepath", image_hint)
 current_container = image_hint
-nodepath_or_die(current_container)
 os.environ["PS4"] = "--> "
 for layer in layers:
-    cache_key = hashstr(b":".join([current_container.encode(), layer.encode()]))
-    next_container = plash_map(cache_key)
+    cache_key = utils.hashstr(b":".join([current_container.encode(), layer.encode()]))
+    next_container = utils.plash_call("map", cache_key)
     if not next_container:
 
         shell = (
@@ -73,8 +64,8 @@ for layer in layers:
         next_container = utils.plash_call(
             "create", current_container, "sh", "-l", input=shell
         )
-        plash_map(cache_key, next_container)
-        info("--:")
+        utils.plash_call("map", cache_key, next_container)
+        print("--:", file=sys.stderr)
     current_container = next_container
 build_container = current_container
 

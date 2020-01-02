@@ -29,3 +29,5 @@ out=$(plash with-mount 1 cmdnotfound 2>&1)
 set -e
 [[ "$out" == *"cmdnotfound: command not found"* ]]
 
+: test no cmd leads to shell
+test "$(echo "echo itshell" | plash with-mount 1)" = itshell

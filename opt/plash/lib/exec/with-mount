@@ -13,16 +13,10 @@
 
 import os
 import sys
+import pwd
 from subprocess import CalledProcessError, check_call
 
 from plash import utils
-from plash.utils import (
-    assert_initialized,
-    catch_and_die,
-    die,
-    die_with_usage,
-    get_default_user_shell,
-)
 
 utils.assert_initialized()
 utils.unshare_user()
@@ -32,9 +26,9 @@ try:
     container = sys.argv[1]
     cmd = sys.argv[2:]
 except IndexError:
-    die_with_usage()
-default_shell = get_default_user_shell()
+    utils.die_with_usage()
 if not cmd:
+    default_shell = pwd.getpwuid(os.getuid()).pw_shell
     cmd = [default_shell]
 
 mountpoint = utils.plash_call("mkdtemp")

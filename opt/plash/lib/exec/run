@@ -37,7 +37,7 @@ changesdir = utils.plash_call("mkdtemp")
 
 # This is practical to run nested plash instances with the same
 # PLASH_DATA
-os.environ['PLASH_DATA'] = utils.plash_call("data")
+os.environ["PLASH_DATA"] = utils.plash_call("data")
 
 utils.plash_exec(
     "runopts",
