@@ -16,6 +16,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+
+#define PL_CHECK_OUTPUT_BUFFER 4096
+
 enum {
   SETUP_NO_UID = 0x01,
   SETUP_NO_GID = 0x02,
@@ -289,15 +292,16 @@ void pl_setup_user_ns() {
   free(pid_str);
 }
 
-char *pl_check_output(char *argv[]) {
+char *_pl_check_output(char *argv[]) {
   int link[2];
-  char static output[4096];
-  memset(output, 0, sizeof(output));
+  int status, exit_status;
+  pid_t pid;
+  char *output = calloc(PL_CHECK_OUTPUT_BUFFER, sizeof(char*));
 
   if (pipe(link) == -1)
     pl_fatal("pipe");
 
-  switch (fork()) {
+  switch (pid = fork()) {
   case -1:
     pl_fatal("fork");
 
@@ -314,33 +318,20 @@ char *pl_check_output(char *argv[]) {
   default:
     if (close(link[1]) == -1)
       pl_fatal("close");
-    if (read(link[0], output, sizeof(output)) == -1)
+
+    waitpid(pid, &status, 0);
+    if (!WIFEXITED(status))
+      pl_fatal("child exited abnormally");
+    if (WEXITSTATUS(status))
+      exit(1);
+
+    if (read(link[0], output, PL_CHECK_OUTPUT_BUFFER) == -1)
       pl_fatal("read");
     output[strcspn(output, "\n")] = 0;
-    if (!output[0])
-      exit(1);
     return output;
   }
 }
 
-void pl_check_call(char *argv[]) {
-  int status, exit_status;
-  pid_t pid = fork();
-  switch (pid) {
-  case -1:
-    pl_fatal("fork");
-  case 0:
-    execvp(argv[0], argv);
-    pl_fatal("could not exec");
-  default:
-    waitpid(pid, &status, 0);
-    if (!WIFEXITED(status))
-      pl_fatal("child exited abnormally");
-    exit_status = WEXITSTATUS(status);
-    if (exit_status)
-      exit(1);
-  }
-}
 
 void pl_usage() {
 

@@ -17,9 +17,9 @@ import os
 import platform
 from os.path import join
 
-from plash.utils import hashstr
+from plash import utils
 
-plash_data = os.environ["PLASH_DATA"]
+plash_data = utils.plash_call("data")
 os.makedirs(plash_data, exist_ok=True)
 os.chmod(plash_data, 0o700)
 

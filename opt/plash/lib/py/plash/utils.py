@@ -79,7 +79,8 @@ def plash_map(*args):
 
 
 def assert_initialized():
-    last_inited = join(os.environ["PLASH_DATA"], "index", "0")
+    plash_data = plash_call("data")
+    last_inited = join(plash_data, "index", "0")
     if not os.path.exists(last_inited):
         die("first run `plash init`")
 

@@ -38,7 +38,8 @@ from plash.utils import (
 
 assert_initialized()
 
-plash_tmp = join(os.environ["PLASH_DATA"], "tmp")
+plash_data = utils.plash_call("data")
+plash_tmp = join(plash_data, "tmp")
 
 try:
     container = sys.argv[1]

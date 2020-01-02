@@ -47,7 +47,7 @@ while True:
 # use the symlinks and not the full paths because the arg size is limited
 # On my setup i get 58 (EDIT: should be more now) layers before an error,
 # we could have multiple mount calls to overcome this
-plash_data = os.environ["PLASH_DATA"]
+plash_data = utils.plash_call("data")
 lowerdir_list = [
     join(plash_data, "index", i, "_data", "root") for i in container_ids_path
 ]
@@ -151,7 +151,7 @@ known_union_tastes = {
     "fuse-overlayfs": mount_fuse_overlayfs,
 }
 
-with open(os.path.join(os.environ["PLASH_DATA"], "config", "union_taste")) as f:
+with open(os.path.join(plash_data, "config", "union_taste")) as f:
     union_taste = f.read().rstrip("\n")
 
 try:

@@ -53,8 +53,7 @@ void del(char const *linkpath) {
 void set(char const *linkpath, char *container_id) {
   char *nodepath
 
-  nodepath =
-      pl_check_output((char *[]){"plash", "nodepath", container_id, NULL});
+  nodepath = pl_call("nodepath", container_id);
 
   tmpdir = pl_call("mkdtemp")
   if (chdir(tmpdir) == -1)
@@ -75,7 +74,7 @@ int main(int argc, char *argv[]) {
     pl_usage();
   }
 
-  plash_data = getenv("PLASH_DATA");
+  plash_data = pl_call("data");
   assert(plash_data);
   assert(plash_data[0] == '/');
 
