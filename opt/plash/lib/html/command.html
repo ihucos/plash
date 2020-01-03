@@ -19,8 +19,8 @@
 {% endif %}
 
 {% if test_patterns %}
-  <h1>Guarantees</h1>
-  <h3>[setup]</h3>
+  <h1>Tested behaviour</h1>
+  <h3>Preface</h3>
   {% for type, line in test_patterns %}
     {% if type == "code" %}
       <pre style="display: inline;">{{ line|e }}
@@ -31,7 +31,7 @@
   {% endfor %}
 {% endif %}
 
-<h1>code</h1>
+<h1>Source Code</h1>
 <pre>{{ after_doc|e }}</pre>
 
 
