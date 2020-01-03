@@ -1,4 +1,4 @@
-// usage: plash runopts -c CONTAINER [-d CHANGESDIR] [ -m MOUNT ] [CMD1 [ CMD2 ... ]]
+// usage: plash runopts -c CONTAINER [*OPTS] [CMD1 [ CMD2 ... ]]
 //
 // Run a container specifying lower level options.  Usually you'll want to use
 // `plash run` instead. If no command is specified the containers default root
@@ -7,14 +7,24 @@
 // Supported options:
 //
 // -c CONTAINER
-//        the container id to run
+//        The container id to run
 //
 // -d CHANGESIDR
-//        if specified changes to the root file system will be written there
+//        If specified changes to the root file system will be written there
 //
 // -m MOUNT
-//        mount a path to the same location inside the container, can be
+//        Mount a path to the same location inside the container, can be
 //        specified multiple times
+//
+// -e ENV
+//        Whitelist environment variable for import into container
+//
+// -E ENV
+//        Whitelist all environment variables specified in given environment
+//        variable. Separator is ':'
+//
+// -i
+//        Start with empty environment. -e and -E implies -i
 
 #define _GNU_SOURCE
 #include <assert.h>
@@ -28,7 +38,7 @@
 
 #include <plash.h>
 
-#define OPTSTRING "c:d:m:"
+#define OPTSTRING "c:d:m:e:E:i"
 
 char *get_default_root_shell() {
   struct passwd *pwd = getpwuid(0);
@@ -52,6 +62,7 @@ int main(int argc, char *argv[]) {
   int opt;
   char *changesdir = NULL;
   char *container = NULL;
+  int manage_envs = 0;
   while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
     switch (opt) {
     case 'c':
@@ -63,6 +74,10 @@ int main(int argc, char *argv[]) {
     case 'm':
       if (!(optarg[0] == '/'))
         pl_fatal("mount path must be absolute");
+    case 'i':
+    case 'e':
+    case 'E':
+      manage_envs = 1;
       break;
     case ':':
       pl_usage();
@@ -107,18 +122,17 @@ int main(int argc, char *argv[]) {
     case 'm':
       pl_bind_mount(optarg, optarg + 1);
       break;
+    case 'e':
+      pl_whitelist_env(optarg);
+      break;
+    case 'E':
+      pl_whitelist_envs_from_env(optarg);
+      break;
     }
   }
 
-  //
-  // only allow certain envs
-  //
-  pl_whitelist_env("TERM");
-  pl_whitelist_env("DISPLAY");
-  pl_whitelist_env("HOME");
-  pl_whitelist_env("PLASH_DATA");
-  pl_whitelist_envs_from_env("PLASH_EXPORT");
-  pl_whitelist_env(NULL);
+  if (manage_envs)
+    pl_whitelist_env(NULL);
 
   //
   // chroot, then reconstruct working directory

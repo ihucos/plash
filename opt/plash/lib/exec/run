@@ -47,6 +47,20 @@ utils.plash_exec(
             container_id,
             "-d",
             changesdir,
+
+            # environment variables
+            "-e",
+            "TERM",
+            "-e",
+            "DISPLAY",
+            "-e",
+            "HOME",
+            "-e",
+            "PLASH_DATA",
+            "-E",
+            "PLASH_EXPORT",
+
+            # mountpoints
             "-m",
             "/tmp",
             "-m",
@@ -60,6 +74,7 @@ utils.plash_exec(
             "-m",
             "/dev",
             "-m",
+
             "/proc",
             "--",
         )
