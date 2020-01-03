@@ -18,13 +18,22 @@
   <pre>{{ example|e }}</pre>
 {% endif %}
 
-<h1>Code</h1>
+{% if test_patterns %}
+  <h1>Guarantees</h1>
+  <h3>[setup]</h3>
+  {% for type, line in test_patterns %}
+    {% if type == "code" %}
+      <pre style="display: inline;">{{ line|e }}
+</pre>
+    {% else %}
+      <h3>{{line}}</h3>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+<h1>code</h1>
 <pre>{{ after_doc|e }}</pre>
 
-{% if test_code %}
-  <h1>Test</h1>
-  <pre>{{ test_code|e }}</pre>
-{% endif %}
 
 </body>
 </html>

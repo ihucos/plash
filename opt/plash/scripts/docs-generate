@@ -52,7 +52,14 @@ for subcommand in binfiles:
         with open(testfile) as f:
             test_code = f.read()
     except FileNotFoundError:
-        test_code = None
+        test_code = ''
+
+    test_patterns = []
+    for line in test_code.splitlines():
+        if line.startswith(": "):
+            test_patterns.append(('label', line[2:]))
+        else:
+            test_patterns.append(('code', line))
 
     with open(fname) as f:
         read = f.read()
@@ -93,6 +100,7 @@ for subcommand in binfiles:
         'after_doc': '\n'.join(lines),
         'prog': subcommand,
         'test_code': test_code,
+        'test_patterns': test_patterns,
     })
 
 for item in filedocs:
