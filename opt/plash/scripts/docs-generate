@@ -5,6 +5,7 @@ import os
 import sys
 from os import path
 import jinja2
+from datetime import date
 
 try:
     docs_out = sys.argv[1]
@@ -31,8 +32,10 @@ out = out.decode()
 progs = (i.split(None, 2)[1:] for i in out.splitlines())
 macros = check_output([PLASH_EXECUTABLE, 'help-macros']).decode()
 
+macros_list = [(a.strip(), b.strip()) for (a, b) in [line.split("=") for line in macros.splitlines() if '=' in line]]
+
 with open(path.join(docs_out, 'index.html'), 'w') as f:
-    f.write(render('index.html', progs=progs, macros=macros))
+    f.write(render('index.html', progs=progs, macros=macros_list, generated=date.today()))
 
 filedocs = []
 binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')
