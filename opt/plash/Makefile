@@ -1,7 +1,7 @@
 CC=musl-gcc
 CFLAGS=-static -Ilib/c
 
-INCLUDES_PLASH_H=bin/plash tests/C/pl_setup_user_ns lib/exec/sudo lib/exec/nodepath lib/exec/add-layer lib/exec/map lib/exec/parent lib/exec/runopts  lib/exec/data lib/exec/mkdtemp
+INCLUDES_PLASH_H=bin/plash tests/C/pl_setup_user_ns lib/exec/sudo lib/exec/nodepath lib/exec/add-layer lib/exec/map lib/exec/parent lib/exec/runopts  lib/exec/data lib/exec/mkdtemp lib/exec/chroot
 INCLUDES_PLASH_C=tests/C/pl_parse_subid
 
 all: $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C) lib/c/plash.o

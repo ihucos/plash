@@ -40,30 +40,16 @@
 
 #define OPTSTRING "c:d:m:e:E:i"
 
-char *get_default_root_shell() {
-  struct passwd *pwd = getpwuid(0);
-  if (pwd == NULL) {
-    return "/bin/sh";
-  } else {
-    return pwd->pw_shell;
-  }
-}
-
 int main(int argc, char *argv[]) {
 
   char *plash_data = pl_call("data");
-
-  // don't let getopt print error messages
-  opterr = 0;
-
-  //
-  // save and validate the user arguments
-  //
-  int opt;
   char *changesdir = NULL;
   char *container = NULL;
-  int manage_envs = 0;
-  while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
+
+  int opt;
+
+  // validate args and collect changesdir and container
+  while ((opt = getopt(argc, argv, "c:d:m:i:e:E:")) != -1) {
     switch (opt) {
     case 'c':
       container = optarg;
@@ -71,31 +57,41 @@ int main(int argc, char *argv[]) {
     case 'd':
       changesdir = optarg;
       break;
-    case 'm':
-      if (!(optarg[0] == '/'))
-        pl_fatal("mount path must be absolute");
-    case 'i':
-    case 'e':
-    case 'E':
-      manage_envs = 1;
-      break;
     case ':':
-      pl_usage();
-      break;
     case '?':
       pl_usage();
     }
   }
-  if (container == NULL)
-    pl_usage();
+
+  char *rootfs = "myrootfs";
+
+  // patch argv to remove the -d and replace -c with rootfs
+  char **argvptr = argv;
+  char **newargv = argv;
+  argv++;
+  while (*argv){
+    if ((!strcmp(*argv, "-d")))
+      argv += 2;
+    if ((!strcmp(*argv, "-c"))){
+      argv += 2;
+      //*(newargv++) = "-c"
+      //*(newargv++) = rootfs;
+    }
+    *(newargv++) = *(argv++);
+  }
+  *(newargv++) = NULL;
+
+
+  while(*argvptr)
+    puts(*(argvptr++));
+
+  return 0;
 
   //
   // get "userspace root"
   //
   pl_unshare_user();
   pl_unshare_mount();
-
-  char *origpwd = get_current_dir_name();
 
   //
   // prepare an empty mountpoint
@@ -111,52 +107,10 @@ int main(int argc, char *argv[]) {
   pl_call("mount", container, "mnt",
           changesdir); // changesdir is ignored if it is NULL
 
-  //
-  // mount requested mounts
-  //
-  if (chdir("mnt") == -1)
-    pl_fatal("chdir");
-  optind = 1; // reset the getopt
-  while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
-    switch (opt) {
-    case 'm':
-      pl_bind_mount(optarg, optarg + 1);
-      break;
-    case 'e':
-      pl_whitelist_env(optarg);
-      break;
-    case 'E':
-      pl_whitelist_envs_from_env(optarg);
-      break;
-    }
-  }
 
-  if (manage_envs)
-    pl_whitelist_env(NULL);
-
-  //
-  // chroot, then reconstruct working directory
-  //
-  chroot(".") != -1 || pl_fatal("chroot");
-  pl_chdir(origpwd);
-
-  //
-  // build up the arguments to run
-  //
-  char **run_args = argv + optind;
-  if (*run_args == NULL) {
-    run_args = (char *[]){get_default_root_shell(), "-l", NULL};
-  } else {
-    run_args = argv + optind;
-  }
-
-  //
-  // exec!
-  //
-  execvp(*run_args, run_args);
-  if (errno == ENOENT) {
-    fprintf(stderr, "%s: command not found\n", *run_args);
-    return 127;
-  }
-  pl_fatal("exec");
+  // execvp(*run_args, run_args);
+  //puts(container);
+  puts("===");
+  while(*argv)
+    puts(*(argv++));
 }
