@@ -24,7 +24,7 @@ def cache_container_hint(cache_key_templ):
 @cache_container_hint("docker:{}")
 def from_docker(image):
     "use image from local docker"
-    return utils.plash_call("import-docker", image)
+    utils.plash_call("import-docker", image)
 
 
 @register_macro()
