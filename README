@@ -78,7 +78,7 @@ $ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
 # Documentation
 ###
 
-Reference documentation and tutorial: http://plash.io/
+Reference documentation: http://plash.io/
 
 Examples:
 - https://github.com/ihucos/plash-travis-example         Run plash in travis CI

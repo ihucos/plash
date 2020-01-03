@@ -6,7 +6,7 @@
 //
 // This subcommand is very low-level, usually you would use `plash build`.
 //
-// Examples:
+// Example:
 //
 // Create a container from a complete root file system:
 // $ plash add-layer 0 /tmp/rootfs

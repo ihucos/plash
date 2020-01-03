@@ -5,6 +5,7 @@ import os
 import sys
 from os import path
 import jinja2
+from datetime import date
 
 try:
     docs_out = sys.argv[1]
@@ -31,8 +32,10 @@ out = out.decode()
 progs = (i.split(None, 2)[1:] for i in out.splitlines())
 macros = check_output([PLASH_EXECUTABLE, 'help-macros']).decode()
 
+macros_list = [(a.strip(), b.strip()) for (a, b) in [line.split("=") for line in macros.splitlines() if '=' in line]]
+
 with open(path.join(docs_out, 'index.html'), 'w') as f:
-    f.write(render('index.html', progs=progs, macros=macros))
+    f.write(render('index.html', progs=progs, macros=macros_list, generated=date.today()))
 
 filedocs = []
 binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')
@@ -40,9 +43,23 @@ binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')
 for subcommand in binfiles:
 
     fname = path.join(EXEC_DIR, subcommand)
+    testfile = path.join(os.path.join(TESTS_DIR, "command", subcommand))
 
     if os.access(fname + ".c", os.F_OK):
         fname += ".c"
+
+    try:
+        with open(testfile) as f:
+            test_code = f.read()
+    except FileNotFoundError:
+        test_code = ''
+
+    test_patterns = []
+    for line in test_code.splitlines():
+        if line.startswith(": "):
+            test_patterns.append(('label', line[2:]))
+        else:
+            test_patterns.append(('code', line))
 
     with open(fname) as f:
         read = f.read()
@@ -59,12 +76,31 @@ for subcommand in binfiles:
         if not line.startswith('#') and not line.startswith("//"):
             break
         doc.append(line)
+
+    #remove comment markers
+    doc = [i.lstrip('/#')[1:] for i in doc]
+    while not doc[0]:
+        doc.pop(0)
+
+    usage = doc.pop(0)[len("usage: "):]
+
+    doc = '\n'.join(doc)
+
+    try:
+        doc, example = doc.split("Example:")
+    except ValueError:
+        example = ''
+
     filedocs.append({
         'code': read,
+        'usage': usage,
+        'example': example.strip(' \n'),
         'before_doc': '\n'.join(before_doc),
-        'doc': '\n'.join(doc),
+        'doc': doc.strip(" \n"),
         'after_doc': '\n'.join(lines),
-        'prog': subcommand
+        'prog': subcommand,
+        'test_code': test_code,
+        'test_patterns': test_patterns,
     })
 
 for item in filedocs:

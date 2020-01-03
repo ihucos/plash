@@ -1,76 +1,38 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>plash's command reference</title>
-<style>
-body {
-  background-color: #fdf6e3;
-  padding: 5em;
-}
-pre, body, a {
-  font-family: 'Inconsolata', monospace;
-  margin: 0px;
-  font-size: 1.1rem;
-  margin: 0px;
-}
-
-.faded {
-  color: #93a1a1;
-}
-
-a {
-  color: black;
-  text-decoration: none;
-}
-a:link {
-  color: black;
-  text-decoration: none;
-}
-a:visited {
-  color: black;
-  text-decoration: none;
-}
-a:hover {
-  color: black;
-  text-decoration: none;
-}
-a:active {
-  color: black;
-  text-decoration: none;
-}
-
-</style>
+<title>plash reference for {{prog}}</title>
 </head>
 <body>
 
 <a href="https://github.com/ihucos/plash"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
-<a href="/">
-<pre class="real">
-  ▖     
-▃▀▄▄▖▄▄▖
- ▀▖     
-        
+<h1>Usage</h1>
+<pre>{{ usage|e }}</pre>
+
+<h1>Description</h1>
+<pre>{{ doc|e }}</pre>
+
+{% if example %}
+  <h1>Example</h1>
+  <pre>{{ example|e }}</pre>
+{% endif %}
+
+{% if test_patterns %}
+  <h1>Tested behaviour</h1>
+  <h3>Preface</h3>
+  {% for type, line in test_patterns %}
+    {% if type == "code" %}
+      <pre style="display: inline;">{{ line|e }}
 </pre>
-</a>
+    {% else %}
+      <h3>{{line}}</h3>
+    {% endif %}
+  {% endfor %}
+{% endif %}
 
-<pre>
-
-
-</pre>
-
-<pre class="faded">
-{{ before_doc|e }}
-</pre>
-
-<pre class="real">
-{{ doc|e }}
-</pre>
-
-<pre class="faded">
-
-{{ after_doc|e }}
-</pre>
+<h1>Source Code</h1>
+<pre>{{ after_doc|e }}</pre>
 
 
 </body>

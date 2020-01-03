@@ -4,7 +4,7 @@
 # Builds a container. Any command line options is evaluated as macro with
 # `plash eval`. Use `plash help-macros` to list all available macros.
 #
-# Examples:
+# Example:
 #
 # $ plash build -f ubuntu --run 'touch a'
 # --> touch a

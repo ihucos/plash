@@ -59,4 +59,4 @@ for prog in sorted(progs):
 
     assert first_sentence
     print(("plash " + prog).ljust(max_prog_lenght), first_sentence)
-print(("plash " + "-*").ljust(max_prog_lenght), "Fallback to `plash run`")
+print(("plash " + "-*").ljust(max_prog_lenght), "Fallback to `plash b run`")

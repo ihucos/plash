@@ -1,17 +1,15 @@
 #!/bin/sh
 set -xeu
 
-: create an empty file - changedir is used for runopts
-plash run 1 touch /a
-
-: run a simple program
+: run a program and capture stdout
 out=$(plash run 1 echo hellow)
 test "$out" = hellow
 
-: test auto build
+: container is writeable
+plash run 1 touch /a
+
+: can be used with the `b` command
 plash b run -f 1 --invalidate-layer -- ls
 
-: test that no arguments mean a shell is started
+: no command arguments spawn a shell
 test "$(echo 'echo iamshell' | plash run 1)" = iamshell
-
-: test variables can be specified as arguments

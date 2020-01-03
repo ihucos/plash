@@ -1,4 +1,3 @@
-//!/usr/bin/env python3
 // usage: plash data [CMD1 [CMD2 ...]]
 //
 // Prints the location of the build data.
