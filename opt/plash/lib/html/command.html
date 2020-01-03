@@ -1,26 +1,30 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>plash's command reference</title>
+<title>plash reference for {{prog}}</title>
 </head>
 <body>
 
 <a href="https://github.com/ihucos/plash"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
-<pre>
-{{ before_doc|e }}
-</pre>
+<h1>Usage</h1>
+<pre>{{ usage|e }}</pre>
 
-<b>
-<pre>
-{{ doc|e }}
-</pre>
-</b>
+<h1>Description</h1>
+<pre>{{ doc|e }}</pre>
 
-<pre>
-{{ after_doc|e }}
-</pre>
+{% if example %}
+  <h1>Example</h1>
+  <pre>{{ example|e }}</pre>
+{% endif %}
 
+<h1>Code</h1>
+<pre>{{ after_doc|e }}</pre>
+
+{% if test_code %}
+  <h1>Test</h1>
+  <pre>{{ test_code|e }}</pre>
+{% endif %}
 
 </body>
 </html>

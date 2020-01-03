@@ -4,7 +4,7 @@
 # Build then run utility. Builds the given build commands and calls the given
 # plash command with the builded container.
 #
-# Example
+# Example:
 # $ plash b run -A
 # $ plash b run --eval-file ./plashfile -- ls
 

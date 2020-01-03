@@ -43,9 +43,16 @@ binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')
 for subcommand in binfiles:
 
     fname = path.join(EXEC_DIR, subcommand)
+    testfile = path.join(os.path.join(TESTS_DIR, "command", subcommand))
 
     if os.access(fname + ".c", os.F_OK):
         fname += ".c"
+
+    try:
+        with open(testfile) as f:
+            test_code = f.read()
+    except FileNotFoundError:
+        test_code = None
 
     with open(fname) as f:
         read = f.read()
@@ -62,12 +69,30 @@ for subcommand in binfiles:
         if not line.startswith('#') and not line.startswith("//"):
             break
         doc.append(line)
+
+    #remove comment markers
+    doc = [i.lstrip('/#')[1:] for i in doc]
+    while not doc[0]:
+        doc.pop(0)
+
+    usage = doc.pop(0)[len("usage: "):]
+
+    doc = '\n'.join(doc)
+
+    try:
+        doc, example = doc.split("Example:")
+    except ValueError:
+        example = ''
+
     filedocs.append({
         'code': read,
+        'usage': usage,
+        'example': example.strip(' \n'),
         'before_doc': '\n'.join(before_doc),
-        'doc': '\n'.join(doc),
+        'doc': doc.strip(" \n"),
         'after_doc': '\n'.join(lines),
-        'prog': subcommand
+        'prog': subcommand,
+        'test_code': test_code,
     })
 
 for item in filedocs:

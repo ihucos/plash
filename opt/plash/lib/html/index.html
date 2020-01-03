@@ -14,7 +14,11 @@
 {% for prog, short in progs %}
 <tr bgcolor={{loop.cycle('white', 'lightpink')}}>
   <td>
-    <a href="{{ prog|e}}.html">{{ prog|e }}</a>
+    {% if loop.last %}
+      {{ prog|e }}
+    {% else %}
+      <a href="{{ prog|e}}.html">{{ prog|e }}</a>
+    {% endif %}
   </td>
   <td>
     {{ short|e }}
@@ -55,14 +59,13 @@ plash --from-docker busybox
 <h3>Manage your dotfiles</h3>
 <pre>plash -A py3-pip --layer --pip3 dotfiles -- dotfiles --sync</pre>
 
-
-<h2>Tutorial</h2>
-
-<h3>No root required</h3>
+<h3>User namespaces</h3>
 <pre>$ whoami
-myuser</pre>
+myuser
+$ plash sudo whoami
+root</pre>
 
-<h3>Fetch an alpine container from http://images.linuxcontainers.org/</h3>
+<h3>Fetch a  container image</h3>
 <pre>$ plash build --from alpine
 plash: fetching 100%
 plash: extracting...
@@ -73,105 +76,45 @@ plash: ignoring dev file: ./dev/null (Operation not permitted)
 <pre>$ plash run 2 printf 'hello from container\n'
 hello from container</pre>
 
-<h3>The host filesystem is mapped to the container</h3>
+<h3>Automatic filesystem mapping</h3>
 <pre>$ mkdir ~/mydir
 $ cd ~/mydir
 $ plash run 2 pwd
 /home/myuser/mydir</pre>
 
-<h3>Build a layer on top a container</h3>
+<h3>Add layer to existing container</h3>
 <pre>$ plash build --from 2 --run 'touch /myfile'
 + touch /myfile
 --:
-3</pre>
-
-<h3>Second build is cached</h3>
-<pre>$ plash build --from 2 --run 'touch /myfile'
 3</pre>
 
 <h3>Build and run in one command</h3>
 <pre>$ plash b run --from alpine --run 'touch /myfile' -- ls /myfile
 /myfile</pre>
 
-<h3>More verbose invocation</h3>
+<h3>Shorter invocation</h3>
 <pre>$ plash -Ax 'touch /myfile' -- ls /myfile
-/myfile
-$
-$ ### explicit layering (`touch /myfile` is already cached)
-$ plash -Ax 'touch /myfile' -lx 'touch /otherfile' -- ls /otherfile
-+ touch /otherfile
---:
-/otherfile</pre>
+/myfile</pre>
 
-<h3>Execute a command on the container's rootfs from the host</h3>
+<h3>Explicit layering</h3>
+<pre>$ plash -Ax 'touch /myfile' -lx 'touch /otherfile' -- ls /otherfile </pre>
+
+<h3>Access container root filesystem</h3>
 <pre>$ plash b with-mount -A -- ls
 bin  dev  etc  home  lib  media  mnt  proc  root  run  sbin  srv  sys  tmp  usr  var</pre>
 
-<h3>Use a docker image from a local docker instance</h3>
-<pre>$ plash --from-docker busybox
-Using default tag: latest
-latest: Pulling from library/busybox
-Digest: sha256:cb63aa0641a885f54de20f61d152187419e8f6b159ed11a251a09d115fdff9bd
-Status: Image is up to date for busybox:latest
-/home/myuser # exit</pre>
-
-<h3>Export a plash container to docker</h3>
-<pre>$ ihucos@macbook:~/plash$ plash export-tar 2 | docker import -
-sha256:2c3550e60fef9db8b154a45c04253506e7a9d585af8b738fbe39350d58cbd6ad</pre>
-
-<h3>Use an image published via github</h3>
-<pre>$ plash --from-github ihucos/python
-+ apk update
-fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/APKINDEX.tar.gz
-fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/community/x86_64/APKINDEX.tar.gz
-v3.8.1-5-g769378a189 [http://dl-cdn.alpinelinux.org/alpine/v3.8/main]
-v3.8.1-1-g91d49cb572 [http://dl-cdn.alpinelinux.org/alpine/v3.8/community]
-OK: 9540 distinct packages available
-+ apk add curl git openssh-client py3-pip python3 python py-pip
-(1/24) Installing ca-certificates (20171114-r3)
-(2/24) Installing nghttp2-libs (1.32.0-r0)
-(3/24) Installing libssh2 (1.8.0-r3)
-...
-...
-...
-(23/24) Installing py3-setuptools (39.1.0-r0)
-(24/24) Installing py2-pip (10.0.1-r0)
-Executing busybox-1.28.4-r1.trigger
-Executing ca-certificates-20171114-r3.trigger
-OK: 140 MiB in 42 packages
---:
-myhost:/home/myuser/# python3 --version
-Python 3.6.6
-myhost:/home/myuser/# exit</pre>
-
-<h3>Remove the image (actually the last layer of it)</h3>
+<h3>Remove last layer of an image</h3>
 <pre>$ plash b rm --from-github ihucos/python</pre>
 
 <h3>Create an executable build file</h3>
-<pre>$ ed
-a
+<pre>$ cat /tmp/yapf
 #!/usr/bin/env plash-exec
 --from-github ihucos/python
 --pip3 yapf
 --entrypoint /usr/bin/yapf
-.
-w /tmp/yapf
-93
-q
-$ chmod +x /tmp/yapf
-$ /tmp/yapf
-+ pip3 install yapf
-Collecting yapf
-  Downloading https://files.pythonhosted.org/packages/32/12/9f6...08a/yapf-0.24.0-py2.py3-none-any.whl (168kB)
-    100% |████████████████████████████████| 174kB 1.6MB/s 
-Installing collected packages: yapf
-Successfully installed yapf-0.24.0
---:
-yapf 0.24.0
-$ /tmp/yapf # second call is already cached
-yapf 0.24.0</pre>
+$ /tmp/yapf myproject</pre>
 
-<h3>Check the output of an sample of the build configuration management language</h3>
+<h3>Macros expand to shell code</h3>
 <pre>$ plash eval --from ubuntu --apt python3-pip --layer --pip3 yapf -lx 'touch /foo'
 ### plash hint: image=9
 apt-get update

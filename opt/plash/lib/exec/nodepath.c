@@ -2,7 +2,7 @@
 // Prints the path to a given container. The --allow-root-container option
 // allows the root container ("0") to be specified as container.
 //
-// Examples:
+// Example:
 // $ plash nodepath 19
 // /home/ihucos/.plashdata/layer/0/2/19
 // $ plash nodepath 19 | xargs tree

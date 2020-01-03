@@ -9,7 +9,7 @@
 # carefull to not change files, since this would change the plashdata build
 # data and affect other containers.
 #
-# Examples:
+# Example:
 # $ mkdir /tmp/mydir
 # $ plash b shallow-copy --from ubuntu -- /tmp/mydir/ubuntu
 # $ plash b shallow-copy --from ubuntu --apt git -- /tmp/mydir/ubuntu-with-git

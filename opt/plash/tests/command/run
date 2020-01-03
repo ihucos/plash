@@ -13,5 +13,3 @@ plash b run -f 1 --invalidate-layer -- ls
 
 : test that no arguments mean a shell is started
 test "$(echo 'echo iamshell' | plash run 1)" = iamshell
-
-: test variables can be specified as arguments
