@@ -54,6 +54,18 @@ exit = utils.plash_call(
             container,
             "-d",
             changesdir,
+
+            # environment variables
+            "-e",
+            "TERM",
+            "-e",
+            "DISPLAY",
+            "-e",
+            "HOME",
+            "-e",
+            "PLASH_DATA",
+
+            # mountpoints
             "-m",
             "/home",
             "-m",
@@ -65,6 +77,7 @@ exit = utils.plash_call(
             "-m",
             "/dev",
             "-m",
+
             "/proc",
             "--",
         ]

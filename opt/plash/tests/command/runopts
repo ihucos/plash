@@ -4,12 +4,16 @@ set -eux
 : executing program does not fail
 plash runopts -c 1 true
 
-: write fails if no changedir is specified
+: writing file fails if no changedir is specified
 ! plash runopts -c 1 touch /da
 
-: can write if changedir specified
+: writing file succeeds if changedir is specified
 tmpdir=$(mktemp -d)
 plash runopts -c 1 -d "$tmpdir" touch /da true
+
+#
+# mount handling
+#
 
 : does not fail if specified mountpoint does not exists
 plash runopts -c 1 -m /doesnotexist -- true
@@ -28,6 +32,36 @@ plash runopts -c $new ls
 after=$(cat /proc/mounts | grep "index/$new" | wc -l)
 test $before = $after
 
+#
+# environemnt handling
+#
+: by default all envs exported
+test "$(env | cut -d= -f1)" = "$(plash runopts -c 1 env | cut -d= -f1)"
+
+: no envs exported if -i specified
+out="$(plash runopts -i -c 1 printenv)"
+test "" = "$out"
+
+: only export whitelisted envs
+test "A=1
+B=2" = "$(A=1 B=2 plash runopts -e A -e B -c 1 printenv)"
+
+: only export whitelisted envs by another env
+test "A=a" = "$(EXPORT=A A=a plash runopts -c 1 -E EXPORT printenv)"
+: only export multiple whitelisted envs by another env
+test "A=a
+B=b" = "$(EXPORT=A:B A=a B=b plash runopts -c 1 -E EXPORT printenv)"
+
+: not existing env to export does succeed
+plash runopts -c 1 -e daENV true
+
+: not existing env to export envs succeeds
+plash runopts -c 1 -E DAENV true
+
+#
+# Exit codes
+#
+
 : exit status is returned back
 set +e
 plash runopts -c 1 sh -c 'exit 123'
@@ -35,6 +69,16 @@ exit=$?
 set -e
 test $exit = 123
 
+: exit with 127 when the command is not found
+set +e
+out=$(plash runopts -c 1 mycmdnotfound 2>&1)
+exit=$?
+set -e
+test "$exit" = 127
+
+#
+# Misc
+#
 : error message is issued if the specified mount seems relative
 out=$(plash runopts -c 1 -m relativepath 2>&1; true)
 [[ "$out" = *"mount path must be absolute"* ]]
@@ -44,29 +88,6 @@ cd /tmp
 out=$(plash runopts -c 1 pwd)
 test "$out" = $(pwd)
 cd -
-
-: environment variable is not just imported into container
-out=$(MYENV=123 plash runopts -c 1 sh -c 'echo $MYENV')
-test "$out" = ""
-
-: environment variable is exposrted if specified in PLASH_EXPORT
-out=$(PLASH_EXPORT=MYENV MYENV=123 V=a plash runopts -c 1 sh -c 'echo $MYENV$V')
-test $out = "123"
-
-: multiple environment variables in PLASH_EXPORT are all exported
-out=$(PLASH_EXPORT='MYENV:V' V=a MYENV=123 plash runopts -c 1 sh -c 'echo $MYENV$V')
-test $out = "123a"
-
-: exit with 127 when the command is not found
-set +e
-out=$(plash runopts -c 1 mycmdnotfound 2>&1)
-exit=$?
-set -e
-test "$exit" = 127
-
-: environment variables can be passed as command argument
-out=$(plash run 1 MYV=101 printenv MYV)
-test "$out" = 101
 
 : can run a layered container
 new=$(plash create 1 true)
@@ -79,5 +100,5 @@ test "$(echo 'echo iamshell' | plash runopts -c 1)" = iamshell
 : specific error message is printed if no command specified
 [[ "$(plash runopts -c 1 notexist 2>&1 1>/dev/null)" = *"notexist: command not found"* ]] 
 
-: command that used like a environment variable is executed
+: command that looks like an environment variable is executed nevertheless
 [[ "$(plash runopts -c 1 VAR=1 2>&1 1>/dev/null)" = *"VAR=1: command not found"* ]] 
