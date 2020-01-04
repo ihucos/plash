@@ -16,3 +16,10 @@ changesdir=$tmp/'!@#$%^&*()'
 mkdir $tmp/mp
 mkdir $changesdir
 (! plash mount 1 /tmp/mp "$changesdir" )
+
+: no mount namespaces pollution 
+tmpdir="$(mktemp -d)"
+before=$(cat /proc/mounts | grep "/index/1" | wc -l)
+plash mount 1 "$tmpdir"
+after=$(cat /proc/mounts | grep "/index/1" | wc -l)
+test $before = $after
