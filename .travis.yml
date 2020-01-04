@@ -2,7 +2,7 @@ language: generic
 
 install:
 - sudo apt-get install uidmap unionfs-fuse
-- curl -lF https://github.com/ihucos/build-fuse-overlayfs/releases/download/03-04-2019/fuse-overlayfs | sudo tee > /usr/local/bin/fuse-overlayfs
+- curl -lf https://github.com/ihucos/build-fuse-overlayfs/releases/download/03-04-2019/fuse-overlayfs | sudo tee > /usr/local/bin/fuse-overlayfs
 - chmod +x /usr/local/bin/fuse-overlayfs
 
 script:
