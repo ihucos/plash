@@ -1,4 +1,5 @@
 #!/bin/sh
 set -eux
 
+: import of bad url fails
 (! plash import-url http://example.com/deosnotexists_and_never_will_789349)

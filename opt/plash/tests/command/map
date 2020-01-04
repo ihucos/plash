@@ -1,38 +1,38 @@
 #!/bin/bash
 set -xeu
 
-: create container 1, 2
-plash build -f 1 --invalidate-layer
+# create a container 2
+plash create 1 true
 
-: simple cache set and get
+: setting key succeeds
 plash map mykey 1
+
+: accessing key returns setted key
 test $(plash map mykey) == 1
 
-: overwrite already set cache
-plash map mykey2 1
-plash map mykey2 2
-test $(plash map mykey2) == 2
+: overwriting setted key succeeds
+plash map mykey 2
+test $(plash map mykey) == 2
 
-: attemptint to cache nonexistent container
+: set cache for not existing container fails
 (! plash map thisismykey 9999999999)
 
-: remove key
+: remove cache key succeeds
 plash map rkey 1
 plash map rkey ''
+
+: accessing removed cache key return empty string
 out=$(plash map rkey)
 test "$out" = ""
 
-: remove a key two times
+: accessing  cache key that never existed returns empty string
+out=$(plash map mykeydoesnotestits)
+test "$out" = ""
+
+: removing removed key succeeds
 plash map mkey 1
 plash map mkey ''
 plash map mkey ''
 
-: no '/' in key
+: setting key with a `/` fails
 (! plash map hi/da 1)
-
-: exit code 1 if called with no arguments
-set +e
-plash map
-e=$?
-set -e
-[[ $e = 1 ]]
