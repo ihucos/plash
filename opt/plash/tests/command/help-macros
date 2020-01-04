@@ -1,1 +1,6 @@
-exec plash help-macros
+
+: output contain some macros
+
+plash help-macros | grep run
+plash help-macros | grep layer
+plash help-macros | grep run-stdin

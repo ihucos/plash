@@ -3,9 +3,14 @@ set -xeu
 
 cont=$(plash import-lxc alpine:edge)
 plash run $cont ls
-(! plash import-lxc unknownos)
 
-: dry import some images
+: dry import of unknown image fails
+(! plash import-lxc unknownos --dry)
+
+: dry import returns https url
+plash import-lxc alpine --dry | grep '^https://'
+
+: Dry import of some images succeeds
 plash import-lxc alpine --dry
 plash import-lxc archlinux --dry
 plash import-lxc centos --dry
@@ -21,9 +26,9 @@ plash import-lxc sabayon --dry
 plash import-lxc ubuntu --dry
 plash import-lxc ubuntu-core --dry
 
-: dry import deprecated image
+: dry import deprecated image succeeds
 plash import-lxc trusty --dry
 
-: dry import with version
+: dry import with version prefix succeeds
 plash import-lxc ubuntu:cosmic --dry
 plash import-lxc archlinux:current --dry

@@ -4,18 +4,18 @@ set -ex
 tar=$(mktemp)
 plash b export-tar -f 1 --run 'touch /myperson' -- $tar
 
-: import simple file
+: importing tar file succeeds
 new=$(plash import-tar $tar)
 plash with-mount $new ls ./myperson
 
-: import file from stdin
+: can import file from stdin
 cat $tar | plash import-tar
 
-: invalid tar from stdin
-(! echo 'invalid' | plash import-tar)
-
-: non existing file
+: importing invalid or missing file fails
 (! plash import-tar /doesnotexistssssh_really_4423487)
 
 badtar=$(mktemp)
 (! plash import-tar $badtar)
+
+: importing invalid file from stdin fails
+(! echo 'invalid' | plash import-tar)

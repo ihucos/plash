@@ -11,7 +11,7 @@ function has_not_tmpdir {
   ! has_tmpdir
 }  
 
-: test how mkdtemp and clean interact
+: `plash clean` cleans tmpdir only if calling proccess died
 has_not_tmpdir
 sh -c "plash mkdtemp" # from a child process
 has_tmpdir
@@ -22,12 +22,12 @@ has_tmpdir
 plash clean
 has_tmpdir
 
-: create tmp dir and check its properites
+: created tmpdir is in PLASH_DATA
 tmpdir="$(plash mkdtemp)"
-[[ "$tmpdir" = *"$$"* ]]
 [[ "$tmpdir" = "$PLASH_DATA"* ]]
 
-: write a file and a directory inside a tmp dir
+: created tmpdir is writable
 tmpdir="$(plash mkdtemp)"
 touch "$tmpdir/file"
 mkdir "$tmpdir/dir"
+

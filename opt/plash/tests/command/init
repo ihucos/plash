@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 
-: check that plash init populates dir
+: plash init populates population the PLASH_DATA
 export PLASH_DATA=$(mktemp -d)
 plash init
 out=$(ls -A $PLASH_DATA)
@@ -12,14 +12,21 @@ export PLASH_DATA=$(mktemp -d)
 plash init
 plash init
 
-: plash init creates dir
+: plash init creates the directory in PLASH_DATA
 tmp=$(mktemp -d)
 export PLASH_DATA=$tmp/myplashdata
 plash init
-out=$(ls -A $tmp/myplashdata)
+out=$(ls -A $PLASH_DATA)
 test -n "$out"
 
-: union taste can be changed
+: plash init does create intermediate directories in PLASH_DATA
+tmp=$(mktemp -d)
+export PLASH_DATA=$tmp/da/di/dum/plashdata
+plash init
+out=$(ls -A $PLASH_DATA)
+test -n "$out"
+
+: PLASH_INIT_UNION_TASTE specifies the union taste
 tmp=$(mktemp -d)
 export PLASH_DATA=$tmp/myplashdata
 PLASH_INIT_UNION_TASTE=xxx plash init

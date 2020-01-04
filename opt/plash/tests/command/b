@@ -2,16 +2,19 @@
 
 set -eux
 
-: simple invocation
+: b builds flag arguments and passes it to command
 test "$(plash b nodepath -f 1)" = "$(plash nodepath 1)"
 
-: missing build arguments
+: no build build flags fail
 [[ "$(plash b nodepath 1)" = *"no build arguments"*]]
+! plash b nodepath 1
 [[ "$(plash b nodepath 1 2 3 4)" = *"no build arguments"*]]
+! plash b nodepath 1 2 3 4
 
-: missing parameters
-[[ "$(plash b nodepath)" = *"usage:"*]]
+: no arguments  fail
+[[ "$(plash b nodepath)" = "usage: plash b"*]]
+! plash b nodepath
 
-: build arguments order
+: build arguments can be in the beginning or end
 plash b with-mount true -A
 plash b with-mount -A -- true

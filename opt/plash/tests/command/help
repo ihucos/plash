@@ -1,24 +1,26 @@
 #!/bin/bash
 set -xeu
 
-: calling it returns success
+: all succeeds
 plash help
 
-:  a first doc sentence is always provided
+:  all source provides a single sentence documentation
 (! plash help | grep '<empty>')
 
-: calling it lists some commands
+: output includes some commands
 [[ $(plash help) = *"plash run"* ]]
 [[ $(plash help) = *"plash sudo"* ]]
 [[ $(plash help) = *"plash with-mount"* ]]
 
-: test help message for one program
+: displays help for one specific python program
 [[ $(plash help help) = *"usage: plash help"* ]]
 
-: test help message for one program that is writte in C
+: displays help for one specific C program
 [[ $(plash help sudo) = *"usage: plash sudo"* ]]
 
-: call for each command
+: call for each available command succeeds
 plash help | head -n -1 | cut -d' ' -f2 | xargs -L1 plash help
 
+: call with no existing command fails
+(! $(plash help xxxx 2>&1))
 [[ "$(plash help xxxx 2>&1)" = *"no such command: xxx"* ]]

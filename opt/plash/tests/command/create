@@ -1,12 +1,56 @@
-#!/bin/sh
+#!/bin/bash
 set -eux
 
-: create container with a new file
+: creating a new container succeedes
+plash create 1 true
+
+: filesystem changes are persisted
 new=$(plash create 1 touch /myfileah)
 plash with-mount $new ls ./myfileah
 
-: create a container via default shell that is with no args
+: shell is started when no build arguments specified
 echo 'echo hi' | plash create 1
 
-# plash create tschuuh tschuuh train
-plash create $(plash create $(plash create 1 true) true) true
+: multiple containers can be created on top of each other
+plash create $(plash create $(plash create $(plash create 1 true) true) true) true
+
+: hierarchical creations have a parent relationship
+layer1=$(plash create 1 touch /a)
+layer2=$(plash create $layer1 touch /b)
+test $(plash parent $layer2) = $layer1
+
+: hierarchical containers are hierarchically represented in the filesystem
+np1=$(plash nodepath $layer1)
+np2=$(plash nodepath $layer2)
+test $(basename $np1) = $(basename $(dirname $np2))
+
+: working directory when building is current working directory from caller
+cd /home
+plash build -f 1 --invalidate-layer -x 'test $(pwd) == /home'
+cd -
+
+: home is mounted when building
+cont=$(plash build -f 1 -x 'ls -1 /home > /tmp/out')
+np=$(plash nodepath $cont)
+cmp $np/_data/root/tmp/out <(ls -1 /home)
+
+: tmp is not mounted when building
+mktemp /tmp/XXXXXXXXXXX
+cont=$(plash build -f 1 -x 'test -z $(ls /tmp)')
+
+: any build error returns exit code 1
+set +e
+plash create exit 42
+test 1 -eq $? || exit 1
+set -e
+
+: build error does not return any container
+stdout=$(mktemp)
+(! plash create 1 false > $stdout)
+(! test -s $stdout) # its empty
+
+: PLASH_EXPORT is ignored
+test "$(PLASH_EXPORT=A A=a plash create 1 sh -c 'echo MARKER$A' 2>&1 | grep MARKER | grep -v +)" = 'MARKER'
+
+: HOME is exported
+test "$(HOME=a plash create 1 sh -c 'echo MARKER$HOME' --invalidate-layer 2>&1 | grep MARKER | grep -v +)" = MARKERa
