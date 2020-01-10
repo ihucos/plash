@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eux
+
 tmp=$(mktemp -d)
 plash mount 1 $tmp
 grep  $tmp' '  /proc/mounts >/dev/null || {
