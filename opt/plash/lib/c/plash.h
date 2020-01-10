@@ -25,3 +25,5 @@ void pl_bind_mount(const char *src, const char *dst);
 void pl_chdir(const char *newdir);
 
 void pl_chroot(const char *rootfs);
+
+void pl_exec_add(char *arg);

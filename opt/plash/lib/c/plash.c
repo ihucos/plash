@@ -385,3 +385,22 @@ void pl_unshare_mount() {
 
   pl_setup_mount_ns();
 }
+
+
+
+void pl_exec_add(char* cmd){
+
+  static char **pl_exec_array = NULL;
+  static size_t pl_exec_size = 0;
+
+  pl_exec_array = realloc(pl_exec_array, (pl_exec_size + 1) * sizeof(char*));
+  if (pl_exec_array == NULL)
+    pl_fatal("realloc");
+  pl_exec_array[pl_exec_size++] = cmd;
+
+  if (cmd == NULL){
+    execvp(pl_exec_array[0], pl_exec_array);
+    pl_fatal("execvp");
+  }
+
+}
