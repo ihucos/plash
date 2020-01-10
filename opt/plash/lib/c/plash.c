@@ -387,9 +387,7 @@ void pl_unshare_mount() {
 }
 
 
-
 void pl_exec_add(char* cmd){
-
   static char **pl_exec_array = NULL;
   static size_t pl_exec_size = 0;
 
