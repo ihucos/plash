@@ -25,8 +25,7 @@ int main(int argc, char *argv[]) {
   char *container_id = argv[1];
   char *changesdir = pl_call("mkdtemp");
 
-  pl_exec_add("plash");
-  pl_exec_add("runopts");
+  pl_exec_add(pl_path("runopts"));
   pl_exec_add("-c");
   pl_exec_add(container_id);
   pl_exec_add("-d");
