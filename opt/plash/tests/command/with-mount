@@ -1,33 +1,26 @@
 #!/bin/bash
 set -xeu
 
-: plash with-mount does not crash
-plash with-mount 1 printf hi
+: arguments are executed 
+test hi = "$(plash with-mount 1 printf hi)"
 
-: list root dir
+: current working directory looks like root file system
 out=$(plash with-mount 1 ls | xargs)
 [[ " $out " == *' home '* ]]
 [[ " $out " == *' usr '* ]]
 [[ " $out " == *' bin '* ]]
 
-: check bad exit gets propagated
-(! plash with-mount 1 sh -c 'exit 7')
+: bad command fails
+(! plash with-mount 1 false) 
 
-: mount gets unmounted
-before=$(cat /proc/mounts | grep "/index/1" | wc -l)
-plash with-mount 1 true
-(! plash with-mount 1 false)
-after=$(cat /proc/mounts | grep "/index/1" | wc -l)
-test $before = $after
-
-: tar the container filesystem to /dev/null
+: able to tar current working directory
 plash with-mount 1 tar -cf - . > /dev/null
 
-: unknown command
+: user friendly message when command not found
 set +e
 out=$(plash with-mount 1 cmdnotfound 2>&1)
 set -e
 [[ "$out" == *"cmdnotfound: command not found"* ]]
 
-: test no cmd leads to shell
+: omitted command leads to shell
 test "$(echo "echo itshell" | plash with-mount 1)" = itshell
