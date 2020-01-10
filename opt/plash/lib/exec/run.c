@@ -19,9 +19,8 @@
 
 int main(int argc, char *argv[]) {
 
-  if (argc < 2) {
+  if (argc < 2)
     pl_usage();
-  }
 
   char *container_id = argv[1];
   char *changesdir = pl_call("mkdtemp");
