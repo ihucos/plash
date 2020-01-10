@@ -13,8 +13,6 @@
 // - /proc
 //
 // If you want more control about how the container is run, use `plash runopts`
-//
-// Parameters may be interpreted as build instruction.
 
 #include <stddef.h>
 #include <plash.h>
