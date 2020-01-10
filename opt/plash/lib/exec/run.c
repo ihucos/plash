@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   pl_exec_add("-d");
   pl_exec_add(changesdir);
   
-  // environment variable);
+  // environment variables
   pl_exec_add("-e");
   pl_exec_add("TERM");
   pl_exec_add("-e");
@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
   pl_exec_add("-m");
   pl_exec_add("/proc");
 
+  // command-starts-now  marker
   pl_exec_add("--");
 
   if (argv[2]){ // if any command specified
