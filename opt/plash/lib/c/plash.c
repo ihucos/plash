@@ -388,16 +388,16 @@ void pl_unshare_mount() {
 
 
 void pl_exec_add(char* cmd){
-  static char **pl_exec_array = NULL;
-  static size_t pl_exec_size = 0;
+  static char **array = NULL;
+  static size_t size = 0;
 
-  pl_exec_array = realloc(pl_exec_array, (pl_exec_size + 1) * sizeof(char*));
-  if (pl_exec_array == NULL)
+  array = realloc(array, (size + 1) * sizeof(char*));
+  if (array == NULL)
     pl_fatal("realloc");
-  pl_exec_array[pl_exec_size++] = cmd;
+  array[size++] = cmd;
 
   if (cmd == NULL){
-    execvp(pl_exec_array[0], pl_exec_array);
+    execvp(array[0], array);
     pl_fatal("execvp");
   }
 
