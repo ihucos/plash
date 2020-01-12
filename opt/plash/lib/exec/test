@@ -17,6 +17,8 @@ for script in $testfiles ; do
   # setup test env
   tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
   export PLASH_DATA=$tmp
+  PLASH_INIT_UNION_TASTE="$(plash data cat config/union_taste)"
+  export PLASH_INIT_UNION_TASTE
   plash init
   plash data touch config/testmode
   plash import-tar $PROJECT_DIR/data/busybox.tar > /dev/null
