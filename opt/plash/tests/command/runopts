@@ -64,7 +64,7 @@ plash runopts -c 1 -E DAENV true
 
 : exit status is returned back
 set +e
-plash runopts -c 1 sh -c 'exit 123'
+plash runopts -c 1 -- sh -c 'exit 123'
 exit=$?
 set -e
 test $exit = 123
