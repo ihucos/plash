@@ -97,7 +97,6 @@ int pl_parse_subid(const char *file, const char *query1, const char *query2,
       break;
     if (feof(fd)) {
       read++;
-      realloc(*to, read);
     }
     (*to)[read - 1] = 0;
 
