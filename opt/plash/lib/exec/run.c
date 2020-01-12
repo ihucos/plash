@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
   pl_exec_add("--");
 
   if (argv[2]){ // if any command specified
-    pl_exec_add("sh");
+    pl_exec_add("/bin/sh");
     pl_exec_add("-lc");
     pl_exec_add("exec env \"$@\"");
     pl_exec_add("--");

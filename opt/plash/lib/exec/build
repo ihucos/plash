@@ -62,7 +62,7 @@ for layer in layers:
             "set -ex\n" + layer
         )
         next_container = utils.plash_call(
-            "create", current_container, "sh", "-l", input=shell
+            "create", current_container, "/bin/sh", "-l", input=shell
         )
         utils.plash_call("map", cache_key, next_container)
         print("--:", file=sys.stderr)
