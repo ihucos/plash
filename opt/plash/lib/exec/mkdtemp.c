@@ -1,6 +1,7 @@
 // usage: plash mkdtemp
 // Create a temporary directory in the plash data.
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
