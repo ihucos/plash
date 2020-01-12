@@ -1,0 +1,18 @@
+--from
+fedora
+
+--yum
+gnupg
+python3
+fuse-overlayfs
+gcc
+make
+
+--layer
+
+--run
+#                                              PUT MASTER HERE
+curl -Lf https://github.com/ihucos/plash/archive/dist.tar.gz | tar -xzC / --strip-components=1
+cd /opt/plash/
+make clean
+make
