@@ -1,6 +1,12 @@
 #!/bin/sh
 set -xeu
 
+test_import_lxc () {
+  plash import-lxc "$1" --dry | xargs curl --head --location --fail | grep "Content-Type: application/x-tar"
+}
+# test the test
+(! test_import_lxc badimagname )
+
 cont=$(plash import-lxc alpine:edge)
 plash run $cont ls
 
@@ -10,21 +16,21 @@ plash run $cont ls
 : dry import returns https url
 plash import-lxc alpine --dry | grep '^https://'
 
-: Dry import of some images succeeds
-plash import-lxc alpine --dry
-plash import-lxc archlinux --dry
-plash import-lxc centos --dry
-plash import-lxc debian --dry
-plash import-lxc devuan --dry
-plash import-lxc fedora --dry
-plash import-lxc gentoo --dry
-plash import-lxc kali --dry
-plash import-lxc opensuse --dry
-plash import-lxc openwrt --dry
-plash import-lxc oracle --dry
-plash import-lxc sabayon --dry
-plash import-lxc ubuntu --dry
-plash import-lxc ubuntu-core --dry
+: Some images give a tar file
+test_import_lxc alpine
+test_import_lxc archlinux
+test_import_lxc centos
+test_import_lxc debian
+test_import_lxc devuan
+test_import_lxc fedora
+test_import_lxc gentoo
+test_import_lxc kali
+test_import_lxc opensuse
+test_import_lxc openwrt
+test_import_lxc oracle
+test_import_lxc sabayon
+test_import_lxc ubuntu
+test_import_lxc ubuntu-core
 
 : dry import deprecated image succeeds
 plash import-lxc trusty --dry
