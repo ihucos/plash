@@ -2,6 +2,9 @@ language: generic
 
 install:
 - sudo apt-get install uidmap unionfs-fuse
+#- curl -lf https://github.com/ihucos/build-fuse-overlayfs/releases/download/03-04-2019/fuse-overlayfs | sudo tee > /usr/local/bin/fuse-overlayfs
+- sudo sh -c 'curl -lf https://github.com/ihucos/build-fuse-overlayfs/releases/download/03-04-2019/fuse-overlayfs > /usr/local/bin/fuse-overlayfs'
+- sudo chmod +x /usr/local/bin/fuse-overlayfs
 
 script:
 
@@ -21,5 +24,8 @@ script:
   # test as root with overlay
   - sudo PLASH_INIT_UNION_TASTE=overlay plash test
 
-  # test user mode
-  - plash test
+  # test fuse-overlayfs
+  - PLASH_INIT_UNION_TASTE=fuse-overlayfs plash test
+
+  # test unionfs-fuse
+  - PLASH_INIT_UNION_TASTE=unionfs-fuse plash test
