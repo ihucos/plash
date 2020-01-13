@@ -19,9 +19,10 @@ make clean
 make
 
 --layer
+
+--run
+rm -rf /var/cache /var/lib/apt
+
+--layer
 --write-script /etc/profile.d/export_path.sh
 export PATH
-
---# --write-script
---# /usr/bin/plash
---# sh -lc 'export PATH; exec /usr/local/bin/plash "$@"' -- "$@"
