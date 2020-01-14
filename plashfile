@@ -19,10 +19,17 @@ make clean
 make
 
 --layer
-
 --run
 rm -rf /var/cache /var/lib/apt
 
 --layer
 --write-script /etc/profile.d/export_path.sh
 export PATH
+
+--layer
+--run
+mv /usr/bin/fuse-overlayfs /usr/bin/fuse-overlayfs-orig
+--write-script /usr/bin/fuse-overlayfs
+#!/bin/bash
+{ exec /usr/bin/fuse-overlayfs-orig "$@" 2>&1 1>&3; exit=$? | grep -v = 1>&2; } 3>&1
+exit $exit
