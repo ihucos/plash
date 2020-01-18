@@ -2,7 +2,7 @@
 set -eu 
 
 dot -Tsvg <(
-  echo "digraph {rankdir=LR;";
+  echo "digraph {rankdir=BT;";
 
   # figure out edges
   grep -Po '(exec|pl_call|plash_call)\("\K.*?(?=")'  exec/*  |
