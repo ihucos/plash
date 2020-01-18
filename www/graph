@@ -21,7 +21,8 @@ dot -Tsvg <(
     xargs -L1 sh -sc 'echo \"$1\"\;' --;
 
   # not detected automagically
-  echo "run -> runopts;"
+  echo 'run -> runopts;';
+  echo '"import-docker" -> "import-tar";'
   echo "}"
 
 ) > $1
