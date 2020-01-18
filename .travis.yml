@@ -11,8 +11,8 @@ script:
     | tar -z --list | cut -d/ -f2 | sort | uniq)"
     = "$(printf "\nopt\nusr")"
 
-  # test no binary ELF files commited to git
-  - git ls-files | xargs file | grep -i ELF
+  # test no binary ELF files commited to git found
+  - [[ -z $(git ls-files | xargs file | grep -i ELF) ]]
 
   # install plash for this commit
   - sudo sh -c "curl -Lf https://raw.githubusercontent.com/ihucos/plash/$TRAVIS_COMMIT/setup.sh | sh -s $TRAVIS_COMMIT"
