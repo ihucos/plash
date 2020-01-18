@@ -122,8 +122,7 @@ Source code and packaged directory structure is the same to reduce complexity.
 - The right guidelines for the right situation.
 
 
-
-User Interface Guidelines
+## User Interface Guidelines
 - Interface follows code
 - Code supplements documentation
 - Documentation compensates a raw user interface
