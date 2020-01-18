@@ -3,4 +3,5 @@
 .travis.yml export-ignore
 LICENSE export-ignore
 README export-ignore
+setup.sh export-ignore
 opt/plash/lib/exec/version export-subst

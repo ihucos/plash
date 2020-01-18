@@ -15,7 +15,7 @@ script:
   - git ls-files | xargs file | grep -i ELF
 
   # install plash for this commit
-  - curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz | sudo tar -xzC / --strip-components=1
+  - curl -Lf https://raw.githubusercontent.com/ihucos/plash/$TRAVIS_COMMIT/setup.sh | rh
 
   # test version number expansion
   - |-
