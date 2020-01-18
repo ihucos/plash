@@ -1,10 +1,8 @@
 [![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash) 
 # Plash
-Containers.
-## Documentation
-```plash --from alpine --apk xeyes -- xeyes```
-See full documentation here:
-http://plash.io/
+Plash combines the integration and resource availability of a process with the decoupling gains of containers. Plash containers are chrooted processeses with opiniated filesystem touchpoints and no further isolation.
+
+
 ## Install
 ```
 sudo sh -c "curl -Lf https://raw.githubusercontent.com/ihucos/plash/master/setup.sh | sh -s"
@@ -14,13 +12,15 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 ```
 
 ## Requirements
-  - linux Kernel >= 4.18
-  - unionfs-fuse, fuse-overlayfs or access to the Kernels overlayfs
-  - optional newuidmap/newgidmap for setuid/setgid support with non-root users.
-  - Python3
+  - Linux Kernel >= 4.18
+  - unionfs-fuse, fuse-overlayfs or access to the kernel's overlayfs
+  - Optional newuidmap/newgidmap for setuid/setgid support with non-root users.
+  - python3
 
-## Why write a new containerization engine?
-Plash combines the integration and resource availability of a process with the decoupling gains of containers. Plash containers are chrooted processeses with opiniated filesystem touchpoints and no further isolation.
+## Documentation
+```plash --from alpine --apk xeyes -- xeyes```
+See full documentation here:
+http://plash.io/
 
 ## Plashfiles
 Plash's build files are executable
