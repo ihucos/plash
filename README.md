@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash) 
 # Plash
-Setup *chroot*ed processeses with filesystem touchpoints and no further isolation.
+Setup chrooted processeses with filesystem touchpoints and no further isolation.
 
 
 ## Install
