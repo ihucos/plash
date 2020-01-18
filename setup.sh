@@ -3,7 +3,7 @@
 set -eu
 
 missing=''
-for prog in python3 make bash cc curl gpgv
+for prog in python3 make bash cc curl
 do
   if ! [ -x "$(command -v $prog)" ]; then
     missing="$missing $prog"
