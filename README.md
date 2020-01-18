@@ -2,7 +2,7 @@
 
 # Plash
 
-Build and run layered root filesystems and fulfill your miscellaneous container needs.
+Build and run layered root filesystems.
 
 
 ## Install / Uninstall
@@ -12,15 +12,16 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 ```
 
 ## Requirements
-  - `python3`
+  - `python3`, `bash`, `make` and `cc`
   - Linux Kernel >= 4.18
   - `unionfs-fuse`, `fuse-overlayfs` or access to the kernel's builtin overlay filesystem
   - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users
+  - Optional `gpgv` to verify LXC image signatures
 
 ## Documentation
 ```plash --from alpine --apk xeyes -- xeyes```
 
-[See full documentation here](http://plash.io/)
+[See existing documentation here](http://plash.io/)
 
 
 ## Caveats
@@ -136,6 +137,3 @@ checks their signatures with gpgv (if in PATH). Using plash as root should be
 avoided and should not be necessary for most use cases.  Until now plash was
 written by one person and of course I could be wrong about something. But
 generally speaking it really should be good enough.
-
-### Why the unusual project structure?
-Source code and packaged directory structure is the same to reduce complexity.

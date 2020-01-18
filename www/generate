@@ -14,8 +14,8 @@ except IndexError:
     sys.exit(1)
 
 PROJECT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
-TEMPL_DIR = path.join(PROJECT_DIR, 'lib/html')
-EXEC_DIR = path.join(PROJECT_DIR, 'lib/exec')
+TEMPL_DIR = path.join(PROJECT_DIR, 'www')
+EXEC_DIR = path.join(PROJECT_DIR, 'exec')
 BIN_DIR = path.join(PROJECT_DIR, 'bin')
 TESTS_DIR = path.join(PROJECT_DIR, 'tests')
 PLASH_EXECUTABLE = os.path.join(BIN_DIR, 'plash')

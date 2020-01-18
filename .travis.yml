@@ -5,12 +5,6 @@ install:
 
 script:
 
-  # test that only /opt and /usr are affected by an installation
-  - >
-    test "$(curl -Lf https://github.com/ihucos/plash/archive/"$TRAVIS_COMMIT".tar.gz
-    | tar -z --list | cut -d/ -f2 | sort | uniq)"
-    = "$(printf "\nopt\nusr")"
-
   # test no binary ELF files commited to git found
   - test -z $(git ls-files | xargs file | grep -i ELF)
 

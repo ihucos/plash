@@ -6,7 +6,7 @@
 set -eu
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR="$DIR/../.."
+PROJECT_DIR="$DIR/.."
 
 log=$(mktemp)
 program_exit=0

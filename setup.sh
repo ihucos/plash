@@ -15,6 +15,10 @@ if ! [ -z "$missing" ]; then
 fi
 
 set -x
-curl -Lf https://github.com/ihucos/plash/archive/${1:-master}.tar.gz | tar -xzC / --strip-components=1
+mkdir -p /opt/plash
+curl -Lf https://github.com/ihucos/plash/archive/${1:-master}.tar.gz | tar -xzC /opt/plash --strip-components=1
 cd /opt/plash
 make
+
+ln -s /opt/plash/bin/plash      /usr/local/bin/plash
+ln -s /opt/plash/bin/plash-exec /usr/local/bin/plash-exec
