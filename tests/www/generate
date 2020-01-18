@@ -10,6 +10,11 @@ if ! $(python3 -c 'import jinja2'); then
   exit 1
 fi
 
+if ! $(command -v dot); then
+  echo "SKIP MARKER"
+  exit 1
+fi
+
 : simple gen-docs invocation
 tmpd=$(mktemp -d)
 "$DIR"/../../www/generate "$tmpd"
