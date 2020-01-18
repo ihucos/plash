@@ -41,13 +41,6 @@ Hello = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO,
 Hello.run()
 ```
 
-## Assertions
-- Beta quality.
-- Focus on backward compability.
-- non-root useras are first class citizens.
-- I am doing this since 2017 and will not stop
-
-
 ## Caveats
 
 - Plash processes have the same operating system access rights than the process
