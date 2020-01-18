@@ -20,7 +20,7 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 ## Documentation
 ```plash --from alpine --apk xeyes -- xeyes```
 
-[See full documentation here](http://plash.io/)
+[See existing documentation here](http://plash.io/)
 
 
 ## Caveats
