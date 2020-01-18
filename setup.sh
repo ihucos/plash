@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -e
 
 missing=''
 for prog in python3 bash make cc
