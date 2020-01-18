@@ -2,7 +2,7 @@
 
 # Plash
 
-Build and run layered root filesystems and fulfill your miscellaneous container needs.
+Build and run layered root filesystems.
 
 
 ## Install / Uninstall
