@@ -114,6 +114,23 @@ bin  dev  etc  home  lib  media  mnt  proc  root  run  sbin  srv  sys  tmp  usr 
 --entrypoint /usr/bin/yapf
 $ /tmp/yapf myproject</pre>
 
+<h3>Example of a more complex executable build file</h3>
+<pre>#!/usr/bin/env plash-exec
+--from archlinux
+--pacman gtk3 python-gobject
+--layer
+--entrypoint-script 
+#!/usr/bin/env python
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+Gtk.init(None)
+Hello = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO,
+                          buttons=Gtk.ButtonsType.OK,
+                          text="Hello world!",
+                          secondary_text="This is running inside a plash container.")
+Hello.run()</pre>
+
 <h3>Macros expand to shell code</h3>
 <pre>$ plash eval --from ubuntu --apt python3-pip --layer --pip3 yapf -lx 'touch /foo'
 ### plash hint: image=9

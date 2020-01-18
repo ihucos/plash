@@ -20,26 +20,6 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 
 See full documentation here: http://plash.io/
 
-## Plashfiles
-Plash's build files are executable
-```
-$ cat ~/bin/gtk-hello-world
-#!/usr/bin/env plash-exec
---from archlinux
---pacman gtk3 python-gobject
---layer
---entrypoint-script 
-#!/usr/bin/env python
-import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-Gtk.init(None)
-Hello = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO,
-                          buttons=Gtk.ButtonsType.OK,
-                          text="Hello world!",
-                          secondary_text="This is running inside a plash container.")
-Hello.run()
-```
 
 ## Caveats
 
@@ -54,6 +34,7 @@ Hello.run()
 - There is some bug in unionfs-fuse that impedes nested plash instances with
   unionfs: https://github.com/ihucos/plash/issues/69
   But fuse-overlayfs and overlay work fine.
+
 
 ## FAQ
 
