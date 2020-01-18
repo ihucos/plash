@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash) 
+
 # Plash
+
 Build and run layered root filesystems and fulfill your miscellaneous container needs.
 
 
@@ -31,9 +33,8 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 - Plash only runs inside Docker containers started with the `--privileged`
   flag, see GitHub issue #51 for details. 
 
-- There is some bug in unionfs-fuse that impedes nested plash instances with
-  unionfs: https://github.com/ihucos/plash/issues/69
-  But fuse-overlayfs and overlay work fine.
+- Nested plash instances are not possible with `unionfs-fuse` (#69).  But
+  `fuse-overlayfs` and `overlay` work fine.
 
 
 ## FAQ
