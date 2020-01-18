@@ -38,15 +38,15 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 
 ## FAQ
 
-* Can I contribute?
+### Can I contribute?
 Please! Write me an mail mail@irae.me, open an issue, do a pull request or ask
 me out for a friendly chat about plash in Berlin.
 
-* Who are you?
+### Who are you?
 A Django/Python software-developer. Since this is an open source project I hope
 this software grows organically and collaboratively.
 
-* Why write a containerization software?
+### Why write a containerization software?
 Technical idealism. I wanted a better technical solution for a problem. In my
 personal opinion Docker is revolutionary but has some shortcomings: awkward
 interface, reinvention of established software or interfaces, bundling, vendor
@@ -55,27 +55,27 @@ build a huge company on top of it. Plash thrives not to be more than a useful
 tool with one task: Building and running containerized processes. Ultimately I
 wanted something I can if necessary maintain by myself.
 
-* Are there plans to commercialise this?
+### Are there plans to commercialise this?
 No, there isn't. At the same time I don't want to risk disappointing anyone and
 am not making any absolute guarantees.
 
-* What is the Licence?
+### What is the Licence?
 plash is licensed under the MIT Licence.
 
-* How does the code look?
+### How does the code look?
 Some python3, some C. Very little code, very maintainable.
 
-* How does plash compare to Docker?
+### How does plash compare to Docker?
 Docker is a bloated SUV you have to bring to the car workshop every week, for
 random alterations, features and new advertising stickers. Plash is a nice
 fixed gear bike, but the welds are still hot and nobody checked the bolts yet.
 
-* Can I run this in production?
+### Can I run this in production?
 You can. It probably still has some warts, what I can guarantee is to
 enthusiastically support this software and all issues that may come with it and
 focus on backward compatibility.
 
-* Is plash secure?
+### Is plash secure?
 Plash does not use any daemons or have its own setuid helper binaries. Note
 that plash does not try to isolate containers (which are just normal
 processes). That means that running a program inside plash is not a security
@@ -91,5 +91,5 @@ avoided and should not be necessary for most use cases.  Until now plash was
 written by one person and of course I could be wrong about something. But
 generally speaking it really should be good enough.
 
-* Why the unusual project structure?
+### Why the unusual project structure?
 Source code and packaged directory structure is the same to reduce complexity.
