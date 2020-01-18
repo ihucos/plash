@@ -91,6 +91,3 @@ checks their signatures with gpgv (if in PATH). Using plash as root should be
 avoided and should not be necessary for most use cases.  Until now plash was
 written by one person and of course I could be wrong about something. But
 generally speaking it really should be good enough.
-
-### Why the unusual project structure?
-Source code and packaged directory structure is the same to reduce complexity.
