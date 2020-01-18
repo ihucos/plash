@@ -12,9 +12,9 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 ```
 
 ## Requirements
+  - `python3`
   - Linux Kernel >= 4.18
   - `unionfs-fuse`, `fuse-overlayfs` or access to the kernel's builtin overlay filesystem
-  - `python3`
   - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users
 
 ## Documentation
