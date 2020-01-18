@@ -12,10 +12,11 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 ```
 
 ## Requirements
-  - `python3`
+  - `python3`, `bash`, `make` and `cc`
   - Linux Kernel >= 4.18
   - `unionfs-fuse`, `fuse-overlayfs` or access to the kernel's builtin overlay filesystem
   - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users
+  - Optional `gpgv` to verify LXC image signatures
 
 ## Documentation
 ```plash --from alpine --apk xeyes -- xeyes```
