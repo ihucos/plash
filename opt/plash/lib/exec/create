@@ -43,7 +43,7 @@ utils.plash_call("nodepath", container)
 
 # use with login shell
 if cmd:
-    cmd = ["sh", "-lc", 'exec env "$@"', "--"] + cmd
+    cmd = ["/bin/sh", "-lc", 'exec env "$@"', "--"] + cmd
 
 changesdir = utils.plash_call("mkdtemp")
 exit = utils.plash_call(

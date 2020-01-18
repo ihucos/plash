@@ -1,3 +1,18 @@
+# compiled files
+opt/plash/bin/plash
+opt/plash/lib/c/plash.o
+opt/plash/lib/exec/add-layer
+opt/plash/lib/exec/data
+opt/plash/lib/exec/map
+opt/plash/lib/exec/mkdtemp
+opt/plash/lib/exec/nodepath
+opt/plash/lib/exec/parent
+opt/plash/lib/exec/run
+opt/plash/lib/exec/runopts
+opt/plash/lib/exec/sudo
+opt/plash/tests/C/pl_parse_subid
+opt/plash/tests/C/pl_setup_user_ns
+
 ctags
 
 # Byte-compiled / optimized / DLL files
