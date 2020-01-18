@@ -37,6 +37,51 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
   `fuse-overlayfs` and `overlay` work fine.
 
 
+## Development Guidelines
+
+- Keep the script character.
+- Don't fall in love with the code, embrace its absence.
+- All dependencies will get unmaintained at some point.
+- Use honest thin wrappers, documented leaky abstractions are better then difficult promises.
+- Don't be a monolith but don't try too hard not to be one.
+- Don't complain or warn via stderr, do it or don't do it.
+- Only be as smart as necessary and keep it simple and stupid (KISS).
+- Still be able to run this in five years without any maintenance work.
+- No baggage, no worries.
+- Define well what this project is and especially what it is not.
+- Say no to features, say yes to solved use cases.
+- Postpone compromises.
+- Ditch everything that turns out too fiddly.
+- Be as vanilla as you can be
+- Be humble, don't oversell your abstraction layer.
+- Sometimes the dirty solution is cleaner than the proper one.
+- Don't differentiate root from non-root users (this is a TODO)
+- Crude is better than complex.
+- Only eat your own dog food if you are hungry.
+- Work towards a timeless, finished product that will require no maintenance.
+- Don't write C just because it looks cool, use the right tool for the right job.
+- The right guidelines for the right situation.
+
+
+## User Interface Guidelines
+- Interface follows code
+- Code supplements documentation
+- Documentation compensates a raw user interface
+- Put effort into documentation
+- If you want fun, go play outside
+- Focus on expert users and automated systems as CLI consumers
+- Don't make difficult things seem easy
+- Don't be too verbose, usually only information about success or failure matter
+- plash will be learned once but used multiple times
+- Avoid too many features slowly getting in
+- The UI is not a marketing instrument
+- Ugly wards testify emphasis on backward compatibility
+- Learning plash should be a valuable skill that lasts
+- Users don't know what they want
+- user errors are the user's fault
+- Rude is better than sorry
+- Technical descriptions do not get outdated, reasoning and interpretations do.
+
 ## FAQ
 
 ### Can I contribute?
