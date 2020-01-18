@@ -17,6 +17,3 @@ format:
 	find . -iname *.h -o -iname *.c | xargs clang-format -i -style="{CommentPragmas: '^ usage:'}"
 	file exec/* | grep -i python | cut -d':' -f1 | xargs black
 	black .
-
-diagram:
- 	dot -Tsvg <(echo "digraph {rankdir=LR;"; grep -Po '(pl_call|plash_call)\("\K.*?(?=")'  exec/*  |  sed 's/exec\///g'  | sed 's/\.c:/:/g' |  tr ':' ' '  | xargs -L1 sh -sc 'echo \"$1\"  \-\> \"$2\"\;' --; echo "}") > /tmp/a.svg && xdg-open /tmp/a.svg
