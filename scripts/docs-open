@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -eux
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-tmpd=$(mktemp -d)
-"$DIR"/docs-generate "$tmpd"
-exec xdg-open "$tmpd"/index.html
