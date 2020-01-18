@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash) 
 # Plash
-Plash combines the integration and resource availability of a process with the decoupling gains of containers. Plash containers are chrooted processeses with opiniated filesystem touchpoints and no further isolation.
+Chrooted processeses with opiniated filesystem touchpoints and no further isolation.
 
 
 ## Install
