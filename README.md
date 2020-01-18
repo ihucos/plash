@@ -96,8 +96,7 @@ generally speaking it really should be good enough.
 Source code and packaged directory structure is the same to reduce complexity.
 
 
-Development Guidelines
-##
+## Development Guidelines
 
 - Keep the script character.
 - Don't fall in love with the code, embrace its absence.
@@ -122,3 +121,23 @@ Development Guidelines
 - Don't write C just because it looks cool, use the right tool for the right job.
 - The right guidelines for the right situation.
 
+
+
+User Interface Guidelines
+- Interface follows code
+- Code supplements documentation
+- Documentation compensates a raw user interface
+- Put effort into documentation
+- If you want fun, go play outside
+- Focus on expert users and automated systems as CLI consumers
+- Don't make difficult things seem easy
+- Don't be too verbose, usually only information about success or failure matter
+- plash will be learned once but used multiple times
+- Avoid too many features slowly getting in
+- The UI is not a marketing instrument
+- Ugly wards testify emphasis on backward compatibility
+- Learning plash should be a valuable skill that lasts
+- Users don't know what they want
+- user errors are the user's fault
+- Rude is better than sorry
+- Technical descriptions do not get outdated, reasoning and interpretations do.
