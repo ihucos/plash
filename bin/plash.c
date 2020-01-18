@@ -62,9 +62,9 @@ int main(int argc, char *argv[]) {
     reexec_insert_run(argc, argv);
 
   struct passwd *pwd;
-  char *bindir = pl_path("../bin"), *libexecdir = pl_path("../lib/exec"),
-       *libexecrun = pl_path("../lib/exec/run"),
-       *pylibdir = pl_path("../lib/py"), *path_env = getenv("PATH"),
+  char *bindir = pl_path("../bin"), *libexecdir = pl_path("../exec"),
+       *libexecrun = pl_path("../exec/run"),
+       *pylibdir = pl_path("../lib/python"), *path_env = getenv("PATH"),
        *libexecfile, *newpath;
 
   //

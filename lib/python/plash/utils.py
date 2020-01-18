@@ -67,7 +67,7 @@ def plash_exec(plash_cmd, *args):
     assert plash_cmd.replace("-", "").isalpha()
 
     thisdir = os.path.dirname(os.path.abspath(__file__))
-    execdir = os.path.abspath(os.path.join(thisdir, "..", "..", "exec"))
+    execdir = os.path.abspath(os.path.join(thisdir, "..", "..", "..", "exec"))
     runfile = os.path.join(execdir, plash_cmd)
     with open(runfile, "rb") as f:
         is_python = f.read(23) == b"#!/usr/bin/env python3\n"
@@ -132,7 +132,7 @@ def plash_call(
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-clib = os.path.realpath(os.path.join(dir_path, "../../c/plash.o"))
+clib = os.path.realpath(os.path.join(dir_path, "../../plash.o"))
 
 lib = ctypes.CDLL(clib)
 
