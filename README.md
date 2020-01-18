@@ -3,11 +3,9 @@
 Setup chrooted processeses with filesystem touchpoints and no further isolation.
 
 
-## Install
+## Install / Remove
 ```
 sudo sh -c "curl -Lf https://raw.githubusercontent.com/ihucos/plash/master/setup.sh | sh -s"
-
-# uninstall
 sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninstall
 ```
 
