@@ -15,7 +15,7 @@ if ! [ -z "$missing" ]; then
 fi
 
 set -x
-mkdir - /opt/plash
-curl -Lf https://github.com/ihucos/plash/archive/${1:-master}.tar.gz | tar -xzC /opt/plash --strip-components=1
+mkdir -p /opt/plash
+curl -Lf https://github.com/ihucos/plash/archive/${1:-master}.tar.gz | tar -xzvC /opt/plash --strip-components=1
 cd /opt/plash
 make
