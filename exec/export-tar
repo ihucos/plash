@@ -18,10 +18,7 @@ try:
 except IndexError:
     utils.die_with_usage()
 
-execlp(
-    "plash",
-    "plash",
-    "with-mount",
+utils.plash_exec("with-mount",
     container,
     "tar",
     "-cf",
