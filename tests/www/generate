@@ -12,7 +12,7 @@ fi
 
 : simple gen-docs invocation
 tmpd=$(mktemp -d)
-"$DIR"/../../scripts/docs-generate "$tmpd"
+"$DIR"/../../www/generate "$tmpd"
 
 : test an index is created
 stat "$tmpd"/index.html
