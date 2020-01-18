@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash) 
 # Plash
-Build and run layered root filesystems. Your Swiss Army knife for handling containerization.
+Build and run layered root filesystems.
 
 
 ## Install / Uninstall
