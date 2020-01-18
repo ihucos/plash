@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash) 
 # Plash
-Setup chrooted processeses with filesystem touchpoints and no further isolation.
+Setup chrooted processeses with filesystem touchpoints.
 
 
-## Install / Remove
+## Install / Uninstall
 ```
 sudo sh -c "curl -Lf https://raw.githubusercontent.com/ihucos/plash/master/setup.sh | sh -s"
 sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninstall
@@ -11,9 +11,9 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
 
 ## Requirements
   - Linux Kernel >= 4.18
-  - unionfs-fuse, fuse-overlayfs or access to the kernel's overlayfs
-  - Optional newuidmap/newgidmap for setuid/setgid support with non-root users.
-  - python3
+  - `unionfs-fuse`, `fuse-overlayfs` or access to the kernel's builtin overlay filesystem
+  - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users
+  - `python3`
 
 ## Documentation
 ```plash --from alpine --apk xeyes -- xeyes```
