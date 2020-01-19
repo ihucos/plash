@@ -46,10 +46,9 @@ if cmd:
     cmd = ["/bin/sh", "-lc", 'exec env "$@"', "--"] + cmd
 
 changesdir = utils.plash_call("mkdtemp")
-exit = utils.plash_call(
+exit = utils.plash_call("runopts",
     *(
         [
-            "runopts",
             "-c",
             container,
             "-d",
