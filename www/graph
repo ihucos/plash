@@ -1,0 +1,33 @@
+#!/bin/bash
+set -eu 
+
+# go to project root first
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "$script_dir"
+cd ..
+
+dot -Tsvg <(
+  echo "digraph {rankdir=BT;";
+
+  # figure out edges
+  grep -Po '(exec|pl_call|plash_call)\("\K.*?(?=")'  exec/*  |
+    sed 's/exec\///g' |
+    sed 's/\.c:/:/g' |
+    tr ':' ' ' |
+    xargs -L1 sh -sc 'echo \"$1\"  \-\> \"$2\"\;' -- |
+    sort |
+    uniq;
+  
+
+  # all nodes (that do not seem to be aliases)
+  ls exec -1 |
+    grep -v '^-' |
+    cut -d. -f1 |
+    xargs -L1 sh -sc 'echo \"$1\"\;' --;
+
+  # not detected automagically
+  echo 'run -> runopts;';
+  echo '"import-docker" -> "import-tar";'
+  echo "}"
+
+) > $1
