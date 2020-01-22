@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+
+import sys, csv, subprocess, tempfile
+from fnmatch import fnmatch
+
+try:
+    csvfile = sys.argv[1]
+except IndexError:
+    print("usage: runcsv CSVFILE")
+    sys.exit(1)
+
+with open(csvfile) as file_obj:
+    tokens = list(csv.reader(file_obj, quotechar="`"))
+
+
+def get_plash_data():
+    return subprocess.check_output(["plash", "data"]).decode().strip("\n")
+
+
+vars = dict(
+    TMPDIR=tempfile.mkdtemp, TMPFILE=tempfile.mktemp, PLASHFILE=get_plash_data,
+)
+
+
+fargs = {}
+def expand(templ):
+    for key, func in vars.items():
+        if not key in fargs and '{%s}' % key in templ:
+            fargs[key] = func()
+    return templ.format(**fargs)
+
+
+shell_script = []
+
+for entry in tokens:
+    if not entry:
+        continue
+
+    base_entry = [None, "", "", "0"]
+    for counter, arg in enumerate(entry):
+        base_entry[counter] = arg
+    cmd_arg, stdout_arg, stderr_arg, exit_code = base_entry
+    stdout = expand(stdout_arg)
+    stderr = expand(stderr_arg)
+    cmd = expand(cmd_arg)
+
+    # magic
+    if stdout:
+        stdout += "\n"
+    if stderr:
+        stderr += "\n"
+
+    p = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    if (
+        not fnmatch(p.stdout.decode(), stdout)
+        or not fnmatch(p.stderr.decode(), stderr)
+        or not fnmatch(str(p.returncode), exit_code)
+    ):
+        print("for: {}".format(cmd_arg), file=sys.stderr)
+        if (cmd_arg != arg):
+            print("expanded: {}".format(cmd), file=sys.stderr)
+        print(
+            "expected: stdout={!r} stderr={!r} returncode={}".format(
+                stdout, stderr, exit_code
+            ),
+            file=sys.stderr,
+        )
+        print(
+            "reality: stdout={!r} stderr={!r} returncode={}".format(
+                p.stdout.decode(), p.stderr.decode(), p.returncode
+            ),
+            file=sys.stderr,
+        )
+        sys.exit(1)

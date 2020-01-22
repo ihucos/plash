@@ -1,0 +1,1 @@
+echo 'echo iamshell' | plash run 1,iamshell

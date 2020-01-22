@@ -1,0 +1,2 @@
+plash add-layer 1 {TMPDIR}
+test -d {TMPDIR},,,1

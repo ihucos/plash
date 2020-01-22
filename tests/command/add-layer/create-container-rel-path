@@ -1,0 +1,3 @@
+cd {TMPDIR}
+mkdir a
+plash add-layer 1 a

@@ -1,0 +1,2 @@
+plash add-layer 1 {TMPDIR}
+plash runopts -c 1 true

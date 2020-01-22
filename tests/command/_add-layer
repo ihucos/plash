@@ -1,0 +1,75 @@
+
+--- usage
+plash add-layer  ,,usage: plash add-layer PARENT-CONTAINER IMPORT-DIR,
+plash add-layer 1,,usage: plash add-layer PARENT-CONTAINER IMPORT-DIR,
+
+--- nonexisting directory
+plash add-layer 1 xxx,,plash error: *,1
+
+--- create container
+touch {TMPDIR}/a,,,0
+plash add-layer 1 {TMPDIR},2,,0
+plash with-mount 2 test -d a,,,0
+
+--- create from relative path
+cd {TMPDIR}
+mkdir a
+plash add-layer 1 a
+
+--- create from file fail
+touch {TMPDIR}/a,,,0
+plash add-layer 0 {TMPDIR}/a,,plash error: *,0
+
+
+--- Exported tar looks like a rootfs
+plash export-tar 1 > {TMPFILE}
+tar --list -f {TMPFILE} | cut -d'/' -f2 | sort | uniq,"bin
+dev
+etc
+home
+lib
+media
+mnt
+opt
+proc
+root
+run
+sbin
+srv
+sys
+tmp
+usr
+var",,0
+
+
+
+-- B builds flag arguments and passes it to command
+plash b nodepath -f 1,{PLASH_DATA}/layer/0/1
+plash nodepath 1     ,{PLASH_DATA}/layer/0/1
+
+
+Overwriting setted key succeeds
+plash map mykey 2
+plash map mykey,2
+
+
+
+--- Setting key with a `/` fails
+plash map hi/da 1,,plash error: *,1
+
+
+
+-- Check bad chars
+plash mount 1 {TMPDIR1} {TMPDIR2}/'!@#$%^&*()',,plash error: cowardly dying: bad chars in arg,1
+
+
+
+`
+set -eux
+plash build -f 1 --run 'touch /da'
+tmp=$(mktemp -d)
+plash b shallow-copy -f 2 -- "$tmp"/rootfs
+test "$(ls "$tmp"/rootfs)" = "$(echo 'bin da dev etc home proc root sys tmp usr var' | tr ' ' '\n')"
+origi_inode=$(plash nodepath 2 | xargs -I{} stat --format '%i' {}/_data/root/da)
+shallow_copy_inode=$(stat --format '%i' "$tmp"/rootfs/da)
+test "$origi_inode" = "$shallow_copy_inode"`

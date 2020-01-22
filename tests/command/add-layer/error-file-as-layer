@@ -1,0 +1,2 @@
+touch {TMPDIR}/a
+plash add-layer 0 {TMPDIR}/a,,plash error: *
