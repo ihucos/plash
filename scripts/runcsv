@@ -19,7 +19,7 @@ PLASH_DATA = subprocess.check_output(["plash", "data"]).decode().strip("\n")
 
 
 # state for variable format expansion logic
-varstate = {"stderr": [], stdout=[], exit=[]}
+varstate = {"stderr": [], 'stdout': [], 'exit': []}
 
 class NamedVar:
     def __init__(self, create):
@@ -61,16 +61,20 @@ for cmd_arg, stdout_arg, stderr_arg, exit_code in tokens:
 
     p = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+    child_stdout = p.stdout.decode()
+    child_stderr = p.stderr.decode()
+    child_exit = str(p.returncode)
+
     if (
-        not fnmatch(p.stdout.decode(), stdout)
-        or not fnmatch(p.stderr.decode(), stderr)
-        or not fnmatch(str(p.returncode), exit_code)
+        not fnmatch(child_stdout, stdout)
+        or not fnmatch(child_stderr, stderr)
+        or not fnmatch(child_exit, exit_code)
     ):
         print(
             ERR_TEMPL.format(
                 expected=','.join([cmd_arg, stdout_arg, stderr_arg, exit_code]),
                 expanded=[cmd, stdout, stderr, exit_code],
-                reality=[cmd, p.stdout.decode(), p.stderr.decode(), p.returncode],
+                reality=[cmd, child_stdout, child_stderr, child_exit]
             ),
             file=sys.stderr,
         )
