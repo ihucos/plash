@@ -7,7 +7,19 @@ set -eu
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$DIR/.."
-PATH="$PATH:$(realpath $DIR/../scripts)"
+PATH="$DIR/../bin":"$PATH"
+
+setup_plash(){
+  tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
+  export PLASH_DATA=$tmp
+  plash init
+  plash data touch config/testmode
+  plash import-tar $PROJECT_DIR/data/busybox.tar > /dev/null
+
+}
+
+setup_plash
+find . -type f -path "*.csv" | sort | xargs $DIR/../scripts/runcsv  # run the csv tests
 
 log=$(mktemp)
 program_exit=0
@@ -15,12 +27,7 @@ cd $PROJECT_DIR/tests
 testfiles=$(find . -type f -executable -ipath "./${1:-}*" | sort)
 for script in $testfiles ; do
 
-  # setup test env
-  tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
-  export PLASH_DATA=$tmp
-  plash init
-  plash data touch config/testmode
-  plash import-tar $PROJECT_DIR/data/busybox.tar > /dev/null
+  setup_plash
 
   printf "% -20s" ${script:2} # magic 2 is the length of "./"
   env "$script" > $log 2>&1 &

@@ -1,5 +1,3 @@
-#!/usr/bin/env runcsv
 mkdir {TMPDIR}/a
 plash add-layer 1 {TMPDIR},2
 plash with-mount 2 test -d a
-plash
