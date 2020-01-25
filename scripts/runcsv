@@ -9,40 +9,49 @@ except IndexError:
     print("usage: runcsv CSVFILE")
     sys.exit(1)
 
+
+ERR_TEMPL = """runcsv error - unexpected output
+expanded: {expanded}
+reality:  {reality}"""
+
+
+PLASH_DATA = subprocess.check_output(["plash", "data"]).decode().strip("\n")
+
+
+# state for variable format expansion logic
+varstate = {"stderr": [], stdout=[], exit=[]}
+
+class NamedVar:
+    def __init__(self, create):
+        self.state = {}
+        self.create = create
+
+    def __format__(self, format_spec=""):
+        if not format_spec in self.state:
+            self.state[format_spec] = self.create()
+        return self.state[format_spec]
+
+
+template_vars = {
+    "TMPDIR": NamedVar(tempfile.mkdtemp),
+    "TMPFILE": NamedVar(tempfile.mktemp),
+    "PLASH_DATA": PLASH_DATA,
+}
+
+# tokenize csv
+tokens = []
 with open(csvfile) as file_obj:
-    tokens = list(csv.reader(file_obj, quotechar="`"))
+    for line_vals in csv.reader(file_obj, quotechar="`"):
+        if line_vals:
+            base_entry = [None, "", "", "0"]
+            for counter, arg in enumerate(line_vals):
+                base_entry[counter] = arg
+            tokens.append(base_entry)
 
-
-def get_plash_data():
-    return subprocess.check_output(["plash", "data"]).decode().strip("\n")
-
-
-vars = dict(
-    TMPDIR=tempfile.mkdtemp, TMPFILE=tempfile.mktemp, PLASHFILE=get_plash_data,
-)
-
-
-fargs = {}
-def expand(templ):
-    for key, func in vars.items():
-        if not key in fargs and '{%s}' % key in templ:
-            fargs[key] = func()
-    return templ.format(**fargs)
-
-
-shell_script = []
-
-for entry in tokens:
-    if not entry:
-        continue
-
-    base_entry = [None, "", "", "0"]
-    for counter, arg in enumerate(entry):
-        base_entry[counter] = arg
-    cmd_arg, stdout_arg, stderr_arg, exit_code = base_entry
-    stdout = expand(stdout_arg)
-    stderr = expand(stderr_arg)
-    cmd = expand(cmd_arg)
+for cmd_arg, stdout_arg, stderr_arg, exit_code in tokens:
+    stdout = stdout_arg.format(**template_vars)
+    stderr = stdout_arg.format(**template_vars)
+    cmd = cmd_arg.format(**template_vars)
 
     # magic
     if stdout:
@@ -57,18 +66,11 @@ for entry in tokens:
         or not fnmatch(p.stderr.decode(), stderr)
         or not fnmatch(str(p.returncode), exit_code)
     ):
-        print("for: {}".format(cmd_arg), file=sys.stderr)
-        if (cmd_arg != arg):
-            print("expanded: {}".format(cmd), file=sys.stderr)
         print(
-            "expected: stdout={!r} stderr={!r} returncode={}".format(
-                stdout, stderr, exit_code
-            ),
-            file=sys.stderr,
-        )
-        print(
-            "reality: stdout={!r} stderr={!r} returncode={}".format(
-                p.stdout.decode(), p.stderr.decode(), p.returncode
+            ERR_TEMPL.format(
+                expected=','.join([cmd_arg, stdout_arg, stderr_arg, exit_code]),
+                expanded=[cmd, stdout, stderr, exit_code],
+                reality=[cmd, p.stdout.decode(), p.stderr.decode(), p.returncode],
             ),
             file=sys.stderr,
         )
