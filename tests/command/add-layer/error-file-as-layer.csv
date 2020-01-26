@@ -1,3 +1,0 @@
-SKIP
-touch {tmpdir}/a
-plash add-layer 0 {tmpdir}/a,,plash error: *

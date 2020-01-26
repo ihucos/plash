@@ -1,2 +1,0 @@
-plash add-layer {id} {tmpdir},*,*,*
-plash runopts -c {id} printf hellow,hellow,,0

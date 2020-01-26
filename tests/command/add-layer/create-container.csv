@@ -1,3 +1,0 @@
-mkdir {tmpdir}/{junk}
-plash add-layer {id} {tmpdir},{id:1}
-plash with-mount {id} test -d {junk}

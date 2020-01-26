@@ -1,3 +1,0 @@
-cd {tmpdir}
-mkdir a
-plash add-layer 1 a,{id:1}

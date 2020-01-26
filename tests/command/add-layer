@@ -1,0 +1,30 @@
+
+{test: given layer disappears}
+plash add-layer {id} {tmpdir},*,*,*
+test -d {tmpdir},,,1
+
+{test: created container contains content of given layer}
+mkdir {tmpdir}/{junk}
+plash add-layer {id} {tmpdir},{id:1}
+plash with-mount {id} test -d {junk}
+
+{test: create container from layer specified as relative path}
+cd {tmpdir}
+mkdir a
+plash add-layer 1 a,{id:1}
+
+{test: usage is shown if bad parameters given}
+plash add-layer  ,,usage: plash add-layer PARENT-CONTAINER IMPORT-DIR,1
+plash add-layer 1,,usage: plash add-layer PARENT-CONTAINER IMPORT-DIR,1
+
+{test: run the created container}
+plash add-layer {id} {tmpdir},*,*,*
+plash runopts -c {id} printf hellow,hellow,,0
+
+{test: this one is failing:}
+#--, using a file as layer fails 
+# touch {tmpdir}/a
+# plash add-layer 0 {tmpdir}/a,,plash error: *,1
+
+{test: using non-existent layer fails}
+plash add-layer {id} {junk},,plash error: *,1
