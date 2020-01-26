@@ -1,2 +1,2 @@
-touch {TMPDIR}/a
-plash add-layer 0 {TMPDIR}/a,,plash error: *
+touch {tmpdir}/a
+plash add-layer 0 {tmpdir}/a,,plash error: *

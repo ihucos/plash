@@ -1,2 +1,2 @@
-plash add-layer 1 {TMPDIR}
-test -d {TMPDIR},,,1
+plash add-layer {id} {tmpdir},*,*,*
+test -d {tmpdir},,,1

@@ -1,1 +1,1 @@
-plash add-layer 1 xxx,,plash error: *,1
+plash add-layer {id} {junk},,plash error: *,1

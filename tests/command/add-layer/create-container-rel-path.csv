@@ -1,4 +1,3 @@
-cd {TMPDIR}
+cd {tmpdir}
 mkdir a
-pwd,*
-plash add-layer 1 a,{ID}
+plash add-layer 1 a,{id:1}

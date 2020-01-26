@@ -32,41 +32,37 @@ class NamedVar:
     def __format__(self, format_spec=""):
         if not format_spec in self.state:
             self.state[format_spec] = self.create()
-        print(self.create)
-        print(self.state)
         return self.state[format_spec]
 
 class StackVar:
     def __init__(self):
         self.list = []
-    def __format__(self, format_spec="0"):
-        return self.list[int(format_spec)]
+    def __format__(self, format_spec):
+        return self.list[int(format_spec or 0)]
     def put(self, arg):
         self.list.append(arg)
 
-class NextContainerIdVar:
-    def __format__(self, format_spec=0):
+class ContainerIdVar:
+    def __format__(self, format_spec):
         id_counter_path = os.path.join(PLASH_DATA, 'id_counter')
-        return str(os.path.getsize(id_counter_path) + 1)
+        return str(os.path.getsize(id_counter_path) + int(format_spec or 0))
 
 
 def create_template_vars():
     return {
-        "TMPDIR": NamedVar(tempfile.mkdtemp),
-        "TMPFILE": NamedVar(tempfile.mkstemp),
-        "PLASH_DATA": PLASH_DATA,
-        'STDERR': StackVar(),
-        'STDOUT': StackVar(),
-        'ID': NextContainerIdVar()
+        "tmpdir": NamedVar(tempfile.mkdtemp),
+        "tmpfile": NamedVar(tempfile.mkstemp),
+        "plash_data": PLASH_DATA,
+        'stderr': StackVar(),
+        'stdout': StackVar(),
+        'id': ContainerIdVar(),
+        'junk': "8743b52063cd84097a65d1633f5c74f5",
     }
 
-# tokenize csv
-for csvfile in csvfiles:
 
+def tokenize_csv_file(csvfile):
+    # tokenize file
     tokens = []
-    template_vars = create_template_vars()
-    print()
-    print(csvfile)
     with open(csvfile) as file_obj:
         for line_vals in csv.reader(file_obj, quotechar="`"):
             if line_vals:
@@ -74,8 +70,19 @@ for csvfile in csvfiles:
                 for counter, arg in enumerate(line_vals):
                     base_entry[counter] = arg
                 tokens.append(base_entry)
+    return tokens
     
-    for cmd_arg, stdout_arg, stderr_arg, exit_code in tokens:
+
+error = False
+saved_cwd = None
+for csvfile in csvfiles:
+    print(csvfile)
+    template_vars = create_template_vars()
+    if saved_cwd:
+        os.chdir(saved_cwd)
+    saved_cwd = os.getcwd()
+
+    for cmd_arg, stdout_arg, stderr_arg, exit_code in tokenize_csv_file(csvfile):
         stdout = stdout_arg.format(**template_vars)
         stderr = stderr_arg.format(**template_vars)
         cmd = cmd_arg.format(**template_vars)
@@ -97,8 +104,8 @@ for csvfile in csvfiles:
         child_stderr = p.stderr.decode()
         child_exit = str(p.returncode)
     
-        template_vars['STDOUT'].put(child_stdout)
-        template_vars['STDERR'].put(child_stderr)
+        template_vars['stdout'].put(child_stdout)
+        template_vars['stderr'].put(child_stderr)
     
         #print([cmd, child_stdout, child_stderr, child_exit])
         if (
@@ -114,4 +121,7 @@ for csvfile in csvfiles:
                 ),
                 file=sys.stderr,
             )
-            sys.exit(1)
+            error = True
+
+if error:
+    sys.exit(2)
