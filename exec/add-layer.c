@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
   off_t node_id;
   int fd;
-  char *linkpath, *node_id_str, *nodepath, *plash_data, *prepared_new_node;
+  char *linkpath, *node_id_str, *nodepath, *plash_data, *prepared_new_node, *layer;
 
   if (argc != 3)
     pl_usage();
@@ -46,13 +46,15 @@ int main(int argc, char *argv[]) {
 
   prepared_new_node = pl_call("mkdtemp");
 
+  if ((layer = realpath(argv[2], NULL)) == NULL)
+    pl_fatal("realpath(%s)", argv[2]);
   if (chmod(prepared_new_node, 0755) == -1)
     pl_fatal("chmod");
   if (chdir(prepared_new_node) == -1)
     pl_fatal("chdir");
   if (mkdir("_data", 0755) == -1)
     pl_fatal("mkdir");
-  if (rename(argv[2], "_data/root") == -1)
+  if (rename(layer, "_data/root") == -1)
     pl_fatal("rename: %s", argv[2]);
   if (chdir(plash_data) == -1)
     pl_fatal("chdir");
