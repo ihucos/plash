@@ -18,12 +18,12 @@ setup_plash(){
 
 }
 
+cd $PROJECT_DIR/tests
 setup_plash
-find . -type f -path "*.csv" | sort | xargs $DIR/../scripts/runcsv  # run the csv tests
+find . -type f -path "*.csv" | cut -c 3- | sort | xargs $DIR/../scripts/runcsv  # run the csv tests
 
 log=$(mktemp)
 program_exit=0
-cd $PROJECT_DIR/tests
 testfiles=$(find . -type f -executable -ipath "./${1:-}*" | sort)
 for script in $testfiles ; do
 
