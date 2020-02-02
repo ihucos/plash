@@ -1,5 +1,0 @@
-#!/usr/bin/env runcsv
-plash shallow-copy {id} {tmpdir}/out
-plash shallow-copy {id} {tmpdir}/does/not/exists,,{error},1
-plash shallow-copy,,{usage},1
-plash shallow-copy {id},,{usage},1

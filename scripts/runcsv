@@ -46,9 +46,6 @@ class ContainerIdVar:
         id_counter_path = os.path.join(PLASH_DATA, 'id_counter')
         return str(os.path.getsize(id_counter_path) + int(format_spec or 0))
 
-class ContextVar:
-    def __format__(self, format_spec):
-        return context[format_spec]
 
 def create_template_vars():
     return {
@@ -58,7 +55,6 @@ def create_template_vars():
         'stderr': StackVar(),
         'stdout': StackVar(),
         'id': ContainerIdVar(),
-        'ctx': ContextVar(),
         'junk': "junk8743b52063cd84097a65d1633f5c74f5",
         'usage': "usage: *",
         'error': "plash error: *",
@@ -84,9 +80,6 @@ template_vars = create_template_vars()
 if saved_cwd:
     os.chdir(saved_cwd)
 saved_cwd = os.getcwd()
-context = {}
-
-context['file'] = os.path.basename(csvfile)
 
 for cmd_arg, stdout_arg, stderr_arg, exit_code in tokenize_csv_file(csvfile):
 

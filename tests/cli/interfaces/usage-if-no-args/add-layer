@@ -1,2 +1,0 @@
-#!/usr/bin/env runcsv
-plash {ctx:file},,{usage},1

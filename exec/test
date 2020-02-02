@@ -12,7 +12,7 @@ PATH="$DIR/../scripts":"$PATH"
 log=$(mktemp)
 program_exit=0
 cd $PROJECT_DIR/tests
-testfiles=$(find -L . -type f -executable -ipath "./${1:-}*" | sort)
+testfiles=$(find . -type f -executable -ipath "./${1:-}*" | sort)
 for script in $testfiles ; do
 
   # setup test env
