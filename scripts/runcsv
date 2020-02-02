@@ -12,7 +12,7 @@ import sys, csv, subprocess, tempfile, os
 from fnmatch import fnmatch
 
 try:
-    csvfiles = sys.argv[1:]
+    csvfile = sys.argv[1]
 except IndexError:
     print("usage: runcsv CSVFILE")
     sys.exit(1)
@@ -50,12 +50,14 @@ class ContainerIdVar:
 def create_template_vars():
     return {
         "tmpdir": NamedVar(tempfile.mkdtemp),
-        "tmpfile": NamedVar(tempfile.mkstemp),
+        "tmpfile": NamedVar(lambda: tempfile.mkstemp()[1]),
         "plash_data": PLASH_DATA,
         'stderr': StackVar(),
         'stdout': StackVar(),
         'id': ContainerIdVar(),
-        'junk': "8743b52063cd84097a65d1633f5c74f5",
+        'junk': "junk8743b52063cd84097a65d1633f5c74f5",
+        'usage': "usage: *",
+        'error': "plash error: *",
     }
 
 
@@ -74,60 +76,46 @@ def tokenize_csv_file(csvfile):
 
 any_error = False
 saved_cwd = None
-for csvfile in csvfiles:
-    print("{: <60} ".format(csvfile), end="")
-    sys.stdout.flush()
-    template_vars = create_template_vars()
-    if saved_cwd:
-        os.chdir(saved_cwd)
-    saved_cwd = os.getcwd()
-    script_status = "PASS"
+template_vars = create_template_vars()
+if saved_cwd:
+    os.chdir(saved_cwd)
+saved_cwd = os.getcwd()
 
-    for cmd_arg, stdout_arg, stderr_arg, exit_code in tokenize_csv_file(csvfile):
+for cmd_arg, stdout_arg, stderr_arg, exit_code in tokenize_csv_file(csvfile):
 
-        if cmd_arg == "SKIP":
-            script_status = "SKIP"
-            break
+    if cmd_arg == "SKIP":
+        break
 
-        stdout = stdout_arg.format(**template_vars)
-        stderr = stderr_arg.format(**template_vars)
-        cmd = cmd_arg.format(**template_vars)
+    stdout = stdout_arg.format(**template_vars)
+    stderr = stderr_arg.format(**template_vars)
+    cmd = cmd_arg.format(**template_vars)
 
-        # that command is "special"
-        if cmd.split()[0] == 'cd':
-            os.chdir(cmd.split()[1])
-            continue
-    
-        p = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
-        child_stdout = p.stdout.decode()
-        child_stderr = p.stderr.decode()
-        child_exit = str(p.returncode)
+    # that command is "special"
+    if cmd.split()[0] == 'cd':
+        os.chdir(cmd.split()[1])
+        continue
 
-        # never test for newlines at the end
-        stdout = stdout.rstrip("\n")
-        stderr = stderr.rstrip("\n")
-        stdout = child_stdout.rstrip("\n")
-        child_stdout = child_stdout.rstrip("\n")
-        child_stderr = child_stderr.rstrip("\n")
-    
-        template_vars['stdout'].put(child_stdout)
-        template_vars['stderr'].put(child_stderr)
-    
-        #print([cmd, child_stdout, child_stderr, child_exit])
-        if (
-            not fnmatch(child_stdout, stdout)
-            or not fnmatch(child_stderr, stderr)
-            or not fnmatch(child_exit, exit_code)
-        ):
-            script_status = "FAIL"
-            any_error = True
-            break
-            any_error = True
+    p = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+    child_stdout = p.stdout.decode()
+    child_stderr = p.stderr.decode()
+    child_exit = str(p.returncode)
 
-    print(script_status)
-    if script_status == "FAIL":
+    # never test for newlines at the end
+    stdout = stdout.rstrip("\n")
+    stderr = stderr.rstrip("\n")
+    child_stdout = child_stdout.rstrip("\n")
+    child_stderr = child_stderr.rstrip("\n")
+
+    template_vars['stdout'].put(child_stdout)
+    template_vars['stderr'].put(child_stderr)
+
+    #print([cmd, child_stdout, child_stderr, child_exit])
+    if (
+        not fnmatch(child_stdout, stdout)
+        or not fnmatch(child_stderr, stderr)
+        or not fnmatch(child_exit, exit_code)
+    ):
         print(
             ERR_TEMPL.format(
                 file=csvfile,
@@ -136,7 +124,4 @@ for csvfile in csvfiles:
             ),
             file=sys.stderr,
         )
-
-
-if any_error:
-    sys.exit(2)
+        sys.exit(1)
