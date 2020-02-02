@@ -1,0 +1,5 @@
+#!/usr/bin/env runcsv
+plash {ctx:file} {id} {tmpdir}/out
+plash {ctx:file} {id} {tmpdir}/does/not/exists,,*,1
+plash {ctx:file},,{usage},1
+plash {ctx:file} {id},,{usage},1
