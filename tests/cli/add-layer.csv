@@ -1,0 +1,4 @@
+#!/usr/bin/env runcsv
+plash add-layer,,usage: plash add-layer*,1
+plash add-layer {junk},,usage: plash add-layer*,1
+plash add-layer {id} {tmpdir},{id:1}
