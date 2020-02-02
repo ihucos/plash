@@ -1,5 +1,0 @@
-#!/usr/bin/env runcsv
-plash copy {id} {tmpdir}/out
-plash copy {id} {tmpdir}/does/not/exists,,{error},1
-plash copy,,{usage},1
-plash copy {id},,{usage},1
