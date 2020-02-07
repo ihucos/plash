@@ -34,7 +34,7 @@ fi
 rootfs="${HOME_URL}${match}"rootfs.tar.xz
 
 if [[ "$2" = "--dry" ]]; then
-  echo $rootfs
+  echo "$rootfs"
 else
   exec plash import-url "$rootfs" "$rootfs".asc
 fi
