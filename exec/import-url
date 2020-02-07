@@ -8,7 +8,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-set -e
+set -ex
 set -o pipefail
 
 # https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
@@ -17,7 +17,7 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 gpg_keyring="$script_dir"/../data/trusted_gpg_keyring
 tmpdir=$(plash mkdtemp)
 rootfs="$tmpdir/rootfs"
-rootfs_sig="$tmpdir/rootfs.sig"
+rootfs_sig="$tmpdir/rootfs.asc"
 
 # downlaod given availabe url
 curl --progress-bar --fail --location --output "$rootfs" "$1"
@@ -25,7 +25,7 @@ curl --progress-bar --fail --location --output "$rootfs" "$1"
 # maybe check the signature
 if [ -n "$2" ] && hash gpgv 2> /dev/null; then
    curl --silent --location --fail "$2" --output "$rootfs_sig"
-   gpgv --quiet --keyring "$gpg_keyring" - "$rootfs" < "$rootfs_sig"
+   gpgv --quiet --keyring "$gpg_keyring" "$rootfs_sig" "$rootfs"
 fi
 
 exec plash import-tar "$rootfs"
