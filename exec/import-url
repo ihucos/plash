@@ -4,7 +4,7 @@
 # Import a container from an url.
 
 if [ -z "$1" ]; then
-  echo "# usage: plash import-url URL [ GPG_SIGNATURE_URL ]" >&2
+  echo "usage: plash import-url URL [ GPG_SIGNATURE_URL ]" >&2
   exit 1
 fi
 
