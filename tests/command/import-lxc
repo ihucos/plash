@@ -14,27 +14,9 @@ plash run $cont ls
 (! plash import-lxc unknownos --dry)
 
 : dry import returns https url
-plash import-lxc alpine --dry | grep '^https://'
+plash import-lxc alpine:edge --dry | grep '^https://'
 
 : Some images give a tar file
-test_import_lxc alpine
-test_import_lxc archlinux
-test_import_lxc centos
-test_import_lxc debian
-test_import_lxc devuan
-test_import_lxc fedora
-test_import_lxc gentoo
-test_import_lxc kali
-test_import_lxc opensuse
-test_import_lxc openwrt
-test_import_lxc oracle
-test_import_lxc sabayon
-test_import_lxc ubuntu
-test_import_lxc ubuntu-core
-
-: dry import deprecated image succeeds
-plash import-lxc trusty --dry
-
-: dry import with version prefix succeeds
-plash import-lxc ubuntu:cosmic --dry
-plash import-lxc archlinux:current --dry
+test_import_lxc alpine:edge
+test_import_lxc archlinux:current
+test_import_lxc debian:sid

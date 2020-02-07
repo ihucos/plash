@@ -4,13 +4,16 @@ ALIASES = dict(
     x=[["run"]],
     l=[["layer"]],
     f=[["from"]],
-    A=[["from", "alpine"], ["apk"]],
-    U=[["from", "ubuntu"], ["apt"]],
-    F=[["from", "fedora"], ["dnf"]],
-    D=[["from", "debian"], ["apt"]],
-    C=[["from", "centos"], ["yum"]],
-    R=[["from", "archlinux"], ["pacman"]],
-    G=[["from", "gentoo"], ["emerge"]],
+
+    # pin down whatever will last the longest like that in the source
+    # code 
+    A=[["from", "alpine:edge"], ["apk"]],
+    U=[["from", "ubuntu:bionic"], ["apt"]],
+    F=[["from", "fedora:31"], ["dnf"]],
+    D=[["from", "debian:sid"], ["apt"]],
+    C=[["from", "centos:8"], ["yum"]],
+    R=[["from", "archlinux:current"], ["pacman"]],
+    G=[["from", "gentoo:current"], ["emerge"]],
 )
 
 for name, macro in ALIASES.items():
