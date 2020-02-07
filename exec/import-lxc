@@ -1,31 +1,37 @@
 #!/bin/bash
 #
-# usage: plash import-lxc DISTRO:VERSION [--dry]
-# Import image from linuxcontainers.org
+# usage: plash import-lxc DISTRIBUTION:RELEASE [--dry]
+# Import an image from https://images.linuxcontainers.org/
 # if --dry is set, the image url is printed but not imported
 
 set -e
 set -o pipefail
 
+HOME_URL=https://images.linuxcontainers.org
 INDEX_URL=https://images.linuxcontainers.org/meta/1.0/index-user
+ARCH=amd64
 
+if [ -z "$1" ]; then
+  echo "usage: plash import-lxc DISTRIBUTION:RELEASE [--dry]" >&2
+  exit 1
+fi
 
 if ! [[ "$1" = *':'* ]]; then
-  echo "usage: plash import-lxc DISTRO:VERSION [--dry]" >&2
+  echo "plash error: also specify the release, example: deian:sid" >&2
   exit 1
 fi
 
 match=$(curl --silent --fail --location $INDEX_URL |
-  awk -F";" '$3 == "amd64" && $4 == "default" { print $1":"$2" "$6 }' |
+  awk -F";" '$3 == "'"$ARCH"'" && $4 == "default" { print $1":"$2" "$6 }' |
   awk -v a="$1" 'a == $1 { print $2 }'
 )
 
 if [ -z "$match" ]; then
-  echo "plash error: no match for \"$1\" (check $INDEX_URL)" >&2
+  echo "plash error: \"$1\" not listed in $HOME_URL/" >&2
   exit 1
 fi
 
-rootfs=https://images.linuxcontainers.org"$match"rootfs.tar.xz
+rootfs="${HOME_URL}${match}"rootfs.tar.xz
 
 if [[ "$2" = "--dry" ]]; then
   echo $rootfs
