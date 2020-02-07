@@ -19,11 +19,11 @@ tmpdir=$(plash mkdtemp)
 rootfs="$tmpdir/rootfs"
 rootfs_sig="$tmpdir/rootfs.sig"
 
-# downlaod given availabe ulr
+# downlaod given availabe url
 curl --progress-bar --fail --location --output "$rootfs" "$1"
 
 # maybe check the signature
-if ! [ -z "$2" ] && hash gpgv 2> /dev/null; then
+if [ -n "$2" ] && hash gpgv 2> /dev/null; then
    curl --silent --location --fail "$2" --output "$rootfs_sig"
    gpgv --quiet --keyring "$gpg_keyring" - "$rootfs" < "$rootfs_sig"
 fi
