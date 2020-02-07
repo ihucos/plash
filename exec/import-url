@@ -28,4 +28,5 @@ if [ -n "$2" ] && hash gpgv 2> /dev/null; then
    gpgv --quiet --keyring "$gpg_keyring" "$rootfs_sig" "$rootfs"
 fi
 
+echo "plash: extracting..." >&2
 exec plash import-tar "$rootfs"
