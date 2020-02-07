@@ -8,7 +8,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-set -ex
+set -e
 set -o pipefail
 
 # https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
