@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -eux
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$(realpath $DIR/../..)"
+
+tests="$(find $PROJECT_DIR/tests/cli -type f -perm /111 -exec basename {} \; | sort)"
+commands="$(find $PROJECT_DIR/exec -type f -perm /111 -exec basename {} \; | sort)"
+comm -31 <(echo "$tests") <(echo "$commands")
+exit 1
