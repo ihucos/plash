@@ -3,13 +3,13 @@
 # usage: plash import-url URL [ GPG_SIGNATURE_URL ]
 # Import a container from an url.
 
+set -e
+set -o pipefail
+
 if [ -z "$1" ]; then
   echo "usage: plash import-url URL [ GPG_SIGNATURE_URL ]" >&2
   exit 1
 fi
-
-set -e
-set -o pipefail
 
 # https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
