@@ -14,7 +14,9 @@ try:
 except IndexError:
     tarfile = "-"
 
-tmpdir=utils.plash_call("mkdtemp")
+tmpdir = utils.plash_call("mkdtemp")
 with utils.catch_and_die([CalledProcessError]):
-    check_call(["plash", "sudo", "tar", "-C", tmpdir, "-xf", tarfile])
+    check_call(
+        ["plash", "sudo", "tar", "--exclude=./dev/*", "-C", tmpdir, "-xf", tarfile]
+    )
 utils.plash_exec("add-layer", "0", tmpdir)
