@@ -13,7 +13,7 @@ if len(sys.argv) < 2:
 
 tmpdir = utils.plash_call("mkdtemp")
 rootfs = join(tmpdir, "rootfs")
-with utils.catch_and_die([CalledProcessError]):
+with utils.catch_and_die([CalledProcessError, KeyboardInterrupt]):
     check_call(
         [
             "curl",
