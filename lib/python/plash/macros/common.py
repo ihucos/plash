@@ -146,7 +146,7 @@ class HashPaths:
             else:
                 collect_files.append(path)
 
-        hasher = hashlib.sha1()
+        hasher = hashlib.sha512()
         for fname in sorted(collect_files):
             perm = str(oct(stat.S_IMODE(os.lstat(fname).st_mode))).encode()
             with open(fname, "rb") as f:
