@@ -4,6 +4,7 @@
 # Create a container from a tar file.
 # If the TARFILE argument is ommited, the tar file is read from stdin.
 
+import os
 import sys
 from subprocess import CalledProcessError, check_call
 
@@ -19,4 +20,18 @@ with utils.catch_and_die([CalledProcessError]):
     check_call(
         ["plash", "sudo", "tar", "--exclude=./dev/*", "-C", tmpdir, "-xf", tarfile]
     )
+
+# we want /etc/resolv.conf to not be a symlink or to exist as a file - otherwise
+# mounting over it later does not work.
+# this should be solved in a more generic way in runopts !
+resolvconf = os.path.join(tmpdir, "etc/resolv.conf")
+try:
+    os.unlink(resolvconf)
+except FileNotFoundError:
+    pass
+with open(resolvconf, "w") as f:
+    f.seek(0)
+    f.truncate()
+
+
 utils.plash_exec("add-layer", "0", tmpdir)
