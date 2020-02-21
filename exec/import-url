@@ -1,32 +1,28 @@
-#!/bin/bash
+#!/usr/bin/env python3
 #
-# usage: plash import-url URL [ GPG_SIGNATURE_URL ]
+# usage: plash import-url URL
 # Import a container from an url.
 
-set -e
-set -o pipefail
+import sys
+from os.path import join
+from plash import utils
+from subprocess import CalledProcessError, check_call
 
-if [ -z "$1" ]; then
-  echo "usage: plash import-url URL [ GPG_SIGNATURE_URL ]" >&2
-  exit 1
-fi
+if len(sys.argv) < 2:
+    utils.die_with_usage()
 
-# https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
-script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-gpg_keyring="$script_dir"/../data/trusted_gpg_keyring
-tmpdir=$(plash mkdtemp)
-rootfs="$tmpdir/rootfs"
-rootfs_sig="$tmpdir/rootfs.asc"
-
-# downlaod given availabe url
-curl --progress-bar --fail --location --output "$rootfs" "$1"
-
-# maybe check the signature
-if [ -n "$2" ] && hash gpgv 2> /dev/null; then
-   curl --silent --location --fail "$2" --output "$rootfs_sig"
-   gpgv --quiet --keyring "$gpg_keyring" "$rootfs_sig" "$rootfs"
-fi
-
-echo "plash: extracting..." >&2
-exec plash import-tar "$rootfs"
+tmpdir = utils.plash_call("mkdtemp")
+rootfs = join(tmpdir, "rootfs")
+with utils.catch_and_die([CalledProcessError]):
+    check_call(
+        [
+            "curl",
+            "--progress-bar",
+            "--fail",
+            "--location",
+            "--output",
+            rootfs,
+            sys.argv[1],
+        ]
+    )
+    check_call(["plash", "import-tar", rootfs])
