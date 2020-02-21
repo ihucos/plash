@@ -1,0 +1,7 @@
+#!/usr/bin/env runcsv
+@usage-if-no-args
+plash create {id},*,*,0
+plash parent {id},{id:-1}
+plash parent {token},,{error},1
+plash parent {invalid-id},,{error},1
+plash parent {root-id},,{error},1

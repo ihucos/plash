@@ -18,19 +18,6 @@
   <pre>{{ example|e }}</pre>
 {% endif %}
 
-{% if test_patterns %}
-  <h1>Tested behaviour</h1>
-  <h3>Preface</h3>
-  {% for type, line in test_patterns %}
-    {% if type == "code" %}
-      <pre style="display: inline;">{{ line|e }}
-</pre>
-    {% else %}
-      <h3>{{line.capitalize()}}</h3>
-    {% endif %}
-  {% endfor %}
-{% endif %}
-
 <h1>Source Code</h1>
 <pre>{{ after_doc|e }}</pre>
 

@@ -1,0 +1,7 @@
+#!/usr/bin/env runcsv
+@usage-if-no-args
+plash with-mount {invalid-id},,{error},1
+plash with-mount {root-id},,{error},1
+plash with-mount {id} printf hi,hi,,0
+echo 'printf iamshell' | plash with-mount {id},iamshell,,0
+plash with-mount {id} sh -c 'exit 123',,,123

@@ -17,7 +17,6 @@ PROJECT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 TEMPL_DIR = path.join(PROJECT_DIR, 'www')
 EXEC_DIR = path.join(PROJECT_DIR, 'exec')
 BIN_DIR = path.join(PROJECT_DIR, 'bin')
-TESTS_DIR = path.join(PROJECT_DIR, 'tests')
 PLASH_EXECUTABLE = os.path.join(BIN_DIR, 'plash')
 
 
@@ -27,8 +26,7 @@ def render(tpl_path, **context):
         TEMPL_DIR)).get_template(filename).render(context)
 
 
-out = check_output([PLASH_EXECUTABLE, 'help'])
-out = out.decode()
+out = check_output([PLASH_EXECUTABLE, 'help']).decode()
 progs = (i.split(None, 2)[1:] for i in out.splitlines())
 macros = check_output([PLASH_EXECUTABLE, 'help-macros']).decode()
 
@@ -45,23 +43,9 @@ binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')
 for subcommand in binfiles:
 
     fname = path.join(EXEC_DIR, subcommand)
-    testfile = path.join(os.path.join(TESTS_DIR, "command", subcommand))
 
     if os.access(fname + ".c", os.F_OK):
         fname += ".c"
-
-    try:
-        with open(testfile) as f:
-            test_code = f.read()
-    except FileNotFoundError:
-        test_code = ''
-
-    test_patterns = []
-    for line in test_code.splitlines():
-        if line.startswith(": "):
-            test_patterns.append(('label', line[2:]))
-        else:
-            test_patterns.append(('code', line))
 
     with open(fname) as f:
         read = f.read()
@@ -101,8 +85,6 @@ for subcommand in binfiles:
         'doc': doc.strip(" \n"),
         'after_doc': '\n'.join(lines),
         'prog': subcommand,
-        'test_code': test_code,
-        'test_patterns': test_patterns,
     })
 
 for item in filedocs:
