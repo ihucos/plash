@@ -16,7 +16,6 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninst
   - Linux Kernel >= 4.18
   - `unionfs-fuse`, `fuse-overlayfs` or access to the kernel's builtin overlay filesystem
   - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users
-  - Optional `gpgv` to verify LXC image signatures
 
 ## Documentation
 ```plash --from alpine --apk xeyes -- xeyes```
@@ -132,8 +131,7 @@ own package manager. Using a program from alpine edge could be considered less
 secure than a package from debian stable or vice versa. Also note that keeping
 containers updated is more difficult than keeping "normal" system software
 updated. Furthermore note that programs could be not used to run inside
-semi-isolated containers and behave oddly. Plash uses unmodified lxc images and
-checks their signatures with gpgv (if in PATH). Using plash as root should be
-avoided and should not be necessary for most use cases.  Until now plash was
-written by one person and of course I could be wrong about something. But
-generally speaking it really should be good enough.
+semi-isolated containers and behave oddly. Plash uses unmodified lxc images.
+Using plash as root should be avoided and should not be necessary for most use
+cases.  Until now plash was written by one person and of course I could be
+wrong about something. But generally speaking it really should be good enough.
