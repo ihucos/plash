@@ -15,6 +15,10 @@ from plash import utils
 
 DELETE_PERCENT = 50
 
+
+utils.unshare_user()
+utils.unshare_mount()
+
 plash_data = utils.plash_call("data")
 index_dir = os.path.join(plash_data, "index")
 links = os.listdir(index_dir)
