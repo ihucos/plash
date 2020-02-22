@@ -14,7 +14,22 @@ try:
 except IndexError:
     tarfile = "-"
 
-tmpdir=utils.plash_call("mkdtemp")
+tmpdir = utils.plash_call("mkdtemp")
 with utils.catch_and_die([CalledProcessError]):
-    check_call(["plash", "sudo", "tar", "-C", tmpdir, "-xf", tarfile])
+    check_call(
+        ["plash", "sudo", "tar", "--exclude=./dev/*", "-C", tmpdir, "-xf", tarfile]
+    )
+
+# we want /etc/resolv.conf to not be a symlink and to exist as a file.
+# Otherwise mounting over it later does not work.  this should be solved in a
+# more generic way in runopts
+resolvconf = os.path.join(tmpdir, "etc/resolv.conf")
+try:
+    os.unlink(resolvconf)
+except FileNotFoundError:
+    pass
+with open(resolvconf, "w") as f:
+    f.seek(0)
+    f.truncate()
+
 utils.plash_exec("add-layer", "0", tmpdir)

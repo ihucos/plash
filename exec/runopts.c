@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
           changesdir); // changesdir is ignored if it is NULL
 
   //
-  // mount requested mounts
+  // mount requested mounts and setup environment list
   //
   if (chdir("mnt") == -1)
     pl_fatal("chdir");
@@ -120,6 +120,7 @@ int main(int argc, char *argv[]) {
   while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
     switch (opt) {
     case 'm':
+      // FIXME: will not work as expected if optarg is a symlink
       pl_bind_mount(optarg, optarg + 1);
       break;
     case 'e':
