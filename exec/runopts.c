@@ -29,11 +29,14 @@
 #define _GNU_SOURCE
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mount.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <plash.h>
@@ -117,9 +120,25 @@ int main(int argc, char *argv[]) {
   if (chdir("mnt") == -1)
     pl_fatal("chdir");
   optind = 1; // reset the getopt
+  struct stat stat_buf;
+  int fd;
   while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
     switch (opt) {
     case 'm':
+
+      // We need to mount over /etc/resolv.conf but in systemd systems it's a
+      // symlink.  Since we can't mount over symlinks we delete any smymlink
+      // and create there an empty file instead. But only if we have read
+      // access to the filesystem (changesdir is set)
+      if (changesdir){
+        if (lstat(optarg + 1, &stat_buf) == -1) pl_fatal("lstat");
+        if (S_ISLNK(stat_buf.st_mode)) {
+            if (unlink(optarg + 1) == -1) pl_fatal("unlink");
+            if((fd = open(optarg + 1, O_CREAT | O_WRONLY)) < 0) pl_fatal("open");
+            close(fd);
+        }
+      }
+
       pl_bind_mount(optarg, optarg + 1);
       break;
     case 'e':
