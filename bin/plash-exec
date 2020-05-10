@@ -6,7 +6,7 @@
 ### config import path
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(
-os.path.realpath(__file__)), "../lib/py")))
+os.path.realpath(__file__)), "../lib/python")))
 del os, sys
 ###
 
