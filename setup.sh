@@ -20,5 +20,5 @@ curl -Lf https://github.com/ihucos/plash/archive/${1:-master}.tar.gz | tar -xzC 
 cd /opt/plash
 make
 
-ln -s /opt/plash/bin/plash      /usr/local/bin/plash
-ln -s /opt/plash/bin/plash-exec /usr/local/bin/plash-exec
+ln -sf /opt/plash/bin/plash      /usr/local/bin/plash
+ln -sf /opt/plash/bin/plash-exec /usr/local/bin/plash-exec
