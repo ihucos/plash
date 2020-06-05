@@ -8,7 +8,9 @@ Build and run layered root filesystems.
 ## Install / Uninstall
 ```
 sudo sh -c "curl -Lf https://raw.githubusercontent.com/ihucos/plash/master/setup.sh | sh"
-sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/ #  uninstall
+
+# uninstall
+sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
 ```
 
 ## Requirements
