@@ -5,11 +5,11 @@ ALIASES = dict(
     l=[["layer"]],
     f=[["from"]],
 
-    # pin down whatever will last the longest like that in the source
-    # code 
+    # Update on an best effort basis. If possible keep versions that point to a
+    # latest release.
     A=[["from", "alpine:edge"], ["apk"]],
-    U=[["from", "ubuntu:bionic"], ["apt"]],
-    F=[["from", "fedora:31"], ["dnf"]],
+    U=[["from", "ubuntu:focal"], ["apt"]],
+    F=[["from", "fedora:32"], ["dnf"]],
     D=[["from", "debian:sid"], ["apt"]],
     C=[["from", "centos:8"], ["yum"]],
     R=[["from", "archlinux:current"], ["pacman"]],
