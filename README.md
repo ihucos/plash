@@ -22,7 +22,7 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
 ## Documentation
 ```plash --from alpine --apk xeyes -- xeyes```
 
-[See existing documentation here](http://plash.io/)
+https://github.com/ihucos/plash-docs-deploy
 
 
 ## Caveats
