@@ -1,0 +1,5 @@
+#!/usr/bin/env runcsv
+plash rm {invalid-id},,{error},1
+plash rm {root-id},,{error},1
+plash rm {token},,{error},1
+plash rm {id}

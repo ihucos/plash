@@ -1,0 +1,7 @@
+#!/usr/bin/env runcsv
+@usage-if-no-args
+plash nodepath {root-id},,{error},1
+plash nodepath {invalid-id},,{error},1
+plash nodepath {token},,{error},1
+plash nodepath {root-id} --allow-root-container,*
+plash nodepath {id},{plash-data}*{id}

@@ -1,0 +1,4 @@
+#!/usr/bin/env runcsv
+@needs-no-args
+plash mkdtemp,{plash-data}/tmp/plashtmp_*_*_*
+test -d "$(plash mkdtemp)",*,*,0

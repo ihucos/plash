@@ -1,0 +1,3 @@
+#!/usr/bin/env runcsv
+@needs-no-args
+plash version,*,,0

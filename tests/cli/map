@@ -1,0 +1,4 @@
+#!/usr/bin/env runcsv
+@usage-if-no-args
+plash map {token},,,0
+plash map {id} {token},,{error},1

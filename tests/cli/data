@@ -1,0 +1,6 @@
+#!/usr/bin/env runcsv
+plash data,*/*,,0
+plash data printf hi,hi
+test "$(plash data)" = "$(plash data pwd)"
+plash data {token},,{error},1
+plash data sh -c 'exit 123',,,123

@@ -1,0 +1,5 @@
+#!/usr/bin/env runcsv
+plash sudo id -u,0,,0
+plash sudo id -g,0,,0
+plash sudo {token},,{error},1
+echo 'echo itsshell' | plash sudo,itsshell,,0

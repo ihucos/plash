@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""
+
+This executes commands specified in a csv and checks if their stdout, stderr
+and exit code matches the values also specified in the csv.
+
+This is not a general purpose script but a pragmatic collection of features
+that seem helpful to test plash.
+"""
+
+import sys, csv, subprocess, tempfile, os
+from fnmatch import fnmatch
+
+try:
+    csvfile = sys.argv[1]
+except IndexError:
+    print("usage: runcsv CSVFILE")
+    sys.exit(1)
+
+ERR_TEMPL = """    expanded: {expanded}
+    reality:  {reality}"""
+
+
+PLASH_DATA = subprocess.check_output(["plash", "data"]).decode().strip("\n")
+
+
+class NamedVar:
+    def __init__(self, create):
+        self.state = {}
+        self.create = create
+
+    def __format__(self, format_spec=""):
+        if not format_spec in self.state:
+            self.state[format_spec] = self.create()
+        return self.state[format_spec]
+
+
+class StackVar:
+    def __init__(self):
+        self.list = []
+
+    def __format__(self, format_spec):
+        return self.list[int(format_spec or 0)]
+
+    def put(self, arg):
+        self.list.append(arg)
+
+
+class ContainerIdVar:
+    def __format__(self, format_spec):
+        id_counter_path = os.path.join(PLASH_DATA, "id_counter")
+        return str(os.path.getsize(id_counter_path) + int(format_spec or 0))
+
+
+class ContextVar:
+    def __format__(self, format_spec):
+        return context[format_spec]
+
+
+def create_template_vars():
+    return {
+        "tmpdir": NamedVar(tempfile.mkdtemp),
+        "tmpfile": NamedVar(lambda: tempfile.mkstemp()[1]),
+        "plash-data": PLASH_DATA,
+        "stderr": StackVar(),
+        "stdout": StackVar(),
+        "id": ContainerIdVar(),
+        "invalid-id": "9999999999",
+        "root-id": "0",
+        "ctx": ContextVar(),
+        "token": "token8743b52063cd84097a65d1633f5c74f5",
+        "usage": "usage: *",
+        "error": "plash error: *",
+    }
+
+
+macros = {
+    "@needs-no-args": [["plash {ctx:file}", "*", "*", "0"]],
+    "@usage-if-no-args": [["plash {ctx:file}", "", "{usage}", "1"]],
+    "@usage-if-one-arg": [["plash {ctx:file} {token}", "", "{usage}", "1"]],
+    "@exports": [
+        ["plash {ctx:file} {id} {tmpdir}/out", "", "", "0"],
+        ["ls {tmpdir}/out", "*", "*", "0"],
+        ["plash {ctx:file}  {id} {tmpdir}/does/not/exists", "*", "*", "1"] # FIXME NOT ZERO!!
+    ],
+}
+
+
+def tokenize_csv_file(csvfile):
+    # tokenize file
+    tokens = []
+    with open(csvfile) as file_obj:
+        for line_vals in csv.reader(file_obj, quotechar="`"):
+            if line_vals:
+                base_entry = [None, "", "", "0"]
+                for counter, arg in enumerate(line_vals):
+                    base_entry[counter] = arg
+                if base_entry[0].startswith("@"):
+                    tokens.extend(macros[base_entry[0]])
+                else:
+                    tokens.append(base_entry)
+    return tokens
+
+
+any_error = False
+saved_cwd = None
+template_vars = create_template_vars()
+if saved_cwd:
+    os.chdir(saved_cwd)
+saved_cwd = os.getcwd()
+context = {}
+
+context["file"] = os.path.basename(csvfile)
+
+for cmd_arg, stdout_arg, stderr_arg, exit_code in tokenize_csv_file(csvfile):
+
+    if cmd_arg == "SKIP":
+        break
+
+    stdout = stdout_arg.format(**template_vars)
+    stderr = stderr_arg.format(**template_vars)
+    cmd = cmd_arg.format(**template_vars)
+
+    # that command is "special"
+    if cmd.split()[0] == "cd":
+        os.chdir(cmd.split()[1])
+        continue
+
+    p = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    child_stdout = p.stdout.decode()
+    child_stderr = p.stderr.decode()
+    child_exit = str(p.returncode)
+
+    # never test for newlines at the end
+    stdout = stdout.rstrip("\n")
+    stderr = stderr.rstrip("\n")
+    child_stdout = child_stdout.rstrip("\n")
+    child_stderr = child_stderr.rstrip("\n")
+
+    template_vars["stdout"].put(child_stdout)
+    template_vars["stderr"].put(child_stderr)
+
+    # print([cmd, child_stdout, child_stderr, child_exit])
+    if (
+        not fnmatch(child_stdout, stdout)
+        or not fnmatch(child_stderr, stderr)
+        or not fnmatch(child_exit, exit_code)
+    ):
+        print(
+            ERR_TEMPL.format(
+                file=csvfile,
+                expanded=[cmd, stdout, stderr, exit_code],
+                reality=[cmd, child_stdout, child_stderr, child_exit],
+            ),
+            file=sys.stderr,
+        )
+        sys.exit(1)

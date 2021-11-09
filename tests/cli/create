@@ -1,0 +1,5 @@
+#!/usr/bin/env runcsv
+@usage-if-no-args
+plash create {id} true,{id:1}
+plash create {id} false,,{error},1
+echo "printf {token}" | plash create {id},{id:1},{token},0
