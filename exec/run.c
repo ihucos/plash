@@ -59,6 +59,12 @@ int main(int argc, char *argv[]) {
   pl_exec_add("-m");
   pl_exec_add("/proc");
 
+  // Mount the entire hosts file system
+  pl_exec_add("-M");
+  pl_exec_add("/");
+  pl_exec_add("-m");
+  pl_exec_add("/host");
+
   // command-starts-now  marker
   pl_exec_add("--");
 
