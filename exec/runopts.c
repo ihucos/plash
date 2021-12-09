@@ -16,6 +16,9 @@
 //        Mount a path to the same location inside the container, can be
 //        specified multiple times
 //
+// -M MOUNT-SRC
+//        Set the source path for the next mount (-m) call
+//
 // -e ENV
 //        Whitelist environment variable for import into container
 //
@@ -41,7 +44,7 @@
 
 #include <plash.h>
 
-#define OPTSTRING "c:d:m:e:E:i"
+#define OPTSTRING "c:d:M:m:e:E:i"
 
 char *get_default_root_shell() {
   struct passwd *pwd = getpwuid(0);
@@ -55,6 +58,7 @@ char *get_default_root_shell() {
 int main(int argc, char *argv[]) {
 
   char *plash_data = pl_call("data");
+  char *mount_src = NULL;
 
   // don't let getopt print error messages
   opterr = 0;
@@ -77,6 +81,9 @@ int main(int argc, char *argv[]) {
     case 'm':
       if (!(optarg[0] == '/'))
         pl_fatal("mount path must be absolute");
+    case 'M':
+      if (!(optarg[0] == '/'))
+        pl_fatal("mount source mount path must be absolute");
     case 'i':
     case 'e':
     case 'E':
@@ -126,12 +133,28 @@ int main(int argc, char *argv[]) {
     switch (opt) {
     case 'm':
 
-      // We need to mount over /etc/resolv.conf but in systemd systems it's a
-      // symlink.  Since we can't mount over symlinks we delete any smymlink
-      // and create there an empty file instead. But only if we have read
-      // access to the filesystem (changesdir is set)
+      // Adapt container root file system if some overlay is used.
       if (changesdir){
-        if (lstat(optarg + 1, &stat_buf) == -1) pl_fatal("lstat");
+	
+	// stat the mount destination
+        if (lstat(optarg + 1, &stat_buf) == -1) {
+
+		// some unexpected error, raise
+		if (errno != ENOENT){
+			pl_fatal("lstat %s)", optarg);
+		}
+
+		// if mount destination was not found, create an empty dir to
+		// mount over
+		if (mkdir(optarg + 1, 0755) == -1){
+			pl_fatal("mkdir %s)", optarg);
+		}
+	}
+
+
+     	// We need to mount over /etc/resolv.conf but in systemd systems it's a
+     	// symlink.  Since we can't mount over symlinks we delete any smymlink
+     	// and create there an empty file instead.
         if (S_ISLNK(stat_buf.st_mode)) {
             if (unlink(optarg + 1) == -1) pl_fatal("unlink");
             if((fd = open(optarg + 1, O_CREAT | O_WRONLY)) < 0) pl_fatal("open");
@@ -139,7 +162,16 @@ int main(int argc, char *argv[]) {
         }
       }
 
-      pl_bind_mount(optarg, optarg + 1);
+      // No source specified via -M, use destination path as source
+      if (mount_src == NULL){
+	      mount_src = optarg;
+      }
+
+      pl_bind_mount(mount_src, optarg + 1);
+      mount_src = NULL;
+      break;
+    case 'M':
+      mount_src = optarg;
       break;
     case 'e':
       pl_whitelist_env(optarg);
