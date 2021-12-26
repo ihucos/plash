@@ -20,7 +20,7 @@
 //        Set the source path for the next mount (-m) call
 //
 // -e ENV
-//        Environment variable for import into container
+//        Environment variable to import into container without the prefix
 //
 #define _GNU_SOURCE
 #include <assert.h>
