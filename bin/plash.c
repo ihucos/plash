@@ -70,8 +70,8 @@ int main(int argc, char *argv[]) {
   //
   // setup environment variables
   //
-  if (asprintf(&newpath, "%s:%s", bindir, path_env) == -1)
-    pl_fatal("asprintf");
+  newpath = pl_sprintf("%s:%s", bindir, path_env);
+
   if (setenv("PYTHONPATH", pylibdir, 1) == -1)
     pl_fatal("setenv");
   if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
@@ -80,8 +80,7 @@ int main(int argc, char *argv[]) {
   //
   // exec lib/exec/<command>
   //
-  if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
-    pl_fatal("asprintf");
+  libexecfile = pl_sprintf("%s/%s", libexecdir, argv[1]);
   execvp(libexecfile, argv + 1);
 
   if (errno != ENOENT)
