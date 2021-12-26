@@ -40,28 +40,15 @@ test $before = $after
 #
 # environemnt handling
 #
-: by default all envs exported
-test "$(env | cut -d= -f1)" = "$(plash runopts -c 1 env | cut -d= -f1)"
+: by default all envs exported with a HOST_ prefix
+test "$(env | cut -d= -f1 | sed -e 's/^/HOST_/')" = "$(plash runopts -c 1 env | cut -d= -f1)"
 
-: no envs exported if -i specified
-out="$(plash runopts -i -c 1 printenv)"
-test "" = "$out"
-
-: only export whitelisted envs
+: exported envs accessible without prefix
 test "A=1
-B=2" = "$(A=1 B=2 plash runopts -e A -e B -c 1 printenv)"
-
-: only export whitelisted envs by another env
-test "A=a" = "$(EXPORT=A A=a plash runopts -c 1 -E EXPORT printenv)"
-: only export multiple whitelisted envs by another env
-test "A=a
-B=b" = "$(EXPORT=A:B A=a B=b plash runopts -c 1 -E EXPORT printenv)"
+B=2" = "$(A=1 B=2 plash runopts -e A -e B -c 1 printenv | grep '^A=\|^B=')"
 
 : not existing env to export does succeed
 plash runopts -c 1 -e daENV true
-
-: not existing env to export envs succeeds
-plash runopts -c 1 -E DAENV true
 
 #
 # Exit codes
