@@ -34,6 +34,7 @@ typedef struct {
 
 } fork_exec_newmap_t;
 
+
 int pl_fatal(char *format, ...) {
   va_list args;
   va_start(args, format);
@@ -44,6 +45,17 @@ int pl_fatal(char *format, ...) {
     fprintf(stderr, ": %s", strerror(errno));
   fprintf(stderr, "\n");
   exit(1);
+}
+
+char* pl_sprintf(char *format, ...) {
+  char *strp = NULL;
+  va_list args;
+  va_start(args, format);
+  va_end(args);
+  if (vasprintf(&strp, format, args) == -1) {;
+    pl_fatal("vasprintf");
+  }
+  return strp;
 }
 
 char *pl_path(const char *relpath) {
@@ -109,39 +121,6 @@ int pl_parse_subid(const char *file, const char *query1, const char *query2,
   if (label)
     free(label);
   return 0;
-}
-
-void pl_whitelist_env(char *env_name) {
-  char *n, *v, *swap;
-  static size_t env_counter = 0;
-  if (!env_name)
-    environ[env_counter++] = NULL;
-  else {
-    for (size_t i = env_counter; environ[i]; i++) {
-      for (n = env_name, v = environ[i]; *n && *v && *n == *v; n++, v++)
-        ;
-      if (*v == '=' && *n == 0) {
-        swap = environ[env_counter];
-        environ[env_counter] = environ[i];
-        environ[i] = swap;
-        env_counter++;
-      }
-    }
-  }
-}
-
-void pl_whitelist_envs_from_env(const char *export_env) {
-  char *str;
-  char *token;
-  if ((str = getenv(export_env))) {
-    str = strdup(str);
-    token = strtok(str, ":");
-    while (token) {
-      pl_whitelist_env(token);
-      token = strtok(NULL, ":");
-    }
-    free(str);
-  }
 }
 
 void pl_bind_mount(const char *src, const char *dst) {

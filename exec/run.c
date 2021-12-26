@@ -40,8 +40,6 @@ int main(int argc, char *argv[]) {
   pl_exec_add("HOME");
   pl_exec_add("-e");
   pl_exec_add("PLASH_DATA");
-  pl_exec_add("-E");
-  pl_exec_add("PLASH_EXPORT");
   
   // mountpoints
   pl_exec_add("-m");

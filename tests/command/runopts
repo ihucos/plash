@@ -28,9 +28,7 @@ cmp /etc/passwd $tmp
 : mount to different location
 tmp=$(mktemp)
 changesdir=$(mktemp -d)
-plash runopts -c 1 -d $changesdir -M /etc/passwd -m /mnt cat /mnt > $tmp
-cat $tmp
-cmp /etc/passwd $tmp
+plash runopts -c 1 -d /tmp/tmp.blo0wTDbzE -M /etc/ -m /mnt ls /mnt/passwd
 
 : no mount namespace pollutions
 new=$(plash create 1 ls)
