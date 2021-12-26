@@ -9,11 +9,10 @@ ALIASES = dict(
     # latest release.
     A=[["from", "alpine:edge"], ["apk"]],
     U=[["from", "ubuntu:focal"], ["apt"]],
-    F=[["from", "fedora:32"], ["dnf"]],
-    D=[["from", "debian:sid"], ["apt"]],
+    F=[["from", "fedora:35"], ["dnf"]],
+    D=[["from", "debian:bullseye"], ["apt"]],
     C=[["from", "centos:8"], ["yum"]],
     R=[["from", "archlinux:current"], ["pacman"]],
-    G=[["from", "gentoo:current"], ["emerge"]],
 )
 
 for name, macro in ALIASES.items():
