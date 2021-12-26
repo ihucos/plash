@@ -49,8 +49,5 @@ stdout=$(mktemp)
 (! plash create 1 false > $stdout)
 (! test -s $stdout) # its empty
 
-: PLASH_EXPORT is ignored
-test "$(PLASH_EXPORT=A A=a plash create 1 sh -c 'echo MARKER$A' 2>&1 | grep MARKER | grep -v +)" = 'MARKER'
-
 : HOME is exported
 test "$(HOME=a plash create 1 sh -c 'echo MARKER$HOME' --invalidate-layer 2>&1 | grep MARKER | grep -v +)" = MARKERa
