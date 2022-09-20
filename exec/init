@@ -39,7 +39,7 @@ try:
 except FileExistsError:
     pass
 
-union_taste = os.environ.get("PLASH_INIT_UNION_TASTE", "unionfs-fuse")
+union_taste = os.environ.get("PLASH_INIT_UNION_TASTE", "overlay")
 try:
     with open(join(plash_data, "config", "union_taste"), "x") as f:
         f.write("{}\n".format(union_taste))
