@@ -48,7 +48,7 @@ Threads < Processes < Plash < Containers < Virtualisation < Physical computer
 
 In general, the more to the left something is on the spectrum, the less flexible it is, but the more integrated it is with the system, allowing it to share existing resources. Plash containers are more constrained than traditional containers, but in exchange, they have access to resources that would typically only be available to processes.
 
-### Resources plash containers share with it’s caller:
+### Resources plash containers share with it’s caller
 - Network access, including access to the hosts localhost
 - The user's home directory
 - The tmp directory (during runtime, not during building)
