@@ -38,7 +38,7 @@ https://ihucos.github.io/plash-docs-deploy/
 - Nested plash instances are not possible with `unionfs-fuse` (#69).  But
   `fuse-overlayfs` and `overlay` work fine.
   
-## Plash In Comparison With Other Container Engines
+## Plash vs Other Container Engines
 
 Plash containers are not necessarily true containers because they do not fully isolate themselves from the host system and do not have additional security measures set in place. Instead, they are more like a combination of processes and containers, and can be treated like normal processes (e.g., they can be killed). Plash containers also have access to the home directory of the user who started them. To better understand this concept, refer to the provided diagram. 
 
