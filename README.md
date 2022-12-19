@@ -56,7 +56,7 @@ In general, the more to the left something is on the spectrum, the less flexible
 
 ### Resources unique to a plash containers
 - The mount namespace
-- The root folder, allowing running a different linux distribution.
+- The root folder, allowing running a different linux distribution
 
 
 
