@@ -62,11 +62,13 @@ In general, the more to the left something is on the spectrum, the less flexible
 
 I want to edit an image at my Desktop with the gimp image editor.
 
+```
 $ plash build --from alpine:edge --apk gimp
 112
 $ plash run 112 gimp
+```
 
-Gimp automatically has access to my X-Server and pop ups. It also has access to my home folder and all my files. But it does run on an alpine distribution and pretty much only in that regard is independent from my host operating system.
+Gimp automatically has access to my X-Server and pop ups on my screen. It also has access to my home folder and all my files. But it does run on an alpine distribution and pretty much only in that regard is independent from my host operating system.
 
 
 
