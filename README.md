@@ -70,7 +70,7 @@ $ plash run 112 gimp
 
 Gimp automatically has access to my X-Server and pop ups on my screen. It also has access to my home folder and all my files. But it does run on an alpine distribution and pretty much only in that regard is independent from its host operating system.
 
-## Conclusion
+### Conclusion
 
 Plash containers are just a normal Linux process that happen to run on a different root filesystem. This means that they have their own set of benefits and drawbacks and may be more or less suitable for a particular use case.
 
