@@ -141,14 +141,14 @@ What if we wanted to use the dotfile program which is distributed via pip
 plash --A py3-pip --pip3 dotfiles -- dotfiles --sync
 ```
 
-Great, but now if we install a different pip package via the same method, it would download the py3-pip package again. The solution is layers, which in plash are explicit.
+Great, but now if we install a different pip package via the same method, it would download the `py3-pip` package again. The solution is layers, which in plash are explicit.
 
 ```
 plash --A py3-pip --layer --pip3 dotfiles
 plash --A py3-pip --layer --pip3 pyexample # won't install py3-pip again.
 ```
 
-Congratulation you absolved the Simple Tutorial. Your personal identification token is: jk3s92hh. Use it to prove your participation.
+Congratulation you absolved the Simple Tutorial. Your personal identification token is: `adfjk3s9hh`. Use it to prove your participation.
 
 
 ## Development Guidelines
