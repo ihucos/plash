@@ -81,7 +81,7 @@ Plash containers are just a normal Linux process that happen to run on a differe
 A plash image refers to the file system of an operating system that was created usually by `plash build`. Plash images have a numeric id that can be passed to `plash run` in order to run an image. A image that is running may be referred as container. You could import a docker image into plash by calling `plash import-docker mydockerimage`.
 
 ### Plash container
-A plash containers is a Linux processes that was started with the help of plash. Typically you start a plash container with the `plash run` subcommand. E. G. “plash run 23 cowsay hi”. Since plash containers are just Linux processes you can list them with `ps` or `top` and kill them with `kill`.  
+A plash containers is a Linux processes that was started with the help of plash. Typically you start a plash container with the `plash run` subcommand. E. G. `plash run 23 cowsay hi`. Since plash containers are just Linux processes you can list them with `ps` or `top` and kill them with `kill`.  
 
 ### Plash macro
 A plash macro may also be referred as a build command. Macros are instructions used to build images. One example is the `apt` macro which installs any given package or packages with the `apt` package manager. Internally a macro does nothing more than to emit shell code that is executed when an image is build. Use `plash —help-macros` to list all macros.
