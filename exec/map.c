@@ -58,8 +58,7 @@ void set(char const *linkpath, char *container_id) {
 
   if (chdir(pl_call("mkdtemp")) == -1)
     pl_fatal("chdir");
-  if (asprintf(&nodepath, "..%s", nodepath + strlen(plash_data)) == -1)
-    pl_fatal("asprintf");
+  nodepath = pl_sprintf("..%s", nodepath + strlen(plash_data));
   if (symlink(nodepath, "link") == -1)
     pl_fatal("symlink");
   if (rename("link", linkpath) == -1)
@@ -85,8 +84,7 @@ int main(int argc, char *argv[]) {
     pl_fatal("'/' not allowed in map name");
 
   // the location of the symlink for this map key
-  if (asprintf(&linkpath, "%s/map/%s", plash_data, argv[1]) == -1)
-    pl_fatal("asprintf");
+  linkpath = pl_sprintf("%s/map/%s", plash_data, argv[1]);
 
   if (argc == 2) {
     get(linkpath);

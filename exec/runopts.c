@@ -20,15 +20,8 @@
 //        Set the source path for the next mount (-m) call
 //
 // -e ENV
-//        Whitelist environment variable for import into container
+//        Environment variable to import into container without the prefix
 //
-// -E ENV
-//        Whitelist all environment variables specified in given environment
-//        variable. Separator is ':'
-//
-// -i
-//        Start with empty environment. -e and -E implies -i
-
 #define _GNU_SOURCE
 #include <assert.h>
 #include <errno.h>
@@ -44,7 +37,8 @@
 
 #include <plash.h>
 
-#define OPTSTRING "c:d:M:m:e:E:i"
+#define OPTSTRING "c:d:M:m:e:"
+#define HOST_ENVS_PREFIX "HOST_"
 
 char *get_default_root_shell() {
   struct passwd *pwd = getpwuid(0);
@@ -69,7 +63,6 @@ int main(int argc, char *argv[]) {
   int opt;
   char *changesdir = NULL;
   char *container = NULL;
-  int manage_envs = 0;
   while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
     switch (opt) {
     case 'c':
@@ -81,17 +74,14 @@ int main(int argc, char *argv[]) {
     case 'm':
       if (!(optarg[0] == '/'))
         pl_fatal("mount path must be absolute");
+      break;
     case 'M':
       if (!(optarg[0] == '/'))
         pl_fatal("mount source mount path must be absolute");
-    case 'i':
-    case 'e':
-    case 'E':
-      manage_envs = 1;
       break;
     case ':':
+      printf("asdfasdf\n");
       pl_usage();
-      break;
     case '?':
       pl_usage();
     }
@@ -120,6 +110,24 @@ int main(int argc, char *argv[]) {
   //
   pl_call("mount", container, "mnt",
           changesdir); // changesdir is ignored if it is NULL
+
+  // add prefix to all envs
+  for (size_t i = 0; environ[i]; i++) {
+      environ[i] = pl_sprintf(HOST_ENVS_PREFIX "%s", environ[i]);
+  }
+
+  // take over specified envs from the host
+  optind = 1; // reset the getopt
+  char *val;
+  while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
+    switch (opt) {
+    case 'e':
+	    val = getenv(pl_sprintf(HOST_ENVS_PREFIX "%s", optarg));
+	    if (val){
+		    putenv(pl_sprintf("%s=%s", optarg, val));
+	    }
+    }
+  }
 
   //
   // mount requested mounts
@@ -173,17 +181,9 @@ int main(int argc, char *argv[]) {
     case 'M':
       mount_src = optarg;
       break;
-    case 'e':
-      pl_whitelist_env(optarg);
-      break;
-    case 'E':
-      pl_whitelist_envs_from_env(optarg);
-      break;
     }
   }
 
-  if (manage_envs)
-    pl_whitelist_env(NULL);
 
   //
   // chroot, then reconstruct working directory

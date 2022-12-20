@@ -34,10 +34,9 @@ char *get_home_dir() {
 }
 
 char *get_plash_data() {
-  char *plash_data;
-  if (!(plash_data = getenv("PLASH_DATA"))) {
-    if (asprintf(&plash_data, "%s/.plashdata", get_home_dir()) == -1)
-      pl_fatal("asprintf");
+  char *plash_data = getenv("PLASH_DATA");
+  if (!plash_data) {
+	  return pl_sprintf("%s/.plashdata", get_home_dir());
   }
   return plash_data;
 }

@@ -10,9 +10,11 @@
 
 int main() {
   char *tmpdir, *tmpdir_templ;
-  if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", pl_call("data"),
-               getsid(0), getppid()) == -1)
-    pl_fatal("asprintf");
+  tmpdir_templ = pl_sprintf(
+		  "%s/tmp/plashtmp_%d_%d_XXXXXX",
+		  pl_call("data"),
+		  getsid(0),
+		  getppid());
   tmpdir = mkdtemp(tmpdir_templ);
   if (tmpdir == NULL)
     pl_fatal("mkdtemp: %s", tmpdir_templ);

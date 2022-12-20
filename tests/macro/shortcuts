@@ -5,9 +5,8 @@ test "$out" = hi
 
 : test pinned down version in shortcuts
 plash import-lxc alpine:edge --dry
-plash import-lxc ubuntu:bionic --dry
-plash import-lxc fedora:31 --dry
-plash import-lxc debian:sid --dry
+plash import-lxc ubuntu:focal --dry
+plash import-lxc fedora:35 --dry
+plash import-lxc debian:bullseye --dry
 plash import-lxc centos:8 --dry
 plash import-lxc archlinux:current --dry
-plash import-lxc gentoo:current --dry
