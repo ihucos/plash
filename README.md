@@ -48,7 +48,7 @@ Threads < Processes < Plash < Containers < Virtualisation < Physical computer
 
 In general, the more to the left something is on the spectrum, the less flexible it is, but the more integrated it is with the system, allowing it to share existing resources. Plash containers are more constrained than traditional containers, but in exchange, they have access to resources that would typically only be available to processes.
 
-### Resources plash containers share with it’s caller
+### Resources plash containers share with it's caller
 - Network access, including access to the hosts localhost
 - The user's home directory
 - The tmp directory (during runtime, not during building)
@@ -58,7 +58,7 @@ In general, the more to the left something is on the spectrum, the less flexible
 - The mount namespace
 - The root folder, allowing running a different linux distribution
 
-### Let’s look at an example
+### Let's look at an example
 
 I want to edit an image at my Desktop with the gimp image editor.
 
@@ -102,14 +102,14 @@ arg2
 ## Simple Tutorial
 
 
-Let’s build an image
+Let's build an image
 
 ```
-$ plash build --from alpine:edge --run ‘apk update’ --run ‘apk add git’
+$ plash build --from alpine:edge --run ‘apk update' --run ‘apk add git'
 4
 ```
 
-We have now an alpine image with git installed. Let’s run it.
+We have now an alpine image with git installed. Let's run it.
 ```
 $ plash run 4 git status
 ```
@@ -127,13 +127,13 @@ Can we have that all in one line? Of course!
 plash --from alpine:edge --apk git -- git status
 ```
 
-Still little long, let’s use the “-A” macro, which allows us to specify Alpine Linux and it’s package manager at once.
+Still little long, let's use the “-A” macro, which allows us to specify Alpine Linux and it's package manager at once.
 
 ```
 plash --A git -- git status
 ```
 
-Now let’s look at something completely different, layers.
+Now let's look at something completely different, layers.
 
 What if we wanted to use the dotfile program which is distributed via pip
 
@@ -145,10 +145,10 @@ Great, but now if we install a different pip package via the same method, it wou
 
 ```
 plash --A py3-pip --layer --pip3 dotfiles
-plash --A py3-pip --layer --pip3 pyexample # won’t install py3-pip again.
+plash --A py3-pip --layer --pip3 pyexample # won't install py3-pip again.
 ```
 
-Let’s inspect how our build instructions are run behind the scene.
+Let's inspect how our build instructions are run behind the scene.
 $ plash eval -A py3-pip --layer --pip3 dotfiles
 ### plash hint: image=4
 apk update
