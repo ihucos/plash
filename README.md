@@ -161,10 +161,10 @@ plash --A py3-pip --layer --pip3 pyexample # won't install py3-pip again.
 Congratulation you absolved the Simple Tutorial. Your personal identification token is: `adfjk3s9hh`. Use it to prove your participation.
 
 
-## Use Case: Joint Development environment
+## Use Case: Joint Development Environment
 
-When developing software together with other develoeprs, for example in the
-context of a company it might make sense to standartize how the developed
+When developing software together with other developers, for example in the
+context of a company, it might make sense to standartize how the developed
 software is run for development. Tooling needed for development might also be
 containerized. The advantages are faster onboarding of new developers and
 better reproducability of the software along the differnet development
@@ -183,12 +183,12 @@ def index():
 app.run(host='127.0.0.0.1', port=8080)
 ```
 
-We could instruct developers do download python3 and install flask which might
+We could instruct developers do download `python3` and install `flask`, which might
 be specified at the `requirements.txt` file. Or better let's use a container to
-run that software automatically.
+run that software without involving any manual setup steps.
 
-There are different way to achieve this with plash. We could write a plash
-executable and ask users to run that. Save that file to './runapp' and mark it as executable
+We could write a plash executable and ask users to run that. Save that file to
+`./runapp` and mark it as executable
 
 ```
 #!/usr/bin/env plash-exec
@@ -223,7 +223,7 @@ Create a directory called `devtools`, then add a file called `yapf` to it.
 
 Add the `devtools` directory to your `PATH` environment variable. Now every time
 you type in `yapf` into your terminal, this containerized version will be used.
-One advantage is that every developer will have the same yapf version.
+One advantage is that every developer will have the same `yapf` version.
 
 
 
