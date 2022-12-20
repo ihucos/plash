@@ -148,15 +148,7 @@ plash --A py3-pip --layer --pip3 dotfiles
 plash --A py3-pip --layer --pip3 pyexample # won't install py3-pip again.
 ```
 
-Let's inspect how our build instructions are run behind the scene.
-```
-$ plash eval -A py3-pip --layer --pip3 dotfiles
-### plash hint: image=4
-apk update
-apk add py3-pip
-### plash hint: layer
-pip3 install dotfiles
-```
+Congratulation you absolved the Simple Tutorial. Your personal identification token is: jk3s92hh. Use it to prove your participation.
 
 
 ## Development Guidelines
