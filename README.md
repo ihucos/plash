@@ -153,6 +153,58 @@ plash --A py3-pip --layer --pip3 pyexample # won't install py3-pip again.
 Congratulation you absolved the Simple Tutorial. Your personal identification token is: `adfjk3s9hh`. Use it to prove your participation.
 
 
+## Use Case: Standartized Development environment
+
+When developing software together with other develoeprs, for example in the
+context of a company it might make sense to standartize how the developed
+software is run for development. Tooling needed for development might also be
+containerized. The advantages are faster onboarding of new developers and
+better reproducability of the software along the differnet development
+computers.
+
+
+Let's take a look at the following software.
+
+```
+# app.py
+from flask import Flask
+app = Flask(__name__)
+@app.route('/')
+def index():
+    return 'Web App with Python Flask'
+app.run(host='127.0.0.0.1', port=8080)
+```
+
+We could instruct developers do download python3 and install flask which might
+be specified at the `requirements.txt` file. Or better let's use a container to
+run that software automatically.
+
+There are different way to achieve this with plash. We could write a plash
+executable and ask users to run that. Save that file to './runapp' and mark it as executable
+
+```
+#!/usr/bin/env plash-exec
+--from alpine:edge
+--apk py3-pip
+--layer
+--hash-path ./requirements.txt
+--run
+pip3 install -r ./requirements.txt
+
+--entrypoint
+python3 app.py
+```
+
+
+Now developers can run the application simply by executing `./runapp`. When the
+`requirements.txt` file changes, all steps after the `--hash-path` build
+command are rerun so that modification in the requirements file can take
+effect.
+
+
+
+
+
 ## Development Guidelines
 
 - Keep the script character.
