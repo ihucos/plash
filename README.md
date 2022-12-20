@@ -84,7 +84,7 @@ A plash image refers to the file system of an operating system that was created 
 A plash containers is a Linux processes that was started with the help of plash. Typically you start a plash container with the `plash run` subcommand. E. G. `plash run 23 cowsay hi`. Since plash containers are just Linux processes you can list them with `ps` or `top` and kill them with `kill`.  
 
 ### Plash macro
-A plash macro may also be referred as a build command. Macros are instructions used to build images. One example is the `apt` macro which installs any given package or packages with the `apt` package manager. Internally a macro does nothing more than to emit shell code that is executed when an image is build. Use `plash —help-macros` to list all macros.
+A plash macro may also be referred as a build command. Macros are instructions used to build images. One example is the `apt` macro which installs any given package or packages with the `apt` package manager. A more complete example for the usage of the `apt` macro could be: `plash build --from ubuntu:focal --apt nmap`. Internally a macro does nothing more than to emit shell code that is executed when an image is build. Use `plash —help-macros` to list all macros.
 
 ### Plash build file
 A plash build file is a file containing a set of macros. Building an image from a build file can be achieved with following command `plash build —eval-file ./my-plash-build-file`.  Interestingely `eval-file` which is used to "run" build files is itself a macro. As macros emit shell code so do plash build files.
