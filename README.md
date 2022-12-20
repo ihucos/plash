@@ -105,7 +105,7 @@ arg2
 Let's build an image
 
 ```
-$ plash build --from alpine:edge --run ‘apk update' --run ‘apk add git'
+$ plash build --from alpine:edge --run 'apk update' --run 'apk add git'
 4
 ```
 
@@ -127,7 +127,7 @@ Can we have that all in one line? Of course!
 plash --from alpine:edge --apk git -- git status
 ```
 
-Still little long, let's use the “-A” macro, which allows us to specify Alpine Linux and it's package manager at once.
+Still little long, let's use the `-A` macro, which allows us to specify Alpine Linux and it's package manager at once.
 
 ```
 plash --A git -- git status
