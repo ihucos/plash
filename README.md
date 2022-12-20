@@ -93,6 +93,14 @@ A plash build file is a file containing a set of macros. Building an image from 
 
 The syntax of plash build files is inspired by command line arguments which would typically be passed directly to `plash build`. Example
 
+### Plash executable
+Take a build file, have `#!/usr/bin/env plash-exec` as its first line, mark it
+as executable and specify it's entrypoint executable with the `entrypoint` macro.
+That is a plash executable. Now you you can build and run containerized
+software without knowing that containers or plash exist.
+
+
+
 ```
 $ cat ./my-plash-build-file
 --macro1
@@ -153,7 +161,7 @@ plash --A py3-pip --layer --pip3 pyexample # won't install py3-pip again.
 Congratulation you absolved the Simple Tutorial. Your personal identification token is: `adfjk3s9hh`. Use it to prove your participation.
 
 
-## Use Case: Standartized Development environment
+## Use Case: Joint Development environment
 
 When developing software together with other develoeprs, for example in the
 context of a company it might make sense to standartize how the developed
@@ -201,7 +209,21 @@ Now developers can run the application simply by executing `./runapp`. When the
 command are rerun so that modification in the requirements file can take
 effect.
 
+We can also take this one step forward and containerize development tools.
+Create a directory called `devtools`, then add a file called `yapf` to it.
 
+```
+#!/usr/bin/env plash-exec
+--from alpine:edge
+--apk py3-pip
+--layer
+--pip3 yapf==0.32.0
+--entrypoint yapf
+```
+
+Add the `devtools` directory to your `PATH` environment variable. Now every time
+you type in `yapf` into your terminal, this containerized version will be used.
+One advantage is that every developer will have the same yapf version.
 
 
 
