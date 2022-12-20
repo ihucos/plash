@@ -93,6 +93,15 @@ A plash build file is a file containing a set of macros. Building an image from 
 
 The syntax of plash build files is inspired by command line arguments which would typically be passed directly to `plash build`. Example
 
+```
+$ cat ./my-plash-build-file
+--macro1
+arg1
+arg2
+--macro2 arg1 arg2
+```
+
+
 ### Plash executable
 Take a build file, have `#!/usr/bin/env plash-exec` as its first line, mark it
 as executable and specify it's entrypoint executable with the `entrypoint` macro.
@@ -101,13 +110,6 @@ software without knowing that containers or plash exist.
 
 
 
-```
-$ cat ./my-plash-build-file
---macro1
-arg1
-arg2
---macro2 arg1 arg2
-```
 
 ## Simple Tutorial
 
