@@ -74,6 +74,30 @@ Gimp automatically has access to my X-Server and pop ups on my screen. It also h
 
 Plash containers are just a normal Linux process that happen to run on a different root filesystem. This means that they have their own set of benefits and drawbacks and may be more or less suitable for a particular use case.
 
+## Basic concepts
+
+
+### Plash image
+A plash image refers to the file system of an operating system that was created usually by `plash build`. Plash images have a numeric id that can be passed to `plash run` in order to run an image. A image that is running may be referred as container. You could import a docker image into plash by calling `plash import-docker mydockerimage`.
+
+### Plash container
+A plash containers is a Linux processes that was started with the help of plash. Typically you start a plash container with the `plash run` subcommand. E. G. “plash run 23 cowsay hi”. Since plash containers are just Linux processes you can list them with `ps` or `top` and kill them with `kill`.  
+
+### Plash macro
+A plash macro may also be referred as a build command. Macros are instructions used to build images. One example is the `apt` macro which installs any given package or packages with the `apt` package manager. Internally a macro does nothing more than to emit shell code that is executed when an image is build. Use `plash —help-macros` to list all macros.
+
+### Plash build file
+A plash build file is a file containing a set of macros. Building an image from a build file can be achieved with following command `plash build —eval-file ./my-plash-build-file`.  Interestingely `eval-file` which is used to `run` build files is itself a macro. As macros emit shell code that us run when a container is build, so do plash build files.
+
+The syntax of plash build files is inspired by command line arguments which would typically be passed directly to `plash build`. Example
+
+```
+$ cat ./my-plash-build-file
+—macro1
+arg1
+arg2
+—macro2 arg1 arg2
+```
 
 
 ## Development Guidelines
