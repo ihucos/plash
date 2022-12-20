@@ -87,7 +87,7 @@ A plash containers is a Linux processes that was started with the help of plash.
 A plash macro may also be referred as a build command. Macros are instructions used to build images. One example is the `apt` macro which installs any given package or packages with the `apt` package manager. Internally a macro does nothing more than to emit shell code that is executed when an image is build. Use `plash —help-macros` to list all macros.
 
 ### Plash build file
-A plash build file is a file containing a set of macros. Building an image from a build file can be achieved with following command `plash build —eval-file ./my-plash-build-file`.  Interestingely `eval-file` which is used to `run` build files is itself a macro. As macros emit shell code that us run when a container is build, so do plash build files.
+A plash build file is a file containing a set of macros. Building an image from a build file can be achieved with following command `plash build —eval-file ./my-plash-build-file`.  Interestingely `eval-file` which is used to "run" build files is itself a macro. As macros emit shell code so do plash build files.
 
 The syntax of plash build files is inspired by command line arguments which would typically be passed directly to `plash build`. Example
 
