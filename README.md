@@ -121,7 +121,7 @@ Can we have that shorter? Yes.
 $ plash build --from alpine:edge --apk add
 ```
 
-Can we have that all in one line? Of course!
+Can we have building and running in one line? Of course!
 
 ```
 plash --from alpine:edge --apk git -- git status
