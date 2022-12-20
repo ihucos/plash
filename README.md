@@ -19,7 +19,7 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
   - `python3`, `bash`, `make` and `cc`
   - Linux Kernel >= 4.18
   - `unionfs-fuse`, `fuse-overlayfs` or access to the kernel's builtin overlay filesystem
-  - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users (Needed be e.G. `apt`)
+  - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users (needed by e.G. `apt`)
 
 ## Documentation
 ```plash --from alpine --apk xeyes -- xeyes```
