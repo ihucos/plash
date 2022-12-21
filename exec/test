@@ -19,7 +19,8 @@ for script in $testfiles ; do
   export PLASH_DATA=$tmp
   plash init
   plash data touch config/testmode
-  plash import-tar $PROJECT_DIR/data/busybox.tar > /dev/null
+  machine="$(uname --machine)"
+  plash import-tar $PROJECT_DIR/data/test-rootfs-"$machine".tar > /dev/null
 
   printf "% -20s" ${script:2} # magic 2 is the length of "./"
   env "$script" > $log 2>&1 &

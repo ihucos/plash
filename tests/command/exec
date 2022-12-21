@@ -5,7 +5,7 @@ set -eux
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
 --entrypoint
-/bin/printf
+/usr/bin/printf
 --from
 1
 ' >> $plashfile
