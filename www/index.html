@@ -6,7 +6,7 @@
 
 body {
   font-family: sans-serif;
-  max-width: 1000px;
+  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -59,31 +59,19 @@ img {
 <a href="https://github.com/ihucos/plash"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
 <i>Last updated: {{ generated }}</i>
-<h1>Plash</h1>
+<h1>Plash Reference</h1>
 <p>Plash is a containerization engine.
-<h2>Subcommand reference</h2>
+<h2>Subcommands</h2>
 </pre>
 <table>
 {% for prog, short in progs %}
-<tr>
-  <td>
-    {% if loop.last %}
-      {{ prog|e }}
-    {% else %}
+<div style="min-width: 8em; display: inline-block;">
       <a href="{{ prog|e}}.html">{{ prog|e }}</a>
-    {% endif %}
-  </td>
-  <td>
-    {{ short|e }}
-  </td>
-</tr>
+</div>
 {% endfor %}
 </table>
 
-<h2>Command Dependencies</h2>
-<img src="graph.svg"></img>
-
-<h2>Macros ("build commands") reference</h2>
+<h2>Build commands ("macros")</h2>
 
 <table>
 {% for macro, short in macros %}
@@ -98,6 +86,8 @@ img {
 {% endfor %}
 </table>
 
+<h2>Command Dependencies</h2>
+<img src="graph.svg"></img>
 
 <h2>Breadcrumbs</h2>
 <h3>Image editing with gimp</h3>

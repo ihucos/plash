@@ -29,7 +29,7 @@ def render(tpl_path, **context):
 
 out = check_output([PLASH_EXECUTABLE, 'help'])
 out = out.decode()
-progs = (i.split(None, 2)[1:] for i in out.splitlines())
+progs = [i.split(None, 2)[1:] for i in out.splitlines()][:-1]
 macros = check_output([PLASH_EXECUTABLE, 'help-macros']).decode()
 
 macros_list = [(a.strip(), b.strip()) for (a, b) in [line.split("=") for line in macros.splitlines() if '=' in line]]

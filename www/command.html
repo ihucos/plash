@@ -3,6 +3,11 @@
 <meta charset="utf-8"/>
 <title>plash reference for {{prog}}</title>
 
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/vs.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+
 
 <style>
 
@@ -35,7 +40,8 @@ pre {
   font-size: 14px;
 }
 
-.description {
+code {
+  padding: 0 !important;
 }
 
 </style>
@@ -64,8 +70,8 @@ pre {
   <h2>Tested behaviour</h2>
   {% for type, line in test_patterns %}
     {% if type == "code" %}
-      <pre style="display: inline">{{ line|e }}
-</pre>
+      <pre style="display: inline; margin: 0px;"><code class="language-bash">{{ line|e }}
+</code></pre>
     {% else %}
       <h3>{{ line|e }}</h3>
     {% endif %}
@@ -73,7 +79,7 @@ pre {
 {% endif %}
 
 <h2>Source Code</h2>
-<pre>{{ after_doc|e }}</pre>
+<pre><code>{{ after_doc|e }}</code></pre>
 
 
 </body>
