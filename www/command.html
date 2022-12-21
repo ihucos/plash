@@ -2,36 +2,77 @@
 <head>
 <meta charset="utf-8"/>
 <title>plash reference for {{prog}}</title>
+
+
+<style>
+
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5em;
+  margin-top: 16px;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5em;
+}
+
+h3 {
+  font-size: 1.2em;
+  margin-bottom: 1em;
+  margin-top: 1em;
+}
+
+pre {
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.description {
+}
+
+</style>
+
+
 </head>
 <body>
 
 <a href="https://github.com/ihucos/plash"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
-<h1>Usage</h1>
+
+<h1>plash {{ prog | e }}</h1>
+
+<h2>Usage</h2>
 <pre>{{ usage|e }}</pre>
 
-<h1>Description</h1>
+<h2>Description</h2>
 <pre>{{ doc|e }}</pre>
 
 {% if example %}
-  <h1>Example</h1>
+  <h2>Example</h2>
   <pre>{{ example|e }}</pre>
 {% endif %}
 
 {% if test_patterns %}
-  <h1>Tested behaviour</h1>
-  <h3>Preface</h3>
+  <h2>Tested behaviour</h2>
   {% for type, line in test_patterns %}
     {% if type == "code" %}
-      <pre style="display: inline;">{{ line|e }}
+      <pre style="display: inline">{{ line|e }}
 </pre>
     {% else %}
-      <h3>{{line.capitalize()}}</h3>
+      <h3>{{ line|e }}</h3>
     {% endif %}
   {% endfor %}
 {% endif %}
 
-<h1>Source Code</h1>
+<h2>Source Code</h2>
 <pre>{{ after_doc|e }}</pre>
 
 

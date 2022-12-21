@@ -163,7 +163,7 @@ plash --A py3-pip --layer --pip3 pyexample # won't install py3-pip again.
 Congratulation you absolved the Simple Tutorial. Your personal identification token is: `adfjk3s9hh`. Use it to prove your participation.
 
 
-## Use Case: Joint Development Environment
+## Use Case: Containerzied Project Environment
 
 When developing software together with other developers, for example in the
 context of a company, it might make sense to standartize how the developed
