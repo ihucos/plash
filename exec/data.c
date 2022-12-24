@@ -9,8 +9,8 @@
 // $ plash data
 // /home/myuser/.plashdata
 //
-// $ plash data cat config/union_taste
-// unionfs-fuse
+// $ plash data ls
+// id_counter  index  layer  map  mnt  tmp
 
 #define _GNU_SOURCE
 

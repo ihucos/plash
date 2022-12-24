@@ -2,16 +2,7 @@
 #
 # usage: plash init
 #
-# Initialize build data. Run this on a new system before anything else.  By
-# default the union mount program  will be unionfs-fuse, if a different union
-# taste is desired, it can be changed with:
-# $ echo overlay | plash data tee config/union_taste
-#
-# It is also possible to change the default union taste of plash init with the
-# environment variable `PLASH_INIT_UNION_TASTE`.
-#
-# Warning: how the union taste is or can be selected is something not set in
-# stone yet.
+# Initialize build data. Run this on a new system before anything else.#
 
 import os
 import platform
@@ -28,7 +19,6 @@ os.makedirs(join(plash_data, "map"), exist_ok=True)
 os.makedirs(join(plash_data, "layer"), exist_ok=True)
 os.makedirs(join(plash_data, "tmp"), exist_ok=True)
 os.makedirs(join(plash_data, "mnt"), exist_ok=True)
-os.makedirs(join(plash_data, "config"), exist_ok=True)
 
 # create the empty root container
 os.makedirs(join(plash_data, "layer", "0", "_data", "root"), exist_ok=True)
@@ -36,13 +26,6 @@ os.makedirs(join(plash_data, "layer", "0", "_data", "root"), exist_ok=True)
 try:
     with open(join(plash_data, "id_counter"), "x") as f:
         pass
-except FileExistsError:
-    pass
-
-union_taste = os.environ.get("PLASH_INIT_UNION_TASTE", "overlay")
-try:
-    with open(join(plash_data, "config", "union_taste"), "x") as f:
-        f.write("{}\n".format(union_taste))
 except FileExistsError:
     pass
 
