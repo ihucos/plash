@@ -59,50 +59,6 @@ count = remove_broken_links(maps_dir)
 print(count)
 
 #
-# remove unused fuse mount processes
-#
-sys.stdout.write("killed_fuses: ")
-sys.stdout.flush()
-used_mountpoint = os.path.join(plash_data, "mnt")
-mnt_ns_counter = Counter()
-running_unionfs = {}
-killed = 0
-for pid in os.listdir("/proc"):
-    if not pid.isdigit():
-        continue
-
-    # read process mount namespace and command line arguments
-    try:
-        mntns = os.readlink(os.path.join("/proc", pid, "ns", "mnt"))
-        cmdline_path = os.path.join("/proc", pid, "cmdline")
-        with open(cmdline_path) as f:
-            cmd = f.read().split("\0")[:-1]
-    except OSError:
-        continue
-
-    # collect unionfs processes mounted at this plash data
-    if (
-        cmd
-        and os.path.basename(cmd[0]) in ("unionfs", "unionfs-fuse")
-        and (cmd[-1] == used_mountpoint)
-    ):
-        running_unionfs[pid] = mntns
-
-    mnt_ns_counter.update([mntns])
-for unionfs_pid, mntns in running_unionfs.items():
-    count = mnt_ns_counter[mntns]
-
-    # check if this unionfs_pid instance is the only one using
-    # it's mount namespace
-    if count == 1:
-        try:
-            os.kill(int(unionfs_pid), signal.SIGINT)
-            killed += 1
-        except OSError:
-            pass
-print(killed)
-
-#
 # Remove unused tmp dirs in $PLASH_DATA/tmp
 #
 sys.stdout.write("removed_tmpdirs: ")
