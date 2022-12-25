@@ -2,7 +2,7 @@
 set -xeu
 
 test_import_lxc () {
-  plash import-lxc "$1" --dry | xargs curl --head --location --fail | grep "Content-Type: application/x-tar"
+  plash import-lxc "$1" --dry | xargs curl --head --location --fail | grep "Content-Type: application/x-xz"
 }
 # test the test
 (! test_import_lxc badimagname )
