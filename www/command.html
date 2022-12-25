@@ -15,25 +15,72 @@ body {
   font-family: sans-serif;
   max-width: 800px;
   margin: 0 auto;
+  background-image: url(https://background-tiles.com/overview/yellow/textures/small/5014.png);
+  background-repeat: repeat;
+  opacity: 0.9;
+}
+
+section {
+	background-color: white;
+	padding: 5em;
+	padding-top: 0;
+	margin: 1em;
+	border-radius: 64px;
 }
 
 
 h1 {
+  font-family: monospace;
   font-size: 3rem;
   margin-bottom: 0.5em;
   margin-top: 16px;
+  text-align: center;
 }
 
 h2 {
   font-size: 2rem;
   margin-bottom: 0.5em;
+
 }
 
 h3 {
   font-size: 1.2em;
   margin-bottom: 1em;
   margin-top: 1em;
+  font-family: Times, 'Times New Roman', serif;
+  color: #2F5485;
 }
+
+
+.wordart {
+  font-family: Arial, sans-serif;
+  font-size: 4rem;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-weight: bold;
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+.wordart.slate {
+    transform: scale(1, 1.5);
+    -webkit-transform: scale(1, 1.5);
+    -moz-transform: scale(1, 1.5);
+    -o-transform: scale(1, 1.5);
+    -ms-transform: scale(1, 1.5);
+}
+
+.wordart.slate .text {
+    font-family: Times, 'Times New Roman', serif;
+    font-weight: normal;
+    color: #2F5485;
+    text-shadow: 0.03em 0.03em 0px #B3B3B3;
+}
+
 
 pre {
   font-family: monospace;
@@ -49,38 +96,44 @@ code {
 
 </head>
 <body>
+<section>
+
 
 <a href="https://github.com/ihucos/plash"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
 
+<br>
+<hr/>
 <h1>plash {{ prog | e }}</h1>
+<hr/>
 
-<h2>Usage</h2>
+<div class="wordart slate"><span class="text">Usage</span></div>
 <pre>{{ usage|e }}</pre>
 
-<h2>Description</h2>
+<div class="wordart slate"><span class="text">Description</span></div>
 <pre>{{ doc|e }}</pre>
 
 {% if example %}
-  <h2>Example</h2>
+  <div class="wordart slate"><span class="text">Example</span></div>
   <pre>{{ example|e }}</pre>
 {% endif %}
 
 {% if test_patterns %}
-  <h2>Tested behaviour</h2>
+  <div class="wordart slate"><span class="text">Tested Behaviour</span></div>
   {% for type, line in test_patterns %}
     {% if type == "code" %}
-      <pre style="display: inline; margin: 0px;"><code class="language-bash">{{ line|e }}
+      <pre style="display: inline; margin: 0px; opacity: 0.5;"><code class="language-bash">{{ line|e }}
 </code></pre>
     {% else %}
-      <h3>{{ line|e }}</h3>
+      <h3>• {{ line|e }}</h3>
     {% endif %}
   {% endfor %}
 {% endif %}
 
-<h2>Source Code</h2>
+<div class="wordart slate"><span class="text">Source Code</span></div>
 <pre><code>{{ after_doc|e }}</code></pre>
 
 
+</section>
 </body>
 </html>
