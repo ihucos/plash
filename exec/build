@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 #
 # usage: plash build --macro1 ar1 arg2 --macro2 arg1 ...
-# Builds a container. Any command line options is evaluated as macro with
-# `plash eval`. Use `plash help-macros` to list all available macros.
+# Builds an image. Command line options are evaluated as macros. Use `plash
+# help-macros` to list all available macros.
 #
 # Example:
 #
@@ -11,12 +11,12 @@
 # --:
 # 66
 #
-# $ plash build -f ubuntu --run 'touch a' --layer --run 'touch b'
+# $ plash build -f ubuntu:warty --run 'touch a' --layer --run 'touch b'
 # --> touch b
 # --:
 # 67
 #
-# $ plash build -f ubuntu --apt nmap
+# $ plash build -f ubuntu:warty --apt nmap
 # --> apt-get update
 # Hit:1 http://security.ubuntu.com/ubuntu bionic-security InRelease
 # Get:2 http://archive.ubuntu.com/ubuntu bionic InRelease [235 kB]

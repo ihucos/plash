@@ -1,42 +1,41 @@
 #!/bin/bash
 set -xeu
 
-fresh(){
-    plash build -f 1 --invalidate-layer
-}
+: Building an image with a simple macro succeeds
+plash build -f 1 --invalidate-layer
 
-: building container succeeds
-fresh
+: Building an image with with multiple layers succeeds
+id=$(plash build -f 1 -l --invalidate-layer -l --invalidate-layer -l --invalidate-layer)
+plash nodepath $id
+plash nodepath $id | grep -E "^$(plash data)/layer/0/[0-9]+/[0-9]+/[0-9]+/[0-9]+$"
 
-: building container with multiple layers succeeds
-plash build -f 1 -l --invalidate-layer -l --invalidate-layer -l --invalidate-layer -l --invalidate-layer
 
-: changes in builded container persists
-cont=$(fresh)
+: A file created while building indeed appears in the builded image
+cont=$(plash build -f 1 --invalidate-layer)
 newcont=$(plash build -f $cont -x 'touch /hellow')
 plash run $newcont stat /hellow
 
-: recurring builds are cached
-cont=$(fresh)
+: Building two times the same leads to the second build being cached
+cont=$(plash build -f 1 --invalidate-layer)
 stderr=$(mktemp)
 plash build -f $cont -x 'touch /a' 2> $stderr
 test -s $stderr # its not empty
 plash build -f $cont -x 'touch /a' 2> $stderr
 (! test -s $stderr) # its empty
 
-: any bad exit status when building returns exit code 1
-cont=$(fresh)
+: If the actual build command fails with any non-zero exit code, `plash build` return the exit code 1
+cont=$(plash build -f 1 --invalidate-layer)
 set +e
 plash build -f $cont -x 'exit 42'
 test 1 -eq $? || exit 1
 set -e
 
-: nonexistent base container fails
+: Building a non-existent image leads to a non-zero exit code
 (! plash build -f 999)
 
-: only providing the container returns that container
+: Building on a base container with no macros given returns that base container
 out=$(plash build -f 1)
 test "$out" = 1
 
-: bad build option fails
+: Using a unknown macro leads to a non-zero exit code
 (! plash build --my-bad-opiton)
