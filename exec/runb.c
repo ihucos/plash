@@ -1,17 +1,16 @@
-// usage: plash run IMAGE_ID [ CMD1 [ CMD2 ... ] ]
+// usage: plash runb IMAGE_ID CHANGESDIR CMD1 [ CMD2 ... ] ]
 //
-// Run a container. If no command is specified, the containers default root
-// shell is executed.
+// Run an image in the build environment. Filesystem changes are saved to
+// CHANGESDIR. This program might be merged together with `plash create` in the
+// future.
 //
 // The following host file systems are mapped to the container:
-// - /tmp
-// - /home
-// - /root
 // - /etc/resolv.conf
 // - /sys
 // - /dev
 // - /proc
-// - /host (contains entire host filesystem)
+// - /home
+// - /root
 
 #define _GNU_SOURCE
 #include <assert.h>
@@ -28,24 +27,14 @@
 
 #include <plash.h>
 
-char *get_default_root_shell() {
-  struct passwd *pwd = getpwuid(0);
-  if (pwd == NULL) {
-    return "/bin/sh";
-  } else {
-    return pwd->pw_shell;
-  }
-}
-
 int main(int argc, char *argv[]) {
 
-  if (argc < 2)
+  if (argc < 3)
     pl_usage();
   char *container_id = argv[1];
+  char *changesdir = argv[2];
   char *origpwd = get_current_dir_name();
   char *plash_data = pl_call("data");
-  char *changesdir = pl_call("mkdtemp");
-
   //
   // get "userspace root"
   //
@@ -70,18 +59,11 @@ int main(int argc, char *argv[]) {
   //
   if (chdir("mnt") == -1)
     pl_fatal("chdir");
-  pl_bind_mount("/tmp", "tmp");
-  pl_bind_mount("/home", "home");
-  pl_bind_mount("/root", "root");
-  // ensure /host is a directory
-  unlink("host");
-  if (mkdir("host", 0755) == -1 && errno != EEXIST){
-	  pl_fatal("mkdir %s)", optarg);
-  }
-  pl_bind_mount("/", "host");
   pl_bind_mount("/sys", "sys");
   pl_bind_mount("/dev", "dev");
   pl_bind_mount("/proc", "proc");
+  pl_bind_mount("/home", "home");
+  pl_bind_mount("/root", "root");
 
   // ensure /etc/resolv.conf is a normal file. Because if it where a symlink,
   // mounting over it would not work as expected
@@ -96,9 +78,9 @@ int main(int argc, char *argv[]) {
   // Import envs
   //
   pl_whitelist_env("TERM");
+  pl_whitelist_env("HOME");
   pl_whitelist_env("DISPLAY");
   pl_whitelist_env("PLASH_DATA");
-  pl_whitelist_envs_from_env("PLASH_EXPORT");
   pl_whitelist_env(NULL);
 
 
@@ -109,21 +91,10 @@ int main(int argc, char *argv[]) {
   pl_chdir(origpwd);
 
   //
-  // build up the arguments to run
-  //
-  char **run_args = argv + 2;
-  if (*run_args == NULL) {
-    run_args = (char *[]){get_default_root_shell(), "-l", NULL};
-  }
-
-  //
   // exec!
   //
+  char **run_args = argv + 3;
   execvp(*run_args, run_args);
-  if (errno == ENOENT) {
-    fprintf(stderr, "%s: command not found\n", *run_args);
-    return 127;
-  }
   pl_fatal("execvp");
 }
 

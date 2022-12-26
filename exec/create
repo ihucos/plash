@@ -46,41 +46,12 @@ if cmd:
     cmd = ["/bin/sh", "-lc", 'exec env "$@"', "--"] + cmd
 
 changesdir = utils.plash_call("mkdtemp")
-exit = utils.plash_call("runopts",
+exit = utils.plash_call("runb",
     *(
         [
-            "-c",
             container,
-            "-d",
             changesdir,
-
-            # environment variables
-            "-e",
-            "TERM",
-            "-e",
-            "DISPLAY",
-            "-e",
-            "HOME",
-            "-e",
-            "PLASH_DATA",
-
-            # mountpoints
-            "-m",
-            "/home",
-            "-m",
-            "/root",
-            "-m",
-            "/etc/resolv.conf",
-            "-m",
-            "/sys",
-            "-m",
-            "/dev",
-            "-m",
-
-            "/proc",
-            "--",
-        ]
-        + cmd
+        ] + cmd
     ),
     stdout_to_stderr=True,
     return_exit_code=True

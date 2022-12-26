@@ -1,6 +1,6 @@
 CFLAGS=-Ilib/
 
-INCLUDES_PLASH_H=bin/plash tests/C/pl_setup_user_ns exec/sudo exec/nodepath exec/add-layer exec/map exec/parent exec/runopts  exec/data exec/mkdtemp exec/run
+INCLUDES_PLASH_H=bin/plash tests/C/pl_setup_user_ns exec/sudo exec/nodepath exec/add-layer exec/map exec/parent exec/data exec/mkdtemp exec/run exec/runb
 INCLUDES_PLASH_C=tests/C/pl_parse_subid
 
 all: $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C) lib/plash.o
