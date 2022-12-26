@@ -11,6 +11,7 @@
 // - /sys
 // - /dev
 // - /proc
+// - /host (contains entire host filesystem)
 //
 // If you want more control about how the container is run, use `plash runopts`
 
