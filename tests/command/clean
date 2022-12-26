@@ -3,7 +3,7 @@ set -exu
 # build container 2 and 3
 plash build -f 1 --invalidate-layer
 
-: simple invocation succeeds
+: A simple invocation succeeds
 plash clean
 
 : $PLASH_DATA/index is cleaned up
@@ -37,7 +37,7 @@ plash clean --clean-tmp
 out=$(ls "$PLASH_DATA"/tmp)
 test "$out" = "" # assert empty tmp
 
-: bad files n $PLASH_DATA do not lead to crash
+: Unexpected files n $PLASH_DATA do not lead to crash
 touch "$PLASH_DATA"/index/mybadfile
 touch "$PLASH_DATA"/map/mybadfile
 touch "$PLASH_DATA"/tmp/mybadfile

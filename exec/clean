@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # usage: plash clean
 #
-# Cleanup internal states.
-#
-# there may be some abstraction leaks with cleaning up fuse mountpoints that
-# will be handled better in the future. File a bug if this subcommand behaves
-# unexpectedly.
+# Cleans up plashs internal data.
+# - Removes all broken links in $PLASH_DATA/index
+# - Removes all broken links in $PLASH_DATA/map
+# - Removes unused temporary directories in $PLASH_DATA/tmp
 
 import math
 import os
