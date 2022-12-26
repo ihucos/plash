@@ -17,8 +17,7 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
 
 ## Requirements
   - `python3`, `bash`, `make` and `cc`
-  - Linux Kernel >= 4.18
-  - `unionfs-fuse`, `fuse-overlayfs` or access to the kernel's builtin overlay filesystem
+  - Linux Kernel >= 5.11
   - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users (needed by e.G. `apt`)
 
 ## Documentation
@@ -36,9 +35,6 @@ https://ihucos.github.io/plash-docs-deploy/
 
 - Plash only runs inside Docker containers started with the `--privileged`
   flag, see GitHub issue #51 for details. 
-
-- Nested plash instances are not possible with `unionfs-fuse` (#69).  But
-  `fuse-overlayfs` and `overlay` work fine.
   
 ## Plash vs Other Container Engines
 

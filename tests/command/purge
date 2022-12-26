@@ -1,16 +1,24 @@
 #!/bin/sh
 set -eux
 
-: check that purge works, confirm trough stdin
+: Purge deletes plash data when confirmed
 export PLASH_DATA=$(mktemp -d)
-plash init; plash data touch config/testmode
+plash init
 echo 'yes' | plash purge
+out=$(ls -A $PLASH_DATA)
+! test -n "$out"
+
+
+: Purge does not deletes plash data when confirmed
+export PLASH_DATA=$(mktemp -d)
+plash init
+echo 'jap' | plash purge
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
 
 : purge two times
 export PLASH_DATA=$(mktemp -d)
-plash init; plash data touch config/testmode
+plash init
 plash purge --yes
 plash purge --yes
 
@@ -20,7 +28,7 @@ plash purge --yes
 
 : check that purge removes all data in the PLASH_DATA directory
 export PLASH_DATA=$(mktemp -d)
-plash init; plash data touch config/testmode
+plash init
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
 plash purge --yes
@@ -29,7 +37,7 @@ test -z "$out"
 
 : not confirming does not delete the data
 export PLASH_DATA=$(mktemp -d)
-plash init; plash data touch config/testmode
+plash init
 echo 'no' | plash purge
 out=$(ls -A $PLASH_DATA)
 test -n "$out"

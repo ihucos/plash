@@ -14,7 +14,7 @@ utils.unshare_user()
 
 plash_data = utils.plash_call("data")
 
-if sys.argv[1:2] == ["--yes"] or input("Delete all build data? [y/N] ") == "y":
+if sys.argv[1:2] == ["--yes"] or input("Delete all build data? [y/N] ") in ("y", "yes"):
 
     #
     # don't delete the dir itself because it could be a mount

@@ -25,20 +25,3 @@ export PLASH_DATA=$tmp/da/di/dum/plashdata
 plash init
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
-
-: PLASH_INIT_UNION_TASTE specifies the union taste
-tmp=$(mktemp -d)
-export PLASH_DATA=$tmp/myplashdata
-PLASH_INIT_UNION_TASTE=xxx plash init
-out=$(cat $tmp/myplashdata/config/union_taste)
-test "$out" = xxx
-
-: default union taste is unionfs-fuse
-tmp=$(mktemp -d)
-export PLASH_DATA=$tmp/myplashdata
-(
-unset PLASH_INIT_UNION_TASTE
-plash init
-)
-out=$(cat $tmp/myplashdata/config/union_taste)
-test "$out" = unionfs-fuse

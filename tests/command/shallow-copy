@@ -6,7 +6,7 @@ plash build -f 1 --run 'touch /da'
 tmp=$(mktemp -d)
 plash b shallow-copy -f 2 -- "$tmp"/rootfs
 
-test "$(ls "$tmp"/rootfs)" = "$(echo 'bin da dev etc home proc root sys tmp usr var' | tr ' ' '\n')"
+test "$(ls "$tmp"/rootfs)" = "$(echo 'bin da dev etc home lib media mnt opt proc root run sbin srv sys tmp usr var' | tr ' ' '\n')"
 
 origi_inode=$(plash nodepath 2 | xargs -I{} stat --format '%i' {}/_data/root/da)
 shallow_copy_inode=$(stat --format '%i' "$tmp"/rootfs/da)
