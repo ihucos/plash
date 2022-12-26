@@ -21,6 +21,5 @@ utest nodepath
 utest parent
 utest rm
 utest run
-utest runopts
 utest shallow-copy
 utest with-mount

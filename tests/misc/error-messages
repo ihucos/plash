@@ -194,20 +194,6 @@ mountpoint=$(mktemp -d)
 
 
 #
-# plash runopts
-#
-: use the special root container
-mountpoint=$(mktemp -d)
-(! plash runopts 0)
-
-: use nonexistent container
-(! plash runopts 99999)
-
-: use bad container id
-(! plash runopts xxx)
-
-
-#
 # plash sudo
 #
 : nonexistent command
