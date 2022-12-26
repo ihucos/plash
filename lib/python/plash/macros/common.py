@@ -34,7 +34,7 @@ def inline(*cmds):
 @shell_escape_args
 @join_result
 def import_env(*envs):
-    "import environment variables from host"
+    "import environment variables from host while building"
     import shlex
 
     for env in envs:
@@ -65,6 +65,13 @@ def write_file(fname, *lines):
     for line in lines:
         yield "echo {} >> {}".format(line, fname)
 
+@register_macro()
+@shell_escape_args
+@join_result
+def env(*envs):
+    "Use env from host when running image"
+    for env in envs:
+        yield "echo {} >> /.plashenvs".format(env)
 
 @register_macro()
 @join_result

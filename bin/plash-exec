@@ -45,13 +45,6 @@ build_shell_script = utils.plash_call('eval',
     strip=False)
 hint_values = get_hint_values(build_shell_script)
 
-envs = []
-for hint_name, hint_value in hint_values:
-    if hint_name == 'use-env':
-        env_val = os.environ.get(hint_value)
-        if env_val:
-            envs.append('{}={}'.format(hint_value, env_val))
-
 exec = dict(hint_values).get('exec')
 if exec is None:
     die("no hint named 'exec' found (maybe try adding `--entrypoint /bin/sh`)")
@@ -63,5 +56,5 @@ run_container = utils.plash_call('build', '--run-stdin',
     cwd=plashfile_dir,
     )
 
-cmd = ['run', run_container] + envs + run_args
+cmd = ['run', run_container] + run_args
 utils.plash_exec(*cmd)
