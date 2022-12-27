@@ -6,6 +6,7 @@ import sys
 from os import path
 import jinja2
 from datetime import date
+import shutil
 
 try:
     docs_out = sys.argv[1]
@@ -19,6 +20,8 @@ EXEC_DIR = path.join(PROJECT_DIR, 'exec')
 BIN_DIR = path.join(PROJECT_DIR, 'bin')
 TESTS_DIR = path.join(PROJECT_DIR, 'tests')
 PLASH_EXECUTABLE = os.path.join(BIN_DIR, 'plash')
+
+shutil.copytree(path.join(TEMPL_DIR, 'images'), path.join(docs_out, 'images'), dirs_exist_ok=True)
 
 
 def render(tpl_path, **context):
