@@ -29,23 +29,34 @@
 #include <plash.h>
 
 
-void read_envs_from_plashenvs(){
+void read_envs_from_plashenv() {
   char * line = NULL;
   char * lineCopy = NULL;
   size_t len = 0;
   FILE * fp = fopen(".plashenvs", "r");
-  if (fp == NULL){
-	  if (errno == ENOENT){
-		  return; // no file, nothing to do
-	  } else {
-		  pl_fatal("fopen %s", ".plashenvs");
-	  }
-  }
+  if (fp == NULL) return;
   while ((getline(&line, &len, fp)) != -1) {
 	  line[strcspn(line, "\n")] = 0;  // chop newline char
 	  lineCopy = strdup(line);
 	  if (!lineCopy) {pl_fatal("strdup");}
 	  pl_whitelist_env(lineCopy);
+  }
+  fclose(fp);
+
+}
+
+
+void read_envs_from_plashenvprefix(){
+  char * line = NULL;
+  char * lineCopy = NULL;
+  size_t len = 0;
+  FILE * fp = fopen(".plashenvsprefix", "r");
+  if (fp == NULL) return;
+  while ((getline(&line, &len, fp)) != -1) {
+	  line[strcspn(line, "\n")] = 0;  // chop newline char
+	  lineCopy = strdup(line);
+	  if (!lineCopy) {pl_fatal("strdup");}
+	  pl_whitelist_env_prefix(lineCopy);
   }
   fclose(fp);
 
@@ -122,7 +133,8 @@ int main(int argc, char *argv[]) {
   pl_whitelist_env("DISPLAY");
   pl_whitelist_env("PLASH_DATA");
   pl_whitelist_envs_from_env("PLASH_EXPORT");
-  read_envs_from_plashenvs();
+  read_envs_from_plashenv();
+  read_envs_from_plashenvprefix();
   pl_whitelist_env(NULL);
 
 

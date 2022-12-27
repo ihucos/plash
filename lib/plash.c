@@ -130,6 +130,19 @@ void pl_whitelist_env(char *env_name) {
   }
 }
 
+void pl_whitelist_env_prefix(char *env_prefix) {
+        char *str;
+        for (size_t i = 0; environ[i]; i++) {
+            if (strncmp(env_prefix, environ[i], strlen(env_prefix)) == 0){
+                str = strdup(environ[i]);
+                if (!str) pl_fatal("strdup");
+                str = strsep(&str, "=");
+                pl_whitelist_env(str);
+                free(str);
+            }
+        }
+}
+
 void pl_whitelist_envs_from_env(const char *export_env) {
   char *str;
   char *token;

@@ -68,6 +68,14 @@ def write_file(fname, *lines):
 @register_macro()
 @shell_escape_args
 @join_result
+def env_prefix(*prefixes):
+    "Use all envs with given prefix when running image"
+    for prefix in prefixes:
+        yield "echo {} >> /.plashenvsprefix".format(prefix)
+
+@register_macro()
+@shell_escape_args
+@join_result
 def env(*envs):
     "Use env from host when running image"
     for env in envs:
