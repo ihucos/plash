@@ -62,6 +62,32 @@ void read_envs_from_plashenvprefix(){
 
 }
 
+void read_mounts_from_plashmounts(){
+  char * line = NULL;
+  char * lineCopy = NULL;
+  size_t len = 0;
+  char * mount;
+  FILE * fp = fopen(".plashmounts", "r");
+  if (fp == NULL) return;
+  while ((getline(&line, &len, fp)) != -1) {
+	  line[strcspn(line, "\n")] = 0;  // chop newline char
+	  lineCopy = strdup(line);
+	  if (!lineCopy) {pl_fatal("strdup");}
+      mount = strsep(&lineCopy, ":");
+      errno = 0; if (mount[0] != '/')
+          pl_fatal("src mount in /.plashmounts must start with a slash");
+      if (lineCopy == NULL){
+          pl_bind_mount(mount, mount + 1);
+      } else {
+          pl_bind_mount(mount, lineCopy + 1);
+          errno = 0; if (lineCopy[0] != '/')
+              pl_fatal("dst mount in /.plashmounts must start with a slash");
+      }
+  }
+  fclose(fp);
+
+}
+
 char *get_default_root_shell() {
   struct passwd *pwd = getpwuid(0);
   if (pwd == NULL) {
@@ -124,6 +150,9 @@ int main(int argc, char *argv[]) {
   if((fd = open("etc/resolv.conf", O_CREAT | O_WRONLY)) < 0) pl_fatal("open");
   close(fd);
   pl_bind_mount("/etc/resolv.conf", "etc/resolv.conf");
+
+ read_mounts_from_plashmounts();
+
 
 
   //

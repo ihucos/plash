@@ -68,18 +68,18 @@ def write_file(fname, *lines):
 @register_macro()
 @shell_escape_args
 @join_result
-def env_prefix(*prefixes):
-    "Use all envs with given prefix when running image"
-    for prefix in prefixes:
-        yield "echo {} >> /.plashenvsprefix".format(prefix)
-
-@register_macro()
-@shell_escape_args
-@join_result
 def env(*envs):
     "Use env from host when running image"
     for env in envs:
         yield "echo {} >> /.plashenvs".format(env)
+
+@register_macro()
+@shell_escape_args
+@join_result
+def mount(*mounts):
+    'Mount filesystem when running image ("src:dst" supported)'
+    for prefix in mounts:
+        yield "echo {} >> /.plashmounts".format(prefix)
 
 @register_macro()
 @join_result
