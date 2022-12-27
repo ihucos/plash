@@ -133,12 +133,6 @@ int main(int argc, char *argv[]) {
   pl_bind_mount("/tmp", "tmp");
   pl_bind_mount("/home", "home");
   pl_bind_mount("/root", "root");
-  // ensure /host is a directory
-  unlink("host");
-  if (mkdir("host", 0755) == -1 && errno != EEXIST){
-	  pl_fatal("mkdir %s)", optarg);
-  }
-  pl_bind_mount("/", "host");
   pl_bind_mount("/sys", "sys");
   pl_bind_mount("/dev", "dev");
   pl_bind_mount("/proc", "proc");
