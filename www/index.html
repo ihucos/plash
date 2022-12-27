@@ -8,20 +8,29 @@ body {
   font-family: sans-serif;
   max-width: 800px;
   margin: 0 auto;
+  background-image: url(https://zhodani.space/tiles/starsandnebula250i.jpg);
+  background-repeat: repeat;
+  opacity: 0.9;
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 4em;
   margin-bottom: 0.5em;
+  color: #712F4E;
 }
 
 h2 {
   font-size: 1.5em;
   margin-bottom: 1em;
-  background-color: black;
+  background-image: url(https://zhodani.space/tiles/starsandnebula250f.jpg);
+  background-repeat: repeat;
   color: white;
   padding: 5px;
-  border-radius: 5px;
+  border-radius: 50px;
+  padding: 1em;
+  text-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6, 0 0 50px #ff4da6, 0 0 60px #ff4da6, 0 0 70px #ff4da6, 0 0 80px #ff4da6;
+  text-align: center;
+  text-decoration: underline dotted;
 }
 
 table {
@@ -57,9 +66,20 @@ a:hover {
 img {
   max-width: 100%;
 }
+
+
+section {
+  background-color: white;
+  padding: 5em;
+  padding-top: 0;
+  margin: 1em;
+  border-radius: 8px;
+}
+
 </style>
 </head>
 <body>
+<section>
 <a href="https://github.com/ihucos/plash"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
 <i>Last updated: {{ generated }}</i>
@@ -190,3 +210,7 @@ apt-get install -y python3-pip
 pip3 install yapf
 ### plash hint: layer
 touch /foo</pre>
+
+</section>
+</body>
+</html>
