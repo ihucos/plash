@@ -10,6 +10,7 @@ exec/run
 exec/mount
 exec/runopts
 exec/sudo
+exec/rm
 lib/plash.o
 tests/C/pl_parse_subid
 tests/C/pl_setup_user_ns

@@ -1,15 +1,14 @@
 #!/bin/sh
 set -xeu
 
-: delete one container
+: plash nodepath subcommand does not know deleted containers
 newcont=$(plash build -f 1 --invalidate-layer)
 plash nodepath $newcont
 plash rm $newcont
 (! plash nodepath $newcont)
 
-: error with nonexistent container
+: Specifying an unknown container errors
 (! plash rm 9999999)
 
-: delte by build instruction
-plash build -f 1 --run 'touch /plash-rm-test-file'
+: Can be used together with the "b" subcommand
 plash b rm -f 1 --run 'touch /plash-rm-test-file'
