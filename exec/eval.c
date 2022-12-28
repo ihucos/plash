@@ -1,7 +1,7 @@
 
 #define _GNU_SOURCE
 #include <errno.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -13,6 +13,7 @@
 #define EACHARGS while(isval(NEXT))
 
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
+
 #define ARGSMIN(min) if (count_vals(argv) < min) pl_fatal( \
         "macro %s needs at least %ld args", *argv, min)
 
@@ -20,8 +21,6 @@
         "macro %s needs exactly %ld args", *argv, argscount)
 
 #define LINECURRENT(format) LINE(format, quote(CURRENT))
-
-
 #define EACHLINE(arg) EACHARGS LINECURRENT(arg)
 
 void LINE(char *format, ...) {
@@ -156,10 +155,13 @@ int main(int argc, char *argv[]) {
             EACHLINE("emerge %s");
 
 
-        //CASE("--eval-file")
-        //    ARGS(1);
-        //    char *filename = NEXT;
-        //    SHELL("cat %s | plash eval-plashfile -")
+        CASE("--eval-file")
+            ARGS(1);
+            //system("ls");
+            setenv("FILE", NEXT, 1); 
+            system("cat \"$FILE\" | plash eval-plashfile /proc/self/fd/0");
+            //SHELL("cat \"$FILE\" | plash eval-plashfile -")
+            NEXT;
 
         //CASE("--eval-url")
         //    ARGS(1);
@@ -181,7 +183,7 @@ int main(int argc, char *argv[]) {
 
         } else {
             errno = 0;
-            pl_fatal("unkown macro: %s", CURRENT);
+            pl_fatal("unknown macro: %s", CURRENT);
         }
     }
 }
