@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+: env macro exposes an environment variable into the container that otherwise was not
+test $(VAR=123 plash -f 1 -- printenv VAR) == ""
+test $(VAR=123 plash -f 1 --env VAR -- printenv VAR) == 123
