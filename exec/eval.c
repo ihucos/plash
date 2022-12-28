@@ -13,7 +13,11 @@
 #define FORVALS while(isval(NEXT))
 
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
+#define ARGSMIN(min) if (count_vals(argv) < min) pl_fatal( \
+        "macro %s needs at least %ld args", *argv, min)
 
+#define ARGS(argscount) if (count_vals(argv) != argscount) pl_fatal( \
+        "macro %s needs exactly %ld args", *argv, argscount)
 
 
 
@@ -29,11 +33,18 @@ char *assert_isval(char *val){
 }
 
 
+size_t count_vals(char **argv){
+    char **argvc = argv;
+    FORVALS {};
+    return argv - argvc - 1;
+}
+
+
 char *puthint(char *name, char *val){
     printf("### plash hint: %s=%s\n", name, val);
 }
 
-char *escape(char *str){
+char *quote(char *str){
     return str;
 }
 
@@ -58,14 +69,17 @@ int main(int argc, char *argv[]) {
             FORVALS puts(CURRENT);
 
         CASE("--write-file")
+            ARGSMIN(1);
             char *filename = NEXTVAL;
-            printf("touch %s\n", escape(filename));
-            FORVALS printf("echo %s >> %s\n", escape(CURRENT), escape(filename));
+            printf("touch %s\n", quote(filename));
+            FORVALS printf("echo %s >> %s\n", quote(CURRENT), quote(filename));
             
         CASE("--env")
-            FORVALS printf("echo %s >> /.plashenvsprefix\n", escape(CURRENT));
+            ARGSMIN(1);
+            FORVALS printf("echo %s >> /.plashenvsprefix\n", quote(CURRENT));
 
         CASE("--from")
+            ARGS(1);
             puthint("image", pl_call_cached("import-lxc", NEXT));
             NEXT;
 
@@ -77,11 +91,11 @@ int main(int argc, char *argv[]) {
             puthint("exec", NEXT);
             puts("touch /entrypoint");
             puts("chmod 755 /entrypoint");
-            FORVALS printf("echo %s >> /entrypoint\n", escape(CURRENT));
+            FORVALS printf("echo %s >> /entrypoint\n", quote(CURRENT));
 
         CASE("--apk")
             puts("apk update");
-            FORVALS printf("apk add %s\n", escape(CURRENT));
+            FORVALS printf("apk add %s\n", quote(CURRENT));
 
 
         //CASE("--github") // make it --from-url!
