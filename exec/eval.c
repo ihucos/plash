@@ -50,6 +50,20 @@ size_t count_vals(char **argv){
 }
 
 
+void SHELL(char *shell_cmd){
+    int child_exit;
+    if (system(NULL) == 0)
+        pl_fatal("No shell is available in the system");
+    int status = system(shell_cmd);
+    if(status == -1)
+        pl_fatal("system(%s) returned %d", shell_cmd, status);
+    if (!WIFEXITED(status))
+        pl_fatal("system(%s) exited abnormally", shell_cmd);
+    if (child_exit = WEXITSTATUS(status))
+        pl_fatal("%s: exited status %d", shell_cmd, child_exit);
+
+}
+
 void PUTHINT(char *name, char *val){
     if (val != NULL){
         LINE("### plash hint: %s=%s", name, val);
@@ -157,15 +171,12 @@ int main(int argc, char *argv[]) {
 
         CASE("--eval-file")
             ARGS(1);
-            //system("ls");
-            setenv("FILE", NEXT, 1); 
-            system("cat \"$FILE\" | plash eval-plashfile /proc/self/fd/0");
-            //SHELL("cat \"$FILE\" | plash eval-plashfile -")
+            pl_call("eval-plashfile", NEXT);
             NEXT;
 
-        //CASE("--eval-url")
-        //    ARGS(1);
-        //    SHELL("curl %s | plash eval-plashfile -")
+        CASE("--eval-url")
+              ARGS(1);
+              SHELL("plash eval-plashfile \"$FILE\"");
 
         //CASE("--github") // make it --from-url!
             //char *url, *user_repo_pair, *file;
