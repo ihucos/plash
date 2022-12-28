@@ -1,7 +1,12 @@
 #!/bin/bash
 set -eux
 
-: copying out a file system succeeds
+: Copying out a file system succeeds
+tmpd=$(mktemp -d)
+plash copy 1 "$tmpd"
+
+
+: The copied out directory structure looks plausible
 tmpd=$(mktemp -d)
 plash copy 1 "$tmpd"
 ls "$tmpd"/bin/sh
