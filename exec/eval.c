@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include <plash.h>
 
@@ -20,6 +21,13 @@
         "macro %s needs exactly %ld args", *argv, argscount)
 
 
+int line(char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  va_end(args);
+  asprintf(&format, "%s\n", format) != -1 || pl_fatal("asprintf");
+  vprintf(format, args);
+}
 
 int isval(char *val){
     if (val == NULL) return 0;
@@ -70,13 +78,13 @@ int main(int argc, char *argv[]) {
 
         CASE("--write-file")
             ARGSMIN(1);
-            char *filename = NEXTVAL;
-            printf("touch %s\n", quote(filename));
-            FORVALS printf("echo %s >> %s\n", quote(CURRENT), quote(filename));
+            char *filename = NEXT;
+            line("touch %s", quote(filename));
+            FORVALS line("echo %s >> %s", quote(CURRENT), quote(filename));
             
         CASE("--env")
             ARGSMIN(1);
-            FORVALS printf("echo %s >> /.plashenvsprefix\n", quote(CURRENT));
+            FORVALS line("echo %s >> /.plashenvsprefix", quote(CURRENT));
 
         CASE("--from")
             ARGS(1);
@@ -84,17 +92,20 @@ int main(int argc, char *argv[]) {
             NEXT;
 
         CASE("--entrypoint")
+            ARGS(1);
             puthint("exec", NEXT);
             NEXT;
 
         CASE("--entrypoint-script")
+            ARGSMIN(1);
             puthint("exec", NEXT);
-            puts("touch /entrypoint");
-            puts("chmod 755 /entrypoint");
-            FORVALS printf("echo %s >> /entrypoint\n", quote(CURRENT));
+            line("touch /entrypoint");
+            line("chmod 755 /entrypoint");
+            FORVALS line("echo %s >> /entrypoint", quote(CURRENT));
 
         CASE("--apk")
-            puts("apk update");
+            ARGSMIN(1);
+            line("apk update");
             FORVALS printf("apk add %s\n", quote(CURRENT));
 
 
