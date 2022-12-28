@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
   if (chdir(plash_data) == -1)
     pl_fatal("chdir %s", plash_data);
   argv++;
-  pl_unshare_user(); # because some files here might be from a subuid (different uid)
+  pl_unshare_user(); // because some files here might be from a subuid (different uid)
   execvp(argv[0], argv);
   pl_fatal("exec %s", argv[0]);
 }
