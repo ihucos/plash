@@ -51,8 +51,12 @@ size_t count_vals(char **argv){
 }
 
 
-char *PUTHINT(char *name, char *val){
-    LINE("### plash hint: %s=%s", name, val);
+void PUTHINT(char *name, char *val){
+    if (val != NULL){
+        LINE("### plash hint: %s=%s", name, val);
+    } else {
+        LINE("### plash hint: %s", name);
+    }
 }
 
 char *quote(char *str){
@@ -80,16 +84,22 @@ int main(int argc, char *argv[]) {
         //if lines and lines[0].startswith("#!/"):
         //    lines.pop(0)
 
+
+        //CASE("-#")
+        //    EACHARGS {};
+
+        //CASE("--#")
+        //    EACHARGS {};
+
         if (0){
-
-        CASE("-#")
-            EACHARGS {};
-
-        CASE("--#")
-            EACHARGS {};
 
         CASE("-x")
             EACHARGS LINE(CURRENT);
+
+        CASE("--layer")
+            ARGS(0);
+            PUTHINT("layer", NULL);
+            NEXT;
 
         CASE("--write-file")
             ARGSMIN(1);
@@ -146,10 +156,14 @@ int main(int argc, char *argv[]) {
             EACHLINE("emerge %s");
 
 
-        CASE("--eval-file")
-            ARGS(1);
-            char *filename = NEXT;
+        //CASE("--eval-file")
+        //    ARGS(1);
+        //    char *filename = NEXT;
+        //    SHELL("cat %s | plash eval-plashfile -")
 
+        //CASE("--eval-url")
+        //    ARGS(1);
+        //    SHELL("curl %s | plash eval-plashfile -")
 
         //CASE("--github") // make it --from-url!
             //char *url, *user_repo_pair, *file;
