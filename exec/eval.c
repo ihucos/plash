@@ -11,7 +11,9 @@
 #define CURRENT *argv
 #define FORVALS while(isval(NEXT))
 
-#define IS(macro) (strcmp(CURRENT, macro) == 0)
+#define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
+
+
 
 
 int isval(char *val){
@@ -33,7 +35,7 @@ char *escape(char *str){
 
 char *pl_call_cached(char *subcommand, char *arg){
     char *cache_key, *image_id;
-    asprintf(&cache_key, "%s:%s", subcommand, arg) != -1 || pl_fatal("asprintf");
+    asprintf(&cache_key, "lxc:%s", /*subcommand,*/ arg) != -1 || pl_fatal("asprintf");
     image_id = pl_call("map", cache_key);
     if (strlen(image_id) == 0){
         image_id = pl_call(subcommand, arg);
@@ -45,22 +47,42 @@ char *pl_call_cached(char *subcommand, char *arg){
 int main(int argc, char *argv[]) {
     NEXT;
     while (CURRENT){
-        if IS("-x"){
+        if (0){
+
+        CASE("-x")
             FORVALS puts(CURRENT);
 
-        } else if IS("--write-file") {
+        CASE("--write-file")
             char *filename = NEXTVAL;
             printf("touch %s\n", escape(filename));
             FORVALS printf("echo %s >> %s\n", escape(CURRENT), escape(filename));
             
-        } else if IS("--env") {
+        CASE("--env")
             FORVALS printf("echo %s >> /.plashenvsprefix\n", CURRENT);
 
-
-        } else if IS("--from") {
+        CASE("--from")
             char *image_id = pl_call_cached("import-lxc", NEXT); 
             printf("### plash hint: image=%s\n", image_id);
             NEXT;
+
+        CASE("--apk")
+            puts("apk update");
+            FORVALS printf("apk add %s\n", escape(CURRENT));
+
+
+        //CASE("--github") // make it --from-url!
+            //char *url, *user_repo_pair, *file;
+            //user_repo_pair = NEXTVAL;
+            //NEXT;
+            //if (!isval(CURRENT)){
+            //    file = "plashfile"
+            //} else {
+            //    file = CURRENT
+            //}
+            //asprintf(url, ""https://raw.githubusercontent.com/%s/master/%s"", user_repo_pair, file) != -1 || pl_fatal("asprintf");
+            //content = fetch(url)
+            //...
+
 
         } else {
             pl_fatal("unkown macro: %s", CURRENT);
