@@ -1,5 +1,6 @@
 
 #define _GNU_SOURCE
+#include <errno.h>
 #include <stdio.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,6 +28,10 @@ char *assert_isval(char *val){
     return val;
 }
 
+
+char *puthint(char *name, char *val){
+    printf("### plash hint: %s=%s\n", name, val);
+}
 
 char *escape(char *str){
     return str;
@@ -58,12 +63,21 @@ int main(int argc, char *argv[]) {
             FORVALS printf("echo %s >> %s\n", escape(CURRENT), escape(filename));
             
         CASE("--env")
-            FORVALS printf("echo %s >> /.plashenvsprefix\n", CURRENT);
+            FORVALS printf("echo %s >> /.plashenvsprefix\n", escape(CURRENT));
 
         CASE("--from")
-            char *image_id = pl_call_cached("import-lxc", NEXT); 
-            printf("### plash hint: image=%s\n", image_id);
+            puthint("image", pl_call_cached("import-lxc", NEXT));
             NEXT;
+
+        CASE("--entrypoint")
+            puthint("exec", NEXT);
+            NEXT;
+
+        CASE("--entrypoint-script")
+            puthint("exec", NEXT);
+            puts("touch /entrypoint");
+            puts("chmod 755 /entrypoint");
+            FORVALS printf("echo %s >> /entrypoint\n", escape(CURRENT));
 
         CASE("--apk")
             puts("apk update");
@@ -85,6 +99,7 @@ int main(int argc, char *argv[]) {
 
 
         } else {
+            errno = 0;
             pl_fatal("unkown macro: %s", CURRENT);
         }
     }
