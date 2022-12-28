@@ -11,7 +11,7 @@
 #define NEXT *(++argv)
 #define NEXTVAL assert_isval(NEXT)
 #define CURRENT *argv
-#define FORVALS while(isval(NEXT))
+#define EACHARGS while(isval(NEXT))
 
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
 #define ARGSMIN(min) if (count_vals(argv) < min) pl_fatal( \
@@ -20,8 +20,12 @@
 #define ARGS(argscount) if (count_vals(argv) != argscount) pl_fatal( \
         "macro %s needs exactly %ld args", *argv, argscount)
 
+#define LINECURRENT(format) LINE(format, quote(CURRENT))
 
-int line(char *format, ...) {
+
+#define EACHLINE(arg) EACHARGS LINECURRENT(arg) // this officially crazy
+
+void LINE(char *format, ...) {
   va_list args;
   va_start(args, format);
   va_end(args);
@@ -43,13 +47,13 @@ char *assert_isval(char *val){
 
 size_t count_vals(char **argv){
     char **argvc = argv;
-    FORVALS {};
+    EACHARGS {};
     return argv - argvc - 1;
 }
 
 
-char *puthint(char *name, char *val){
-    printf("### plash hint: %s=%s\n", name, val);
+char *PUTHINT(char *name, char *val){
+    LINE("### plash hint: %s=%s", name, val);
 }
 
 char *quote(char *str){
@@ -74,39 +78,61 @@ int main(int argc, char *argv[]) {
         if (0){
 
         CASE("-x")
-            FORVALS puts(CURRENT);
+            EACHARGS LINE(CURRENT);
 
         CASE("--write-file")
             ARGSMIN(1);
             char *filename = NEXT;
-            line("touch %s", quote(filename));
-            FORVALS line("echo %s >> %s", quote(CURRENT), quote(filename));
+            LINE("touch %s", quote(filename));
+            EACHARGS LINE("echo %s >> %s", quote(CURRENT), quote(filename));
             
         CASE("--env")
             ARGSMIN(1);
-            FORVALS line("echo %s >> /.plashenvsprefix", quote(CURRENT));
+            EACHLINE("echo %s >> /.plashenvsprefix");
 
         CASE("--from")
             ARGS(1);
-            puthint("image", pl_call_cached("import-lxc", NEXT));
+            PUTHINT("image", pl_call_cached("import-lxc", NEXT));
             NEXT;
 
         CASE("--entrypoint")
             ARGS(1);
-            puthint("exec", NEXT);
+            PUTHINT("exec", NEXT);
             NEXT;
 
         CASE("--entrypoint-script")
             ARGSMIN(1);
-            puthint("exec", NEXT);
-            line("touch /entrypoint");
-            line("chmod 755 /entrypoint");
-            FORVALS line("echo %s >> /entrypoint", quote(CURRENT));
+            PUTHINT("exec", "/entrypoint");
+            LINE("touch /entrypoint");
+            LINE("chmod 755 /entrypoint");
+            EACHLINE("echo %s >> /entrypoint");
 
+         // package managers
         CASE("--apk")
             ARGSMIN(1);
-            line("apk update");
-            FORVALS printf("apk add %s\n", quote(CURRENT));
+            LINE("apk update");
+            EACHLINE("apk add %s");
+        CASE("--yum")
+            ARGSMIN(1);
+            EACHLINE("yum install -y %s");
+        CASE("--dnf")
+            ARGSMIN(1);
+            EACHLINE("dnf install -y %s");
+        CASE("--pip")
+            ARGSMIN(1);
+            EACHLINE("pip install %s");
+        CASE("--pip3")
+            ARGSMIN(1);
+            EACHLINE("pip3 install %s");
+        CASE("--npm")
+            ARGSMIN(1);
+            EACHLINE("npm install -g %s");
+        CASE("--pacman")
+            ARGSMIN(1);
+            EACHLINE("pacman -Sy --noconfirm %s");
+        CASE("--emerge")
+            ARGSMIN(1);
+            EACHLINE("emerge", "emerge {}");
 
 
         //CASE("--github") // make it --from-url!
