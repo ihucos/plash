@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
             EACHLINE("pacman -Sy --noconfirm %s");
         CASE("--emerge")
             ARGSMIN(1);
-            EACHLINE("emerge", "emerge {}");
+            EACHLINE("emerge %s");
 
 
         //CASE("--github") // make it --from-url!
