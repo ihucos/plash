@@ -7,6 +7,7 @@ exec/mkdtemp
 exec/nodepath
 exec/parent
 exec/run
+exec/mount
 exec/runopts
 exec/sudo
 lib/plash.o
