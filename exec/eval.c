@@ -9,7 +9,6 @@
 #include <plash.h>
 
 #define NEXT *(++argv)
-#define NEXTVAL assert_isval(NEXT)
 #define CURRENT *argv
 #define EACHARGS while(isval(NEXT))
 
@@ -23,7 +22,7 @@
 #define LINECURRENT(format) LINE(format, quote(CURRENT))
 
 
-#define EACHLINE(arg) EACHARGS LINECURRENT(arg) // this officially crazy
+#define EACHLINE(arg) EACHARGS LINECURRENT(arg)
 
 void LINE(char *format, ...) {
   va_list args;
@@ -75,7 +74,19 @@ char *pl_call_cached(char *subcommand, char *arg){
 int main(int argc, char *argv[]) {
     NEXT;
     while (CURRENT){
+
+        // TODO
+        // a little magic: remove possible shebang
+        //if lines and lines[0].startswith("#!/"):
+        //    lines.pop(0)
+
         if (0){
+
+        CASE("-#")
+            EACHARGS {};
+
+        CASE("--#")
+            EACHARGS {};
 
         CASE("-x")
             EACHARGS LINE(CURRENT);
@@ -135,9 +146,14 @@ int main(int argc, char *argv[]) {
             EACHLINE("emerge %s");
 
 
+        CASE("--eval-file")
+            ARGS(1);
+            char *filename = NEXT;
+
+
         //CASE("--github") // make it --from-url!
             //char *url, *user_repo_pair, *file;
-            //user_repo_pair = NEXTVAL;
+            //user_repo_pair = NEXT;
             //NEXT;
             //if (!isval(CURRENT)){
             //    file = "plashfile"
