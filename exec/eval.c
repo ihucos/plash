@@ -176,7 +176,9 @@ int main(int argc, char *argv[]) {
 
         CASE("--eval-url")
               ARGS(1);
-              SHELL("plash eval-plashfile \"$FILE\"");
+              setenv("URL", NEXT, 1); 
+              SHELL("curl --fail \"$URL\" | plash eval-plashfile");
+              NEXT;
 
         //CASE("--github") // make it --from-url!
             //char *url, *user_repo_pair, *file;

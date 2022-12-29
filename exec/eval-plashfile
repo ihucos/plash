@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-# usage: plash eval-file FILE
+# usage: plash eval-file [ FILE ]
 
 import sys
 import os
 
-file = sys.argv[1]
+try:
+    file = open(sys.argv[1])
+except IndexError:
+    file = sys.stdin
+
 tokens = []
 fstline = True
-for line in open(file).readlines():
+for line in file.readlines():
     if fstline and line.startswith('#!'):
         continue
     line = line.strip('\n')
