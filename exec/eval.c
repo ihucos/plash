@@ -175,10 +175,12 @@ int main(int argc, char *argv[]) {
             NEXT;
 
         CASE("--eval-url")
-              ARGS(1);
-              setenv("URL", NEXT, 1); 
-              SHELL("curl --fail \"$URL\" | plash eval-plashfile");
-              NEXT;
+            ARGS(1);
+            pl_pipe(
+                    (char*[]){"curl", "--fail", NEXT, NULL},
+                    (char*[]){"plash", "eval-plashfile", NULL}
+                   );
+            NEXT;
 
         //CASE("--github") // make it --from-url!
             //char *url, *user_repo_pair, *file;

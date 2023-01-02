@@ -1,6 +1,6 @@
-#define pl_call(...) _pl_check_output((char *[]){"plash", __VA_ARGS__, NULL})
+#define pl_call(...) pl_check_output((char *[]){"plash", __VA_ARGS__, NULL}, 1)
 
-char *_pl_check_output(char *argv[]);
+char *pl_check_output(char *argv[], int firstline);
 
 int pl_fatal(char *format, ...);
 
@@ -29,3 +29,5 @@ void pl_chdir(const char *newdir);
 void pl_chroot(const char *rootfs);
 
 void pl_exec_add(char *arg);
+
+char *pl_pipe(char *const program1[], char *const program2[]);

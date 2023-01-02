@@ -291,7 +291,7 @@ void pl_setup_user_ns() {
   if (master_child_sinfo.si_status & SETUP_NO_GID) {
     if (!pl_printf_to_file("/proc/self/setgroups", "deny")) {
       /* ignore file does not exist, as this happens in older
-       * kernels*/
+       * kemarnels*/
       if (errno != ENOENT)
         pl_fatal("write /proc/self/setgroups");
     };
@@ -303,7 +303,7 @@ void pl_setup_user_ns() {
   free(pid_str);
 }
 
-char *_pl_check_output(char *argv[]) {
+char *pl_check_output(char *argv[], int firstline) {
   int link[2];
   int status, exit_status;
   pid_t pid;
@@ -338,7 +338,7 @@ char *_pl_check_output(char *argv[]) {
 
     if (read(link[0], output, PL_CHECK_OUTPUT_BUFFER) == -1)
       pl_fatal("read");
-    output[strcspn(output, "\n")] = 0;
+    if (firstline) output[strcspn(output, "\n")] = 0;
     return output;
   }
 }
@@ -413,4 +413,65 @@ void pl_exec_add(char* cmd){
     pl_fatal("execvp");
   }
 
+}
+
+// function to pipe two programs together
+void pl_pipe(char *program1[], char *program2[]) {
+  int pipe_fd[2];
+
+  if (pipe(pipe_fd) < 0) {
+    pl_fatal("pipe");
+  }
+
+  pid_t pid1 = fork();
+  if (pid1 < 0) {
+    pl_fatal("fork");
+  }
+
+  if (pid1 == 0) {
+    close(pipe_fd[0]);
+    if (dup2(pipe_fd[1], STDOUT_FILENO) < 0) {
+      pl_fatal("dup2");
+    }
+    close(pipe_fd[1]);
+    execvp(program1[0], program1);
+    pl_fatal("execvp");
+  }
+
+  pid_t pid2 = fork();
+  if (pid2 < 0) {
+    pl_fatal("fork");
+  }
+  if (pid2 == 0) {
+    close(pipe_fd[1]);
+    if (dup2(pipe_fd[0], STDIN_FILENO) < 0) {
+      pl_fatal("dup2");
+    }
+    close(pipe_fd[0]);
+    execvp(program2[0], program2);
+    pl_fatal("execvp");
+  }
+  close(pipe_fd[0]);
+  close(pipe_fd[1]);
+
+  int status1, status2;
+  if (waitpid(pid1, &status1, 0) < 0 || waitpid(pid2, &status2, 0) < 0) {
+      pl_fatal("waitpid");
+  }
+
+  char **failed = NULL;
+  if (!WIFEXITED(status1) || WEXITSTATUS(status1) != 0) {
+      failed = program1;
+  } else if (!WIFEXITED(status2) || WEXITSTATUS(status2) != 0){
+      failed = program2;
+
+  }
+  if (failed){
+      fprintf(stderr, "plash error: subprocess failed: ");
+      for (int i = 0; failed[i] != NULL; i++) {
+          fprintf(stderr, "%s ", failed[i]);
+      }
+      fprintf(stderr, "\n");
+      exit(1);
+  }
 }
