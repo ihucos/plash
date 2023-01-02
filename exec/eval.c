@@ -182,6 +182,12 @@ int main(int argc, char *argv[]) {
             pl_run((char*[]){"plash", "eval-plashfile", NEXT, NULL});
             NEXT;
 
+        CASE("--eval-stdin")
+            ARGS(0);
+            pl_run((char*[]){"plash", "eval-plashfile", NULL});
+            NEXT;
+            NEXT;
+
         //CASE("--github") // make it --from-url!
             //char *url, *user_repo_pair, *file;
             //user_repo_pair = NEXT;

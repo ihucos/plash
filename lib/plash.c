@@ -489,6 +489,7 @@ void pl_run(char *program[]) {
     }
     if (waitpid(pid, &status, 0) < 0) pl_fatal("waitpid");
     if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        if (strcmp(program[0], "plash") == 0) exit(1);
         fprintf(stderr, "plash error: subprocess program: ");
         for (int i = 0; program[i] != NULL; i++) {
             fprintf(stderr, "%s ", program[i]);
