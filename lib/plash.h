@@ -31,3 +31,5 @@ void pl_chroot(const char *rootfs);
 void pl_exec_add(char *arg);
 
 char *pl_pipe(char *const program1[], char *const program2[]);
+
+void pl_run(char *program[]);

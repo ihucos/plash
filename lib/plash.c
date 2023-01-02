@@ -475,3 +475,25 @@ void pl_pipe(char *program1[], char *program2[]) {
       exit(1);
   }
 }
+
+
+void pl_run(char *program[]) {
+    int status;
+    pid_t pid = fork();
+    if (pid < 0) {
+        pl_fatal("fork");
+    }
+    if (pid == 0) {
+        execvp(program[0], program);
+        pl_fatal("execvp");
+    }
+    if (waitpid(pid, &status, 0) < 0) pl_fatal("waitpid");
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        fprintf(stderr, "plash error: subprocess program: ");
+        for (int i = 0; program[i] != NULL; i++) {
+            fprintf(stderr, "%s ", program[i]);
+        }
+        fprintf(stderr, "\n");
+        exit(1);
+    }
+}

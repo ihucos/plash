@@ -169,17 +169,17 @@ int main(int argc, char *argv[]) {
             EACHLINE("emerge %s");
 
 
-        CASE("--eval-file")
-            ARGS(1);
-            pl_call("eval-plashfile", NEXT);
-            NEXT;
-
         CASE("--eval-url")
-            ARGS(1);
+            ARGSMIN(1);
             pl_pipe(
                     (char*[]){"curl", "--fail", NEXT, NULL},
                     (char*[]){"plash", "eval-plashfile", NULL}
                    );
+            NEXT;
+
+        CASE("--eval-file")
+            ARGSMIN(1);
+            pl_run((char*[]){"plash", "eval-plashfile", NEXT, NULL});
             NEXT;
 
         //CASE("--github") // make it --from-url!
