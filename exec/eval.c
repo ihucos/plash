@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
         CASE("--eval-url")
             ARGSMIN(1);
             pl_pipe(
-                    (char*[]){"curl", "--fail", NEXT, NULL},
+                    (char*[]){"curl", "--fail", "--no-progress-meter", NEXT, NULL},
                     (char*[]){"plash", "eval-plashfile", NULL}
                    );
             NEXT;
@@ -188,18 +188,20 @@ int main(int argc, char *argv[]) {
             NEXT;
             NEXT;
 
-        //CASE("--github") // make it --from-url!
-            //char *url, *user_repo_pair, *file;
-            //user_repo_pair = NEXT;
-            //NEXT;
-            //if (!isval(CURRENT)){
-            //    file = "plashfile"
-            //} else {
-            //    file = CURRENT
-            //}
-            //asprintf(url, ""https://raw.githubusercontent.com/%s/master/%s"", user_repo_pair, file) != -1 || pl_fatal("asprintf");
-            //content = fetch(url)
-            //...
+        CASE("--eval-github")
+            char *url, *user_repo_pair, *file;
+            user_repo_pair = NEXT;
+            NEXT;
+            if (!isval(CURRENT)){
+                file = "plashfile";
+            } else {
+                file = CURRENT;
+            }
+            asprintf(&url, "https://raw.githubusercontent.com/%s/master/%s", user_repo_pair, file) != -1 || pl_fatal("asprintf");
+            pl_pipe(
+                    (char*[]){"curl", "--fail", "--no-progress-meter", url, NULL},
+                    (char*[]){"plash", "eval-plashfile", NULL});
+            NEXT;
 
 
         } else {
