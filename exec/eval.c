@@ -191,6 +191,8 @@ int main(int argc, char *argv[]) {
         CASE("--eval-github")
             char *url, *user_repo_pair, *file;
             user_repo_pair = NEXT;
+            if (strchr(user_repo_pair, '/') == NULL)
+                pl_fatal("--eval-github: user-repo-pair must include a slash (got %s)", user_repo_pair);
             NEXT;
             if (!isval(CURRENT)){
                 file = "plashfile";
