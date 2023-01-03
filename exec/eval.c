@@ -14,8 +14,7 @@
 #define NEXT *(++argv)
 #define CURRENT *argv
 #define EACHARGS while(isval(NEXT))
-#define LINEARGS() EACHARGS printf(" %s", quote(CURRENT))
-#define NEWLINE() printf("\n")
+#define LINEAPPENDARGS(s) printf("%s", s); EACHARGS printf(" %s", quote(CURRENT)); printf("\n")
 
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
 
@@ -212,39 +211,31 @@ int main(int argc, char *argv[]) {
          // package managers
         CASE("--apt")
             ARGSMIN(1);
-            printf("apt-get update\napt-get install -y");
-            LINEARGS(); NEWLINE();
+            LINEAPPENDARGS("apt-get update\napt-get install -y");
         CASE("--apk")
             ARGSMIN(1);
-            printf("apk update\napk add");
-            LINEARGS(); NEWLINE();
+            LINEAPPENDARGS("apk update\napk add");
         CASE("--yum")
             ARGSMIN(1);
-            printf("yum install -y");
-            LINEARGS(); NEWLINE();
+            LINEAPPENDARGS("yum install -y");
         CASE("--dnf")
             ARGSMIN(1);
-            printf("dnf install -y");
-            LINEARGS(); NEWLINE();
+            LINEAPPENDARGS("dnf install -y");
         CASE("--pip")
             ARGSMIN(1);
-            printf("pip install");
-            LINEARGS(); NEWLINE();
+            LINEAPPENDARGS("pip install");
         CASE("--pip3")
             ARGSMIN(1);
-            printf("pip3 install");
-            LINEARGS(); NEWLINE();
+            LINEAPPENDARGS("pip3 install");
         CASE("--npm")
-            printf("npm install -g");
-            LINEARGS(); NEWLINE();
+            ARGSMIN(1);
+            LINEAPPENDARGS("npm install -g");
         CASE("--pacman")
             ARGSMIN(1);
-            printf("pacman -Sy --noconfirm");
-            LINEARGS(); NEWLINE();
+            LINEAPPENDARGS("pacman -Sy --noconfirm");
         CASE("--emerge")
             ARGSMIN(1);
-            printf("emerge");
-            LINEARGS(); NEWLINE();
+            LINEAPPENDARGS("emerge");
 
 
         CASE("--eval-url")
