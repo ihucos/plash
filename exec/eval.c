@@ -208,6 +208,10 @@ int main(int argc, char *argv[]) {
             EACHLINE("echo %s >> /entrypoint");
 
          // package managers
+        CASE("--apt")
+            ARGSMIN(1);
+            LINE("apt-get update");
+            EACHLINE("apt-get install -y %s");
         CASE("--apk")
             ARGSMIN(1);
             LINE("apk update");
