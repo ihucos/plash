@@ -212,35 +212,39 @@ int main(int argc, char *argv[]) {
          // package managers
         CASE("--apt")
             ARGSMIN(1);
-            LINE("apt-get update");
-            printf("apt-get install -y");
-            LINEARGS();
-            NEWLINE();
+            printf("apt-get update\napt-get install -y");
+            LINEARGS(); NEWLINE();
         CASE("--apk")
             ARGSMIN(1);
-            LINE("apk update");
-            EACHLINE("apk add %s");
+            printf("apk update\napk add");
+            LINEARGS(); NEWLINE();
         CASE("--yum")
             ARGSMIN(1);
-            EACHLINE("yum install -y %s");
+            printf("yum install -y");
+            LINEARGS(); NEWLINE();
         CASE("--dnf")
             ARGSMIN(1);
-            EACHLINE("dnf install -y %s");
+            printf("dnf install -y");
+            LINEARGS(); NEWLINE();
         CASE("--pip")
             ARGSMIN(1);
-            EACHLINE("pip install %s");
+            printf("pip install");
+            LINEARGS(); NEWLINE();
         CASE("--pip3")
             ARGSMIN(1);
-            EACHLINE("pip3 install %s");
+            printf("pip3 install");
+            LINEARGS(); NEWLINE();
         CASE("--npm")
-            ARGSMIN(1);
-            EACHLINE("npm install -g %s");
+            printf("npm install -g");
+            LINEARGS(); NEWLINE();
         CASE("--pacman")
             ARGSMIN(1);
-            EACHLINE("pacman -Sy --noconfirm %s");
+            printf("pacman -Sy --noconfirm");
+            LINEARGS(); NEWLINE();
         CASE("--emerge")
             ARGSMIN(1);
-            EACHLINE("emerge %s");
+            printf("emerge");
+            LINEARGS(); NEWLINE();
 
 
         CASE("--eval-url")
