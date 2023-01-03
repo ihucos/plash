@@ -14,6 +14,8 @@
 #define NEXT *(++argv)
 #define CURRENT *argv
 #define EACHARGS while(isval(NEXT))
+#define LINEARGS() EACHARGS printf(" %s", quote(CURRENT))
+#define NEWLINE() printf("\n")
 
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
 
@@ -211,7 +213,9 @@ int main(int argc, char *argv[]) {
         CASE("--apt")
             ARGSMIN(1);
             LINE("apt-get update");
-            EACHLINE("apt-get install -y %s");
+            printf("apt-get install -y");
+            LINEARGS();
+            NEWLINE();
         CASE("--apk")
             ARGSMIN(1);
             LINE("apk update");
