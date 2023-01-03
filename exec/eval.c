@@ -127,6 +127,10 @@ int main(int argc, char *argv[]) {
             
         CASE("--env")
             ARGSMIN(1);
+            EACHLINE("echo %s >> /.plashenvs");
+
+        CASE("--env-prefix")
+            ARGSMIN(1);
             EACHLINE("echo %s >> /.plashenvsprefix");
 
         CASE("--from")
