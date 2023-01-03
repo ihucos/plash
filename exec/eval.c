@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <unistd.h>
 
 #include <plash.h>
 
@@ -238,6 +239,16 @@ int main(int argc, char *argv[]) {
                     (char*[]){"plash", "eval-plashfile", NULL});
             NEXT;
 
+        CASE("--hash-path")
+            EACHARGS {
+                printf(": hash-path ");
+                fflush(stdout);
+                pl_pipe(
+                    (char*[]){"tar", "-c", CURRENT, NULL},
+                    (char*[]){"sha512sum", NULL});
+                sleep(1);
+            }
+            
 
         } else {
             errno = 0;
