@@ -64,7 +64,7 @@ void SHELL(char *shell_cmd){
 
 }
 
-void PUTHINT(char *name, char *val){
+void HINT(char *name, char *val){
     if (val != NULL){
         LINE("### plash hint: %s=%s", name, val);
     } else {
@@ -80,6 +80,11 @@ char *quote(char *str){
 char *pl_call_cached(char *subcommand, char *arg){
     char *cache_key, *image_id;
     asprintf(&cache_key, "lxc:%s", /*subcommand,*/ arg) != -1 || pl_fatal("asprintf");
+
+    for (size_t i = 0; cache_key[i]; i++) {
+        if (cache_key[i] == '/') cache_key[i] = '%';
+    }
+
     image_id = pl_call("map", cache_key);
     if (strlen(image_id) == 0){
         image_id = pl_call(subcommand, arg);
@@ -111,7 +116,7 @@ int main(int argc, char *argv[]) {
 
         CASE("--layer")
             ARGS(0);
-            PUTHINT("layer", NULL);
+            HINT("layer", NULL);
             NEXT;
 
         CASE("--write-file")
@@ -126,17 +131,41 @@ int main(int argc, char *argv[]) {
 
         CASE("--from")
             ARGS(1);
-            PUTHINT("image", pl_call_cached("import-lxc", NEXT));
+            HINT("image", pl_call_cached("import-lxc", NEXT));
+            NEXT;
+
+        CASE("--from-docker")
+            ARGS(1);
+            HINT("image", pl_call_cached("import-docker", NEXT));
+            NEXT;
+
+        CASE("--from-url")
+            ARGS(1);
+            HINT("image", pl_call_cached("import-url", NEXT));
+            NEXT;
+
+        CASE("--from-map")
+            ARGS(1);
+            char *image_id = pl_call("map", NEXT);
+            if (image_id[0] == '\0'){
+                pl_fatal("No such map: %s", CURRENT);
+            }
+            HINT("image", image_id);
+            NEXT;
+
+        CASE("--from-url")
+            ARGS(1);
+            HINT("image", NEXT);
             NEXT;
 
         CASE("--entrypoint")
             ARGS(1);
-            PUTHINT("exec", NEXT);
+            HINT("exec", NEXT);
             NEXT;
 
         CASE("--entrypoint-script")
             ARGSMIN(1);
-            PUTHINT("exec", "/entrypoint");
+            HINT("exec", "/entrypoint");
             LINE("touch /entrypoint");
             LINE("chmod 755 /entrypoint");
             EACHLINE("echo %s >> /entrypoint");
