@@ -14,7 +14,11 @@
 #define NEXT *(++argv)
 #define CURRENT *argv
 #define EACHARGS while(isval(NEXT))
-#define LINEAPPENDARGS(s) printf("%s", s); EACHARGS printf(" %s", quote(CURRENT)); printf("\n")
+#define PKG(s) {\
+    ARGSMIN(1); printf("%s", s);\
+    EACHARGS printf(" %s", quote(CURRENT));\
+    printf("\n")\
+;}
 
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
 
@@ -26,6 +30,8 @@
 
 #define LINECURRENT(format) LINE(format, quote(CURRENT))
 #define EACHLINE(arg) EACHARGS LINECURRENT(arg)
+
+
 
 void LINE(char *format, ...) {
   va_list args;
@@ -210,32 +216,23 @@ int main(int argc, char *argv[]) {
 
          // package managers
         CASE("--apt")
-            ARGSMIN(1);
-            LINEAPPENDARGS("apt-get update\napt-get install -y");
+            PKG("apt-get update\napt-get install -y");
         CASE("--apk")
-            ARGSMIN(1);
-            LINEAPPENDARGS("apk update\napk add");
+            PKG("apk update\napk add");
         CASE("--yum")
-            ARGSMIN(1);
-            LINEAPPENDARGS("yum install -y");
+            PKG("yum install -y");
         CASE("--dnf")
-            ARGSMIN(1);
-            LINEAPPENDARGS("dnf install -y");
+            PKG("dnf install -y");
         CASE("--pip")
-            ARGSMIN(1);
-            LINEAPPENDARGS("pip install");
+            PKG("pip install");
         CASE("--pip3")
-            ARGSMIN(1);
-            LINEAPPENDARGS("pip3 install");
+            PKG("pip3 install");
         CASE("--npm")
-            ARGSMIN(1);
-            LINEAPPENDARGS("npm install -g");
+            PKG("npm install -g");
         CASE("--pacman")
-            ARGSMIN(1);
-            LINEAPPENDARGS("pacman -Sy --noconfirm");
+            PKG("pacman -Sy --noconfirm");
         CASE("--emerge")
-            ARGSMIN(1);
-            LINEAPPENDARGS("emerge");
+            PKG("emerge");
 
 
         CASE("--eval-url")
