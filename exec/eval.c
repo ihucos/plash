@@ -127,24 +127,20 @@ char *pl_call_cached(char *subcommand, char *arg) {
   return image_id;
 }
 
-commandsbegin
+commandsbegin;
 
-command("-x") {
-  eachargs printf("%s", current);
-}
+command("-x") eachargs printf("%s", current);
 
-command("--layer") { printint("layer", NULL); }
+command("--layer") printint("layer", NULL);
 
 command("--write-file") {
   char *filename = next();
   printf("touch %s\n", quote(filename));
   eachargs printf("echo %s >> %s\n", quote(current), quote(filename));
 }
-command("--env") { eachline("echo %s >> /.plashenvs\n"); }
-command("--env-prefix") { eachline("echo %s >> /.plashenvsprefix\n"); }
-command("--from-lxc") {
-  printint("image", pl_call_cached("import-lxc", next()));
-}
+command("--env") eachline("echo %s >> /.plashenvs\n");
+command("--env-prefix") eachline("echo %s >> /.plashenvsprefix\n");
+command("--from-lxc") printint("image", pl_call_cached("import-lxc", next()));
 command("--from") {
   next();
 
@@ -187,24 +183,23 @@ command("--entrypoint-script") {
 
   // package managers
 }
-command("--apt") { pkg("apt-get update\napt-get install -y"); }
-command("--apk") { pkg("apk update\napk add"); }
-command("--yum") { pkg("yum install -y"); }
-command("--dnf") { pkg("dnf install -y"); }
-command("--pip") { pkg("pip install"); }
-command("--pip3") { pkg("pip3 install"); }
-command("--npm") { pkg("npm install -g"); }
-command("--pacman") { pkg("pacman -Sy --noconfirm"); }
-command("--emerge") { pkg("emerge"); }
+command("--apt") pkg("apt-get update\napt-get install -y");
+command("--apk") pkg("apk update\napk add");
+command("--yum") pkg("yum install -y");
+command("--dnf") pkg("dnf install -y");
+command("--pip") pkg("pip install");
+command("--pip3") pkg("pip3 install");
+command("--npm") pkg("npm install -g");
+command("--pacman") pkg("pacman -Sy --noconfirm");
+command("--emerge") pkg("emerge");
 command("--eval-url") {
   pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", next(), NULL},
           (char *[]){"plash", "eval-plashfile", NULL});
 }
-command("--eval-file") {
-  pl_run((char *[]){"plash", "eval-plashfile", next(), NULL});
-}
+command("--eval-file")
+    pl_run((char *[]){"plash", "eval-plashfile", next(), NULL});
 
-command("--eval-stdin") { pl_run((char *[]){"plash", "eval-plashfile", NULL}); }
+command("--eval-stdin") pl_run((char *[]){"plash", "eval-plashfile", NULL});
 command("--eval-github") {
   char *url, *user_repo_pair, *file;
   user_repo_pair = next();
