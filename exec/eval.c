@@ -16,8 +16,6 @@
 
 static char **tokens;
 
-int tokenis(char *macro) { return (strcmp(current, macro) == 0); }
-
 char *quote(char *str) {
   size_t i, j, quotes_found = 0, quoted_counter = 0;
   for (i = 0; str[i]; i++) {
@@ -43,6 +41,25 @@ char *quote(char *str) {
 
   return quoted;
 }
+
+char *call_cached(char *subcommand, char *arg) {
+  char *cache_key, *image_id;
+  asprintf(&cache_key, "lxc:%s", /*subcommand,*/ arg) != -1 ||
+      pl_fatal("asprintf");
+
+  for (size_t i = 0; cache_key[i]; i++) {
+    if (cache_key[i] == '/')
+      cache_key[i] = '%';
+  }
+
+  image_id = pl_call("map", cache_key);
+  if (strlen(image_id) == 0) {
+    image_id = pl_call(subcommand, arg);
+    pl_call("map", cache_key, image_id);
+  }
+  return image_id;
+}
+
 
 int isval(char *val) {
   if (val == NULL)
@@ -90,23 +107,8 @@ void printhint(char *name, char *val) {
   }
 }
 
-char *pl_call_cached(char *subcommand, char *arg) {
-  char *cache_key, *image_id;
-  asprintf(&cache_key, "lxc:%s", /*subcommand,*/ arg) != -1 ||
-      pl_fatal("asprintf");
+int tokenis(char *macro) { return (strcmp(current, macro) == 0); }
 
-  for (size_t i = 0; cache_key[i]; i++) {
-    if (cache_key[i] == '/')
-      cache_key[i] = '%';
-  }
-
-  image_id = pl_call("map", cache_key);
-  if (strlen(image_id) == 0) {
-    image_id = pl_call(subcommand, arg);
-    pl_call("map", cache_key, image_id);
-  }
-  return image_id;
-}
 
 int main(int argc, char *argv[]) {
   tokens = argv;
@@ -137,10 +139,10 @@ int main(int argc, char *argv[]) {
       printhint("image", nextarg());
 
     } else if (tokenis("--from-docker")) {
-      printhint("image", pl_call_cached("import-docker", nextarg()));
+      printhint("image", call_cached("import-docker", nextarg()));
 
     } else if (tokenis("--from-url")) {
-      printhint("image", pl_call_cached("import-url", nextarg()));
+      printhint("image", call_cached("import-url", nextarg()));
 
     } else if (tokenis("--from-map")) {
       char *image_id = pl_call("map", nextarg());
@@ -195,7 +197,7 @@ int main(int argc, char *argv[]) {
       pl_run("plash", "eval-plashfile");
 
     } else if (tokenis("--from-lxc")) {
-      printhint("image", pl_call_cached("import-lxc", nextarg()));
+      printhint("image", call_cached("import-lxc", nextarg()));
 
     } else if (tokenis("--from-url")) {
       printhint("image", nextarg());
