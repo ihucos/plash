@@ -19,7 +19,7 @@
 
 static char **tokens;
 
-void LINE(char *format, ...) {
+void line(char *format, ...) {
   va_list args;
   va_start(args, format);
   va_end(args);
@@ -63,12 +63,9 @@ char *quote(char *str){
 }
 
 
-void LINECURRENT(char *format) {
-    LINE(format, quote(CURRENT));
+void linecurrent(char *format) {
+    line(format, quote(CURRENT));
 }
-
-
-
 
 int isval(char *val){
     if (val == NULL) return 0;
@@ -77,8 +74,8 @@ int isval(char *val){
 }
 
 
-void EACHLINE(char *arg) {
-    EACHARGS LINECURRENT(arg);
+void eachline(char *arg) {
+    EACHARGS linecurrent(arg);
 }
 
 
@@ -88,27 +85,27 @@ char *assert_isval(char *val){
 }
 
 
-size_t count_vals(){
+size_t countvals(){
     char **tokens_copy = tokens;
     while(isval(*(++tokens_copy)));
     return tokens_copy - tokens - 1;
 }
 
 
-void ARGS(int argscount){
-    if (count_vals() != argscount)
+void args(int argscount){
+    if (countvals() != argscount)
         pl_fatal("macro %s needs exactly %ld args", *tokens, argscount);
 }
 
 
-void ARGSMIN(int min){
-    if (count_vals() < min)
+void argsmin(int min){
+    if (countvals() < min)
         pl_fatal("macro %s needs at least %ld args", *tokens, min);
 }
 
 
 void PKG(char *cmd_prefix) {
-    ARGSMIN(1); printf("%s", cmd_prefix);
+    argsmin(1); printf("%s", cmd_prefix);
     EACHARGS printf(" %s", quote(CURRENT));
     printf("\n");
 }
@@ -128,11 +125,11 @@ void SHELL(char *shell_cmd){
 
 }
 
-void HINT(char *name, char *val){
+void hint(char *name, char *val){
     if (val != NULL){
-        LINE("### plash hint: %s=%s", name, val);
+        line("### plash hint: %s=%s", name, val);
     } else {
-        LINE("### plash hint: %s", name);
+        line("### plash hint: %s", name);
     }
 }
 
@@ -175,30 +172,30 @@ int main(int argc, char *argv[]) {
         if (0){
 
         CASE("-x")
-            EACHARGS LINE(CURRENT);
+            EACHARGS line(CURRENT);
 
         CASE("--layer")
-            ARGS(0);
-            HINT("layer", NULL);
+            args(0);
+            hint("layer", NULL);
             NEXT;
 
         CASE("--write-file")
-            ARGSMIN(1);
+            argsmin(1);
             char *filename = NEXT;
-            LINE("touch %s", quote(filename));
-            EACHARGS LINE("echo %s >> %s", quote(CURRENT), quote(filename));
+            line("touch %s", quote(filename));
+            EACHARGS line("echo %s >> %s", quote(CURRENT), quote(filename));
             
         CASE("--env")
-            ARGSMIN(1);
-            EACHLINE("echo %s >> /.plashenvs");
+            argsmin(1);
+            eachline("echo %s >> /.plashenvs");
 
         CASE("--env-prefix")
-            ARGSMIN(1);
-            EACHLINE("echo %s >> /.plashenvsprefix");
+            argsmin(1);
+            eachline("echo %s >> /.plashenvsprefix");
 
         CASE("--from-lxc")
-            ARGS(1);
-            HINT("image", pl_call_cached("import-lxc", NEXT));
+            args(1);
+            hint("image", pl_call_cached("import-lxc", NEXT));
             NEXT;
 
 
@@ -220,40 +217,40 @@ int main(int argc, char *argv[]) {
             pl_fatal("execvp");
 
         CASE("--from-docker")
-            ARGS(1);
-            HINT("image", pl_call_cached("import-docker", NEXT));
+            args(1);
+            hint("image", pl_call_cached("import-docker", NEXT));
             NEXT;
 
         CASE("--from-url")
-            ARGS(1);
-            HINT("image", pl_call_cached("import-url", NEXT));
+            args(1);
+            hint("image", pl_call_cached("import-url", NEXT));
             NEXT;
 
         CASE("--from-map")
-            ARGS(1);
+            args(1);
             char *image_id = pl_call("map", NEXT);
             if (image_id[0] == '\0'){
                 pl_fatal("No such map: %s", CURRENT);
             }
-            HINT("image", image_id);
+            hint("image", image_id);
             NEXT;
 
         CASE("--from-url")
-            ARGS(1);
-            HINT("image", NEXT);
+            args(1);
+            hint("image", NEXT);
             NEXT;
 
         CASE("--entrypoint")
-            ARGS(1);
-            HINT("exec", NEXT);
+            args(1);
+            hint("exec", NEXT);
             NEXT;
 
         CASE("--entrypoint-script")
-            ARGSMIN(1);
-            HINT("exec", "/entrypoint");
-            LINE("touch /entrypoint");
-            LINE("chmod 755 /entrypoint");
-            EACHLINE("echo %s >> /entrypoint");
+            argsmin(1);
+            hint("exec", "/entrypoint");
+            line("touch /entrypoint");
+            line("chmod 755 /entrypoint");
+            eachline("echo %s >> /entrypoint");
 
          // package managers
         CASE("--apt")
@@ -277,7 +274,7 @@ int main(int argc, char *argv[]) {
 
 
         CASE("--eval-url")
-            ARGSMIN(1);
+            argsmin(1);
             pl_pipe(
                     (char*[]){"curl", "--fail", "--no-progress-meter", NEXT, NULL},
                     (char*[]){"plash", "eval-plashfile", NULL}
@@ -285,12 +282,12 @@ int main(int argc, char *argv[]) {
             NEXT;
 
         CASE("--eval-file")
-            ARGSMIN(1);
+            argsmin(1);
             pl_run((char*[]){"plash", "eval-plashfile", NEXT, NULL});
             NEXT;
 
         CASE("--eval-stdin")
-            ARGS(0);
+            args(0);
             pl_run((char*[]){"plash", "eval-plashfile", NULL});
             NEXT;
             NEXT;
