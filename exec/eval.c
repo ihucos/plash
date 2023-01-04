@@ -58,7 +58,7 @@ char *call_cached(char *subcommand, char *arg) {
   return image_id;
 }
 
-int isval(char *val) {
+int isarg(char *val) {
   if (val == NULL)
     return 0;
   if (val[0] == '-')
@@ -67,7 +67,7 @@ int isval(char *val) {
 }
 
 char *getarg_or_null() {
-  if (isval(*(tokens + 1))) {
+  if (isarg(*(tokens + 1))) {
     tokens++;
     arg = *tokens;
     return arg;
@@ -79,7 +79,7 @@ char *getarg_or_null() {
 char *getarg() {
   char *arg = getarg_or_null();
   if (!arg) {
-    while ((!isval(arg)))
+    while ((!isarg(arg)))
       pl_fatal("missing arg for: %s", *tokens);
   }
   return arg;
@@ -91,6 +91,7 @@ void eachline(char *fmt) {
 }
 
 void pkg(char *cmd_prefix) {
+  if (!isarg(*(tokens+1))){return;}
   printf("%s", cmd_prefix);
   while (getarg_or_null())
     printf(" %s", quote(arg));
@@ -110,9 +111,7 @@ int tokenis(char *macro) { return (strcmp(*tokens, macro) == 0); }
 int main(int argc, char *argv[]) {
   tokens = argv;
   while (*(++tokens)) {
-
     arg = NULL;
-
     if (tokenis("--write-file")) {
       getarg();
       printf("touch %s\n", quote(arg));
@@ -240,7 +239,7 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("--yum")) {
       pkg("yum install -y");
 
-    } else if (isval(*tokens)) {
+    } else if (isarg(*tokens)) {
       errno = 0;
       pl_fatal("expected macro, got value: %s", *tokens);
     } else {
