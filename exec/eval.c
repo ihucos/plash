@@ -19,26 +19,21 @@ static char **tokens;
 int tokenis(char *macro) { return (strcmp(current, macro) == 0); }
 
 char *quote(char *str) {
-
   size_t i, j, quotes_found = 0, quoted_counter = 0;
-
   for (i = 0; str[i]; i++) {
     if (str[i] == '\'')
       quotes_found++;
   }
-
   char *quoted = malloc((quotes_found * strlen(QUOTE_REPLACE) + strlen(str)) +
                         2   // for the enclousing quotes
                         + 1 // for the string terminator
   );
-
   quoted[quoted_counter++] = '\'';
   for (i = 0; str[i]; i++) {
     if (str[i] == '\'') {
       // append the string QUOTE_REPLACE
       for (j = 0; QUOTE_REPLACE[j]; j++)
         quoted[quoted_counter++] = QUOTE_REPLACE[j];
-
     } else {
       quoted[quoted_counter++] = str[i];
     }
@@ -170,12 +165,7 @@ int main(int argc, char *argv[]) {
       if (strchr(user_repo_pair, '/') == NULL)
         pl_fatal("--eval-github: user-repo-pair must include a slash (got %s)",
                  user_repo_pair);
-      next();
-      if (!isval(current)) {
-        file = "plashfile";
-      } else {
-        file = current;
-      }
+      if (! (file = next_or_null())) file = "plashfile";
       asprintf(&url, "https://raw.githubusercontent.com/%s/master/%s",
                user_repo_pair, file) != -1 ||
           pl_fatal("asprintf");
