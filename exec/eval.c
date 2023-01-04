@@ -12,23 +12,26 @@
 
 #define QUOTE_REPLACE "'\"'\"'"
 
-#define NEXT (*(++tokens))
-#define CURRENT (*tokens)
-#define EACHARGS while (isval(NEXT))
-#define MACRO(macro)                                                           \
+#define next() (*(++tokens))
+#define current (*tokens)
+#define eachargs while (isval(next()))
+#define commandsbegin                                                          \
+  int main(int argc, char *argv[]) {                                           \
+    tokens = argv;                                                             \
+    next();                                                                    \
+    while (current) {                                                          \
+      if (0) {
+
+#define command(macro)                                                         \
   }                                                                            \
-  else if (strcmp(CURRENT, macro) == 0) {
+  else if (strcmp(current, macro) == 0) {
 
-#define MACROBEGIN                                                             \
-  NEXT;                                                                        \
-  while (CURRENT) {                                                            \
-    if (0) {
-
-#define MACROEND                                                               \
+#define commandsend                                                            \
   }                                                                            \
   else {                                                                       \
     errno = 0;                                                                 \
-    pl_fatal("unknown macro: %s", CURRENT);                                    \
+    pl_fatal("unknown macro: %s", current);                                    \
+  }                                                                            \
   }                                                                            \
   }
 
@@ -73,7 +76,7 @@ char *quote(char *str) {
   return quoted;
 }
 
-void linecurrent(char *format) { line(format, quote(CURRENT)); }
+void linecurrent(char *format) { line(format, quote(current)); }
 
 int isval(char *val) {
   if (val == NULL)
@@ -83,7 +86,7 @@ int isval(char *val) {
   return 1;
 }
 
-void eachline(char *arg) { EACHARGS linecurrent(arg); }
+void eachline(char *arg) { eachargs linecurrent(arg); }
 
 char *assert_isval(char *val) {
   if (!isval(val))
@@ -111,7 +114,7 @@ void argsmin(int min) {
 void pkg(char *cmd_prefix) {
   argsmin(1);
   printf("%s", cmd_prefix);
-  EACHARGS printf(" %s", quote(CURRENT));
+  eachargs printf(" %s", quote(current));
   printf("\n");
 }
 
@@ -154,153 +157,152 @@ char *pl_call_cached(char *subcommand, char *arg) {
   return image_id;
 }
 
-int main(int argc, char *argv[]) {
-  tokens = argv;
-  MACROBEGIN
+commandsbegin
 
-  MACRO("-x") { EACHARGS line(CURRENT); }
-
-  MACRO("--layer") {
-    args(0);
-    hint("layer", NULL);
-    NEXT;
-  }
-
-  MACRO("--write-file") {
-    argsmin(1);
-    char *filename = NEXT;
-    line("touch %s", quote(filename));
-    EACHARGS line("echo %s >> %s", quote(CURRENT), quote(filename));
-  }
-  MACRO("--env") {
-    argsmin(1);
-    eachline("echo %s >> /.plashenvs");
-  }
-  MACRO("--env-prefix") {
-    argsmin(1);
-    eachline("echo %s >> /.plashenvsprefix");
-  }
-  MACRO("--from-lxc") {
-    args(1);
-    hint("image", pl_call_cached("import-lxc", NEXT));
-    NEXT;
-  }
-  MACRO("--from") {
-    NEXT;
-
-    puts("meh");
-    int i, only_digits = 1;
-    for (i = 0; CURRENT[i]; i++) {
-      if (!isdigit(CURRENT[i]))
-        only_digits = 0;
-    }
-
-    if (only_digits) {
-      execvp(argv[0], (char *[]){argv[0], "--from-id", CURRENT, NULL});
-    } else {
-      execvp(argv[0], (char *[]){argv[0], "--from-lxc", CURRENT, NULL});
-    }
-    puts(argv[0]);
-    pl_fatal("execvp");
-  }
-  MACRO("--from-docker") {
-    args(1);
-    hint("image", pl_call_cached("import-docker", NEXT));
-    NEXT;
-  }
-  MACRO("--from-url") {
-    args(1);
-    hint("image", pl_call_cached("import-url", NEXT));
-    NEXT;
-  }
-  MACRO("--from-map") {
-    args(1);
-    char *image_id = pl_call("map", NEXT);
-    if (image_id[0] == '\0') {
-      pl_fatal("No such map: %s", CURRENT);
-    }
-    hint("image", image_id);
-    NEXT;
-  }
-  MACRO("--from-url") {
-    args(1);
-    hint("image", NEXT);
-    NEXT;
-  }
-  MACRO("--entrypoint") {
-    args(1);
-    hint("exec", NEXT);
-    NEXT;
-  }
-
-  MACRO("--entrypoint-script") {
-    argsmin(1);
-    hint("exec", "/entrypoint");
-    line("touch /entrypoint");
-    line("chmod 755 /entrypoint");
-    eachline("echo %s >> /entrypoint");
-
-    // package managers
-  }
-  MACRO("--apt") { pkg("apt-get update\napt-get install -y"); }
-  MACRO("--apk") { pkg("apk update\napk add"); }
-  MACRO("--yum") { pkg("yum install -y"); }
-  MACRO("--dnf") { pkg("dnf install -y"); }
-  MACRO("--pip") { pkg("pip install"); }
-  MACRO("--pip3") { pkg("pip3 install"); }
-  MACRO("--npm") { pkg("npm install -g"); }
-  MACRO("--pacman") { pkg("pacman -Sy --noconfirm"); }
-  MACRO("--emerge") { pkg("emerge"); }
-  MACRO("--eval-url") {
-    argsmin(1);
-    pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", NEXT, NULL},
-            (char *[]){"plash", "eval-plashfile", NULL});
-    NEXT;
-  }
-  MACRO("--eval-file") {
-    argsmin(1);
-    pl_run((char *[]){"plash", "eval-plashfile", NEXT, NULL});
-    NEXT;
-  }
-
-  MACRO("--eval-stdin") {
-    args(0);
-    pl_run((char *[]){"plash", "eval-plashfile", NULL});
-    NEXT;
-    NEXT;
-  }
-  MACRO("--eval-github") {
-    char *url, *user_repo_pair, *file;
-    user_repo_pair = NEXT;
-    if (strchr(user_repo_pair, '/') == NULL)
-      pl_fatal("--eval-github: user-repo-pair must include a slash (got %s)",
-               user_repo_pair);
-    NEXT;
-    if (!isval(CURRENT)) {
-      file = "plashfile";
-    } else {
-      file = CURRENT;
-    }
-    asprintf(&url, "https://raw.githubusercontent.com/%s/master/%s",
-             user_repo_pair, file) != -1 ||
-        pl_fatal("asprintf");
-    pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", url, NULL},
-            (char *[]){"plash", "eval-plashfile", NULL});
-    NEXT;
-  }
-  MACRO("--hash-path") {
-    EACHARGS {
-      printf(": hash-path ");
-      fflush(stdout);
-      pl_pipe((char *[]){"tar", "-c", CURRENT, NULL},
-              (char *[]){"sha512sum", NULL});
-      sleep(1);
-    }
-  }
-  MACRO("--import-env") {
-    puts(quote(NEXT));
-    NEXT;
-  }
-
-  MACROEND
+command("-x") {
+  eachargs line(current);
 }
+
+command("--layer") {
+  args(0);
+  hint("layer", NULL);
+  next();
+}
+
+command("--write-file") {
+  argsmin(1);
+  char *filename = next();
+  line("touch %s", quote(filename));
+  eachargs line("echo %s >> %s", quote(current), quote(filename));
+}
+command("--env") {
+  argsmin(1);
+  eachline("echo %s >> /.plashenvs");
+}
+command("--env-prefix") {
+  argsmin(1);
+  eachline("echo %s >> /.plashenvsprefix");
+}
+command("--from-lxc") {
+  args(1);
+  hint("image", pl_call_cached("import-lxc", next()));
+  next();
+}
+command("--from") {
+  next();
+
+  puts("meh");
+  int i, only_digits = 1;
+  for (i = 0; current[i]; i++) {
+    if (!isdigit(current[i]))
+      only_digits = 0;
+  }
+
+  if (only_digits) {
+    execvp(argv[0], (char *[]){argv[0], "--from-id", current, NULL});
+  } else {
+    execvp(argv[0], (char *[]){argv[0], "--from-lxc", current, NULL});
+  }
+  puts(argv[0]);
+  pl_fatal("execvp");
+}
+command("--from-docker") {
+  args(1);
+  hint("image", pl_call_cached("import-docker", next()));
+  next();
+}
+command("--from-url") {
+  args(1);
+  hint("image", pl_call_cached("import-url", next()));
+  next();
+}
+command("--from-map") {
+  args(1);
+  char *image_id = pl_call("map", next());
+  if (image_id[0] == '\0') {
+    pl_fatal("No such map: %s", current);
+  }
+  hint("image", image_id);
+  next();
+}
+command("--from-url") {
+  args(1);
+  hint("image", next());
+  next();
+}
+command("--entrypoint") {
+  args(1);
+  hint("exec", next());
+  next();
+}
+
+command("--entrypoint-script") {
+  argsmin(1);
+  hint("exec", "/entrypoint");
+  line("touch /entrypoint");
+  line("chmod 755 /entrypoint");
+  eachline("echo %s >> /entrypoint");
+
+  // package managers
+}
+command("--apt") { pkg("apt-get update\napt-get install -y"); }
+command("--apk") { pkg("apk update\napk add"); }
+command("--yum") { pkg("yum install -y"); }
+command("--dnf") { pkg("dnf install -y"); }
+command("--pip") { pkg("pip install"); }
+command("--pip3") { pkg("pip3 install"); }
+command("--npm") { pkg("npm install -g"); }
+command("--pacman") { pkg("pacman -Sy --noconfirm"); }
+command("--emerge") { pkg("emerge"); }
+command("--eval-url") {
+  argsmin(1);
+  pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", next(), NULL},
+          (char *[]){"plash", "eval-plashfile", NULL});
+  next();
+}
+command("--eval-file") {
+  argsmin(1);
+  pl_run((char *[]){"plash", "eval-plashfile", next(), NULL});
+  next();
+}
+
+command("--eval-stdin") {
+  args(0);
+  pl_run((char *[]){"plash", "eval-plashfile", NULL});
+  next();
+  next();
+}
+command("--eval-github") {
+  char *url, *user_repo_pair, *file;
+  user_repo_pair = next();
+  if (strchr(user_repo_pair, '/') == NULL)
+    pl_fatal("--eval-github: user-repo-pair must include a slash (got %s)",
+             user_repo_pair);
+  next();
+  if (!isval(current)) {
+    file = "plashfile";
+  } else {
+    file = current;
+  }
+  asprintf(&url, "https://raw.githubusercontent.com/%s/master/%s",
+           user_repo_pair, file) != -1 ||
+      pl_fatal("asprintf");
+  pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", url, NULL},
+          (char *[]){"plash", "eval-plashfile", NULL});
+  next();
+}
+command("--hash-path") {
+  eachargs {
+    printf(": hash-path ");
+    fflush(stdout);
+    pl_pipe((char *[]){"tar", "-c", current, NULL},
+            (char *[]){"sha512sum", NULL});
+    sleep(1);
+  }
+}
+command("--import-env") {
+  puts(quote(next()));
+  next();
+}
+
+commandsend
