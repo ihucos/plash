@@ -78,7 +78,7 @@ char *nextarg_or_null() {
   }
 }
 
-char *nextarg() {
+char *getarg() {
   char *arg = nextarg_or_null();
   if (!arg) {
     while ((!isval(arg)))
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
   while (*(++tokens)) {
 
     if (tokenis("--write-file")) {
-      nextarg();
+      getarg();
       printf("touch %s\n", quote(current));
       while (nextarg_or_null())
         printf("echo %s >> %s\n", quote(current), quote(current));
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
         printf("echo %s >> %s\n", quote(current), quote(current));
 
     } else if (tokenis("--from") || tokenis("-f")) {
-      nextarg();
+      getarg();
       int i, only_digits = 1;
       for (i = 0; current[i]; i++) {
         if (!isdigit(current[i]))
@@ -136,16 +136,16 @@ int main(int argc, char *argv[]) {
       }
 
     } else if (tokenis("--from-id")) {
-      printhint("image", nextarg());
+      printhint("image", getarg());
 
     } else if (tokenis("--from-docker")) {
-      printhint("image", call_cached("import-docker", nextarg()));
+      printhint("image", call_cached("import-docker", getarg()));
 
     } else if (tokenis("--from-url")) {
-      printhint("image", call_cached("import-url", nextarg()));
+      printhint("image", call_cached("import-url", getarg()));
 
     } else if (tokenis("--from-map")) {
-      char *image_id = pl_call("map", nextarg());
+      char *image_id = pl_call("map", getarg());
       if (image_id[0] == '\0') {
         pl_fatal("No such map: %s", current);
       }
@@ -158,12 +158,12 @@ int main(int argc, char *argv[]) {
       eachline("echo %s >> /entrypoint\n");
 
     } else if (tokenis("--eval-url")) {
-      pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", nextarg(), NULL},
+      pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", getarg(), NULL},
               (char *[]){"plash", "eval-plashfile", NULL});
 
     } else if (tokenis("--eval-github")) {
       char *url, *user_repo_pair, *file;
-      user_repo_pair = nextarg();
+      user_repo_pair = getarg();
       if (strchr(user_repo_pair, '/') == NULL)
         pl_fatal("--eval-github: user-repo-pair must include a slash (got %s)",
                  user_repo_pair);
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
                 (char *[]){"sha512sum", NULL});
       }
     } else if (tokenis("--entrypoint")) {
-      printhint("exec", nextarg());
+      printhint("exec", getarg());
 
     } else if (tokenis("--env")) {
       eachline("echo %s >> /.plashenvs\n");
@@ -191,19 +191,19 @@ int main(int argc, char *argv[]) {
       eachline("echo %s >> /.plashenvsprefix\n");
 
     } else if (tokenis("--eval-file")) {
-      pl_run("plash", "eval-plashfile", nextarg());
+      pl_run("plash", "eval-plashfile", getarg());
 
     } else if (tokenis("--eval-stdin")) {
       pl_run("plash", "eval-plashfile");
 
     } else if (tokenis("--from-lxc")) {
-      printhint("image", call_cached("import-lxc", nextarg()));
+      printhint("image", call_cached("import-lxc", getarg()));
 
     } else if (tokenis("--from-url")) {
-      printhint("image", nextarg());
+      printhint("image", getarg());
 
     } else if (tokenis("--import-env")) {
-      { puts(quote(nextarg())); }
+      { puts(quote(getarg())); }
 
     } else if (tokenis("--layer")) {
       printhint("layer", NULL);
