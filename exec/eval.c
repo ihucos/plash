@@ -17,9 +17,6 @@
 #define EACHARGS while(isval(NEXT))
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
 
-#define LINECURRENT(format) LINE(format, quote(CURRENT))
-#define EACHLINE(arg) EACHARGS LINECURRENT(arg)
-
 static char **tokens;
 
 void LINE(char *format, ...) {
@@ -29,6 +26,7 @@ void LINE(char *format, ...) {
   asprintf(&format, "%s\n", format) != -1 || pl_fatal("asprintf");
   vprintf(format, args);
 }
+
 
 char *quote(char *str){
 
@@ -65,11 +63,24 @@ char *quote(char *str){
 }
 
 
+void LINECURRENT(char *format) {
+    LINE(format, quote(CURRENT));
+}
+
+
+
+
 int isval(char *val){
     if (val == NULL) return 0;
     if (val[0] == '-') return 0;
     return 1;
 }
+
+
+void EACHLINE(char *arg) {
+    EACHARGS LINECURRENT(arg);
+}
+
 
 char *assert_isval(char *val){
     if (!isval(val)) pl_fatal("argument for macro is missing");
