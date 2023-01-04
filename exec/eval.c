@@ -52,7 +52,7 @@ int isval(char *val) {
   return 1;
 }
 
-char *next_or_null() {
+char *nextarg_or_null() {
   if (isval(*(tokens + 1))) {
     tokens++;
     return *tokens;
@@ -61,23 +61,23 @@ char *next_or_null() {
   }
 }
 
-char *next() {
-  char *next = next_or_null();
-  if (!next) {
-    while ((!isval(next)))
+char *nextarg() {
+  char *arg = nextarg_or_null();
+  if (!arg) {
+    while ((!isval(arg)))
       pl_fatal("missing arg for: %s", *tokens);
   }
-  return next;
+  return arg;
 }
 
 void eachline(char *fmt) {
-  while (next_or_null())
+  while (nextarg_or_null())
     printf(fmt, quote(current));
 }
 
 void pkg(char *cmd_prefix) {
   printf("%s", cmd_prefix);
-  while (next_or_null())
+  while (nextarg_or_null())
     printf(" %s", quote(current));
   printf("\n");
 }
@@ -113,15 +113,15 @@ int main(int argc, char *argv[]) {
   while (*(++tokens)) {
 
     if (tokenis("--write-file")) {
-      next();
+      nextarg();
       printf("touch %s\n", quote(current));
-      while (next_or_null())
+      while (nextarg_or_null())
         printf("echo %s >> %s\n", quote(current), quote(current));
-      while (next_or_null())
+      while (nextarg_or_null())
         printf("echo %s >> %s\n", quote(current), quote(current));
 
     } else if (tokenis("--from") || tokenis("-f")) {
-      next();
+      nextarg();
       int i, only_digits = 1;
       for (i = 0; current[i]; i++) {
         if (!isdigit(current[i]))
@@ -134,16 +134,16 @@ int main(int argc, char *argv[]) {
       }
 
     } else if (tokenis("--from-id")) {
-      printhint("image", next());
+      printhint("image", nextarg());
 
     } else if (tokenis("--from-docker")) {
-      printhint("image", pl_call_cached("import-docker", next()));
+      printhint("image", pl_call_cached("import-docker", nextarg()));
 
     } else if (tokenis("--from-url")) {
-      printhint("image", pl_call_cached("import-url", next()));
+      printhint("image", pl_call_cached("import-url", nextarg()));
 
     } else if (tokenis("--from-map")) {
-      char *image_id = pl_call("map", next());
+      char *image_id = pl_call("map", nextarg());
       if (image_id[0] == '\0') {
         pl_fatal("No such map: %s", current);
       }
@@ -156,16 +156,16 @@ int main(int argc, char *argv[]) {
       eachline("echo %s >> /entrypoint\n");
 
     } else if (tokenis("--eval-url")) {
-      pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", next(), NULL},
+      pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", nextarg(), NULL},
               (char *[]){"plash", "eval-plashfile", NULL});
 
     } else if (tokenis("--eval-github")) {
       char *url, *user_repo_pair, *file;
-      user_repo_pair = next();
+      user_repo_pair = nextarg();
       if (strchr(user_repo_pair, '/') == NULL)
         pl_fatal("--eval-github: user-repo-pair must include a slash (got %s)",
                  user_repo_pair);
-      if (! (file = next_or_null())) file = "plashfile";
+      if (! (file = nextarg_or_null())) file = "plashfile";
       asprintf(&url, "https://raw.githubusercontent.com/%s/master/%s",
                user_repo_pair, file) != -1 ||
           pl_fatal("asprintf");
@@ -173,14 +173,14 @@ int main(int argc, char *argv[]) {
               (char *[]){"plash", "eval-plashfile", NULL});
 
     } else if (tokenis("--hash-path")) {
-      while (next_or_null()) {
+      while (nextarg_or_null()) {
         printf(": hash-path ");
         fflush(stdout);
         pl_pipe((char *[]){"tar", "-c", current, NULL},
                 (char *[]){"sha512sum", NULL});
       }
     } else if (tokenis("--entrypoint")) {
-      printhint("exec", next());
+      printhint("exec", nextarg());
 
     } else if (tokenis("--env")) {
       eachline("echo %s >> /.plashenvs\n");
@@ -189,25 +189,25 @@ int main(int argc, char *argv[]) {
       eachline("echo %s >> /.plashenvsprefix\n");
 
     } else if (tokenis("--eval-file")) {
-      pl_run("plash", "eval-plashfile", next());
+      pl_run("plash", "eval-plashfile", nextarg());
 
     } else if (tokenis("--eval-stdin")) {
       pl_run("plash", "eval-plashfile");
 
     } else if (tokenis("--from-lxc")) {
-      printhint("image", pl_call_cached("import-lxc", next()));
+      printhint("image", pl_call_cached("import-lxc", nextarg()));
 
     } else if (tokenis("--from-url")) {
-      printhint("image", next());
+      printhint("image", nextarg());
 
     } else if (tokenis("--import-env")) {
-      { puts(quote(next())); }
+      { puts(quote(nextarg())); }
 
     } else if (tokenis("--layer")) {
       printhint("layer", NULL);
 
     } else if (tokenis("--run") || tokenis("-x")) {
-      while (next_or_null())
+      while (nextarg_or_null())
         printf("%s", current);
 
     } else if (tokenis("--apk")) {
