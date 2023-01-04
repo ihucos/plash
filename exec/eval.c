@@ -12,8 +12,8 @@
 
 #define QUOTE_REPLACE "'\"'\"'"
 
-#define NEXT (*(++argv))
-#define CURRENT (*argv)
+#define NEXT (*(++tokens))
+#define CURRENT (*tokens)
 #define EACHARGS while(isval(NEXT))
 #define PKG(s) {\
     ARGSMIN(1); printf("%s", s);\
@@ -23,11 +23,11 @@
 
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
 
-#define ARGSMIN(min) if (count_vals(argv) < min) pl_fatal( \
-        "macro %s needs at least %ld args", *argv, min)
+#define ARGSMIN(min) if (count_vals(tokens) < min) pl_fatal( \
+        "macro %s needs at least %ld args", *tokens, min)
 
-#define ARGS(argscount) if (count_vals(argv) != argscount) pl_fatal( \
-        "macro %s needs exactly %ld args", *argv, argscount)
+#define ARGS(argscount) if (count_vals(tokens) != argscount) pl_fatal( \
+        "macro %s needs exactly %ld args", *tokens, argscount)
 
 #define LINECURRENT(format) LINE(format, quote(CURRENT))
 #define EACHLINE(arg) EACHARGS LINECURRENT(arg)
@@ -54,10 +54,10 @@ char *assert_isval(char *val){
 }
 
 
-size_t count_vals(char **argv){
-    char **argvc = argv;
+size_t count_vals(char **tokens){
+    char **argvcc = tokens;
     EACHARGS {};
-    return argv - argvc - 1;
+    return tokens - argvcc - 1;
 }
 
 
@@ -134,8 +134,10 @@ char *pl_call_cached(char *subcommand, char *arg){
     return image_id;
 }
 
+char **tokens;
+
 int main(int argc, char *argv[]) {
-    char **orig_argv = argv;
+    tokens = argv;
     NEXT;
     while (CURRENT){
 
