@@ -87,7 +87,11 @@ int isval(char *val) {
 char* next() {
     tokens++;
     if (!isval(*tokens)){
-        pl_fatal("missing arg");
+        while (1){
+            tokens--;
+            if (!isval(*tokens)) break;
+        }
+        pl_fatal("missing arg for: %s", *tokens);
     }
     return *tokens;
 }
@@ -116,18 +120,7 @@ size_t countvals() {
   return tokens_copy - tokens - 1;
 }
 
-void args(int argscount) {
-  if (countvals() != argscount)
-    pl_fatal("macro %s needs exactly %ld args", *tokens, argscount);
-}
-
-void argsmin(int min) {
-  if (countvals() < min)
-    pl_fatal("macro %s needs at least %ld args", *tokens, min);
-}
-
 void pkg(char *cmd_prefix) {
-  argsmin(1);
   printf("%s", cmd_prefix);
   eachargs printf(" %s", quote(current));
   printf("\n");
@@ -166,26 +159,21 @@ command("-x") {
 }
 
 command("--layer") {
-  args(0);
   hint("layer", NULL);
 }
 
 command("--write-file") {
-  argsmin(1);
   char *filename = next();
   line("touch %s", quote(filename));
   eachargs line("echo %s >> %s", quote(current), quote(filename));
 }
 command("--env") {
-  argsmin(1);
   eachline("echo %s >> /.plashenvs");
 }
 command("--env-prefix") {
-  argsmin(1);
   eachline("echo %s >> /.plashenvsprefix");
 }
 command("--from-lxc") {
-  args(1);
   hint("image", pl_call_cached("import-lxc", next()));
 }
 command("--from") {
@@ -207,15 +195,12 @@ command("--from") {
   pl_fatal("execvp");
 }
 command("--from-docker") {
-  args(1);
   hint("image", pl_call_cached("import-docker", next()));
 }
 command("--from-url") {
-  args(1);
   hint("image", pl_call_cached("import-url", next()));
 }
 command("--from-map") {
-  args(1);
   char *image_id = pl_call("map", next());
   if (image_id[0] == '\0') {
     pl_fatal("No such map: %s", current);
@@ -223,16 +208,13 @@ command("--from-map") {
   hint("image", image_id);
 }
 command("--from-url") {
-  args(1);
   hint("image", next());
 }
 command("--entrypoint") {
-  args(1);
   hint("exec", next());
 }
 
 command("--entrypoint-script") {
-  argsmin(1);
   hint("exec", "/entrypoint");
   line("touch /entrypoint");
   line("chmod 755 /entrypoint");
@@ -250,17 +232,14 @@ command("--npm") { pkg("npm install -g"); }
 command("--pacman") { pkg("pacman -Sy --noconfirm"); }
 command("--emerge") { pkg("emerge"); }
 command("--eval-url") {
-  argsmin(1);
   pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", next(), NULL},
           (char *[]){"plash", "eval-plashfile", NULL});
 }
 command("--eval-file") {
-  argsmin(1);
   pl_run((char *[]){"plash", "eval-plashfile", next(), NULL});
 }
 
 command("--eval-stdin") {
-  args(0);
   pl_run((char *[]){"plash", "eval-plashfile", NULL});
   next();
 }
