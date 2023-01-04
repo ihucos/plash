@@ -17,7 +17,7 @@
 #define commandsbegin                                                          \
   int main(int argc, char *argv[]) {                                           \
     tokens = argv;                                                             \
-    while (*(++tokens)) {                                                          \
+    while (*(++tokens)) {                                                      \
       if (0) {
 
 #define command(macro)                                                         \
@@ -74,8 +74,6 @@ char *quote(char *str) {
   return quoted;
 }
 
-void linecurrent(char *format) { line(format, quote(current)); }
-
 int isval(char *val) {
   if (val == NULL)
     return 0;
@@ -84,16 +82,13 @@ int isval(char *val) {
   return 1;
 }
 
-char* next() {
-    tokens++;
-    if (!isval(*tokens)){
-        while (1){
-            tokens--;
-            if (!isval(*tokens)) break;
-        }
-        pl_fatal("missing arg for: %s", *tokens);
-    }
-    return *tokens;
+char *next() {
+  tokens++;
+  if (!isval(*tokens)) {
+    tokens--; while ((!isval(*tokens)))
+      pl_fatal("missing arg for: %s", *tokens);
+  }
+  return *tokens;
 }
 
 int isvalorprev(char *val) {
@@ -105,7 +100,7 @@ int isvalorprev(char *val) {
   }
 }
 
-void eachline(char *arg) { eachargs linecurrent(arg); }
+void eachline(char *fmt) { eachargs printf(fmt, quote(current)); }
 
 char *assert_isval(char *val) {
   if (!isval(val))
@@ -128,9 +123,9 @@ void pkg(char *cmd_prefix) {
 
 void hint(char *name, char *val) {
   if (val != NULL) {
-    line("### plash hint: %s=%s", name, val);
+    printf("### plash hint: %s=%s\n", name, val);
   } else {
-    line("### plash hint: %s", name);
+    printf("### plash hint: %s\n", name);
   }
 }
 
@@ -155,27 +150,19 @@ char *pl_call_cached(char *subcommand, char *arg) {
 commandsbegin
 
 command("-x") {
-  eachargs line(current);
+  eachargs printf("%s", current);
 }
 
-command("--layer") {
-  hint("layer", NULL);
-}
+command("--layer") { hint("layer", NULL); }
 
 command("--write-file") {
   char *filename = next();
-  line("touch %s", quote(filename));
-  eachargs line("echo %s >> %s", quote(current), quote(filename));
+  printf("touch %s\n", quote(filename));
+  eachargs printf("echo %s >> %s\n", quote(current), quote(filename));
 }
-command("--env") {
-  eachline("echo %s >> /.plashenvs");
-}
-command("--env-prefix") {
-  eachline("echo %s >> /.plashenvsprefix");
-}
-command("--from-lxc") {
-  hint("image", pl_call_cached("import-lxc", next()));
-}
+command("--env") { eachline("echo %s >> /.plashenvs\n"); }
+command("--env-prefix") { eachline("echo %s >> /.plashenvsprefix\n"); }
+command("--from-lxc") { hint("image", pl_call_cached("import-lxc", next())); }
 command("--from") {
   next();
 
@@ -197,9 +184,7 @@ command("--from") {
 command("--from-docker") {
   hint("image", pl_call_cached("import-docker", next()));
 }
-command("--from-url") {
-  hint("image", pl_call_cached("import-url", next()));
-}
+command("--from-url") { hint("image", pl_call_cached("import-url", next())); }
 command("--from-map") {
   char *image_id = pl_call("map", next());
   if (image_id[0] == '\0') {
@@ -207,18 +192,14 @@ command("--from-map") {
   }
   hint("image", image_id);
 }
-command("--from-url") {
-  hint("image", next());
-}
-command("--entrypoint") {
-  hint("exec", next());
-}
+command("--from-url") { hint("image", next()); }
+command("--entrypoint") { hint("exec", next()); }
 
 command("--entrypoint-script") {
   hint("exec", "/entrypoint");
-  line("touch /entrypoint");
-  line("chmod 755 /entrypoint");
-  eachline("echo %s >> /entrypoint");
+  printf("touch /entrypoint\n");
+  printf("chmod 755 /entrypoint\n");
+  eachline("echo %s >> /entrypoint\n");
 
   // package managers
 }
