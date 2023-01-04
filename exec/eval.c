@@ -67,13 +67,12 @@ char *next_or_null() {
 }
 
 char *next() {
-  tokens++;
-  if (!isval(*tokens)) {
-    tokens--;
-    while ((!isval(*tokens)))
+  char *next = next_or_null();
+  if (!next) {
+    while ((!isval(next)))
       pl_fatal("missing arg for: %s", *tokens);
   }
-  return *tokens;
+  return next;
 }
 
 void eachline(char *fmt) {
@@ -120,12 +119,12 @@ int main(int argc, char *argv[]) {
     if (0) {
 
     } else if (tokenis("--write-file")) {
-      char *filename = next();
-      printf("touch %s\n", quote(filename));
+      next();
+      printf("touch %s\n", quote(current));
       while (next_or_null())
-        printf("echo %s >> %s\n", quote(current), quote(filename));
+        printf("echo %s >> %s\n", quote(current), quote(current));
       while (next_or_null())
-        printf("echo %s >> %s\n", quote(current), quote(filename));
+        printf("echo %s >> %s\n", quote(current), quote(current));
 
     } else if (tokenis("--from")) {
       next();
@@ -191,7 +190,6 @@ int main(int argc, char *argv[]) {
         pl_pipe((char *[]){"tar", "-c", current, NULL},
                 (char *[]){"sha512sum", NULL});
       }
-
     } else if (tokenis("--entrypoint")) {
       printhint("exec", next());
 
@@ -250,6 +248,9 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("--yum")) {
       pkg("yum install -y");
 
+    } else if (isval(current)){
+      errno = 0;
+      pl_fatal("expected macro, got value: %s", current);
     } else {
       errno = 0;
       pl_fatal("unknown macro: %s", current);
