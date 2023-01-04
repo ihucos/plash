@@ -35,14 +35,6 @@
 
 static char **tokens;
 
-void line(char *format, ...) {
-  va_list args;
-  va_start(args, format);
-  va_end(args);
-  asprintf(&format, "%s\n", format) != -1 || pl_fatal("asprintf");
-  vprintf(format, args);
-}
-
 char *quote(char *str) {
 
   size_t i, j, quotes_found = 0, quoted_counter = 0;
@@ -85,7 +77,8 @@ int isval(char *val) {
 char *next() {
   tokens++;
   if (!isval(*tokens)) {
-    tokens--; while ((!isval(*tokens)))
+    tokens--;
+    while ((!isval(*tokens)))
       pl_fatal("missing arg for: %s", *tokens);
   }
   return *tokens;
@@ -102,26 +95,13 @@ int isvalorprev(char *val) {
 
 void eachline(char *fmt) { eachargs printf(fmt, quote(current)); }
 
-char *assert_isval(char *val) {
-  if (!isval(val))
-    pl_fatal("argument for macro is missing");
-  return val;
-}
-
-size_t countvals() {
-  char **tokens_copy = tokens;
-  while (isval(*(++tokens_copy)))
-    ;
-  return tokens_copy - tokens - 1;
-}
-
 void pkg(char *cmd_prefix) {
   printf("%s", cmd_prefix);
   eachargs printf(" %s", quote(current));
   printf("\n");
 }
 
-void hint(char *name, char *val) {
+void printint(char *name, char *val) {
   if (val != NULL) {
     printf("### plash hint: %s=%s\n", name, val);
   } else {
@@ -153,7 +133,7 @@ command("-x") {
   eachargs printf("%s", current);
 }
 
-command("--layer") { hint("layer", NULL); }
+command("--layer") { printint("layer", NULL); }
 
 command("--write-file") {
   char *filename = next();
@@ -162,7 +142,9 @@ command("--write-file") {
 }
 command("--env") { eachline("echo %s >> /.plashenvs\n"); }
 command("--env-prefix") { eachline("echo %s >> /.plashenvsprefix\n"); }
-command("--from-lxc") { hint("image", pl_call_cached("import-lxc", next())); }
+command("--from-lxc") {
+  printint("image", pl_call_cached("import-lxc", next()));
+}
 command("--from") {
   next();
 
@@ -182,21 +164,23 @@ command("--from") {
   pl_fatal("execvp");
 }
 command("--from-docker") {
-  hint("image", pl_call_cached("import-docker", next()));
+  printint("image", pl_call_cached("import-docker", next()));
 }
-command("--from-url") { hint("image", pl_call_cached("import-url", next())); }
+command("--from-url") {
+  printint("image", pl_call_cached("import-url", next()));
+}
 command("--from-map") {
   char *image_id = pl_call("map", next());
   if (image_id[0] == '\0') {
     pl_fatal("No such map: %s", current);
   }
-  hint("image", image_id);
+  printint("image", image_id);
 }
-command("--from-url") { hint("image", next()); }
-command("--entrypoint") { hint("exec", next()); }
+command("--from-url") printint("image", next());
+command("--entrypoint") printint("exec", next());
 
 command("--entrypoint-script") {
-  hint("exec", "/entrypoint");
+  printint("exec", "/entrypoint");
   printf("touch /entrypoint\n");
   printf("chmod 755 /entrypoint\n");
   eachline("echo %s >> /entrypoint\n");
@@ -220,10 +204,7 @@ command("--eval-file") {
   pl_run((char *[]){"plash", "eval-plashfile", next(), NULL});
 }
 
-command("--eval-stdin") {
-  pl_run((char *[]){"plash", "eval-plashfile", NULL});
-  next();
-}
+command("--eval-stdin") { pl_run((char *[]){"plash", "eval-plashfile", NULL}); }
 command("--eval-github") {
   char *url, *user_repo_pair, *file;
   user_repo_pair = next();
