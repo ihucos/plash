@@ -13,7 +13,7 @@
 #define QUOTE_REPLACE "'\"'\"'"
 
 #define current (*tokens)
-#define eachargs while (isvalorprev(next()))
+#define eachargs while (isvalorprev(*(++tokens)))
 #define commandsbegin                                                          \
   int main(int argc, char *argv[]) {                                           \
     tokens = argv;                                                             \
@@ -34,11 +34,6 @@
   }
 
 static char **tokens;
-
-
-char* next() {
-    return (*(++tokens));
-}
 
 void line(char *format, ...) {
   va_list args;
@@ -87,6 +82,14 @@ int isval(char *val) {
   if (val[0] == '-')
     return 0;
   return 1;
+}
+
+char* next() {
+    tokens++;
+    if (!isval(*tokens)){
+        pl_fatal("missing arg");
+    }
+    return *tokens;
 }
 
 int isvalorprev(char *val) {
