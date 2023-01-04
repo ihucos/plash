@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
       while (next_or_null())
         printf("echo %s >> %s\n", quote(current), quote(current));
 
-    } else if (tokenis("--from")) {
+    } else if (tokenis("--from") || tokenis("-f")) {
       next();
       int i, only_digits = 1;
       for (i = 0; current[i]; i++) {
