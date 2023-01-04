@@ -15,24 +15,12 @@
 #define NEXT (*(++tokens))
 #define CURRENT (*tokens)
 #define EACHARGS while(isval(NEXT))
-#define PKG(s) {\
-    ARGSMIN(1); printf("%s", s);\
-    EACHARGS printf(" %s", quote(CURRENT));\
-    printf("\n")\
-;}
-
 #define CASE(macro) } else if (strcmp(CURRENT, macro) == 0) {
-
-#define ARGSMIN(min) if (count_vals(tokens) < min) pl_fatal( \
-        "macro %s needs at least %ld args", *tokens, min)
-
-#define ARGS(argscount) if (count_vals(tokens) != argscount) pl_fatal( \
-        "macro %s needs exactly %ld args", *tokens, argscount)
 
 #define LINECURRENT(format) LINE(format, quote(CURRENT))
 #define EACHLINE(arg) EACHARGS LINECURRENT(arg)
 
-
+static char **tokens;
 
 void LINE(char *format, ...) {
   va_list args;
@@ -40,47 +28,6 @@ void LINE(char *format, ...) {
   va_end(args);
   asprintf(&format, "%s\n", format) != -1 || pl_fatal("asprintf");
   vprintf(format, args);
-}
-
-int isval(char *val){
-    if (val == NULL) return 0;
-    if (val[0] == '-') return 0;
-    return 1;
-}
-
-char *assert_isval(char *val){
-    if (!isval(val)) pl_fatal("argument for macro is missing");
-    return val;
-}
-
-
-size_t count_vals(char **tokens){
-    char **argvcc = tokens;
-    EACHARGS {};
-    return tokens - argvcc - 1;
-}
-
-
-void SHELL(char *shell_cmd){
-    int child_exit;
-    if (system(NULL) == 0)
-        pl_fatal("No shell is available in the system");
-    int status = system(shell_cmd);
-    if(status == -1)
-        pl_fatal("system(%s) returned %d", shell_cmd, status);
-    if (!WIFEXITED(status))
-        pl_fatal("system(%s) exited abnormally", shell_cmd);
-    if (child_exit = WEXITSTATUS(status))
-        pl_fatal("%s: exited status %d", shell_cmd, child_exit);
-
-}
-
-void HINT(char *name, char *val){
-    if (val != NULL){
-        LINE("### plash hint: %s=%s", name, val);
-    } else {
-        LINE("### plash hint: %s", name);
-    }
 }
 
 char *quote(char *str){
@@ -118,6 +65,67 @@ char *quote(char *str){
 }
 
 
+int isval(char *val){
+    if (val == NULL) return 0;
+    if (val[0] == '-') return 0;
+    return 1;
+}
+
+char *assert_isval(char *val){
+    if (!isval(val)) pl_fatal("argument for macro is missing");
+    return val;
+}
+
+
+size_t count_vals(){
+    char **tokens_copy = tokens;
+    while(isval(*(++tokens_copy)));
+    return tokens_copy - tokens - 1;
+}
+
+
+void ARGS(int argscount){
+    if (count_vals() != argscount)
+        pl_fatal("macro %s needs exactly %ld args", *tokens, argscount);
+}
+
+
+void ARGSMIN(int min){
+    if (count_vals() < min)
+        pl_fatal("macro %s needs at least %ld args", *tokens, min);
+}
+
+
+void PKG(char *cmd_prefix) {
+    ARGSMIN(1); printf("%s", cmd_prefix);
+    EACHARGS printf(" %s", quote(CURRENT));
+    printf("\n");
+}
+
+
+void SHELL(char *shell_cmd){
+    int child_exit;
+    if (system(NULL) == 0)
+        pl_fatal("No shell is available in the system");
+    int status = system(shell_cmd);
+    if(status == -1)
+        pl_fatal("system(%s) returned %d", shell_cmd, status);
+    if (!WIFEXITED(status))
+        pl_fatal("system(%s) exited abnormally", shell_cmd);
+    if (child_exit = WEXITSTATUS(status))
+        pl_fatal("%s: exited status %d", shell_cmd, child_exit);
+
+}
+
+void HINT(char *name, char *val){
+    if (val != NULL){
+        LINE("### plash hint: %s=%s", name, val);
+    } else {
+        LINE("### plash hint: %s", name);
+    }
+}
+
+
 char *pl_call_cached(char *subcommand, char *arg){
     char *cache_key, *image_id;
     asprintf(&cache_key, "lxc:%s", /*subcommand,*/ arg) != -1 || pl_fatal("asprintf");
@@ -134,12 +142,12 @@ char *pl_call_cached(char *subcommand, char *arg){
     return image_id;
 }
 
-char **tokens;
 
 int main(int argc, char *argv[]) {
     tokens = argv;
     NEXT;
     while (CURRENT){
+        printf("X %s\n", CURRENT);
 
         // TODO
         // a little magic: remove possible shebang
