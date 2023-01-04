@@ -12,9 +12,7 @@
 
 #define QUOTE_REPLACE "'\"'\"'"
 
-#define current (*tokens)
-
-static char **tokens;
+static char **tokens, *arg;
 
 char *quote(char *str) {
   size_t i, j, quotes_found = 0, quoted_counter = 0;
@@ -60,7 +58,6 @@ char *call_cached(char *subcommand, char *arg) {
   return image_id;
 }
 
-
 int isval(char *val) {
   if (val == NULL)
     return 0;
@@ -69,17 +66,18 @@ int isval(char *val) {
   return 1;
 }
 
-char *nextarg_or_null() {
+char *getarg_or_null() {
   if (isval(*(tokens + 1))) {
     tokens++;
-    return *tokens;
+    arg = *tokens;
+    return arg;
   } else {
     return NULL;
   }
 }
 
 char *getarg() {
-  char *arg = nextarg_or_null();
+  char *arg = getarg_or_null();
   if (!arg) {
     while ((!isval(arg)))
       pl_fatal("missing arg for: %s", *tokens);
@@ -88,14 +86,14 @@ char *getarg() {
 }
 
 void eachline(char *fmt) {
-  while (nextarg_or_null())
-    printf(fmt, quote(current));
+  while (getarg_or_null())
+    printf(fmt, quote(arg));
 }
 
 void pkg(char *cmd_prefix) {
   printf("%s", cmd_prefix);
-  while (nextarg_or_null())
-    printf(" %s", quote(current));
+  while (getarg_or_null())
+    printf(" %s", quote(arg));
   printf("\n");
 }
 
@@ -107,32 +105,33 @@ void printhint(char *name, char *val) {
   }
 }
 
-int tokenis(char *macro) { return (strcmp(current, macro) == 0); }
-
+int tokenis(char *macro) { return (strcmp(*tokens, macro) == 0); }
 
 int main(int argc, char *argv[]) {
   tokens = argv;
   while (*(++tokens)) {
 
+    arg = NULL;
+
     if (tokenis("--write-file")) {
       getarg();
-      printf("touch %s\n", quote(current));
-      while (nextarg_or_null())
-        printf("echo %s >> %s\n", quote(current), quote(current));
-      while (nextarg_or_null())
-        printf("echo %s >> %s\n", quote(current), quote(current));
+      printf("touch %s\n", quote(arg));
+      while (getarg_or_null())
+        printf("echo %s >> %s\n", quote(arg), quote(arg));
+      while (getarg_or_null())
+        printf("echo %s >> %s\n", quote(arg), quote(arg));
 
     } else if (tokenis("--from") || tokenis("-f")) {
       getarg();
       int i, only_digits = 1;
-      for (i = 0; current[i]; i++) {
-        if (!isdigit(current[i]))
+      for (i = 0; arg[i]; i++) {
+        if (!isdigit(arg[i]))
           only_digits = 0;
       }
       if (only_digits) {
-        pl_run("plash", "eval", "--from-id", current);
+        pl_run("plash", "eval", "--from-id", arg);
       } else {
-        pl_run("plash", "eval", "--from-lxc", current);
+        pl_run("plash", "eval", "--from-lxc", arg);
       }
 
     } else if (tokenis("--from-id")) {
@@ -147,7 +146,7 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("--from-map")) {
       char *image_id = pl_call("map", getarg());
       if (image_id[0] == '\0') {
-        pl_fatal("No such map: %s", current);
+        pl_fatal("No such map: %s", arg);
       }
       printhint("image", image_id);
 
@@ -158,8 +157,9 @@ int main(int argc, char *argv[]) {
       eachline("echo %s >> /entrypoint\n");
 
     } else if (tokenis("--eval-url")) {
-      pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", getarg(), NULL},
-              (char *[]){"plash", "eval-plashfile", NULL});
+      pl_pipe(
+          (char *[]){"curl", "--fail", "--no-progress-meter", getarg(), NULL},
+          (char *[]){"plash", "eval-plashfile", NULL});
 
     } else if (tokenis("--eval-github")) {
       char *url, *user_repo_pair, *file;
@@ -167,7 +167,8 @@ int main(int argc, char *argv[]) {
       if (strchr(user_repo_pair, '/') == NULL)
         pl_fatal("--eval-github: user-repo-pair must include a slash (got %s)",
                  user_repo_pair);
-      if (! (file = nextarg_or_null())) file = "plashfile";
+      if (!(file = getarg_or_null()))
+        file = "plashfile";
       asprintf(&url, "https://raw.githubusercontent.com/%s/master/%s",
                user_repo_pair, file) != -1 ||
           pl_fatal("asprintf");
@@ -175,10 +176,10 @@ int main(int argc, char *argv[]) {
               (char *[]){"plash", "eval-plashfile", NULL});
 
     } else if (tokenis("--hash-path")) {
-      while (nextarg_or_null()) {
+      while (getarg_or_null()) {
         printf(": hash-path ");
         fflush(stdout);
-        pl_pipe((char *[]){"tar", "-c", current, NULL},
+        pl_pipe((char *[]){"tar", "-c", arg, NULL},
                 (char *[]){"sha512sum", NULL});
       }
     } else if (tokenis("--entrypoint")) {
@@ -209,8 +210,8 @@ int main(int argc, char *argv[]) {
       printhint("layer", NULL);
 
     } else if (tokenis("--run") || tokenis("-x")) {
-      while (nextarg_or_null())
-        printf("%s", current);
+      while (getarg_or_null())
+        printf("%s", arg);
 
     } else if (tokenis("--apk")) {
       pkg("apk update\napk add");
@@ -239,12 +240,12 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("--yum")) {
       pkg("yum install -y");
 
-    } else if (isval(current)){
+    } else if (isval(*tokens)) {
       errno = 0;
-      pl_fatal("expected macro, got value: %s", current);
+      pl_fatal("expected macro, got value: %s", *tokens);
     } else {
       errno = 0;
-      pl_fatal("unknown macro: %s", current);
+      pl_fatal("unknown macro: %s", *tokens);
     }
   }
 }
