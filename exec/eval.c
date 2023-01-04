@@ -116,9 +116,8 @@ char *pl_call_cached(char *subcommand, char *arg) {
 int main(int argc, char *argv[]) {
   tokens = argv;
   while (*(++tokens)) {
-    if (0) {
 
-    } else if (tokenis("--write-file")) {
+    if (tokenis("--write-file")) {
       next();
       printf("touch %s\n", quote(current));
       while (next_or_null())
@@ -128,19 +127,19 @@ int main(int argc, char *argv[]) {
 
     } else if (tokenis("--from")) {
       next();
-      puts("meh");
       int i, only_digits = 1;
       for (i = 0; current[i]; i++) {
         if (!isdigit(current[i]))
           only_digits = 0;
       }
       if (only_digits) {
-        execvp(argv[0], (char *[]){argv[0], "--from-id", current, NULL});
+        pl_run("plash", "eval", "--from-id", current);
       } else {
-        execvp(argv[0], (char *[]){argv[0], "--from-lxc", current, NULL});
+        pl_run("plash", "eval", "--from-lxc", current);
       }
-      puts(argv[0]);
-      pl_fatal("execvp");
+
+    } else if (tokenis("--from-id")) {
+      printhint("image", next());
 
     } else if (tokenis("--from-docker")) {
       printhint("image", pl_call_cached("import-docker", next()));

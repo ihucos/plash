@@ -29,7 +29,7 @@ if [ -z "$1" ]; then
 fi
 
 if ! [[ "$1" = *':'* ]]; then
-  echo "plash error: also specify the release, example: deian:sid" >&2
+  echo "plash error: also specify the release, example: debian:sid" >&2
   exit 1
 fi
 
