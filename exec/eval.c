@@ -126,19 +126,6 @@ void pkg(char *cmd_prefix) {
   printf("\n");
 }
 
-void SHELL(char *shell_cmd) {
-  int child_exit;
-  if (system(NULL) == 0)
-    pl_fatal("No shell is available in the system");
-  int status = system(shell_cmd);
-  if (status == -1)
-    pl_fatal("system(%s) returned %d", shell_cmd, status);
-  if (!WIFEXITED(status))
-    pl_fatal("system(%s) exited abnormally", shell_cmd);
-  if (child_exit = WEXITSTATUS(status))
-    pl_fatal("%s: exited status %d", shell_cmd, child_exit);
-}
-
 void hint(char *name, char *val) {
   if (val != NULL) {
     line("### plash hint: %s=%s", name, val);
