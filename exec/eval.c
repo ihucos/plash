@@ -12,13 +12,12 @@
 
 #define QUOTE_REPLACE "'\"'\"'"
 
-#define next() (*(++tokens))
 #define current (*tokens)
 #define eachargs while (isvalorprev(next()))
 #define commandsbegin                                                          \
   int main(int argc, char *argv[]) {                                           \
     tokens = argv;                                                             \
-    while (next()) {                                                          \
+    while (*(++tokens)) {                                                          \
       if (0) {
 
 #define command(macro)                                                         \
@@ -35,6 +34,11 @@
   }
 
 static char **tokens;
+
+
+char* next() {
+    return (*(++tokens));
+}
 
 void line(char *format, ...) {
   va_list args;
