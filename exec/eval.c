@@ -6,13 +6,14 @@
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include <plash.h>
 
 #define QUOTE_REPLACE "'\"'\"'"
 
-#define NEXT *(++argv)
-#define CURRENT *argv
+#define NEXT (*(++argv))
+#define CURRENT (*argv)
 #define EACHARGS while(isval(NEXT))
 #define PKG(s) {\
     ARGSMIN(1); printf("%s", s);\
@@ -134,6 +135,7 @@ char *pl_call_cached(char *subcommand, char *arg){
 }
 
 int main(int argc, char *argv[]) {
+    char **orig_argv = argv;
     NEXT;
     while (CURRENT){
 
@@ -173,10 +175,28 @@ int main(int argc, char *argv[]) {
             ARGSMIN(1);
             EACHLINE("echo %s >> /.plashenvsprefix");
 
-        CASE("--from")
+        CASE("--from-lxc")
             ARGS(1);
             HINT("image", pl_call_cached("import-lxc", NEXT));
             NEXT;
+
+
+        CASE("--from")
+            NEXT;
+            
+            puts("meh");
+            int i, only_digits = 1;
+            for (i = 0; CURRENT[i]; i++){
+                if (!isdigit(CURRENT[i])) only_digits = 0;
+            }
+
+            if (only_digits){
+                execvp(argv[0], (char*[]){argv[0], "--from-id", CURRENT, NULL});
+            } else {
+                execvp(argv[0], (char*[]){argv[0], "--from-lxc", CURRENT, NULL});
+            }
+            puts(argv[0]);
+            pl_fatal("execvp");
 
         CASE("--from-docker")
             ARGS(1);
