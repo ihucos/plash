@@ -14,12 +14,11 @@
 
 #define next() (*(++tokens))
 #define current (*tokens)
-#define eachargs while (isval(next()))
+#define eachargs while (isvalorprev(next()))
 #define commandsbegin                                                          \
   int main(int argc, char *argv[]) {                                           \
     tokens = argv;                                                             \
-    next();                                                                    \
-    while (current) {                                                          \
+    while (next()) {                                                          \
       if (0) {
 
 #define command(macro)                                                         \
@@ -84,6 +83,15 @@ int isval(char *val) {
   if (val[0] == '-')
     return 0;
   return 1;
+}
+
+int isvalorprev(char *val) {
+  if (isval(val)) {
+    return 1;
+  } else {
+    tokens--;
+    return 0;
+  }
 }
 
 void eachline(char *arg) { eachargs linecurrent(arg); }
@@ -166,7 +174,6 @@ command("-x") {
 command("--layer") {
   args(0);
   hint("layer", NULL);
-  next();
 }
 
 command("--write-file") {
@@ -186,7 +193,6 @@ command("--env-prefix") {
 command("--from-lxc") {
   args(1);
   hint("image", pl_call_cached("import-lxc", next()));
-  next();
 }
 command("--from") {
   next();
@@ -209,12 +215,10 @@ command("--from") {
 command("--from-docker") {
   args(1);
   hint("image", pl_call_cached("import-docker", next()));
-  next();
 }
 command("--from-url") {
   args(1);
   hint("image", pl_call_cached("import-url", next()));
-  next();
 }
 command("--from-map") {
   args(1);
@@ -223,17 +227,14 @@ command("--from-map") {
     pl_fatal("No such map: %s", current);
   }
   hint("image", image_id);
-  next();
 }
 command("--from-url") {
   args(1);
   hint("image", next());
-  next();
 }
 command("--entrypoint") {
   args(1);
   hint("exec", next());
-  next();
 }
 
 command("--entrypoint-script") {
@@ -258,18 +259,15 @@ command("--eval-url") {
   argsmin(1);
   pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", next(), NULL},
           (char *[]){"plash", "eval-plashfile", NULL});
-  next();
 }
 command("--eval-file") {
   argsmin(1);
   pl_run((char *[]){"plash", "eval-plashfile", next(), NULL});
-  next();
 }
 
 command("--eval-stdin") {
   args(0);
   pl_run((char *[]){"plash", "eval-plashfile", NULL});
-  next();
   next();
 }
 command("--eval-github") {
@@ -289,7 +287,6 @@ command("--eval-github") {
       pl_fatal("asprintf");
   pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", url, NULL},
           (char *[]){"plash", "eval-plashfile", NULL});
-  next();
 }
 command("--hash-path") {
   eachargs {
@@ -300,9 +297,6 @@ command("--hash-path") {
     sleep(1);
   }
 }
-command("--import-env") {
-  puts(quote(next()));
-  next();
-}
+command("--import-env") { puts(quote(next())); }
 
 commandsend
