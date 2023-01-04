@@ -1,4 +1,5 @@
 #define pl_call(...) pl_check_output((char *[]){"plash", __VA_ARGS__, NULL}, 1)
+#define pl_run(...) _pl_run((char *[]){__VA_ARGS__, NULL})
 
 char *pl_check_output(char *argv[], int firstline);
 
@@ -32,4 +33,4 @@ void pl_exec_add(char *arg);
 
 char *pl_pipe(char *const program1[], char *const program2[]);
 
-void pl_run(char *program[]);
+void _pl_run(char *program[]);

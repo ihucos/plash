@@ -477,7 +477,7 @@ void pl_pipe(char *program1[], char *program2[]) {
 }
 
 
-void pl_run(char *program[]) {
+void _pl_run(char *program[]) {
     int status;
     pid_t pid = fork();
     if (pid < 0) {

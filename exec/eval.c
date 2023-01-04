@@ -101,7 +101,7 @@ void pkg(char *cmd_prefix) {
   printf("\n");
 }
 
-void printint(char *name, char *val) {
+void printhint(char *name, char *val) {
   if (val != NULL) {
     printf("### plash hint: %s=%s\n", name, val);
   } else {
@@ -131,7 +131,7 @@ commandsbegin;
 
 command("-x") eachargs printf("%s", current);
 
-command("--layer") printint("layer", NULL);
+command("--layer") printhint("layer", NULL);
 
 command("--write-file") {
   char *filename = next();
@@ -140,7 +140,7 @@ command("--write-file") {
 }
 command("--env") eachline("echo %s >> /.plashenvs\n");
 command("--env-prefix") eachline("echo %s >> /.plashenvsprefix\n");
-command("--from-lxc") printint("image", pl_call_cached("import-lxc", next()));
+command("--from-lxc") printhint("image", pl_call_cached("import-lxc", next()));
 command("--from") {
   next();
 
@@ -160,23 +160,23 @@ command("--from") {
   pl_fatal("execvp");
 }
 command("--from-docker") {
-  printint("image", pl_call_cached("import-docker", next()));
+  printhint("image", pl_call_cached("import-docker", next()));
 }
 command("--from-url") {
-  printint("image", pl_call_cached("import-url", next()));
+  printhint("image", pl_call_cached("import-url", next()));
 }
 command("--from-map") {
   char *image_id = pl_call("map", next());
   if (image_id[0] == '\0') {
     pl_fatal("No such map: %s", current);
   }
-  printint("image", image_id);
+  printhint("image", image_id);
 }
-command("--from-url") printint("image", next());
-command("--entrypoint") printint("exec", next());
+command("--from-url") printhint("image", next());
+command("--entrypoint") printhint("exec", next());
 
 command("--entrypoint-script") {
-  printint("exec", "/entrypoint");
+  printhint("exec", "/entrypoint");
   printf("touch /entrypoint\n");
   printf("chmod 755 /entrypoint\n");
   eachline("echo %s >> /entrypoint\n");
@@ -196,10 +196,9 @@ command("--eval-url") {
   pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", next(), NULL},
           (char *[]){"plash", "eval-plashfile", NULL});
 }
-command("--eval-file")
-    pl_run((char *[]){"plash", "eval-plashfile", next(), NULL});
+command("--eval-file") pl_run("plash", "eval-plashfile", next());
 
-command("--eval-stdin") pl_run((char *[]){"plash", "eval-plashfile", NULL});
+command("--eval-stdin") pl_run("plash", "eval-plashfile");
 command("--eval-github") {
   char *url, *user_repo_pair, *file;
   user_repo_pair = next();
