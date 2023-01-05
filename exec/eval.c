@@ -14,6 +14,7 @@
 
 static char **tokens, *arg;
 
+
 char *quote(char *str) {
   size_t i, j, quotes_found = 0, quoted_counter = 0;
   for (i = 0; str[i]; i++) {
@@ -85,17 +86,17 @@ char *getarg() {
   return arg;
 }
 
-void printarg(char *fmt){
-    printf(fmt, quote(arg));
-}
+void printarg(char *fmt) { printf(fmt, quote(arg)); }
 
 void eachline(char *fmt) {
   while (getarg_or_null())
-      printarg(fmt);
+    printarg(fmt);
 }
 
 void pkg(char *cmd_prefix) {
-  if (!isarg(*(tokens+1))){return;}
+  if (!isarg(*(tokens + 1))) {
+    return;
+  }
   printf("%s", cmd_prefix);
   while (getarg_or_null())
     printf(" %s", quote(arg));
@@ -154,14 +155,15 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("--write-file")) {
       char *filename = getarg();
       printarg("touch %s\n");
-      while (getarg_or_null()) printf("echo %s >> %s\n", quote(arg), quote(filename));
-
+      while (getarg_or_null())
+        printf("echo %s >> %s\n", quote(arg), quote(filename));
 
     } else if (tokenis("--write-script")) {
       char *filename = getarg();
       printarg("touch %s\n");
       printarg("chmod 755 %s\n");
-      while (getarg_or_null()) printf("echo %s >> %s\n", quote(arg), quote(filename));
+      while (getarg_or_null())
+        printf("echo %s >> %s\n", quote(arg), quote(filename));
 
     } else if (tokenis("--eval-url")) {
       pl_pipe(
@@ -211,7 +213,19 @@ int main(int argc, char *argv[]) {
       printhint("image", getarg());
 
     } else if (tokenis("--import-env")) {
-      { puts(quote(getarg())); }
+      char *env, *export_as, *env_val;
+      while (getarg_or_null()) {
+        env = strtok(arg, ":");
+        export_as = strtok(NULL, ":");
+        if (export_as == NULL) {
+          export_as = env;
+        }
+        char* env_val = getenv(env);
+        if (env_val != NULL){
+            // export_as is not escaped!
+            printf("%s=%s\n", export_as, quote((env_val)));
+        }
+      }
 
     } else if (tokenis("--layer")) {
       printhint("layer", NULL);
