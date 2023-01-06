@@ -275,6 +275,9 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("--yum")) {
       pkg("yum install -y");
 
+    } else if (tokenis("--#") || tokenis("-#")) {
+        while (getarg_or_null());
+
     } else if (isarg(*tokens)) {
       errno = 0;
       pl_fatal("expected macro, got value: %s", *tokens);

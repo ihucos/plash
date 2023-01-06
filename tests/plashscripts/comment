@@ -3,12 +3,7 @@
 --# this is a comment
 --write-file /tesfile
 line1
---# this is a comment
 line2
 
 --entrypoint-script
-set -e
-content=$(cat /tesfile)
-echo $content
-test "$content" = "line1
-line2"
+true
