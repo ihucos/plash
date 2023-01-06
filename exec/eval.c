@@ -64,36 +64,19 @@ char *call_cached(char *subcommand, char *arg) {
   return image_id;
 }
 
-int isescapedarg(char *val){
-  if (val == NULL){
-    return 0;
-  }
-  return (val[0] == '-' && val[1] == '-' && val[2] == '\\' && val[3] == ' ');
-}
-
-int isnormalarg(char *val) {
+int isarg(char *val) {
   if (val == NULL)
     return 0;
-  if ((val[0] == '-' ))
+  if (val[0] == '-')
     return 0;
   return 1;
 }
 
-int isarg(char *val){
-  return isnormalarg(val) || isescapedarg(val);
-}
-
 char *getarg_or_null() {
-  char * nexttoken = *(tokens + 1);
-  if (isescapedarg(nexttoken)){
+  if (isarg(*(tokens + 1))) {
     tokens++;
-    nexttoken += strlen("--\\ ");
-    arg = nexttoken;
-    return nexttoken;
-  } else if (isnormalarg(nexttoken)) {
-    tokens++;
-    arg = nexttoken;
-    return nexttoken;
+    arg = *tokens;
+    return arg;
   } else {
     return NULL;
   }
@@ -289,7 +272,7 @@ int main(int argc, char *argv[]) {
 
     } else if (tokenis("--run") || tokenis("-x")) {
       while (getarg_or_null())
-        printf("%s\n", arg);
+        printf("%s", arg);
 
     } else if (tokenis("--apk")) {
       pkg("apk update\napk add");
