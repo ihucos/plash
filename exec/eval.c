@@ -304,6 +304,24 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("-A")) {
       eval_with_args("--from", "alpine:edge", "--apk");
 
+    } else if (tokenis("-U")) {
+      eval_with_args("--from", "ubuntu:jammy", "--apt");
+
+    } else if (tokenis("-F")) {
+      eval_with_args("--from", "fedora:37", "--dnf");
+
+    } else if (tokenis("-D")) {
+      eval_with_args("--from", "debian:sid", "--apt");
+
+    } else if (tokenis("-C")) {
+      eval_with_args("--from", "centos:9-Stream", "--yum");
+
+    } else if (tokenis("-R")) {
+      eval_with_args("--from", "archlinux:current", "--pacman");
+
+    } else if (tokenis("-G")) {
+      eval_with_args("--from", "gentoo:current", "--emerge");
+
     } else if (tokenis("--#") || tokenis("-#")) {
       while (getarg_or_null())
         ;
