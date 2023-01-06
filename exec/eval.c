@@ -193,9 +193,9 @@ int main(int argc, char *argv[]) {
         printf("echo %s >> %s\n", quote(arg), quote(filename));
 
     } else if (tokenis("--write-script")) {
-      getarg();
+      char *script = getarg();
       eval_with_args("--write-file", arg);
-      printarg("chmod 755 %s\n");
+      printf("chmod 755 %s\n", quote(script));
 
     } else if (tokenis("--eval-url")) {
       pl_pipe(
