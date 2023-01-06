@@ -48,7 +48,7 @@ char *quote(char *str) {
 
 char *call_cached(char *subcommand, char *arg) {
   char *cache_key, *image_id;
-  asprintf(&cache_key, "lxc:%s", /*subcommand,*/ arg) != -1 ||
+  asprintf(&cache_key, subcommand, arg) != -1 ||
       pl_fatal("asprintf");
 
   for (size_t i = 0; cache_key[i]; i++) {
