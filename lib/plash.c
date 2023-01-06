@@ -291,7 +291,7 @@ void pl_setup_user_ns() {
   if (master_child_sinfo.si_status & SETUP_NO_GID) {
     if (!pl_printf_to_file("/proc/self/setgroups", "deny")) {
       /* ignore file does not exist, as this happens in older
-       * kemarnels*/
+       * kernels*/
       if (errno != ENOENT)
         pl_fatal("write /proc/self/setgroups");
     };
