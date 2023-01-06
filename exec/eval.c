@@ -10,16 +10,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <time.h>
-
+#include <unistd.h>
 
 #include <plash.h>
 
 #define QUOTE_REPLACE "'\"'\"'"
 
 static char **tokens, *arg;
-
 
 char *quote(char *str) {
   size_t i, j, quotes_found = 0, quoted_counter = 0;
@@ -92,6 +90,14 @@ char *getarg() {
   return arg;
 }
 
+size_t countargs(){
+  size_t argscount = 0;
+  char **orig_tokens = tokens;
+  while (getarg_or_null()) argscount++;
+  tokens = orig_tokens;
+  return argscount;
+}
+
 void printarg(char *fmt) { printf(fmt, quote(arg)); }
 
 void eachline(char *fmt) {
@@ -118,6 +124,24 @@ void printhint(char *name, char *val) {
 }
 
 int tokenis(char *macro) { return (strcmp(*tokens, macro) == 0); }
+
+void pl_call_with_args(char **pre_args) {
+
+  size_t pre_args_len = 0;
+  while(pre_args[pre_args_len]) pre_args_len++;
+
+  char *args[countargs() + pre_args_len + 1];
+
+  size_t index = 0;
+  for (int j = 0; pre_args[j]; j++) {
+    args[index++] = pre_args[j];
+  }
+  while (getarg_or_null()) {
+    args[index++] = arg;
+  }
+  args[index++] = NULL;
+  _pl_run(args);
+}
 
 int main(int argc, char *argv[]) {
   tokens = argv;
@@ -231,16 +255,16 @@ int main(int argc, char *argv[]) {
         if (export_as == NULL) {
           export_as = env;
         }
-        char* env_val = getenv(env);
-        if (env_val != NULL){
-            // export_as is not escaped!
-            printf("%s=%s\n", export_as, quote((env_val)));
+        char *env_val = getenv(env);
+        if (env_val != NULL) {
+          // export_as is not escaped!
+          printf("%s=%s\n", export_as, quote((env_val)));
         }
       }
     } else if (tokenis("--invalidate-layer")) {
-          struct timespec tp;
-          clock_gettime(CLOCK_MONOTONIC, &tp);
-          printf(": invalidate cache with %ld\n", tp.tv_nsec);
+      struct timespec tp;
+      clock_gettime(CLOCK_MONOTONIC, &tp);
+      printf(": invalidate cache with %ld\n", tp.tv_nsec);
     } else if (tokenis("--layer") || tokenis("-l")) {
       printhint("layer", NULL);
 
@@ -275,8 +299,13 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("--yum")) {
       pkg("yum install -y");
 
+    } else if (tokenis("-A")) {
+      pl_call_with_args(
+          (char *[]){"plash", "eval", "--from", "alpine:edge", "--apk", NULL});
+
     } else if (tokenis("--#") || tokenis("-#")) {
-        while (getarg_or_null());
+      while (getarg_or_null())
+        ;
 
     } else if (isarg(*tokens)) {
       errno = 0;
