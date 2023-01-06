@@ -132,7 +132,6 @@ void eval_with_args(char **middel_args) {
 
   char *args[countargs() + pre_args_len + 1 + 2];
 
-
   size_t index = 0;
   args[index++] = "plash";
   args[index++] = "eval";
