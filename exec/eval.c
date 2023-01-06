@@ -211,6 +211,11 @@ int main(int argc, char *argv[]) {
     } else if (tokenis("--from-lxc")) {
       printhint("image", call_cached("import-lxc", getarg()));
 
+    } else if (tokenis("--run-stdin")) {
+      int c;
+      while ((c = getchar()) != EOF)
+        putchar(c);
+
     } else if (tokenis("--from-url")) {
       printhint("image", getarg());
 
@@ -232,7 +237,7 @@ int main(int argc, char *argv[]) {
           struct timespec tp;
           clock_gettime(CLOCK_MONOTONIC, &tp);
           printf(": invalidate cache with %ld\n", tp.tv_nsec);
-    } else if (tokenis("--layer")) {
+    } else if (tokenis("--layer") || tokenis("-l")) {
       printhint("layer", NULL);
 
     } else if (tokenis("--run") || tokenis("-x")) {
