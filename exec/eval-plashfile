@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # usage: plash eval-file [ FILE ]
+# Evaluates the given plashfile or read it from stdin.
 
 import sys
 import os
