@@ -133,7 +133,10 @@ void eval_with_args_array(char **middel_args) {
   while (middel_args[pre_args_len])
     pre_args_len++;
 
-  char *args[countargs() + pre_args_len + 1 + 2];
+  char *args[countargs() + pre_args_len +
+             2   // for the elements "plash" and "eval" (see below)
+             + 1 // for the NULL terminator
+  ];
 
   size_t index = 0;
   args[index++] = "plash";
