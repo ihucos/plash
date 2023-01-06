@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
+
 
 #include <plash.h>
 
@@ -226,7 +228,10 @@ int main(int argc, char *argv[]) {
             printf("%s=%s\n", export_as, quote((env_val)));
         }
       }
-
+    } else if (tokenis("--invalidate-layer")) {
+          struct timespec tp;
+          clock_gettime(CLOCK_MONOTONIC, &tp);
+          printf(": invalidate cache with %ld\n", tp.tv_nsec);
     } else if (tokenis("--layer")) {
       printhint("layer", NULL);
 
