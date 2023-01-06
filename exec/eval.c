@@ -1,3 +1,7 @@
+// usage: plash eval --macro1 arg1 arg2 --macro2 arg1 ...
+// Generates a build script. It prints the shell script generated from
+// evaluating the macros passed as args. `plash build` passes its arguments to
+// this script in order to get a shell script with the build instructions.
 
 #define _GNU_SOURCE
 #include <ctype.h>
