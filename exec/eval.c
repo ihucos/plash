@@ -180,9 +180,7 @@ int main(int argc, char *argv[]) {
 
     } else if (tokenis("--entrypoint-script")) {
       printhint("exec", "/entrypoint");
-      printf("touch /entrypoint\n");
-      printf("chmod 755 /entrypoint\n");
-      eachline("echo %s >> /entrypoint\n");
+      eval_with_args((char*[]){"--write-script", "/entrypoint", NULL});
 
     } else if (tokenis("--write-file")) {
       char *filename = getarg();
@@ -192,10 +190,8 @@ int main(int argc, char *argv[]) {
 
     } else if (tokenis("--write-script")) {
       char *filename = getarg();
-      printarg("touch %s\n");
       printarg("chmod 755 %s\n");
-      while (getarg_or_null())
-        printf("echo %s >> %s\n", quote(arg), quote(filename));
+      eval_with_args((char*[]){"--write-file", filename, NULL});
 
     } else if (tokenis("--eval-url")) {
       pl_pipe(
