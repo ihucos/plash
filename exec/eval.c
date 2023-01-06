@@ -166,6 +166,9 @@ int main(int argc, char *argv[]) {
         pl_run("plash", "eval", "--from-lxc", arg);
       }
 
+    } else if (tokenis("--hint")) {
+      printhint(getarg(), getarg_or_null());
+
     } else if (tokenis("--from-id")) {
       printhint("image", getarg());
 
@@ -231,6 +234,9 @@ int main(int argc, char *argv[]) {
 
     } else if (tokenis("--env-prefix")) {
       eachline("echo %s >> /.plashenvsprefix\n");
+
+    } else if (tokenis("--mount")) {
+      eachline("echo %s >> /.plashmount\n");
 
     } else if (tokenis("--eval-file")) {
       pl_run("plash", "eval-plashfile", getarg());

@@ -3,25 +3,47 @@
 # Lists all available macros. Pass a macro library as first parameter to list
 # macros defined there.
 
-import sys
-
-from plash.eval import MacroError, eval, get_macros
-from plash import utils
-
-try:
-    import_macros = sys.argv[1]
-except IndexError:
-    import_macros = "plash.macros.all"
-
-with utils.catch_and_die([MacroError]):
-    eval([["import", import_macros]])
-
-macros = get_macros()
-prev_group = None
-for name, func in sorted(macros.items(), key=lambda i: (i[1].__module__, i[0])):
-    group = func.__module__
-    if group != prev_group:
-        prev_group is None or print()
-        print("[{}]".format(group))
-    print("{: <16} = {}".format(name, func.__doc__))
-    prev_group = group
+print("""hint               write a hint for consumer programs
+entrypoint         hint default command for this build
+entrypoint-script  write lines to /entrypoint and hint it as default command
+env                Use env from host when running image
+env-prefix         Use all envs with given prefix when running image
+eval-file          evaluate file content as expressions
+eval-github        eval a file (default 'plashfile') from a github repo
+eval-stdin         evaluate expressions read from stdin
+hash-path          recursively hash files and add as cache key
+import-env         import environment variables from host while building
+invalidate-layer   invalidate the cache of the current layer
+layer              hints the start of a new layer
+mount              Mount filesystem when running image ("src:dst" supported)
+run                directly emit shell script
+run-stdin          run commands read from stdin
+write-file         write lines to a file
+write-script       write an executable (755) file to the filesystem
+from               guess from where to take the image
+from-docker        use image from local docker
+from-github        build and use a file (default 'plashfile') from a github repo
+from-id            specify the image from an image id
+from-lxc           use images from images.linuxcontainers.org
+from-map           use resolved map as image
+from-url           import image from an url
+apk                install packages with apk
+apt                install packages with apt
+defpm              define a new package manager
+dnf                install packages with dnf
+emerge             install packages with emerge
+npm                install packages with npm
+pacman             install packages with pacman
+pip                install packages with pip
+pip3               install packages with pip3
+yum                install packages with yum
+A                  alias for: --from alpine:edge --apk [ARG1 [ARG2 [...]]]
+C                  alias for: --from centos:8 --yum [ARG1 [ARG2 [...]]]
+D                  alias for: --from debian:sid --apt [ARG1 [ARG2 [...]]]
+F                  alias for: --from fedora:32 --dnf [ARG1 [ARG2 [...]]]
+G                  alias for: --from gentoo:current --emerge [ARG1 [ARG2 [...]]]
+R                  alias for: --from archlinux:current --pacman [ARG1 [ARG2 [...]]]
+U                  alias for: --from ubuntu:focal --apt [ARG1 [ARG2 [...]]]
+f                  alias for: --from [ARG1 [ARG2 [...]]]
+l                  alias for: --layer [ARG1 [ARG2 [...]]]
+x                  alias for: --run [ARG1 [ARG2 [...]]]""")
