@@ -16,6 +16,7 @@
 #include <plash.h>
 
 #define QUOTE_REPLACE "'\"'\"'"
+#define eval_with_args(...) eval_with_args_array((char *[]){__VA_ARGS__, NULL})
 
 static char **tokens, *arg;
 
@@ -90,10 +91,11 @@ char *getarg() {
   return arg;
 }
 
-size_t countargs(){
+size_t countargs() {
   size_t argscount = 0;
   char **orig_tokens = tokens;
-  while (getarg_or_null()) argscount++;
+  while (getarg_or_null())
+    argscount++;
   tokens = orig_tokens;
   return argscount;
 }
@@ -125,10 +127,11 @@ void printhint(char *name, char *val) {
 
 int tokenis(char *macro) { return (strcmp(*tokens, macro) == 0); }
 
-void eval_with_args(char **middel_args) {
+void eval_with_args_array(char **middel_args) {
 
   size_t pre_args_len = 0;
-  while(middel_args[pre_args_len]) pre_args_len++;
+  while (middel_args[pre_args_len])
+    pre_args_len++;
 
   char *args[countargs() + pre_args_len + 1 + 2];
 
@@ -149,6 +152,7 @@ int main(int argc, char *argv[]) {
   tokens = argv;
   while (*(++tokens)) {
     arg = NULL;
+
     if (tokenis("--from") || tokenis("-f")) {
       getarg();
       int i, only_digits = 1;
@@ -180,18 +184,18 @@ int main(int argc, char *argv[]) {
 
     } else if (tokenis("--entrypoint-script")) {
       printhint("exec", "/entrypoint");
-      eval_with_args((char*[]){"--write-script", "/entrypoint", NULL});
+      eval_with_args("--write-script", "/entrypoint");
 
     } else if (tokenis("--write-file")) {
       char *filename = getarg();
-      printarg("touch %s\n");
+      printf("touch %s\n", quote(filename));
       while (getarg_or_null())
         printf("echo %s >> %s\n", quote(arg), quote(filename));
 
     } else if (tokenis("--write-script")) {
-      char *filename = getarg();
+      getarg();
+      eval_with_args("--write-file", arg);
       printarg("chmod 755 %s\n");
-      eval_with_args((char*[]){"--write-file", filename, NULL});
 
     } else if (tokenis("--eval-url")) {
       pl_pipe(
@@ -298,8 +302,7 @@ int main(int argc, char *argv[]) {
       pkg("yum install -y");
 
     } else if (tokenis("-A")) {
-      eval_with_args(
-          (char *[]){"--from", "alpine:edge", "--apk", NULL});
+      eval_with_args("--from", "alpine:edge", "--apk");
 
     } else if (tokenis("--#") || tokenis("-#")) {
       while (getarg_or_null())
