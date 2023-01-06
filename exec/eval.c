@@ -125,16 +125,19 @@ void printhint(char *name, char *val) {
 
 int tokenis(char *macro) { return (strcmp(*tokens, macro) == 0); }
 
-void pl_call_with_args(char **pre_args) {
+void eval_with_args(char **middel_args) {
 
   size_t pre_args_len = 0;
-  while(pre_args[pre_args_len]) pre_args_len++;
+  while(middel_args[pre_args_len]) pre_args_len++;
 
-  char *args[countargs() + pre_args_len + 1];
+  char *args[countargs() + pre_args_len + 1 + 2];
+
 
   size_t index = 0;
-  for (int j = 0; pre_args[j]; j++) {
-    args[index++] = pre_args[j];
+  args[index++] = "plash";
+  args[index++] = "eval";
+  for (int j = 0; middel_args[j]; j++) {
+    args[index++] = middel_args[j];
   }
   while (getarg_or_null()) {
     args[index++] = arg;
@@ -300,8 +303,8 @@ int main(int argc, char *argv[]) {
       pkg("yum install -y");
 
     } else if (tokenis("-A")) {
-      pl_call_with_args(
-          (char *[]){"plash", "eval", "--from", "alpine:edge", "--apk", NULL});
+      eval_with_args(
+          (char *[]){"--from", "alpine:edge", "--apk", NULL});
 
     } else if (tokenis("--#") || tokenis("-#")) {
       while (getarg_or_null())
