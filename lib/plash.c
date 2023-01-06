@@ -303,7 +303,7 @@ void pl_setup_user_ns() {
   free(pid_str);
 }
 
-char *pl_check_output(char *argv[], int firstline) {
+char *pl_check_output(char *argv[]) {
   int link[2];
   int status, exit_status;
   pid_t pid;
@@ -338,7 +338,7 @@ char *pl_check_output(char *argv[], int firstline) {
 
     if (read(link[0], output, PL_CHECK_OUTPUT_BUFFER) == -1)
       pl_fatal("read");
-    if (firstline) output[strcspn(output, "\n")] = 0;
+    output[strcspn(output, "\n")] = 0;
     return output;
   }
 }
