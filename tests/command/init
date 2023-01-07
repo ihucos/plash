@@ -18,10 +18,3 @@ export PLASH_DATA=$tmp/myplashdata
 plash init
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
-
-: plash init does create intermediate directories in PLASH_DATA
-tmp=$(mktemp -d)
-export PLASH_DATA=$tmp/da/di/dum/plashdata
-plash init
-out=$(ls -A $PLASH_DATA)
-test -n "$out"

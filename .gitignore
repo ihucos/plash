@@ -15,6 +15,7 @@ exec/copy
 exec/eval
 exec/import-tar
 exec/export-tar
+exec/init
 lib/plash.o
 tests/C/pl_parse_subid
 tests/C/pl_setup_user_ns
