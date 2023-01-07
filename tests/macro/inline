@@ -1,5 +1,0 @@
-#!/bin/sh
-
-set -eux
-
-test "$(plash eval --inline a b c)" = "a b c"

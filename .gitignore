@@ -12,6 +12,7 @@ exec/runopts
 exec/sudo
 exec/rm
 exec/copy
+exec/eval
 lib/plash.o
 tests/C/pl_parse_subid
 tests/C/pl_setup_user_ns

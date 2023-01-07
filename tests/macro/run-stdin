@@ -6,5 +6,5 @@ out=$(echo 'myrun' | plash eval --run-stdin)
 test $out = myrun
 
 : feeding 4 lines returns 4 lines
-lines=$(printf 'line1\n2\n3\n4' | plash eval --run-stdin | wc -l)
+lines=$(printf 'line1\n2\n3\n4\n' | plash eval --run-stdin | wc -l)
 test "$lines" = 4
