@@ -21,8 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mount.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <plash.h>
@@ -69,10 +69,10 @@ int main(int argc, char *argv[]) {
   // mounting over it would not work as expected
   unlink("etc/resolv.conf");
   int fd;
-  if((fd = open("etc/resolv.conf", O_CREAT | O_WRONLY)) < 0) pl_fatal("open");
+  if ((fd = open("etc/resolv.conf", O_CREAT | O_WRONLY)) < 0)
+    pl_fatal("open");
   close(fd);
   pl_bind_mount("/etc/resolv.conf", "etc/resolv.conf");
-
 
   //
   // Import envs
@@ -82,7 +82,6 @@ int main(int argc, char *argv[]) {
   pl_whitelist_env("DISPLAY");
   pl_whitelist_env("PLASH_DATA");
   pl_whitelist_env(NULL);
-
 
   //
   // chroot, then reconstruct working directory
@@ -97,4 +96,3 @@ int main(int argc, char *argv[]) {
   execvp(*run_args, run_args);
   pl_fatal("execvp");
 }
-

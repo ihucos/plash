@@ -131,16 +131,17 @@ void pl_whitelist_env(char *env_name) {
 }
 
 void pl_whitelist_env_prefix(char *env_prefix) {
-        char *str;
-        for (size_t i = 0; environ[i]; i++) {
-            if (strncmp(env_prefix, environ[i], strlen(env_prefix)) == 0){
-                str = strdup(environ[i]);
-                if (!str) pl_fatal("strdup");
-                str = strsep(&str, "=");
-                pl_whitelist_env(str);
-                free(str);
-            }
-        }
+  char *str;
+  for (size_t i = 0; environ[i]; i++) {
+    if (strncmp(env_prefix, environ[i], strlen(env_prefix)) == 0) {
+      str = strdup(environ[i]);
+      if (!str)
+        pl_fatal("strdup");
+      str = strsep(&str, "=");
+      pl_whitelist_env(str);
+      free(str);
+    }
+  }
 }
 
 void pl_whitelist_envs_from_env(const char *export_env) {
@@ -398,21 +399,19 @@ void pl_unshare_mount() {
   pl_setup_mount_ns();
 }
 
-
-void pl_exec_add(char* cmd){
+void pl_exec_add(char *cmd) {
   static char **array = NULL;
   static size_t size = 0;
 
-  array = realloc(array, (size + 1) * sizeof(char*));
+  array = realloc(array, (size + 1) * sizeof(char *));
   if (array == NULL)
     pl_fatal("realloc");
   array[size++] = cmd;
 
-  if (cmd == NULL){
+  if (cmd == NULL) {
     execvp(array[0], array);
     pl_fatal("execvp");
   }
-
 }
 
 // function to pipe two programs together
@@ -456,45 +455,45 @@ void pl_pipe(char *program1[], char *program2[]) {
 
   int status1, status2;
   if (waitpid(pid1, &status1, 0) < 0 || waitpid(pid2, &status2, 0) < 0) {
-      pl_fatal("waitpid");
+    pl_fatal("waitpid");
   }
 
   char **failed = NULL;
   if (!WIFEXITED(status1) || WEXITSTATUS(status1) != 0) {
-      failed = program1;
-  } else if (!WIFEXITED(status2) || WEXITSTATUS(status2) != 0){
-      failed = program2;
-
+    failed = program1;
+  } else if (!WIFEXITED(status2) || WEXITSTATUS(status2) != 0) {
+    failed = program2;
   }
-  if (failed){
-      fprintf(stderr, "plash error: subprocess failed: ");
-      for (int i = 0; failed[i] != NULL; i++) {
-          fprintf(stderr, "%s ", failed[i]);
-      }
-      fprintf(stderr, "\n");
-      exit(1);
+  if (failed) {
+    fprintf(stderr, "plash error: subprocess failed: ");
+    for (int i = 0; failed[i] != NULL; i++) {
+      fprintf(stderr, "%s ", failed[i]);
+    }
+    fprintf(stderr, "\n");
+    exit(1);
   }
 }
 
-
 void _pl_run(char *program[]) {
-    int status;
-    pid_t pid = fork();
-    if (pid < 0) {
-        pl_fatal("fork");
+  int status;
+  pid_t pid = fork();
+  if (pid < 0) {
+    pl_fatal("fork");
+  }
+  if (pid == 0) {
+    execvp(program[0], program);
+    pl_fatal("execvp");
+  }
+  if (waitpid(pid, &status, 0) < 0)
+    pl_fatal("waitpid");
+  if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+    if (strcmp(program[0], "plash") == 0)
+      exit(1);
+    fprintf(stderr, "plash error: subprocess program: ");
+    for (int i = 0; program[i] != NULL; i++) {
+      fprintf(stderr, "%s ", program[i]);
     }
-    if (pid == 0) {
-        execvp(program[0], program);
-        pl_fatal("execvp");
-    }
-    if (waitpid(pid, &status, 0) < 0) pl_fatal("waitpid");
-    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-        if (strcmp(program[0], "plash") == 0) exit(1);
-        fprintf(stderr, "plash error: subprocess program: ");
-        for (int i = 0; program[i] != NULL; i++) {
-            fprintf(stderr, "%s ", program[i]);
-        }
-        fprintf(stderr, "\n");
-        exit(1);
-    }
+    fprintf(stderr, "\n");
+    exit(1);
+  }
 }

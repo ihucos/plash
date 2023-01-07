@@ -10,6 +10,7 @@ ERROR_COLOR = 1
 
 def hashstr(stri):
     import hashlib
+
     return hashlib.sha512(stri).hexdigest()
 
 

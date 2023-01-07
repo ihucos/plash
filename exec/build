@@ -61,8 +61,8 @@ for layer in layers:
             "export PATH\n"
             "set -ex\n" + layer
         )
-        next_container = utils.plash_call("create",
-            current_container, "/bin/sh", "-l", input=shell
+        next_container = utils.plash_call(
+            "create", current_container, "/bin/sh", "-l", input=shell
         )
         utils.plash_call("map", cache_key, next_container)
         print("--:", file=sys.stderr)

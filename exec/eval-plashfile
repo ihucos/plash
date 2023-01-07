@@ -13,11 +13,11 @@ except IndexError:
 tokens = []
 fstline = True
 for line in file.readlines():
-    if fstline and line.startswith('#!'):
+    if fstline and line.startswith("#!"):
         continue
-    line = line.strip('\n')
-    if line.startswith('-') and ' ' in line:
-        tokens.extend(line.split(' '))
+    line = line.strip("\n")
+    if line.startswith("-") and " " in line:
+        tokens.extend(line.split(" "))
     else:
         tokens.append(line)
     fstline = False

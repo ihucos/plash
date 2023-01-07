@@ -3,7 +3,8 @@
 # Lists all available macros. Pass a macro library as first parameter to list
 # macros defined there.
 
-print("""hint               write a hint for consumer programs
+print(
+    """hint               write a hint for consumer programs
 entrypoint         hint default command for this build
 entrypoint-script  write lines to /entrypoint and hint it as default command
 env                Use env from host when running image
@@ -46,4 +47,5 @@ R                  alias for: --from archlinux:current --pacman [ARG1 [ARG2 [...
 U                  alias for: --from ubuntu:focal --apt [ARG1 [ARG2 [...]]]
 f                  alias for: --from [ARG1 [ARG2 [...]]]
 l                  alias for: --layer [ARG1 [ARG2 [...]]]
-x                  alias for: --run [ARG1 [ARG2 [...]]]""")
+x                  alias for: --run [ARG1 [ARG2 [...]]]"""
+)

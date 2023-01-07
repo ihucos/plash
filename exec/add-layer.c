@@ -31,7 +31,8 @@ int main(int argc, char *argv[]) {
 
   off_t node_id;
   int fd;
-  char *linkpath, *node_id_str, *nodepath, *plash_data, *prepared_new_node, *layer;
+  char *linkpath, *node_id_str, *nodepath, *plash_data, *prepared_new_node,
+      *layer;
 
   if (argc != 3)
     pl_usage();

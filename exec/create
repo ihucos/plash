@@ -46,12 +46,14 @@ if cmd:
     cmd = ["/bin/sh", "-lc", 'exec env "$@"', "--"] + cmd
 
 changesdir = utils.plash_call("mkdtemp")
-exit = utils.plash_call("runb",
+exit = utils.plash_call(
+    "runb",
     *(
         [
             container,
             changesdir,
-        ] + cmd
+        ]
+        + cmd
     ),
     stdout_to_stderr=True,
     return_exit_code=True

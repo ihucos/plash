@@ -22,70 +22,76 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mount.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <plash.h>
 
-
 void read_envs_from_plashenv() {
-  char * line = NULL;
-  char * lineCopy = NULL;
+  char *line = NULL;
+  char *lineCopy = NULL;
   size_t len = 0;
-  FILE * fp = fopen(".plashenvs", "r");
-  if (fp == NULL) return;
+  FILE *fp = fopen(".plashenvs", "r");
+  if (fp == NULL)
+    return;
   while ((getline(&line, &len, fp)) != -1) {
-	  line[strcspn(line, "\n")] = 0;  // chop newline char
-	  lineCopy = strdup(line);
-	  if (!lineCopy) {pl_fatal("strdup");}
-	  pl_whitelist_env(lineCopy);
+    line[strcspn(line, "\n")] = 0; // chop newline char
+    lineCopy = strdup(line);
+    if (!lineCopy) {
+      pl_fatal("strdup");
+    }
+    pl_whitelist_env(lineCopy);
   }
   fclose(fp);
-
 }
 
-
-void read_envs_from_plashenvprefix(){
-  char * line = NULL;
-  char * lineCopy = NULL;
+void read_envs_from_plashenvprefix() {
+  char *line = NULL;
+  char *lineCopy = NULL;
   size_t len = 0;
-  FILE * fp = fopen(".plashenvsprefix", "r");
-  if (fp == NULL) return;
+  FILE *fp = fopen(".plashenvsprefix", "r");
+  if (fp == NULL)
+    return;
   while ((getline(&line, &len, fp)) != -1) {
-	  line[strcspn(line, "\n")] = 0;  // chop newline char
-	  lineCopy = strdup(line);
-	  if (!lineCopy) {pl_fatal("strdup");}
-	  pl_whitelist_env_prefix(lineCopy);
+    line[strcspn(line, "\n")] = 0; // chop newline char
+    lineCopy = strdup(line);
+    if (!lineCopy) {
+      pl_fatal("strdup");
+    }
+    pl_whitelist_env_prefix(lineCopy);
   }
   fclose(fp);
-
 }
 
-void read_mounts_from_plashmounts(){
-  char * line = NULL;
-  char * lineCopy = NULL;
+void read_mounts_from_plashmounts() {
+  char *line = NULL;
+  char *lineCopy = NULL;
   size_t len = 0;
-  char * mount;
-  FILE * fp = fopen(".plashmounts", "r");
-  if (fp == NULL) return;
+  char *mount;
+  FILE *fp = fopen(".plashmounts", "r");
+  if (fp == NULL)
+    return;
   while ((getline(&line, &len, fp)) != -1) {
-	  line[strcspn(line, "\n")] = 0;  // chop newline char
-	  lineCopy = strdup(line);
-	  if (!lineCopy) {pl_fatal("strdup");}
-      mount = strsep(&lineCopy, ":");
-      errno = 0; if (mount[0] != '/')
-          pl_fatal("src mount in /.plashmounts must start with a slash");
-      if (lineCopy == NULL){
-          pl_bind_mount(mount, mount + 1);
-      } else {
-          pl_bind_mount(mount, lineCopy + 1);
-          errno = 0; if (lineCopy[0] != '/')
-              pl_fatal("dst mount in /.plashmounts must start with a slash");
-      }
+    line[strcspn(line, "\n")] = 0; // chop newline char
+    lineCopy = strdup(line);
+    if (!lineCopy) {
+      pl_fatal("strdup");
+    }
+    mount = strsep(&lineCopy, ":");
+    errno = 0;
+    if (mount[0] != '/')
+      pl_fatal("src mount in /.plashmounts must start with a slash");
+    if (lineCopy == NULL) {
+      pl_bind_mount(mount, mount + 1);
+    } else {
+      pl_bind_mount(mount, lineCopy + 1);
+      errno = 0;
+      if (lineCopy[0] != '/')
+        pl_fatal("dst mount in /.plashmounts must start with a slash");
+    }
   }
   fclose(fp);
-
 }
 
 char *get_default_root_shell() {
@@ -141,13 +147,12 @@ int main(int argc, char *argv[]) {
   // mounting over it would not work as expected
   unlink("etc/resolv.conf");
   int fd;
-  if((fd = open("etc/resolv.conf", O_CREAT | O_WRONLY)) < 0) pl_fatal("open");
+  if ((fd = open("etc/resolv.conf", O_CREAT | O_WRONLY)) < 0)
+    pl_fatal("open");
   close(fd);
   pl_bind_mount("/etc/resolv.conf", "etc/resolv.conf");
 
- read_mounts_from_plashmounts();
-
-
+  read_mounts_from_plashmounts();
 
   //
   // Import envs
@@ -159,7 +164,6 @@ int main(int argc, char *argv[]) {
   read_envs_from_plashenv();
   read_envs_from_plashenvprefix();
   pl_whitelist_env(NULL);
-
 
   //
   // chroot, then reconstruct working directory
@@ -185,4 +189,3 @@ int main(int argc, char *argv[]) {
   }
   pl_fatal("execvp");
 }
-
