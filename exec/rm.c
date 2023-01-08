@@ -18,6 +18,6 @@ int main(int argc, char *argv[]) {
   if (rename(nodepath, tmp) == -1)
     pl_fatal("rename %s %s", nodepath, tmp);
 
-  execvp("rm", (char *[]){"rm", "-rf", tmp, NULL});
-  pl_fatal("execvp");
+  execlp("rm", "rm", "-rf", tmp, NULL);
+  pl_fatal("execlp");
 }

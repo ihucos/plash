@@ -13,6 +13,6 @@ int main(int argc, char *argv[]) {
   }
   char *tmpdir = pl_call("mkdtemp");
   pl_run("plash", "sudo", "tar", "-C", tmpdir, "-xf", tarfile);
-  execvp("plash", (char *[]){"plash", "add-layer", "0", tmpdir, NULL});
-  pl_fatal("execvp");
+  execlp("plash", "plash", "add-layer", "0", tmpdir, NULL);
+  pl_fatal("execlp");
 }

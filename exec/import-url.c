@@ -23,5 +23,6 @@ int main(int argc, char *argv[]) {
       rootfs,
       url
       );
-  execvp("plash", (char *[]){"plash", "import-tar", rootfs, NULL});
+  execlp("plash", "plash", "import-tar", "rootfs", NULL);
+  pl_fatal("execlp");
 }
