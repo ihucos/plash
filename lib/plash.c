@@ -306,7 +306,7 @@ void pl_setup_user_ns() {
 
 char *pl_check_output(char *argv[]) {
   int link[2];
-  int status, exit_status;
+  int status;
   pid_t pid;
   char *output = calloc(PL_CHECK_OUTPUT_BUFFER, sizeof(char *));
 
