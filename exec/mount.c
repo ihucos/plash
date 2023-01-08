@@ -91,6 +91,7 @@ int main(int argc, char *argv[]) {
     asprintf(&mount_opts, "lowerdir=%s", prepare_lowerdir(image_id)) != -1 ||
         pl_fatal("asprintf");
   }
-  execlp("mount", "mount", "-t", "overlay", "overlay", "-o", mount_opts, mountpoint, NULL);
+  execlp("mount", "mount", "-t", "overlay", "overlay", "-o", mount_opts,
+         mountpoint, NULL);
   pl_fatal("execlp");
 }
