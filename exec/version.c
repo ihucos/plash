@@ -3,6 +3,4 @@
 
 #include <stdio.h>
 
-int main(){
-  puts("$Format:%h$");
-}
+int main() { puts("$Format:%h$"); }

@@ -34,3 +34,5 @@ void pl_exec_add(char *arg);
 char *pl_pipe(char *const program1[], char *const program2[]);
 
 void _pl_run(char *program[]);
+
+char *pl_get_default_root_shell();

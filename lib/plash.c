@@ -497,3 +497,12 @@ void _pl_run(char *program[]) {
     exit(1);
   }
 }
+
+char *pl_get_default_root_shell() {
+  struct passwd *pwd = getpwuid(0);
+  if (pwd == NULL) {
+    return "/bin/sh";
+  } else {
+    return pwd->pw_shell;
+  }
+}

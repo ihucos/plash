@@ -94,15 +94,6 @@ void read_mounts_from_plashmounts() {
   fclose(fp);
 }
 
-char *get_default_root_shell() {
-  struct passwd *pwd = getpwuid(0);
-  if (pwd == NULL) {
-    return "/bin/sh";
-  } else {
-    return pwd->pw_shell;
-  }
-}
-
 int main(int argc, char *argv[]) {
 
   if (argc < 2)
@@ -176,7 +167,7 @@ int main(int argc, char *argv[]) {
   //
   char **run_args = argv + 2;
   if (*run_args == NULL) {
-    run_args = (char *[]){get_default_root_shell(), "-l", NULL};
+    run_args = (char *[]){pl_get_default_root_shell(), "-l", NULL};
   }
 
   //
