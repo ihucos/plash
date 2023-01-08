@@ -18,6 +18,6 @@ int main(int argc, char *argv[]) {
       pl_fatal("asprintf");
   pl_run("curl", "--progress-bar", "--fail", "--location", "--output", rootfs,
          url);
-  execlp("plash", "plash", "import-tar", "rootfs", NULL);
+  execlp("plash", "plash", "import-tar", rootfs, NULL);
   pl_fatal("execlp");
 }
