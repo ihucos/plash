@@ -47,7 +47,14 @@ binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')
                 if os.access(path.join(EXEC_DIR, i), os.X_OK)]
 for subcommand in binfiles:
 
+
     fname = path.join(EXEC_DIR, subcommand)
+    try:
+        link = os.readlink(fname)
+        fname = path.join(EXEC_DIR, link)
+    except OSError:
+        pass
+
     testfile = path.join(os.path.join(TESTS_DIR, "command", subcommand))
 
     if os.access(fname + ".c", os.F_OK):
