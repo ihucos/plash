@@ -19,6 +19,7 @@ exec/init
 exec/import-url
 exec/version
 exec/with-mount
+exec/eval-plashfile
 lib/plash.o
 tests/C/pl_parse_subid
 tests/C/pl_setup_user_ns
