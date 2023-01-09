@@ -20,6 +20,7 @@ exec/import-url
 exec/version
 exec/with-mount
 exec/eval-plashfile
+exec/create
 lib/plash.o
 tests/C/pl_parse_subid
 tests/C/pl_setup_user_ns

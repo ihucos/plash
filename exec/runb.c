@@ -29,7 +29,7 @@
 
 int main(int argc, char *argv[]) {
 
-  if (argc < 3)
+  if (argc < 4)
     pl_usage();
   char *container_id = argv[1];
   char *changesdir = argv[2];
