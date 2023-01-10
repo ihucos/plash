@@ -27,6 +27,7 @@ int main(int argc, char *argv[]){
 
   while(*(++argv)){
     if ((*argv)[0] == '-' && (*argv)[1] == '-' && (*argv)[2] == '\0'){
+      // "--" found, cut the array here
       *argv = NULL;
       cmdargs = argv+1;
     }
