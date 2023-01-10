@@ -13,12 +13,13 @@
 
 int main(int argc, char *argv[]){
   if (argc < 2) pl_usage();
+
   char **buildargs = argv;
   char **cmdargs = (char*[]){NULL};
   char *cmd = strdup(argv[1]);
-  pl_exec_add("plash");
-  pl_exec_add(cmd);
+  if (cmd == NULL) pl_fatal("strdup");
 
+  // reuse argv to build command to build the image
   *argv = "plash";
   argv++;
   *argv = "build";
@@ -31,10 +32,10 @@ int main(int argc, char *argv[]){
     }
   }
 
+  // Run the requested command with the builded image
+  pl_exec_add("plash");
+  pl_exec_add(cmd);
   pl_exec_add(pl_check_output(buildargs));
   while(*(cmdargs)) pl_exec_add(*cmdargs++);
   pl_exec_add(NULL);
-
-
-
 }
