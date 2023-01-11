@@ -50,6 +50,7 @@ int count_images() {
 
 char *get_oldest_leave() {
   char *oldest_leave = NULL;
+  char *oldest_leave_dup;
   char *nodepath;
   ITERDIR_BEGIN(".")
   if ((dir->d_type != DT_LNK) ||                          // its' not a link
@@ -61,7 +62,9 @@ char *get_oldest_leave() {
   )
     oldest_leave = dir->d_name;
   ITERDIR_END()
-  return oldest_leave;
+  oldest_leave_dup = strdup(oldest_leave);
+  if (oldest_leave_dup == NULL) pl_fatal("dup");
+  return oldest_leave_dup;
 }
 
 int main(int argc, char *argv[]) {
@@ -74,11 +77,14 @@ int main(int argc, char *argv[]) {
 
   int images_count = count_images();
   printf("You have %d images.\n", images_count);
-  printf("Deleting...\n");
   for (int i = 0; i <= (images_count / 2); i++) {
     char *o =  get_oldest_leave();
-    puts(o);
-    pl_call("rm", get_oldest_leave());
+    if (o[0] == '0' && o[1] == '\0'){
+      printf("Nothing to delete.\n");
+      break;
+    }
+    printf("Deleting image id: %s\n", o);
+    pl_call("rm", o);
   }
   printf("You have %d images.\n", count_images());
 }
