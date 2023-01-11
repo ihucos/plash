@@ -77,12 +77,12 @@ int main(int argc, char *argv[]) {
     pl_fatal("chdir %s");
 
   int images_count = count_images() - 1; // substract special root image
-  if (!images_count){
+  if (!images_count) {
     printf("You have no images\n");
     return 0;
   }
   printf("You have %d images.\n", images_count);
-  for (int to_delete = ((images_count+1) / 2); to_delete; to_delete--) {
+  for (int to_delete = ((images_count + 1) / 2); to_delete; to_delete--) {
     char *o = get_oldest_leave();
     if (o[0] == '0' && o[1] == '\0') {
       printf("Nothing to delete.\n");
