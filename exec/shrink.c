@@ -63,7 +63,8 @@ char *get_oldest_leave() {
     oldest_leave = dir->d_name;
   ITERDIR_END()
   oldest_leave_dup = strdup(oldest_leave);
-  if (oldest_leave_dup == NULL) pl_fatal("dup");
+  if (oldest_leave_dup == NULL)
+    pl_fatal("dup");
   return oldest_leave_dup;
 }
 
@@ -75,16 +76,20 @@ int main(int argc, char *argv[]) {
   if (chdir("index") == -1)
     pl_fatal("chdir %s");
 
-  int images_count = count_images();
+  int images_count = count_images() - 1; // substract special root image
+  if (!images_count){
+    printf("You have no images\n");
+    return 0;
+  }
   printf("You have %d images.\n", images_count);
-  for (int i = 0; i <= (images_count / 2); i++) {
-    char *o =  get_oldest_leave();
-    if (o[0] == '0' && o[1] == '\0'){
+  for (int to_delete = ((images_count+1) / 2); to_delete; to_delete--) {
+    char *o = get_oldest_leave();
+    if (o[0] == '0' && o[1] == '\0') {
       printf("Nothing to delete.\n");
       break;
     }
     printf("Deleting image id: %s\n", o);
     pl_call("rm", o);
   }
-  printf("You have %d images.\n", count_images());
+  printf("You have %d images.\n", count_images() - 1);
 }
