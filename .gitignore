@@ -24,6 +24,8 @@ exec/create
 exec/b
 exec/shrink
 exec/purge
+exec/import-docker
+
 lib/plash.o
 tests/C/pl_parse_subid
 tests/C/pl_setup_user_ns
