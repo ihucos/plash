@@ -27,6 +27,7 @@ exec/purge
 exec/import-docker
 exec/import-lxc
 exec/clean
+exec/help-macros
 
 lib/plash.o
 tests/C/pl_parse_subid

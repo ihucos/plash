@@ -17,6 +17,51 @@
 
 #define QUOTE_REPLACE "'\"'\"'"
 #define eval_with_args(...) eval_with_args_array((char *[]){__VA_ARGS__, NULL})
+#define HELP                                                                   \
+"--hint               write a hint for consumer programs\n"\
+"--entrypoint         hint default command for this build\n"\
+"--entrypoint-script  write lines to /entrypoint and hint it as default command\n"\
+"--env                Use env from host when running image\n"\
+"--env-prefix         Use all envs with given prefix when running image\n"\
+"--eval-file          evaluate file content as expressions\n"\
+"--eval-github        eval a file (default 'plashfile') from a github repo\n"\
+"--eval-stdin         evaluate expressions read from stdin\n"\
+"--hash-path          recursively hash files and add as cache key\n"\
+"--import-env         import environment variables from host while building\n"\
+"--invalidate-layer   invalidate the cache of the current layer\n"\
+"--layer              hints the start of a new layer\n"\
+"--mount              Mount filesystem when running image (\"src:dst\" supported)\n"\
+"--run                directly emit shell script\n"\
+"--run-stdin          run commands read from stdin\n"\
+"--write-file         write lines to a file\n"\
+"--write-script       write an executable (755) file to the filesystem\n"\
+"--from               guess from where to take the image\n"\
+"--from-docker        use image from local docker\n"\
+"--from-github        build and use a file (default 'plashfile') from a github repo\n"\
+"--from-id            specify the image from an image id\n"\
+"--from-lxc           use images from images.linuxcontainers.org\n"\
+"--from-map           use resolved map as image\n"\
+"--from-url           import image from an url\n"\
+"--apk                install packages with apk\n"\
+"--apt                install packages with apt\n"\
+"--defpm              define a new package manager\n"\
+"--dnf                install packages with dnf\n"\
+"--emerge             install packages with emerge\n"\
+"--npm                install packages with npm\n"\
+"--pacman             install packages with pacman\n"\
+"--pip                install packages with pip\n"\
+"--pip3               install packages with pip3\n"\
+"--yum                install packages with yum\n"\
+"--A                  alias for: --from alpine:edge --apk [ARG1 [ARG2 [...]]]\n"\
+"--C                  alias for: --from centos:8 --yum [ARG1 [ARG2 [...]]]\n"\
+"--D                  alias for: --from debian:sid --apt [ARG1 [ARG2 [...]]]\n"\
+"--F                  alias for: --from fedora:32 --dnf [ARG1 [ARG2 [...]]]\n"\
+"--G                  alias for: --from gentoo:current --emerge [ARG1 [ARG2 [...]]]\n"\
+"--R                  alias for: --from archlinux:current --pacman [ARG1 [ARG2 [...]]]\n"\
+"--U                  alias for: --from ubuntu:focal --apt [ARG1 [ARG2 [...]]]\n"\
+"--f                  alias for: --from [ARG1 [ARG2 [...]]]\n"\
+"--l                  alias for: --layer [ARG1 [ARG2 [...]]]\n"\
+"--x                  alias for: --run [ARG1 [ARG2 [...]]]\n"
 
 static char **tokens, *arg;
 
@@ -151,6 +196,13 @@ void eval_with_args_array(char **middel_args) {
 }
 
 int main(int argc, char *argv[]) {
+
+  // handle help flag
+  if (argv[1] && (strcmp(argv[1], "--help")) == 0){
+      fprintf(stderr, "%s", HELP);
+      return 0;
+  }
+
   tokens = argv;
   while (*(++tokens)) {
     arg = NULL;
