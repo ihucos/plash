@@ -41,4 +41,5 @@ test "$out" = "" # assert empty tmp
 touch "$PLASH_DATA"/index/mybadfile
 touch "$PLASH_DATA"/map/mybadfile
 touch "$PLASH_DATA"/tmp/mybadfile
+mkdir "$PLASH_DATA"/tmp/mybaddir
 plash clean

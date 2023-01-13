@@ -26,6 +26,7 @@ exec/shrink
 exec/purge
 exec/import-docker
 exec/import-lxc
+exec/clean
 
 lib/plash.o
 tests/C/pl_parse_subid
