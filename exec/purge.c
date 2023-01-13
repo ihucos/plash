@@ -14,17 +14,18 @@ int confirm_via_input() {
   printf("Delete all build data? [y/N] ");
   char inp[sizeof("y\n")];
   fgets(inp, sizeof(inp), stdin);
+  puts(inp);
   return (strcmp(inp, "y\n") == 0);
 }
 
 int is_confirmed_via_argv(char **argv) {
-  return (!(argv[0] && (strcmp(argv[0], "--yes") == 0)));
+  return (argv[1] && (strcmp(argv[1], "--yes") == 0));
 }
 
 int main(int argc, char *argv[]) {
 
   if (!(is_confirmed_via_argv(argv) || confirm_via_input())) {
-    printf("Action not confirmed\n");
+    fprintf(stderr, "Action not confirmed\n");
     return 1;
   }
 

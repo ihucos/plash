@@ -4,15 +4,17 @@ set -eux
 : Purge deletes plash data when confirmed
 export PLASH_DATA=$(mktemp -d)
 plash init
-echo 'yes' | plash purge
+echo 'y' | plash purge
 out=$(ls -A $PLASH_DATA)
 ! test -n "$out"
 
 
-: Purge does not deletes plash data when confirmed
+: Purge does not deletes plash data when confirmed badly
 export PLASH_DATA=$(mktemp -d)
 plash init
+set +ex
 echo 'jap' | plash purge
+set -ex
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
 
@@ -38,6 +40,11 @@ test -z "$out"
 : not confirming does not delete the data
 export PLASH_DATA=$(mktemp -d)
 plash init
+set +ex
 echo 'no' | plash purge
+set -ex
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
+
+: Bad confirmation leads to bad exit satus
+! echo no | plash purge
