@@ -16,7 +16,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define PL_CHECK_OUTPUT_BUFFER 4096
+#define PL_CHECK_OUTPUT_BUFFER 1024 * 100
 
 enum {
   SETUP_NO_UID = 0x01,
@@ -339,9 +339,13 @@ char *pl_check_output(char *argv[]) {
 
     if (read(link[0], output, PL_CHECK_OUTPUT_BUFFER) == -1)
       pl_fatal("read");
-    output[strcspn(output, "\n")] = 0;
     return output;
   }
+}
+
+char *pl_firstline(char *str){
+  str[strcspn(str, "\n")] = 0;
+  return str;
 }
 
 void pl_usage() {

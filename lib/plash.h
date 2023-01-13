@@ -1,7 +1,9 @@
-#define pl_call(...) pl_check_output((char *[]){"plash", __VA_ARGS__, NULL})
+#define pl_call(...) pl_firstline(pl_check_output((char *[]){"plash", __VA_ARGS__, NULL}))
 #define pl_run(...) _pl_run((char *[]){__VA_ARGS__, NULL})
 
 char *pl_check_output(char *argv[]);
+
+char *pl_firstline(char *str);
 
 int pl_fatal(char *format, ...);
 

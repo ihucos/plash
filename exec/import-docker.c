@@ -37,7 +37,8 @@ int main(int argc, char *argv[]) {
     pl_usage();
   char *image = argv[1];
   call_docker_pull(image);
-  char *container_id = pl_check_output((char*[]){"docker", "create", image, "sh", NULL});
+  char *container_id = pl_firstline(pl_check_output(
+	(char*[]){"docker", "create", image, "sh", NULL}));
   pl_pipe((char *[]){"docker", "export", container_id, NULL},
           (char *[]){"plash", "import-tar", NULL});
 }

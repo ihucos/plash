@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
   // Run the requested command with the builded image
   pl_exec_add("plash");
   pl_exec_add(cmd);
-  pl_exec_add(pl_check_output(buildargs));
+  pl_exec_add(pl_firstline(pl_check_output(buildargs)));
   while(*(cmdargs)) pl_exec_add(*cmdargs++);
   pl_exec_add(NULL);
 }
