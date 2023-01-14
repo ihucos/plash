@@ -393,5 +393,9 @@ int main(int argc, char *argv[]) {
       errno = 0;
       pl_fatal("unknown macro: %s", *tokens);
     }
+
+    // Somehow because we are calling subprocesses we need this to ensure the
+    //  order of lines written to stdout stays in the expected order.
+    fflush(stdout);
   }
 }
