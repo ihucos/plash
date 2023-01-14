@@ -332,7 +332,7 @@ int main(int argc, char *argv[]) {
 
     } else if (tokenis("--run") || tokenis("-x")) {
       while (getarg_or_null())
-        printf("%s", arg);
+        printf("%s\n", arg);
 
     } else if (tokenis("--apk")) {
       pkg("apk update\napk add");
