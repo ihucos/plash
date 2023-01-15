@@ -68,6 +68,38 @@ int spawn_process_for_output(char *const argv[]) {
     }
 }
 
+int spawn_process_for_input_and_output(char** cmd, FILE** p_stdin, FILE** p_stdout) {
+    int fd_stdin[2], fd_stdout[2];
+    pid_t pid;
+
+    if (pipe(fd_stdin) != 0 || pipe(fd_stdout) != 0) {
+        return -1;
+    }
+
+    pid = fork();
+    if (pid == -1) pl_fatal("fork");
+
+    if (pid == 0) {
+        dup2(fd_stdin[0], STDIN_FILENO);
+        dup2(fd_stdout[1], STDOUT_FILENO);
+        close(fd_stdin[0]);
+        close(fd_stdin[1]);
+        close(fd_stdout[0]);
+        close(fd_stdout[1]);
+        execvp(cmd[0], cmd);
+        exit(1);
+    } else {
+        close(fd_stdin[0]);
+        close(fd_stdout[1]);
+        *p_stdin = fdopen(fd_stdin[1], "w");
+	if (*p_stdin == NULL) pl_fatal("fdopen");
+        *p_stdout = fdopen(fd_stdout[0], "r");
+	if (*p_stdout == NULL) pl_fatal("fdopen");
+    }
+
+    return pid;
+}
+
 int spawn_process(char *const argv[]) {
     int fd[2];
     pid_t pid;
@@ -99,7 +131,10 @@ int spawn_process(char *const argv[]) {
 
 
 int main(int argc, char *argv[]) {
-  // Forward args to plash eval and get its output
+  char *image_id;
+
+
+  // create args for subprocess
   char *args[argc + 1];
   size_t i = 0;
   args[i++] = "plash";
@@ -107,44 +142,70 @@ int main(int argc, char *argv[]) {
   argv++;
   while (*argv) args[i++] = *(argv++);
   args[i++] = NULL;
-  char *shellscript = pl_check_output(args);
-  //int eval_fd = spawn_process_for_output(args);
 
+  int eval_fd = spawn_process_for_output(args);
+  FILE *eval_file = fdopen(eval_fd, "r");
+  if (eval_file == NULL) pl_fatal("fdopen");
 
-  // count newlines
-  int newlines = 0;
-  for(i = 0; shellscript[i]; i++){
-    if (shellscript[i] == '\n') newlines++;
+  char *line = NULL;
+  size_t len = 0;
+  ssize_t read;
+
+  // read first
+  read = getline(&line, &len, eval_file);
+  if (read == -1){pl_fatal("Could not read first line");}
+
+  // parse image id from first output line
+  if (strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0){
+    image_id = line + strlen(PLASH_HINT_IMAGE);
+    image_id[strcspn(image_id, "\n")] = '\0';
+  } else {
+    pl_fatal("First thing given must be an image id");
   }
-  
-
-  // lines to buff
-  char *lines[newlines + 1];
-  i = 0;
-  char *line = strtok(shellscript, "\n");
-  while (line != NULL) {
-    lines[i++] = line;
-    line = strtok(NULL, "\n");
-  }
-  lines[i++] = NULL;
 
 
-  // detect used image id
-  char *image_id = NULL;
-  for (i = 0; i < newlines; i++){
-    if (strncmp(lines[i], PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0){
-      image_id = lines[i] + strlen(PLASH_HINT_IMAGE);
+  FILE* create_in, *create_out;
+  pid_t create_pid = spawn_process_for_input_and_output(
+      (char*[]){"plash", "create", image_id, "sh", "-ex", NULL}, &create_in, &create_out);
+
+  // pipe lines from eval subcommand to create subcommand
+  while (1){
+    ssize_t read = getline(&line, &len, eval_file);
+    if (read == -1){
+      if (ferror(eval_file))
+	pl_fatal("getline");
+      else if (feof(eval_file))
+	break;
     }
+    fprintf(create_in, "%s", line);
+    //puts(line);
   }
-  if (image_id == NULL) pl_fatal("no image specified");
+  //free(line);
 
-  int fd = spawn_process((char*[]){"plash", "create", image_id, "sh", "-ex", NULL});
+  fclose(eval_file);
+  fclose(create_in);
+
+  int status;
+  waitpid(create_pid, &status, 0);
 
 
-  for (i = 0; i < newlines; i++){
-	write(fd, lines[i], strlen(lines[i]));
-	write(fd, "\n", 1);
-  }
+  read = getline(&line, &len, create_out);
+
+
+  //puts("read");
+  //char buffer[1000];
+  //size_t read_bytes = fread(buffer, 1, sizeof(buffer), create_out);
+  printf("Output of the create process: %s", line);
+
+  fclose(create_out);
+
+
+  //int fd = spawn_process((char*[]){"plash", "create", image_id, "sh", "-ex", NULL});
+
+
+  //for (i = 0; i < newlines; i++){
+  //      write(fd, "\n", 1);
+  //}
 
 }
 
