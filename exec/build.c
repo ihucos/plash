@@ -193,6 +193,10 @@ int main(int argc, char *argv[]) {
 
     // some extras before evaluating the build shell script
     fprintf(create_in, "PS4='--> '\n");
+    
+    // Hack for ubuntu, where for whatever reason PATH is not exported;
+    fprintf(create_in, "export PATH\n");
+
     fprintf(create_in, "set -ex\n");
 
     // pipe lines from the eval subcommand to create subcommand
@@ -205,10 +209,10 @@ int main(int argc, char *argv[]) {
     // we are done with this layer, close the plash create and gets its created
     // image id to use for the next layer.
     //
-    fprintf(stderr, "---\n");
     fclose(create_in);
 
     handle_plash_create_exit(create_pid);
+    fprintf(stderr, "---\n");
 
     image_id = nextline(create_out);
     image_id[strcspn(image_id, "\n")] = '\0';
