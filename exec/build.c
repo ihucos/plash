@@ -130,6 +130,21 @@ int spawn_process(char *const argv[]) {
   }
 }
 
+
+char *nextline(FILE * fh){
+  static char *line = NULL;
+  static size_t len = 0;
+  static ssize_t read;
+  read = getline(&line, &len, fh);
+  if (read == -1) {
+    if (ferror(fh))
+      pl_fatal("getline");
+    else if (feof(fh))
+      return NULL;
+  }
+  return line;
+}
+
 int main(int argc, char *argv[]) {
   char *image_id;
 
@@ -148,19 +163,14 @@ int main(int argc, char *argv[]) {
   if (eval_out == NULL)
     pl_fatal("fdopen");
 
-  char *line = NULL;
-  size_t len = 0;
-  ssize_t read;
+  char *line;
 
   // read first
-  read = getline(&line, &len, eval_out);
-  if (read == -1) {
-    pl_fatal("Could not read first line");
-  }
+  line = nextline(eval_out);
 
   // parse image id from first output line. We need to know with which base
   // image id to start.
-  if (strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0) {
+  if (line != NULL && strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0) {
     image_id = line + strlen(PLASH_HINT_IMAGE);
     image_id[strcspn(image_id, "\n")] = '\0';
   } else {
@@ -181,11 +191,8 @@ int main(int argc, char *argv[]) {
 
     // pipe lines from eval subcommand to create subcommand
     while (1) {
-      ssize_t read = getline(&line, &len, eval_out);
-      if (read == -1) {
-        if (ferror(eval_out))
-          pl_fatal("getline");
-        else if (feof(eval_out))
+      line = nextline(eval_out);
+      if (line == NULL){
 	  eval_has_lines = 0;
           break;
       } else if (strcmp(line, PLASH_HINT_LAYER "\n") == 0) {
@@ -201,10 +208,9 @@ int main(int argc, char *argv[]) {
     fclose(create_in);
     int status;
     waitpid(create_pid, &status, 0);
-    // TODO: CHeck for bad exit code
-    read = getline(&line, &len, create_out);
+    // TODO: Check for bad exit code
+    image_id = nextline(create_out);
     fclose(create_out);
-    image_id = line;
     image_id[strcspn(image_id, "\n")] = '\0';
   }
 
