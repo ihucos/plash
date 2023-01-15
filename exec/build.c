@@ -128,6 +128,25 @@ void wait_for_plash_create(pid_t pid) {
     exit(1);
 }
 
+void handle_plash_eval_exit(pid_t pid, FILE *err){
+  int status;
+  waitpid(pid, &status, 0);
+  if (!WIFEXITED(status)) {
+    pl_fatal("subprocess exited abornmally");
+  }
+  if (WEXITSTATUS(status) != 0) {
+    int has_err_output = 0;
+    char *errline;
+    while ((errline = nextline(err))){
+      has_err_output = 1;
+      fprintf(stderr, "%s", errline);
+    }
+    if (!has_err_output)
+      pl_fatal("Plash eval exited badly providing no error message to stderr");
+    exit(1);
+  }
+}
+
 int main(int argc, char *argv[]) {
   char *image_id;
   char *line;
@@ -179,7 +198,7 @@ int main(int argc, char *argv[]) {
 
     // we are done with this layer, close the plash create and gets its created
     // image id to use for the next layer.
-    fprintf(stderr, "--:\n");
+    fprintf(stderr, "---\n");
     fclose(create_in);
 
     wait_for_plash_create(create_pid);
@@ -189,22 +208,7 @@ int main(int argc, char *argv[]) {
     fclose(create_out);
   }
 
-  int status;
-  waitpid(eval_pid, &status, 0);
-  if (!WIFEXITED(status)) {
-    pl_fatal("subprocess exited abornmally");
-  }
-  if (WEXITSTATUS(status) != 0) {
-    int has_err_output = 0;
-    char *errline;
-    while ((errline = nextline(eval_err))){
-      has_err_output = 1;
-      fprintf(stderr, "%s", errline);
-    }
-    if (!has_err_output)
-      pl_fatal("Plash eval exited badly providing no error message to stderr");
-    exit(1);
-  }
+  handle_plash_eval_exit(eval_pid, eval_err);
 
   puts(image_id);
 }
