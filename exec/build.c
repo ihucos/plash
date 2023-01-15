@@ -36,14 +36,18 @@
 #define PLASH_HINT_IMAGE "### plash hint: image="
 #define PLASH_HINT_LAYER "### plash hint: layer"
 
-int spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout) {
-  int fd_stdin[2], fd_stdout[2];
+int spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
+                  FILE **p_stderr) {
+  int fd_stdin[2], fd_stdout[2], fd_stderr[2];
   pid_t pid;
 
   if (p_stdin != NULL && pipe(fd_stdin) != 0)
     pl_fatal("pipe");
 
   if (p_stdout != NULL && pipe(fd_stdout) != 0)
+    pl_fatal("pipe");
+
+  if (p_stdout != NULL && pipe(fd_stderr) != 0)
     pl_fatal("pipe");
 
   pid = fork();
@@ -64,6 +68,12 @@ int spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout) {
       close(fd_stdout[1]);
     }
 
+    if (p_stderr != NULL) {
+      dup2(fd_stderr[1], STDERR_FILENO);
+      close(fd_stderr[0]);
+      close(fd_stderr[1]);
+    }
+
     execvp(cmd[0], cmd);
     exit(1);
   } else {
@@ -79,6 +89,13 @@ int spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout) {
       close(fd_stdout[1]);
       *p_stdout = fdopen(fd_stdout[0], "r");
       if (*p_stdout == NULL)
+        pl_fatal("fdopen");
+    }
+
+    if (p_stderr != NULL) {
+      close(fd_stderr[1]);
+      *p_stderr = fdopen(fd_stderr[0], "r");
+      if (*p_stderr == NULL)
         pl_fatal("fdopen");
     }
   }
@@ -111,17 +128,6 @@ void wait_for_plash_create(pid_t pid) {
     exit(1);
 }
 
-void wait_for_plash_eval(pid_t pid) {
-  int status;
-  waitpid(pid, &status, 0);
-  if (!WIFEXITED(status)) {
-    pl_fatal("plash eval subprocess exited abornmally");
-  }
-  int exit_status = WEXITSTATUS(status);
-  if (exit_status != 0)
-    exit(1);
-}
-
 int main(int argc, char *argv[]) {
   char *image_id;
   char *line;
@@ -137,7 +143,8 @@ int main(int argc, char *argv[]) {
   args[i++] = NULL;
 
   FILE *eval_out;
-  pid_t eval_pid = spawn_process(args, NULL, &eval_out);
+  FILE *eval_err;
+  pid_t eval_pid = spawn_process(args, NULL, &eval_out, &eval_err);
 
   // read first
   line = nextline(eval_out);
@@ -157,7 +164,7 @@ int main(int argc, char *argv[]) {
 
     pid_t create_pid =
         spawn_process((char *[]){"plash", "create", image_id, "sh", NULL},
-                      &create_in, &create_out);
+                      &create_in, &create_out, NULL);
 
     // some extras before evaluating build shell script
     fprintf(create_in, "PS4='--> '\n");
@@ -180,6 +187,23 @@ int main(int argc, char *argv[]) {
     image_id = nextline(create_out);
     image_id[strcspn(image_id, "\n")] = '\0';
     fclose(create_out);
+  }
+
+  int status;
+  waitpid(eval_pid, &status, 0);
+  if (!WIFEXITED(status)) {
+    pl_fatal("subprocess exited abornmally");
+  }
+  if (WEXITSTATUS(status) != 0) {
+    int has_err_output = 0;
+    char *errline;
+    while ((errline = nextline(eval_err))){
+      has_err_output = 1;
+      fprintf(stderr, "%s", errline);
+    }
+    if (!has_err_output)
+      pl_fatal("Plash eval exited badly providing no error message to stderr");
+    exit(1);
   }
 
   puts(image_id);
