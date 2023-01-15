@@ -21,16 +21,19 @@
     pl_fatal("opendir");                                                       \
   while ((dir = readdir(dirp)) != NULL) {
 
-#define ITERDIR_END()                                                          \
+#define ITERDIR_CLOSE()                                                          \
   }                                                                            \
   closedir(dirp);
 
 int is_leave(char *nodepath) {
+  int is_leave = 1;
   ITERDIR_BEGIN(nodepath)
-  if (atoi(dir->d_name))
-    return 0;
-  ITERDIR_END();
-  return 1;
+  if (atoi(dir->d_name)){
+    is_leave = 0;
+    break;
+  }
+  ITERDIR_CLOSE();
+  return is_leave;
 }
 
 int count_images() {
@@ -44,7 +47,7 @@ int count_images() {
       pl_fatal("realpath");
     count++;
   }
-  ITERDIR_END()
+  ITERDIR_CLOSE()
   return count;
 }
 
@@ -61,7 +64,7 @@ char *get_oldest_leave() {
        atoi(oldest_leave) > atoi(dir->d_name)) // this item is even smaller
   )
     oldest_leave = dir->d_name;
-  ITERDIR_END()
+  ITERDIR_CLOSE()
   oldest_leave_dup = strdup(oldest_leave);
   if (oldest_leave_dup == NULL)
     pl_fatal("dup");
