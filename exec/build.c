@@ -144,6 +144,28 @@ char *nextline(FILE *fh) {
   return line;
 }
 
+
+void wait_for_plash_create(pid_t pid){
+    int status;
+    waitpid(pid, &status, 0);
+    if (!WIFEXITED(status)){
+      pl_fatal("plash create subprocess exited abornmally");
+    }
+    int exit_status = WEXITSTATUS(status);
+    if (exit_status != 0) exit(1);
+}
+
+
+void wait_for_plash_eval(pid_t pid){
+    int status;
+    waitpid(pid, &status, 0);
+    if (!WIFEXITED(status)){
+      pl_fatal("plash eval subprocess exited abornmally");
+    }
+    int exit_status = WEXITSTATUS(status);
+    if (exit_status != 0) exit(1);
+}
+
 int main(int argc, char *argv[]) {
   char *image_id;
 
@@ -199,12 +221,12 @@ int main(int argc, char *argv[]) {
     // image id to use for the next layer.
     fprintf(stderr, "--:\n");
     fclose(create_in);
-    int status;
-    waitpid(create_pid, &status, 0);
-    // TODO: Check for bad exit code
+
+    wait_for_plash_create(create_pid);
+
     image_id = nextline(create_out);
-    fclose(create_out);
     image_id[strcspn(image_id, "\n")] = '\0';
+    fclose(create_out);
   }
 
   puts(image_id);
