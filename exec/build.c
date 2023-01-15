@@ -166,11 +166,11 @@ int main(int argc, char *argv[]) {
   FILE *eval_err;
   pid_t eval_pid = spawn_process(args, NULL, &eval_out, &eval_err);
 
-  // read first
+  // read first line
   line = nextline(eval_out);
 
-  // parse image id from first output line. We need to know which is base image
-  // id to start building
+  // parse image id from first output line. We need to know which is the base
+  // image id in order to start building
   if (line != NULL &&
       strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0) {
     image_id = line + strlen(PLASH_HINT_IMAGE);
@@ -208,7 +208,6 @@ int main(int argc, char *argv[]) {
 
     // we are done with this layer, close the plash create and gets its created
     // image id to use for the next layer.
-    //
     fclose(create_in);
 
     handle_plash_create_exit(create_pid);
