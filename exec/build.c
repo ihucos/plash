@@ -162,12 +162,12 @@ int main(int argc, char *argv[]) {
   args[i++] = NULL;
 
   // run plash eval to get build shell script
-  FILE *eval_out;
-  FILE *eval_err;
-  pid_t eval_pid = spawn_process(args, NULL, &eval_out, &eval_err);
+  FILE *eval_stdout;
+  FILE *eval_stderr;
+  pid_t eval_pid = spawn_process(args, NULL, &eval_stdout, &eval_stderr);
 
   // read first line
-  line = nextline(eval_out);
+  line = nextline(eval_stdout);
 
   // parse image id from first output line. We need to know which is the base
   // image id in order to start building
@@ -178,47 +178,47 @@ int main(int argc, char *argv[]) {
   } else {
     // maybe plash eval exited badly with an error message. This invocation
     // ensures the user sees that error message.
-    handle_plash_eval_exit(eval_pid, eval_err);
+    handle_plash_eval_exit(eval_pid, eval_stderr);
 
     pl_fatal("First thing given must be the base image to use");
   }
 
-  while (!feof(eval_out)) {
+  while (!feof(eval_stdout)) {
 
     // run plash create to create this layer
-    FILE *create_in, *create_out;
+    FILE *create_stdin, *create_stdout;
     pid_t create_pid =
         spawn_process((char *[]){"plash", "create", image_id, "sh", NULL},
-                      &create_in, &create_out, NULL);
+                      &create_stdin, &create_stdout, NULL);
 
     // some extras before evaluating the build shell script
-    fprintf(create_in, "PS4='--> '\n");
+    fprintf(create_stdin, "PS4='--> '\n");
     
     // Hack for ubuntu, where for whatever reason PATH is not exported;
-    fprintf(create_in, "export PATH\n");
+    fprintf(create_stdin, "export PATH\n");
 
-    fprintf(create_in, "set -ex\n");
+    fprintf(create_stdin, "set -ex\n");
 
     // pipe lines from the eval subcommand to create subcommand
-    while ((line = nextline(eval_out))) {
+    while ((line = nextline(eval_stdout))) {
       if ((strcmp(line, PLASH_HINT_LAYER "\n") == 0))
         break;
-      fprintf(create_in, "%s", line);
+      fprintf(create_stdin, "%s", line);
     }
 
     // we are done with this layer, close the plash create and gets its created
     // image id to use for the next layer.
-    fclose(create_in);
+    fclose(create_stdin);
 
     handle_plash_create_exit(create_pid);
     fprintf(stderr, "---\n");
 
-    image_id = nextline(create_out);
+    image_id = nextline(create_stdout);
     image_id[strcspn(image_id, "\n")] = '\0';
-    fclose(create_out);
+    fclose(create_stdout);
   }
 
-  handle_plash_eval_exit(eval_pid, eval_err);
+  handle_plash_eval_exit(eval_pid, eval_stderr);
 
   puts(image_id);
 }
