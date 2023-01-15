@@ -117,7 +117,7 @@ char *nextline(FILE *fh) {
   return line;
 }
 
-void wait_for_plash_create(pid_t pid) {
+void handle_plash_create_exit(pid_t pid) {
   int status;
   waitpid(pid, &status, 0);
   if (!WIFEXITED(status)) {
@@ -128,7 +128,7 @@ void wait_for_plash_create(pid_t pid) {
     exit(1);
 }
 
-void handle_plash_eval_exit(pid_t pid, FILE *err){
+void handle_plash_eval_exit(pid_t pid, FILE *err) {
   int status;
   waitpid(pid, &status, 0);
   if (!WIFEXITED(status)) {
@@ -137,7 +137,7 @@ void handle_plash_eval_exit(pid_t pid, FILE *err){
   if (WEXITSTATUS(status) != 0) {
     int has_err_output = 0;
     char *errline;
-    while ((errline = nextline(err))){
+    while ((errline = nextline(err))) {
       has_err_output = 1;
       fprintf(stderr, "%s", errline);
     }
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
   char *image_id;
   char *line;
 
-  // create args for subprocess
+  // mold args for plash eval process
   char *args[argc + 1];
   size_t i = 0;
   args[i++] = "plash";
@@ -161,6 +161,7 @@ int main(int argc, char *argv[]) {
     args[i++] = *(argv++);
   args[i++] = NULL;
 
+  // run plash eval to get build shell script
   FILE *eval_out;
   FILE *eval_err;
   pid_t eval_pid = spawn_process(args, NULL, &eval_out, &eval_err);
@@ -168,28 +169,33 @@ int main(int argc, char *argv[]) {
   // read first
   line = nextline(eval_out);
 
-  // parse image id from first output line. We need to know with which base
-  // image id to start.
+  // parse image id from first output line. We need to know which is base image
+  // id to start building
   if (line != NULL &&
       strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0) {
     image_id = line + strlen(PLASH_HINT_IMAGE);
     image_id[strcspn(image_id, "\n")] = '\0';
   } else {
-    pl_fatal("First thing given must be an image id");
+    // maybe plash eval exited badly with an error message. This invocation
+    // ensures the user sees that error message.
+    handle_plash_eval_exit(eval_pid, eval_err);
+
+    pl_fatal("First thing given must be the base image to use");
   }
 
-  FILE *create_in, *create_out;
   while (!feof(eval_out)) {
 
+    // run plash create to create this layer
+    FILE *create_in, *create_out;
     pid_t create_pid =
         spawn_process((char *[]){"plash", "create", image_id, "sh", NULL},
                       &create_in, &create_out, NULL);
 
-    // some extras before evaluating build shell script
+    // some extras before evaluating the build shell script
     fprintf(create_in, "PS4='--> '\n");
     fprintf(create_in, "set -ex\n");
 
-    // pipe lines from eval subcommand to create subcommand
+    // pipe lines from the eval subcommand to create subcommand
     while ((line = nextline(eval_out))) {
       if ((strcmp(line, PLASH_HINT_LAYER "\n") == 0))
         break;
@@ -198,10 +204,11 @@ int main(int argc, char *argv[]) {
 
     // we are done with this layer, close the plash create and gets its created
     // image id to use for the next layer.
+    //
     fprintf(stderr, "---\n");
     fclose(create_in);
 
-    wait_for_plash_create(create_pid);
+    handle_plash_create_exit(create_pid);
 
     image_id = nextline(create_out);
     image_id[strcspn(image_id, "\n")] = '\0';
