@@ -130,8 +130,7 @@ int spawn_process(char *const argv[]) {
   }
 }
 
-
-char *nextline(FILE * fh){
+char *nextline(FILE *fh) {
   static char *line = NULL;
   static size_t len = 0;
   static ssize_t read;
@@ -170,17 +169,17 @@ int main(int argc, char *argv[]) {
 
   // parse image id from first output line. We need to know with which base
   // image id to start.
-  if (line != NULL && strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0) {
+  if (line != NULL &&
+      strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0) {
     image_id = line + strlen(PLASH_HINT_IMAGE);
     image_id[strcspn(image_id, "\n")] = '\0';
   } else {
     pl_fatal("First thing given must be an image id");
   }
 
-  int eval_has_lines = 1;
-  while (eval_has_lines) {
+  FILE *create_in, *create_out;
+  while (!feof(eval_out)) {
 
-    FILE *create_in, *create_out;
     pid_t create_pid = spawn_process_for_input_and_output(
         (char *[]){"plash", "create", image_id, "sh", NULL}, &create_in,
         &create_out);
@@ -190,16 +189,10 @@ int main(int argc, char *argv[]) {
     fprintf(create_in, "set -ex\n");
 
     // pipe lines from eval subcommand to create subcommand
-    while (1) {
-      line = nextline(eval_out);
-      if (line == NULL){
-	  eval_has_lines = 0;
-          break;
-      } else if (strcmp(line, PLASH_HINT_LAYER "\n") == 0) {
+    while ((line = nextline(eval_out))) {
+      if ((strcmp(line, PLASH_HINT_LAYER "\n") == 0))
         break;
-      } else {
-        fprintf(create_in, "%s", line);
-      }
+      fprintf(create_in, "%s", line);
     }
 
     // we are done with this layer, close the plash create and gets its created
