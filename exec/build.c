@@ -36,98 +36,54 @@
 #define PLASH_HINT_IMAGE "### plash hint: image="
 #define PLASH_HINT_LAYER "### plash hint: layer"
 
-int spawn_process_for_output(char *const argv[]) {
-  int fd[2];
-  pid_t pid;
-
-  if (pipe(fd) == -1) {
-    perror("pipe");
-    return -1;
-  }
-
-  pid = fork();
-  if (pid == -1) {
-    perror("pipe");
-    return -1;
-  }
-
-  if (pid == 0) {
-    // child process
-    close(fd[0]);
-    dup2(fd[1], STDOUT_FILENO);
-    execvp(argv[0], argv);
-    perror("execvp");
-    _exit(1);
-  } else {
-    // parent process
-    close(fd[1]);
-    return fd[0];
-  }
-}
-
-int spawn_process_for_input_and_output(char **cmd, FILE **p_stdin,
-                                       FILE **p_stdout) {
+int spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout) {
   int fd_stdin[2], fd_stdout[2];
   pid_t pid;
 
-  if (pipe(fd_stdin) != 0 || pipe(fd_stdout) != 0) {
-    return -1;
-  }
+  if (p_stdin != NULL && pipe(fd_stdin) != 0)
+    pl_fatal("pipe");
+
+  if (p_stdout != NULL && pipe(fd_stdout) != 0)
+    pl_fatal("pipe");
 
   pid = fork();
   if (pid == -1)
     pl_fatal("fork");
 
   if (pid == 0) {
-    dup2(fd_stdin[0], STDIN_FILENO);
-    dup2(fd_stdout[1], STDOUT_FILENO);
-    close(fd_stdin[0]);
-    close(fd_stdin[1]);
-    close(fd_stdout[0]);
-    close(fd_stdout[1]);
+
+    if (p_stdin != NULL) {
+      dup2(fd_stdin[0], STDIN_FILENO);
+      close(fd_stdin[0]);
+      close(fd_stdin[1]);
+    }
+
+    if (p_stdout != NULL) {
+      dup2(fd_stdout[1], STDOUT_FILENO);
+      close(fd_stdout[0]);
+      close(fd_stdout[1]);
+    }
+
     execvp(cmd[0], cmd);
     exit(1);
   } else {
-    close(fd_stdin[0]);
-    close(fd_stdout[1]);
-    *p_stdin = fdopen(fd_stdin[1], "w");
-    if (*p_stdin == NULL)
-      pl_fatal("fdopen");
-    *p_stdout = fdopen(fd_stdout[0], "r");
-    if (*p_stdout == NULL)
-      pl_fatal("fdopen");
+
+    if (p_stdin != NULL) {
+      close(fd_stdin[0]);
+      *p_stdin = fdopen(fd_stdin[1], "w");
+      if (*p_stdin == NULL)
+        pl_fatal("fdopen");
+    }
+
+    if (p_stdout != NULL) {
+      close(fd_stdout[1]);
+      *p_stdout = fdopen(fd_stdout[0], "r");
+      if (*p_stdout == NULL)
+        pl_fatal("fdopen");
+    }
   }
 
   return pid;
-}
-
-int spawn_process(char *const argv[]) {
-  int fd[2];
-  pid_t pid;
-
-  if (pipe(fd) == -1) {
-    perror("pipe");
-    return -1;
-  }
-
-  pid = fork();
-  if (pid == -1) {
-    perror("fork");
-    return -1;
-  }
-
-  if (pid == 0) {
-    // child process
-    close(fd[1]);
-    dup2(fd[0], STDIN_FILENO);
-    execvp(argv[0], argv);
-    perror("execvp");
-    _exit(1);
-  } else {
-    // parent process
-    close(fd[0]);
-    return fd[1];
-  }
 }
 
 char *nextline(FILE *fh) {
@@ -144,30 +100,31 @@ char *nextline(FILE *fh) {
   return line;
 }
 
-
-void wait_for_plash_create(pid_t pid){
-    int status;
-    waitpid(pid, &status, 0);
-    if (!WIFEXITED(status)){
-      pl_fatal("plash create subprocess exited abornmally");
-    }
-    int exit_status = WEXITSTATUS(status);
-    if (exit_status != 0) exit(1);
+void wait_for_plash_create(pid_t pid) {
+  int status;
+  waitpid(pid, &status, 0);
+  if (!WIFEXITED(status)) {
+    pl_fatal("plash create subprocess exited abornmally");
+  }
+  int exit_status = WEXITSTATUS(status);
+  if (exit_status != 0)
+    exit(1);
 }
 
-
-void wait_for_plash_eval(pid_t pid){
-    int status;
-    waitpid(pid, &status, 0);
-    if (!WIFEXITED(status)){
-      pl_fatal("plash eval subprocess exited abornmally");
-    }
-    int exit_status = WEXITSTATUS(status);
-    if (exit_status != 0) exit(1);
+void wait_for_plash_eval(pid_t pid) {
+  int status;
+  waitpid(pid, &status, 0);
+  if (!WIFEXITED(status)) {
+    pl_fatal("plash eval subprocess exited abornmally");
+  }
+  int exit_status = WEXITSTATUS(status);
+  if (exit_status != 0)
+    exit(1);
 }
 
 int main(int argc, char *argv[]) {
   char *image_id;
+  char *line;
 
   // create args for subprocess
   char *args[argc + 1];
@@ -179,12 +136,8 @@ int main(int argc, char *argv[]) {
     args[i++] = *(argv++);
   args[i++] = NULL;
 
-  int eval_fd = spawn_process_for_output(args);
-  FILE *eval_out = fdopen(eval_fd, "r");
-  if (eval_out == NULL)
-    pl_fatal("fdopen");
-
-  char *line;
+  FILE *eval_out;
+  pid_t eval_pid = spawn_process(args, NULL, &eval_out);
 
   // read first
   line = nextline(eval_out);
@@ -202,9 +155,9 @@ int main(int argc, char *argv[]) {
   FILE *create_in, *create_out;
   while (!feof(eval_out)) {
 
-    pid_t create_pid = spawn_process_for_input_and_output(
-        (char *[]){"plash", "create", image_id, "sh", NULL}, &create_in,
-        &create_out);
+    pid_t create_pid =
+        spawn_process((char *[]){"plash", "create", image_id, "sh", NULL},
+                      &create_in, &create_out);
 
     // some extras before evaluating build shell script
     fprintf(create_in, "PS4='--> '\n");
