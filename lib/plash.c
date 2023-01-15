@@ -339,6 +339,8 @@ char *pl_check_output(char *argv[]) {
 
     if (read(link[0], output, PL_CHECK_OUTPUT_BUFFER) == -1)
       pl_fatal("read");
+    close(link[0]);
+    close(link[1]);
     return output;
   }
 }

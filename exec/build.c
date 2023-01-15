@@ -144,8 +144,8 @@ int main(int argc, char *argv[]) {
   args[i++] = NULL;
 
   int eval_fd = spawn_process_for_output(args);
-  FILE *eval_file = fdopen(eval_fd, "r");
-  if (eval_file == NULL)
+  FILE *eval_out = fdopen(eval_fd, "r");
+  if (eval_out == NULL)
     pl_fatal("fdopen");
 
   char *line = NULL;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
   ssize_t read;
 
   // read first
-  read = getline(&line, &len, eval_file);
+  read = getline(&line, &len, eval_out);
   if (read == -1) {
     pl_fatal("Could not read first line");
   }
@@ -172,16 +172,20 @@ int main(int argc, char *argv[]) {
 
     FILE *create_in, *create_out;
     pid_t create_pid = spawn_process_for_input_and_output(
-        (char *[]){"plash", "create", image_id, "sh", "-ex", NULL}, &create_in,
+        (char *[]){"plash", "create", image_id, "sh", NULL}, &create_in,
         &create_out);
+
+    // some extras before evaluating build shell script
+    fprintf(create_in, "PS4='--> '\n");
+    fprintf(create_in, "set -ex\n");
 
     // pipe lines from eval subcommand to create subcommand
     while (1) {
-      ssize_t read = getline(&line, &len, eval_file);
+      ssize_t read = getline(&line, &len, eval_out);
       if (read == -1) {
-        if (ferror(eval_file))
+        if (ferror(eval_out))
           pl_fatal("getline");
-        else if (feof(eval_file))
+        else if (feof(eval_out))
 	  eval_has_lines = 0;
           break;
       } else if (strcmp(line, PLASH_HINT_LAYER "\n") == 0) {
@@ -206,7 +210,7 @@ int main(int argc, char *argv[]) {
 
   puts(image_id);
 
-  // fclose(eval_file);
+  // fclose(eval_out);
 
   // int fd = spawn_process((char*[]){"plash", "create", image_id, "sh", "-ex",
   // NULL});
