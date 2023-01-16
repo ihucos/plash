@@ -1,3 +1,5 @@
+// usage: plash build
+// Prints all commands
 
 #include <stdio.h>
 

@@ -1,6 +1,6 @@
 
 : output contain some macros
 
-plash help-macros | grep run
-plash help-macros | grep layer
-plash help-macros | grep run-stdin
+plash help-macros 2>&1 | grep run
+plash help-macros 2>&1 | grep layer
+plash help-macros 2>&1 | grep run-stdin
