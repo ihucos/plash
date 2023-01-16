@@ -176,6 +176,8 @@ int main(int argc, char *argv[]) {
     image_id = line + strlen(PLASH_HINT_IMAGE);
     image_id[strcspn(image_id, "\n")] = '\0';
     image_id = strdup(image_id);
+    if (image_id == NULL)
+      pl_fatal("strdup");
   } else {
     // maybe plash eval exited badly with an error message. This invocation
     // ensures the user sees that error message.
@@ -189,7 +191,8 @@ int main(int argc, char *argv[]) {
     line = nextline(eval_stdout);
 
     // This is an empty layer, skip it.
-    if (line == NULL || (strcmp(line, PLASH_HINT_LAYER "\n") == 0)) continue;
+    if (line == NULL || (strcmp(line, PLASH_HINT_LAYER "\n") == 0))
+      continue;
 
     // run plash create to create this layer
     FILE *create_stdin, *create_stdout;
@@ -199,29 +202,27 @@ int main(int argc, char *argv[]) {
 
     // some extras before evaluating the build shell script
     fprintf(create_stdin, "PS4='--> '\n");
-    
+
     // Hack for ubuntu, where for whatever reason PATH is not exported;
     fprintf(create_stdin, "export PATH\n");
 
     fprintf(create_stdin, "set -ex\n");
 
-    // send that first line we read to check if this layer is empty
-    fprintf(create_stdin, "%s", line);
+    //// pipe all lines from the eval subcommand to create subcommand
+    fputs(line, create_stdin);
+    while ((line = nextline(eval_stdout)) &&
+           strcmp(line, PLASH_HINT_LAYER "\n") != 0)
+      fputs(line, create_stdin);
 
-    // pipe all lines from the eval subcommand to create subcommand
-    while ((line = nextline(eval_stdout))) {
-      if ((strcmp(line, PLASH_HINT_LAYER "\n") == 0))
-        break;
-      fprintf(create_stdin, "%s", line);
-    }
-
-    // we are done with this layer, close the plash create and gets its created
-    // image id to use for the next layer.
+    // we are done with this layer, close the plash create and gets its
+    // created image id to use for the next layer.
     fclose(create_stdin);
     handle_plash_create_exit(create_pid);
     image_id = nextline(create_stdout);
     image_id[strcspn(image_id, "\n")] = '\0';
     image_id = strdup(image_id);
+    if (image_id == NULL)
+      pl_fatal("strdup");
     fclose(create_stdout);
     fprintf(stderr, "---\n");
   }
