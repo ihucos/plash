@@ -1,6 +1,6 @@
 // usage: plash nodepath CONTAINER [--allow-root-container]
-// Prints the path to a given container. The --allow-root-container option
-// allows the root container ("0") to be specified as container.
+// Prints the path of a given image. The --allow-root-container option
+// allows the root image ("0") to be specified as image.
 //
 // Example:
 // $ plash nodepath 19
@@ -31,11 +31,11 @@ int main(int argc, char *argv[]) {
 
   // validate/normalize input
   if (!argv[1][0] || strspn(argv[1], "0123456789") != strlen(argv[1]))
-    pl_fatal("container arg must be a positive number, got: %s", argv[1]);
+    pl_fatal("image arg must be a positive number, got: %s", argv[1]);
 
   if (0 == strcmp(argv[1], "0") &&
       (argc <= 2 || 0 != strcmp(argv[2], "--allow-root-container"))) {
-    pl_fatal("container must not be the special root container ('0')");
+    pl_fatal("image must not be the special root image ('0')");
   }
 
   plash_data = pl_call("data");
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
   if (!(nodepath = realpath(argv[1], NULL))) {
     errno = 0;
-    pl_fatal("no container: %s", argv[1]);
+    pl_fatal("no image: %s", argv[1]);
   }
   puts(nodepath);
 }
