@@ -4,10 +4,10 @@ set -eux
 : basic test
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
---entrypoint
-/usr/bin/printf
 --from
 1
+--entrypoint
+/usr/bin/printf
 ' >> $plashfile
 chmod 700 $plashfile
 test $("$plashfile" printf_that) = printf_that
@@ -15,10 +15,10 @@ test $("$plashfile" printf_that) = printf_that
 : entrypoint not found
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash-exec
---entrypoint
-/usr/bin/notfoundxxxx
 --from
 1
+--entrypoint
+/usr/bin/notfoundxxxx
 ' >> $plashfile
 chmod 700 $plashfile
 (! $plashfile)

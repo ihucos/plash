@@ -26,6 +26,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include <plash.h>
 
@@ -81,6 +82,7 @@ int main(int argc, char *argv[]) {
   if (!WIFEXITED(status)) pl_fatal("plash runb subprocess exited abnormally");
   int exit = WEXITSTATUS(status);
   if (exit != 0){
+    errno = 0;
     pl_fatal("build failed with exit status %d", exit);
   }
 
