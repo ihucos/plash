@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
   char buf[BUF_SIZE];
   char* inp = fgets(buf, BUF_SIZE, stdin);
   char *cache_key = NULL;
+  char *image_id;
 
   // generate cache key
   asprintf(&cache_key, "create-cached:%lu\n", hash(inp)) || pl_fatal("asprintf");
@@ -46,11 +47,12 @@ int main(int argc, char *argv[]) {
     argv[1] = "create";
     FILE* file_stdin;
     FILE* file_stdout;
-    pl_spawn_process(argv + 1, file_stdin, NULL, NULL);
+    pl_spawn_process(argv + 1, &file_stdin, NULL, NULL);
+
 
     fputs(inp, file_stdout);
 
-    pl_call("map", cached_image_id, image_id)
-      puts(image_id);
+    pl_call("map", cached_image_id, image_id);
+    puts(image_id);
   }
 }
