@@ -6,8 +6,6 @@
 
 char *pl_check_output(char *argv[]);
 
-char *pl_check_output2(char *pathname, char *argv[]);
-
 char *pl_firstline(char *str);
 
 int pl_fatal(char *format, ...);
