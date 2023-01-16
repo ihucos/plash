@@ -38,6 +38,8 @@
 #define PLASH_HINT_IMAGE "### plash hint: image="
 #define PLASH_HINT_LAYER "### plash hint: layer"
 
+#define MAX_BYTES_PER_LAYER 1024 * 4
+
 void handle_plash_create_exit(pid_t pid) {
   int status;
   waitpid(pid, &status, 0);
@@ -97,13 +99,18 @@ char * call_plash_create(char *image_id, char * shell_input){
     // exit program if plash create failed
     handle_plash_create_exit(create_pid);
 
+    // get the image id plash create spitted out
     image_id = pl_nextline(create_stdout);
+    if (image_id == NULL) pl_fatal("plash create did not print the image id");
     image_id = strdup(image_id);
     if (image_id == NULL)
       pl_fatal("strdup");
 
     fclose(create_stdout);
+
+    // print some ASCII to the user
     fputs("---\n", stderr);
+
     return image_id;
 }
 
@@ -125,7 +132,7 @@ char * cached_call_plash_create(char *base_image_id, char * shell_input){
 }
 
 int main(int argc, char *argv[]) {
-  char create_stdin_buf[1024];
+  char create_stdin_buf[MAX_BYTES_PER_LAYER];
   char *image_id;
   char *base_image_id;
   char *line;
