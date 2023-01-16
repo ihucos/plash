@@ -32,7 +32,6 @@
   "plash rm            Deletes the given image atomically\n"                   \
   "plash run           Run a container\n"                                      \
   "plash runb          Run an image in the build environment\n"                \
-  "plash shallow-copy  Copy and hard link the filesystem to OUT\n"             \
   "plash shrink        Delete half of the older containers\n"                  \
   "plash sudo          Setup a Linux user namespace\n"                         \
   "plash test          Run unit tests\n"                                       \
