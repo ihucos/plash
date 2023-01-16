@@ -38,12 +38,6 @@
 #define PLASH_HINT_IMAGE "### plash hint: image="
 #define PLASH_HINT_LAYER "### plash hint: layer"
 
-void plash_create_cache_wrapper(char **argv){
-
-
-
-}
-
 void handle_plash_create_exit(pid_t pid) {
   int status;
   waitpid(pid, &status, 0);
@@ -95,16 +89,19 @@ char * call_plash_create(char *image_id, char * shell_input){
     pid_t create_pid = pl_spawn_process(
         (char *[]){"plash", "create", image_id, "sh", NULL},
         &create_stdin, &create_stdout, NULL);
-    fputs(shell_input, create_stdin);
 
-     //we are done with this layer, close the plash create and gets its created
-     //image id to use for the next layer.
+    // send shell input to plash create
+    fputs(shell_input, create_stdin);
     fclose(create_stdin);
+
+    // exit program if plash create failed
     handle_plash_create_exit(create_pid);
+
     image_id = pl_nextline(create_stdout);
     image_id = strdup(image_id);
     if (image_id == NULL)
       pl_fatal("strdup");
+
     fclose(create_stdout);
     fputs("---\n", stderr);
     return image_id;
@@ -168,6 +165,7 @@ int main(int argc, char *argv[]) {
   if (image_id == NULL)
     pl_fatal("strdup");
   
+  // go trough all lines returned by plash eval
   while (!feof(eval_stdout)) {
 
     line = pl_nextline(eval_stdout);
@@ -187,7 +185,8 @@ int main(int argc, char *argv[]) {
 
     fputs("set -ex\n", create_stdin);
    
-    //// pipe all lines from the eval subcommand to create subcommand
+    //// redirect all lines from the eval subcommand to create subcommand. Stop
+    //if a new layer is found
     fputs(line, create_stdin);
     fputs("\n", create_stdin);
     while ((line = pl_nextline(eval_stdout)) &&
@@ -196,7 +195,10 @@ int main(int argc, char *argv[]) {
       fputs("\n", create_stdin);
     }
 
+    // flush stuff in create_stdin to appear in create_stdin_buf
     fflush(create_stdin);
+
+    // get our new image_id where we can build our next layer on top of it.
     image_id = cached_call_plash_create(image_id, create_stdin_buf);
   }
 
