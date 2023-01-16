@@ -139,7 +139,7 @@ void handle_plash_eval_exit(pid_t pid, FILE *err) {
     char *errline;
     while ((errline = nextline(err))) {
       has_err_output = 1;
-      fprintf(stderr, "%s", errline);
+      fputs(errline, stderr);
     }
     if (!has_err_output)
       pl_fatal("Plash eval exited badly providing no error message to stderr");
@@ -169,22 +169,24 @@ int main(int argc, char *argv[]) {
   // read first line
   line = nextline(eval_stdout);
 
-  // parse image id from first output line. We need to know which is the base
-  // image id in order to start building
-  if (line != NULL &&
-      strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) == 0) {
-    image_id = line + strlen(PLASH_HINT_IMAGE);
-    image_id[strcspn(image_id, "\n")] = '\0';
-    image_id = strdup(image_id);
-    if (image_id == NULL)
-      pl_fatal("strdup");
-  } else {
+  // First line must be the image id hint
+  if (line == NULL ||
+      strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) != 0) {
+
     // maybe plash eval exited badly with an error message. This invocation
     // ensures the user sees that error message.
     handle_plash_eval_exit(eval_pid, eval_stderr);
 
     pl_fatal("First thing given must be the base image to use");
   }
+
+  // parse image id from first output line. We need to know which is the base
+  // image id in order to start building
+  image_id = line + strlen(PLASH_HINT_IMAGE);
+  image_id[strcspn(image_id, "\n")] = '\0';
+  image_id = strdup(image_id);
+  if (image_id == NULL)
+    pl_fatal("strdup");
 
   while (!feof(eval_stdout)) {
 
@@ -201,12 +203,12 @@ int main(int argc, char *argv[]) {
                       &create_stdin, &create_stdout, NULL);
 
     // some extras before evaluating the build shell script
-    fprintf(create_stdin, "PS4='--> '\n");
+    fputs("PS4='--> '\n", create_stdin);
 
     // Hack for ubuntu, where for whatever reason PATH is not exported;
-    fprintf(create_stdin, "export PATH\n");
+    fputs("export PATH\n", create_stdin);
 
-    fprintf(create_stdin, "set -ex\n");
+    fputs("set -ex\n", create_stdin);
 
     //// pipe all lines from the eval subcommand to create subcommand
     fputs(line, create_stdin);
@@ -224,7 +226,7 @@ int main(int argc, char *argv[]) {
     if (image_id == NULL)
       pl_fatal("strdup");
     fclose(create_stdout);
-    fprintf(stderr, "---\n");
+    fputs("---\n", stderr);
   }
 
   handle_plash_eval_exit(eval_pid, eval_stderr);
