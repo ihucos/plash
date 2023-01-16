@@ -36,72 +36,6 @@
 #define PLASH_HINT_IMAGE "### plash hint: image="
 #define PLASH_HINT_LAYER "### plash hint: layer"
 
-int spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
-                  FILE **p_stderr) {
-  int fd_stdin[2], fd_stdout[2], fd_stderr[2];
-  pid_t pid;
-
-  if (p_stdin != NULL && pipe(fd_stdin) != 0)
-    pl_fatal("pipe");
-
-  if (p_stdout != NULL && pipe(fd_stdout) != 0)
-    pl_fatal("pipe");
-
-  if (p_stdout != NULL && pipe(fd_stderr) != 0)
-    pl_fatal("pipe");
-
-  pid = fork();
-  if (pid == -1)
-    pl_fatal("fork");
-
-  if (pid == 0) {
-
-    if (p_stdin != NULL) {
-      dup2(fd_stdin[0], STDIN_FILENO);
-      close(fd_stdin[0]);
-      close(fd_stdin[1]);
-    }
-
-    if (p_stdout != NULL) {
-      dup2(fd_stdout[1], STDOUT_FILENO);
-      close(fd_stdout[0]);
-      close(fd_stdout[1]);
-    }
-
-    if (p_stderr != NULL) {
-      dup2(fd_stderr[1], STDERR_FILENO);
-      close(fd_stderr[0]);
-      close(fd_stderr[1]);
-    }
-
-    execvp(cmd[0], cmd);
-    exit(1);
-  } else {
-
-    if (p_stdin != NULL) {
-      close(fd_stdin[0]);
-      *p_stdin = fdopen(fd_stdin[1], "w");
-      if (*p_stdin == NULL)
-        pl_fatal("fdopen");
-    }
-
-    if (p_stdout != NULL) {
-      close(fd_stdout[1]);
-      *p_stdout = fdopen(fd_stdout[0], "r");
-      if (*p_stdout == NULL)
-        pl_fatal("fdopen");
-    }
-
-    if (p_stderr != NULL) {
-      close(fd_stderr[1]);
-      *p_stderr = fdopen(fd_stderr[0], "r");
-      if (*p_stderr == NULL)
-        pl_fatal("fdopen");
-    }
-  }
-
-  return pid;
-}
 
 char *nextline(FILE *fh) {
   static char *line = NULL;
@@ -165,7 +99,7 @@ int main(int argc, char *argv[]) {
   // run plash eval to get build shell script
   FILE *eval_stdout;
   FILE *eval_stderr;
-  pid_t eval_pid = spawn_process(args, NULL, &eval_stdout, &eval_stderr);
+  pid_t eval_pid = pl_spawn_process(args, NULL, &eval_stdout, &eval_stderr);
 
   // read first line
   line = nextline(eval_stdout);
@@ -199,7 +133,7 @@ int main(int argc, char *argv[]) {
     // run plash create to create this layer
     FILE *create_stdin, *create_stdout;
     pid_t create_pid =
-        spawn_process((char *[]){"plash", "create", image_id, "sh", NULL},
+        pl_spawn_process((char *[]){"plash", "create-cached", image_id, "sh", NULL},
                       &create_stdin, &create_stdout, NULL);
 
     // some extras before evaluating the build shell script

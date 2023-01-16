@@ -305,6 +305,7 @@ void pl_setup_user_ns() {
 }
 
 char *pl_check_output(char *argv[]) {
+  // TODO: use pl_spawn_process maybe
   int link[2];
   int status;
   pid_t pid;
@@ -511,4 +512,72 @@ char *pl_get_default_root_shell() {
   } else {
     return pwd->pw_shell;
   }
+}
+
+
+pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
+                  FILE **p_stderr) {
+  int fd_stdin[2], fd_stdout[2], fd_stderr[2];
+  pid_t pid;
+
+  if (p_stdin != NULL && pipe(fd_stdin) != 0)
+    pl_fatal("pipe");
+
+  if (p_stdout != NULL && pipe(fd_stdout) != 0)
+    pl_fatal("pipe");
+
+  if (p_stdout != NULL && pipe(fd_stderr) != 0)
+    pl_fatal("pipe");
+
+  pid = fork();
+  if (pid == -1)
+    pl_fatal("fork");
+
+  if (pid == 0) {
+
+    if (p_stdin != NULL) {
+      dup2(fd_stdin[0], STDIN_FILENO);
+      close(fd_stdin[0]);
+      close(fd_stdin[1]);
+    }
+
+    if (p_stdout != NULL) {
+      dup2(fd_stdout[1], STDOUT_FILENO);
+      close(fd_stdout[0]);
+      close(fd_stdout[1]);
+    }
+
+    if (p_stderr != NULL) {
+      dup2(fd_stderr[1], STDERR_FILENO);
+      close(fd_stderr[0]);
+      close(fd_stderr[1]);
+    }
+
+    execvp(cmd[0], cmd);
+    exit(1);
+  } else {
+
+    if (p_stdin != NULL) {
+      close(fd_stdin[0]);
+      *p_stdin = fdopen(fd_stdin[1], "w");
+      if (*p_stdin == NULL)
+        pl_fatal("fdopen");
+    }
+
+    if (p_stdout != NULL) {
+      close(fd_stdout[1]);
+      *p_stdout = fdopen(fd_stdout[0], "r");
+      if (*p_stdout == NULL)
+        pl_fatal("fdopen");
+    }
+
+    if (p_stderr != NULL) {
+      close(fd_stderr[1]);
+      *p_stderr = fdopen(fd_stderr[0], "r");
+      if (*p_stderr == NULL)
+        pl_fatal("fdopen");
+    }
+  }
+
+  return pid;
 }
