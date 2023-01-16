@@ -554,7 +554,7 @@ pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
     }
 
     execvp(cmd[0], cmd);
-    exit(1);
+    pl_fatal("execvp: %s", cmd[0]);
   } else {
 
     if (p_stdin != NULL) {
@@ -581,3 +581,20 @@ pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
 
   return pid;
 }
+
+
+char *pl_nextline(FILE *fh) {
+  static char *line = NULL;
+  static size_t len = 0;
+  static ssize_t read;
+  read = getline(&line, &len, fh);
+  if (read == -1) {
+    if (ferror(fh))
+      pl_fatal("getline");
+    else if (feof(fh))
+      return NULL;
+  }
+  line[strcspn(line, "\n")] = '\0';
+  return line;
+}
+

@@ -36,20 +36,10 @@
 #define PLASH_HINT_IMAGE "### plash hint: image="
 #define PLASH_HINT_LAYER "### plash hint: layer"
 
+void plash_create_cache_wrapper(char **argv){
 
-char *nextline(FILE *fh) {
-  static char *line = NULL;
-  static size_t len = 0;
-  static ssize_t read;
-  read = getline(&line, &len, fh);
-  if (read == -1) {
-    if (ferror(fh))
-      pl_fatal("getline");
-    else if (feof(fh))
-      return NULL;
-  }
-  line[strcspn(line, "\n")] = '\0';
-  return line;
+
+
 }
 
 void handle_plash_create_exit(pid_t pid) {
@@ -72,7 +62,7 @@ void handle_plash_eval_exit(pid_t pid, FILE *err) {
   if (WEXITSTATUS(status) != 0) {
     int has_err_output = 0;
     char *errline;
-    while ((errline = nextline(err))) {
+    while ((errline = pl_nextline(err))) {
       has_err_output = 1;
       fputs(errline, stderr);
     }
@@ -102,7 +92,7 @@ int main(int argc, char *argv[]) {
   pid_t eval_pid = pl_spawn_process(args, NULL, &eval_stdout, &eval_stderr);
 
   // read first line
-  line = nextline(eval_stdout);
+  line = pl_nextline(eval_stdout);
 
   // First line must be the image id hint
   if (line == NULL ||
@@ -124,7 +114,7 @@ int main(int argc, char *argv[]) {
 
   while (!feof(eval_stdout)) {
 
-    line = nextline(eval_stdout);
+    line = pl_nextline(eval_stdout);
 
     // This is an empty layer, skip it.
     if (line == NULL || (strcmp(line, PLASH_HINT_LAYER) == 0))
@@ -132,9 +122,9 @@ int main(int argc, char *argv[]) {
 
     // run plash create to create this layer
     FILE *create_stdin, *create_stdout;
-    pid_t create_pid =
-        pl_spawn_process((char *[]){"plash", "create-cached", image_id, "sh", NULL},
-                      &create_stdin, &create_stdout, NULL);
+    pid_t create_pid = pl_spawn_process(
+        (char *[]){"plash", "create-cached", image_id, "sh", NULL},
+        &create_stdin, &create_stdout, NULL);
 
     // some extras before evaluating the build shell script
     fputs("PS4='--> '\n", create_stdin);
@@ -147,8 +137,8 @@ int main(int argc, char *argv[]) {
     //// pipe all lines from the eval subcommand to create subcommand
     fputs(line, create_stdin);
     fputs("\n", create_stdin);
-    while ((line = nextline(eval_stdout)) &&
-           strcmp(line, PLASH_HINT_LAYER) != 0){
+    while ((line = pl_nextline(eval_stdout)) &&
+           strcmp(line, PLASH_HINT_LAYER) != 0) {
       fputs(line, create_stdin);
       fputs("\n", create_stdin);
     }
@@ -157,7 +147,7 @@ int main(int argc, char *argv[]) {
     // created image id to use for the next layer.
     fclose(create_stdin);
     handle_plash_create_exit(create_pid);
-    image_id = nextline(create_stdout);
+    image_id = pl_nextline(create_stdout);
     image_id = strdup(image_id);
     if (image_id == NULL)
       pl_fatal("strdup");

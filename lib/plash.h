@@ -45,3 +45,5 @@ void _pl_run(char *program[]);
 char *pl_get_default_root_shell();
 
 pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout, FILE **p_stderr);
+
+char *pl_nextline(FILE *fh);
