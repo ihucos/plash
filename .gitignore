@@ -29,6 +29,7 @@ exec/import-lxc
 exec/clean
 exec/help-macros
 exec/build
+exec/help
 
 lib/plash.o
 tests/C/pl_parse_subid
