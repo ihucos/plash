@@ -1,7 +1,7 @@
 #!/bin/bash
 set -exu
 
-(! plash nodepath mynoexistentcontainer)
+(! plash nodepath mynoexistentimage)
 
 newcont=$(plash build -f 1 --invalidate-layer)
 nodepath=$(plash nodepath $newcont)
@@ -21,8 +21,8 @@ echo $nodepath | grep $layerup
 [[ "$(plash nodepath ""   2>&1)" = *"positive number"* ]]
 
 
-: test querying for the special root container
-[[ "$(plash nodepath 0 2>&1)" = *"special root container"* ]]
+: test querying for the special root image
+[[ "$(plash nodepath 0 2>&1)" = *"special root image"* ]]
 [[ "$(plash nodepath 0 --allow-root-container 2>&1)" = *"/layer/0" ]]
 plash nodepath 0 --allow-root-container
 
