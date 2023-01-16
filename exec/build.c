@@ -127,6 +127,7 @@ char * cached_call_plash_create(char *base_image_id, char * shell_input){
 int main(int argc, char *argv[]) {
   char create_stdin_buf[1024];
   char *image_id;
+  char *base_image_id;
   char *line;
 
   // mold args for plash eval process
@@ -160,10 +161,11 @@ int main(int argc, char *argv[]) {
 
   // parse image id from first output line. We need to know which is the base
   // image id in order to start building
-  image_id = line + strlen(PLASH_HINT_IMAGE);
-  image_id = strdup(image_id);
-  if (image_id == NULL)
+  base_image_id = line + strlen(PLASH_HINT_IMAGE);
+  base_image_id = strdup(base_image_id);
+  if (base_image_id == NULL)
     pl_fatal("strdup");
+  image_id = base_image_id;
   
   // go trough all lines returned by plash eval
   while (!feof(eval_stdout)) {
@@ -203,6 +205,12 @@ int main(int argc, char *argv[]) {
   }
 
   handle_plash_eval_exit(eval_pid, eval_stderr);
+
+  if (strcmp(base_image_id, image_id) == 0){
+    // This happens of "plash build -f 1" invocations. Let's just validate that
+    // image is correct.
+    pl_call("nodepath", image_id);
+  }
 
   puts(image_id);
 }
