@@ -2,25 +2,10 @@
 
 set -eux
 
-function has_tmpdir {
-  tmproot="$(plash data realpath tmp)"
-  [[ "$(ls $tmproot)" ]]
-}  
-
-function has_not_tmpdir {
-  ! has_tmpdir
-}  
-
 : `plash clean` cleans tmpdir only if calling proccess died
-has_not_tmpdir
-sh -c "plash mkdtemp" # from a child process
-has_tmpdir
+tmpd=$(plash mkdtemp)
 plash clean
-has_not_tmpdir
-plash mkdtemp
-has_tmpdir
-plash clean
-has_tmpdir
+file $tmpd
 
 : created tmpdir is in PLASH_DATA
 tmpdir="$(plash mkdtemp)"

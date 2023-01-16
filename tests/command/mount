@@ -1,6 +1,10 @@
 #!/bin/bash
+set eux
 
+
+: Can mount a container
 tmp=$(mktemp -d)
+plash sudo sh -c "
 plash mount 1 $tmp
 grep  $tmp' '  /proc/mounts >/dev/null || {
   echo 'Could not find mountpoint in /proc/mounts '
@@ -9,6 +13,7 @@ grep  $tmp' '  /proc/mounts >/dev/null || {
 test -d $tmp/usr
 test -d $tmp/bin
 test -d $tmp/var
+"
 
 : check bad chars
 tmp=$(mktemp -d)
