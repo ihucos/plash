@@ -24,6 +24,8 @@
 // --:
 // 68
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -72,7 +74,61 @@ void handle_plash_eval_exit(pid_t pid, FILE *err) {
   }
 }
 
+
+
+// djb2 non-cryptografic hash function found here:
+// http://www.cse.yorku.ca/~oz/hash.html
+unsigned long hash(unsigned char *str) {
+  unsigned long hash = 5381;
+  int c;
+
+  while (c = *str++)
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+  return hash;
+}
+
+
+char * call_plash_create(char *image_id, char * shell_input){
+    //// run plash create to create this layer
+    FILE *create_stdin, *create_stdout;
+    pid_t create_pid = pl_spawn_process(
+        (char *[]){"plash", "create", image_id, "sh", NULL},
+        &create_stdin, &create_stdout, NULL);
+    fputs(shell_input, create_stdin);
+
+     //we are done with this layer, close the plash create and gets its created
+     //image id to use for the next layer.
+    fclose(create_stdin);
+    handle_plash_create_exit(create_pid);
+    image_id = pl_nextline(create_stdout);
+    image_id = strdup(image_id);
+    if (image_id == NULL)
+      pl_fatal("strdup");
+    fclose(create_stdout);
+    fputs("---\n", stderr);
+    return image_id;
+}
+
+
+char * cached_call_plash_create(char *base_image_id, char * shell_input){
+  char *image_id;
+  char *cached_image_id;
+  char *cache_key = NULL;
+  asprintf(&cache_key, "layer:%s:%lu\n", base_image_id, hash(shell_input)) ||
+      pl_fatal("asprintf");
+  cached_image_id = pl_call("map", cache_key);
+  if (strcmp(cached_image_id, "") != 0) {
+    return cached_image_id;
+  } else {
+    image_id = call_plash_create(base_image_id, shell_input);
+    pl_call("map", cache_key, image_id);
+    return image_id;
+  }
+}
+
 int main(int argc, char *argv[]) {
+  char create_stdin_buf[1024];
   char *image_id;
   char *line;
 
@@ -111,7 +167,7 @@ int main(int argc, char *argv[]) {
   image_id = strdup(image_id);
   if (image_id == NULL)
     pl_fatal("strdup");
-
+  
   while (!feof(eval_stdout)) {
 
     line = pl_nextline(eval_stdout);
@@ -120,11 +176,8 @@ int main(int argc, char *argv[]) {
     if (line == NULL || (strcmp(line, PLASH_HINT_LAYER) == 0))
       continue;
 
-    // run plash create to create this layer
-    FILE *create_stdin, *create_stdout;
-    pid_t create_pid = pl_spawn_process(
-        (char *[]){"plash", "create-cached", image_id, "sh", NULL},
-        &create_stdin, &create_stdout, NULL);
+    FILE *create_stdin = fmemopen(create_stdin_buf, sizeof(create_stdin_buf), "w");
+    if (create_stdin == NULL) pl_fatal("fmemopen");
 
     // some extras before evaluating the build shell script
     fputs("PS4='--> '\n", create_stdin);
@@ -133,7 +186,7 @@ int main(int argc, char *argv[]) {
     fputs("export PATH\n", create_stdin);
 
     fputs("set -ex\n", create_stdin);
-
+   
     //// pipe all lines from the eval subcommand to create subcommand
     fputs(line, create_stdin);
     fputs("\n", create_stdin);
@@ -143,16 +196,8 @@ int main(int argc, char *argv[]) {
       fputs("\n", create_stdin);
     }
 
-    // we are done with this layer, close the plash create and gets its
-    // created image id to use for the next layer.
-    fclose(create_stdin);
-    handle_plash_create_exit(create_pid);
-    image_id = pl_nextline(create_stdout);
-    image_id = strdup(image_id);
-    if (image_id == NULL)
-      pl_fatal("strdup");
-    fclose(create_stdout);
-    fputs("---\n", stderr);
+    fflush(create_stdin);
+    image_id = cached_call_plash_create(image_id, create_stdin_buf);
   }
 
   handle_plash_eval_exit(eval_pid, eval_stderr);
