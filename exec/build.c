@@ -50,21 +50,13 @@ void handle_plash_create_exit(pid_t pid) {
     exit(1);
 }
 
-void handle_plash_eval_exit(pid_t pid, FILE *err) {
+void handle_plash_eval_exit(pid_t pid) {
   int status;
   waitpid(pid, &status, 0);
   if (!WIFEXITED(status)) {
     pl_fatal("subprocess exited abornmally");
   }
   if (WEXITSTATUS(status) != 0) {
-    int has_err_output = 0;
-    char *errline;
-    while ((errline = pl_nextline(err))) {
-      has_err_output = 1;
-      fputs(errline, stderr);
-    }
-    if (!has_err_output)
-      pl_fatal("Plash eval exited badly providing no error message to stderr");
     exit(1);
   }
 }
@@ -145,8 +137,10 @@ int main(int argc, char *argv[]) {
 
   // run plash eval to get build shell script
   FILE *eval_stdout;
-  FILE *eval_stderr;
-  pid_t eval_pid = pl_spawn_process(args, NULL, &eval_stdout, &eval_stderr);
+  pid_t eval_pid = pl_spawn_process(args, NULL, &eval_stdout, NULL);
+
+  // wait for program to exit and handle its bad exit status code.
+  handle_plash_eval_exit(eval_pid);
 
   // read first line
   line = pl_nextline(eval_stdout);
@@ -154,11 +148,6 @@ int main(int argc, char *argv[]) {
   // First line must be the image id hint
   if (line == NULL ||
       strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) != 0) {
-
-    // maybe plash eval exited badly with an error message. This invocation
-    // ensures the user sees that error message.
-    handle_plash_eval_exit(eval_pid, eval_stderr);
-
     pl_fatal("First thing given must be the base image to use");
   }
 
@@ -208,8 +197,6 @@ int main(int argc, char *argv[]) {
     // get our new image_id where we can build our next layer on top of it.
     image_id = cached_call_plash_create(image_id, create_stdin_buf);
   }
-
-  handle_plash_eval_exit(eval_pid, eval_stderr);
 
   if (strcmp(base_image_id, image_id) == 0) {
     // This happens of "plash build -f 1" invocations. Let's just validate that
