@@ -114,6 +114,7 @@ char *nextline(FILE *fh) {
     else if (feof(fh))
       return NULL;
   }
+  line[strcspn(line, "\n")] = '\0';
   return line;
 }
 
@@ -183,7 +184,6 @@ int main(int argc, char *argv[]) {
   // parse image id from first output line. We need to know which is the base
   // image id in order to start building
   image_id = line + strlen(PLASH_HINT_IMAGE);
-  image_id[strcspn(image_id, "\n")] = '\0';
   image_id = strdup(image_id);
   if (image_id == NULL)
     pl_fatal("strdup");
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
     line = nextline(eval_stdout);
 
     // This is an empty layer, skip it.
-    if (line == NULL || (strcmp(line, PLASH_HINT_LAYER "\n") == 0))
+    if (line == NULL || (strcmp(line, PLASH_HINT_LAYER) == 0))
       continue;
 
     // run plash create to create this layer
@@ -212,16 +212,18 @@ int main(int argc, char *argv[]) {
 
     //// pipe all lines from the eval subcommand to create subcommand
     fputs(line, create_stdin);
+    fputs("\n", create_stdin);
     while ((line = nextline(eval_stdout)) &&
-           strcmp(line, PLASH_HINT_LAYER "\n") != 0)
+           strcmp(line, PLASH_HINT_LAYER) != 0){
       fputs(line, create_stdin);
+      fputs("\n", create_stdin);
+    }
 
     // we are done with this layer, close the plash create and gets its
     // created image id to use for the next layer.
     fclose(create_stdin);
     handle_plash_create_exit(create_pid);
     image_id = nextline(create_stdout);
-    image_id[strcspn(image_id, "\n")] = '\0';
     image_id = strdup(image_id);
     if (image_id == NULL)
       pl_fatal("strdup");
