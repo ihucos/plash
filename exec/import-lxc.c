@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/utsname.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <plash.h>
 
@@ -71,5 +72,6 @@ int main(int argc, char *argv[]) {
     line = strtok(NULL, "\n");
   }
 
+  errno = 0;
   pl_fatal("%s:%s not listed in " HOME_URL "/", distro, version);
 }

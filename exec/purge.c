@@ -14,7 +14,6 @@ int confirm_via_input() {
   printf("Delete all build data? [y/N] ");
   char inp[sizeof("y\n")];
   fgets(inp, sizeof(inp), stdin);
-  puts(inp);
   return (strcmp(inp, "y\n") == 0);
 }
 
@@ -25,7 +24,7 @@ int is_confirmed_via_argv(char **argv) {
 int main(int argc, char *argv[]) {
 
   if (!(is_confirmed_via_argv(argv) || confirm_via_input())) {
-    fprintf(stderr, "Action not confirmed\n");
+    fputs("Action not confirmed\n", stderr);
     return 1;
   }
 
@@ -43,4 +42,5 @@ int main(int argc, char *argv[]) {
   pl_run("rm", "-rf", "map");
   pl_run("rm", "-rf", "mnt");
   pl_run("rm", "-rf", "tmp");
+  fputs("All deleted.\n", stderr);
 }
