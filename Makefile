@@ -15,5 +15,3 @@ clean:
 
 format:
 	find . -iname *.h -o -iname *.c | xargs clang-format -i -style="{CommentPragmas: '^ usage:'}"
-	file exec/* | grep -i python | cut -d':' -f1 | xargs black
-	black .

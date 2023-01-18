@@ -63,8 +63,7 @@ int main(int argc, char *argv[]) {
 
   struct passwd *pwd;
   char *bindir = pl_path("../bin"), *libexecdir = pl_path("../exec"),
-       *libexecrun = pl_path("../exec/run"),
-       *pylibdir = pl_path("../lib/python"), *path_env = getenv("PATH"),
+       *libexecrun = pl_path("../exec/run"), *path_env = getenv("PATH"),
        *libexecfile, *newpath;
 
   //
@@ -72,8 +71,6 @@ int main(int argc, char *argv[]) {
   //
   if (asprintf(&newpath, "%s:%s", bindir, path_env) == -1)
     pl_fatal("asprintf");
-  if (setenv("PYTHONPATH", pylibdir, 1) == -1)
-    pl_fatal("setenv");
   if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
     pl_fatal("setenv");
 

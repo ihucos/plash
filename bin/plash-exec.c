@@ -1,5 +1,3 @@
-//!/usr/bin/env python3
-//
 // usage: plash-exec file [arg1 [arg2 [arg3 ...]]]
 // Used as shebang. It runs a plash buildfile.
 

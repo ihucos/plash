@@ -16,7 +16,7 @@ sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
 ```
 
 ## Requirements
-  - `python3`, `bash`, `make` and `cc`
+  - `make` and `cc`
   - Linux Kernel >= 5.11
   - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users (needed by e.G. `apt`)
 
@@ -296,9 +296,6 @@ am not making any absolute guarantees.
 
 ### What is the Licence?
 plash is licensed under the MIT Licence.
-
-### How does the code look?
-Some python3, some C. Very little code, very maintainable.
 
 ### How does plash compare to Docker?
 Docker is a bloated SUV you have to bring to the car workshop every week, for
