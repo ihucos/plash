@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
       printhint("image", image_id);
 
     } else if (tokenis("--entrypoint-script")) {
-      printhint("exec", "/entrypoint");
+      pl_run("plash", "eval", "--entrypoint", "/entrypoint");
       eval_with_args("--write-script", "/entrypoint");
 
     } else if (tokenis("--write-file")) {
@@ -280,8 +280,14 @@ int main(int argc, char *argv[]) {
         pl_pipe((char *[]){"tar", "-c", arg, NULL},
                 (char *[]){"sha512sum", NULL});
       }
+
     } else if (tokenis("--entrypoint")) {
-      printhint("exec", getarg());
+      printf("echo -n 'exec ' >> /.plashentrypoint\n");
+      printf("chmod +x /.plashentrypoint\n");
+      while (getarg_or_null()){
+	printf("echo -n %s ' ' >> /.plashentrypoint\n", quote(quote(arg)));
+      }
+      printf("echo ' \"$@\"' >> /.plashentrypoint\n");
 
     } else if (tokenis("--env")) {
       eachline("echo %s >> /.plashenvs\n");

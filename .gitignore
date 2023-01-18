@@ -1,5 +1,6 @@
 # compiled files
 bin/plash
+bin/plash-exec
 exec/add-layer
 exec/data
 exec/map
