@@ -75,7 +75,7 @@ size_t delete_unused_tmpdirs_here() {
   return count;
 }
 
-int main(int argc, char *argv[]) {
+int clean_main(int argc, char *argv[]) {
   size_t count;
   pl_unshare_user();
   char *pid, *sid;
@@ -115,4 +115,5 @@ int main(int argc, char *argv[]) {
   fprintf(stderr, "removed_tmpdirs: ");
   count = delete_unused_tmpdirs_here();
   fprintf(stderr, "%ld\n", count);
+  return 0;
 }

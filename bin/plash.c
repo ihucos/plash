@@ -13,6 +13,40 @@
 
 #include <plash.h>
 
+#include <data.h>
+#include <mkdtemp.h>
+#include <nodepath.h>
+#include <import-lxc.h>
+#include <with-mount.h>
+#include <export-tar.h>
+#include <create.h>
+#include <import-tar.h>
+#include <init.h>
+#include <purge.h>
+#include <import-url.h>
+#include <sudo.h>
+#include <clean.h>
+#include <version.h>
+#include <parent.h>
+#include <add-layer.h>
+#include <map.h>
+#include <shrink.h>
+#include <run.h>
+#include <help.h>
+#include <help-macros.h>
+#include <runb.h>
+#include <eval.h>
+#include <rm.h>
+#include <mount.h>
+#include <copy.h>
+#include <b.h>
+#include <build.h>
+#include <import-docker.h>
+#include <eval-plashfile.h>
+
+#define DISPATCH(command, func) \
+if (strcmp(argv[1], command) == 0) return func (argc - 1, argv + 1);
+
 void D(char *arr[]) {
   int ai;
   for (ai = 0; arr[ai]; ai++)
@@ -49,7 +83,6 @@ void reexec_insert_run(int argc, char **argv) {
 }
 
 int main(int argc, char *argv[]) {
-  int flags;
 
   if (argc <= 1) {
     fprintf(stderr, "plash is a container build and run engine, try --help\n");
@@ -61,28 +94,50 @@ int main(int argc, char *argv[]) {
         !strcmp(argv[1], "--version") || !strcmp(argv[1], "--help-macros")))
     reexec_insert_run(argc, argv);
 
-  struct passwd *pwd;
-  char *bindir = pl_path("../bin"), *libexecdir = pl_path("../exec"),
-       *libexecrun = pl_path("../exec/run"), *path_env = getenv("PATH"),
-       *libexecfile, *newpath;
 
   //
   // setup environment variables
   //
+  char *bindir = pl_path("../bin"), *path_env = getenv("PATH"), *newpath;
   if (asprintf(&newpath, "%s:%s", bindir, path_env) == -1)
     pl_fatal("asprintf");
   if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
     pl_fatal("setenv");
 
-  //
-  // exec lib/exec/<command>
-  //
-  if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
-    pl_fatal("asprintf");
-  execvp(libexecfile, argv + 1);
+  DISPATCH("data", data_main);
+  DISPATCH("mkdtemp", mkdtemp_main);
+  DISPATCH("nodepath", nodepath_main);
+  DISPATCH("import-lxc", import_lxc_main);
+  DISPATCH("with-mount", with_mount_main);
+  DISPATCH("export-tar", export_tar_main);
+  DISPATCH("create", create_main);
+  DISPATCH("import-tar", import_tar_main);
+  DISPATCH("init", init_main);
+  DISPATCH("purge", purge_main);
+  DISPATCH("import-url", import_url_main);
+  DISPATCH("sudo", sudo_main);
+  DISPATCH("clean", clean_main);
+  DISPATCH("version", version_main);
+  DISPATCH("--version", version_main);
+  DISPATCH("parent", parent_main);
+  DISPATCH("add-layer", add_layer_main);
+  DISPATCH("map", map_main);
+  DISPATCH("shrink", shrink_main);
+  DISPATCH("run", run_main);
+  DISPATCH("help", help_main);
+  DISPATCH("--help", help_main);
+  DISPATCH("help-macros", help_macros_main);
+  DISPATCH("--help-macros", help_macros_main);
+  DISPATCH("runb", runb_main);
+  DISPATCH("eval", eval_main);
+  DISPATCH("rm", rm_main);
+  DISPATCH("mount", mount_main);
+  DISPATCH("copy", copy_main);
+  DISPATCH("b", b_main);
+  DISPATCH("build", build_main);
+  DISPATCH("import-docker", import_docker_main);
+  DISPATCH("eval-plashfile", eval_plashfile_main);
 
-  if (errno != ENOENT)
-    pl_fatal("could not exec %s", libexecfile);
   errno = 0;
   pl_fatal("no such command: %s (try `plash help`)", argv[1]);
 }

@@ -195,7 +195,7 @@ void eval_with_args_array(char **middel_args) {
   _pl_run(args);
 }
 
-int main(int argc, char *argv[]) {
+int eval_main(int argc, char *argv[]) {
 
   // handle help flag
   if (argv[1] && (strcmp(argv[1], "--help")) == 0){
@@ -404,4 +404,5 @@ int main(int argc, char *argv[]) {
     //  order of lines written to stdout stays in the expected order.
     fflush(stdout);
   }
+  return 0;
 }

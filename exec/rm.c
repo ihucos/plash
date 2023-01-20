@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int main(int argc, char *argv[]) {
+int rm_main(int argc, char *argv[]) {
   if (argc != 2)
     pl_usage();
 
@@ -20,4 +20,5 @@ int main(int argc, char *argv[]) {
 
   execlp("rm", "rm", "-rf", tmp, NULL);
   pl_fatal("execlp");
+  return 0;
 }

@@ -94,7 +94,7 @@ void read_mounts_from_plashmounts() {
   fclose(fp);
 }
 
-int main(int argc, char *argv[]) {
+int run_main(int argc, char *argv[]) {
 
   if (argc < 2)
     pl_usage();

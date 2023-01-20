@@ -30,7 +30,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]) {
+int create_main(int argc, char *argv[]) {
 
   char *plash_data = pl_call("data");
   char *image_id = argv[1];

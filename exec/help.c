@@ -41,4 +41,4 @@
   "plash with-mount    Execute parameters inside a mounted container\n"        \
   "plash -*            Fallback to `plash b run`\n"
 
-int main(int argc, char *argv[]) { fputs(HELP, stderr); }
+int help_main(int argc, char *argv[]) { fputs(HELP, stderr); return 0;}

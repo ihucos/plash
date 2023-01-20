@@ -119,7 +119,7 @@ char *cached_call_plash_create(char *base_image_id, char *shell_input) {
   }
 }
 
-int main(int argc, char *argv[]) {
+int build_main(int argc, char *argv[]) {
   char create_stdin_buf[MAX_BYTES_PER_LAYER];
   char *image_id;
   char *base_image_id;
@@ -203,6 +203,6 @@ int main(int argc, char *argv[]) {
     // image is correct.
     pl_call("nodepath", image_id);
   }
-
   puts(image_id);
+  return 0;
 }

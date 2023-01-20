@@ -42,7 +42,7 @@ char *get_plash_data() {
   return plash_data;
 }
 
-int main(int argc, char *argv[]) {
+int data_main(int argc, char *argv[]) {
   char *plash_data = get_plash_data();
 
   // if no arguments, print the plash data directory

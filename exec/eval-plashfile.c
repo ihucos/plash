@@ -7,7 +7,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]) {
+int eval_plashfile_main(int argc, char *argv[]) {
   int is_first_line = 1;
   size_t read;
   char * line = NULL;

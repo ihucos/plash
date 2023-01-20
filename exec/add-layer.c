@@ -27,7 +27,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-int main(int argc, char *argv[]) {
+int add_layer_main(int argc, char *argv[]) {
 
   off_t node_id;
   int fd;
@@ -80,4 +80,5 @@ int main(int argc, char *argv[]) {
     pl_fatal("rename");
   if (puts(node_id_str) == EOF)
     pl_fatal("puts");
+  return 0;
 }

@@ -16,7 +16,7 @@ void ensuredir(char *pathname, mode_t mode) {
     pl_fatal("mkdir %s", pathname);
 }
 
-int main(int argc, char *argv[]) {
+int init_main(int argc, char *argv[]) {
 
   char *plash_data = pl_call("data");
 
@@ -39,4 +39,5 @@ int main(int argc, char *argv[]) {
 
   if (symlink("../layer/0", "index/0") == -1 && errno != EEXIST)
     pl_fatal("symlink");
+  return 0;
 }

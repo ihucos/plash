@@ -8,7 +8,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]) {
+int import_url_main(int argc, char *argv[]) {
   char *url = argv[1];
   if (url == NULL)
     pl_usage();
