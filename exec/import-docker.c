@@ -1,4 +1,3 @@
-// usage: plash import-docker IMAGE
 // Import image from local docker instance into.
 
 #include <stddef.h>
@@ -7,6 +6,8 @@
 #include <unistd.h>
 
 #include <plash.h>
+
+#define USAGE "usage: plash import-docker IMAGE\n"
 
 void call_docker_pull(char *image) {
   int status, exit;
@@ -33,12 +34,14 @@ void call_docker_pull(char *image) {
 }
 
 int import_docker_main(int argc, char *argv[]) {
-  if (argc < 2)
-    pl_usage();
+  if (argc < 2) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
   char *image = argv[1];
   call_docker_pull(image);
-  char *container_id = pl_firstline(pl_check_output(
-	(char*[]){"docker", "create", image, "sh", NULL}));
+  char *container_id = pl_firstline(
+      pl_check_output((char *[]){"docker", "create", image, "sh", NULL}));
   pl_pipe((char *[]){"docker", "export", container_id, NULL},
           (char *[]){"plash", "import-tar", NULL});
   return 0;

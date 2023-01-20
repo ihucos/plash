@@ -1,9 +1,9 @@
-// usage: plash clean
-//
 // Cleans up plashs internal data.
 // - Removes all broken links in $PLASH_DATA/index
 // - Removes all broken links in $PLASH_DATA/map
 // - Removes unused temporary directories in $PLASH_DATA/tmp
+
+#define USAGE "usage: plash clean\n"
 
 #include <dirent.h>
 #include <signal.h>

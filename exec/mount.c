@@ -1,4 +1,3 @@
-// usage: plash mount IMAGE_ID MOUNTPOINT [ CHANGESDIR ]
 //
 // Mount a container-filesystem. Changes to the filesystem will be written to
 // CHANGESDIR.
@@ -13,6 +12,8 @@
 #include <unistd.h>
 
 #include <plash.h>
+
+#define USAGE "usage: plash mount IMAGE_ID MOUNTPOINT [ CHANGESDIR ]\n"
 
 #define CHANGESDIR_ALLOWED_CHARS                                               \
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_"
@@ -71,7 +72,10 @@ void validate_changesdir(char *changesdir) {
 int mount_main(int argc, char *argv[]) {
 
   if (argc < 3) {
-    pl_usage();
+    {
+      fputs(USAGE, stderr);
+      return 1;
+    }
   }
   char *image_id = argv[1];
   char *mountpoint = argv[2];

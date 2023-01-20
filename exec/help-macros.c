@@ -1,5 +1,6 @@
-// usage: plash list-macros
 // Lists all available macros.
+
+#define USAGE "usage: plash list-macros\n"
 
 #include <unistd.h>
 

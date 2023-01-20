@@ -1,6 +1,7 @@
-// usage: plash shrink
 // Delete half of the older containers.
 // Containers with a lower build id will be deleted first.
+
+#define USAGE "usage: plash shrink\n"
 
 #include <dirent.h>
 #include <errno.h>
@@ -21,14 +22,14 @@
     pl_fatal("opendir");                                                       \
   while ((dir = readdir(dirp)) != NULL) {
 
-#define ITERDIR_CLOSE()                                                          \
+#define ITERDIR_CLOSE()                                                        \
   }                                                                            \
   closedir(dirp);
 
 int is_leave(char *nodepath) {
   int is_leave = 1;
   ITERDIR_BEGIN(nodepath)
-  if (atoi(dir->d_name)){
+  if (atoi(dir->d_name)) {
     is_leave = 0;
     break;
   }

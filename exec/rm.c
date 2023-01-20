@@ -1,14 +1,17 @@
-// usage: plash rm IMAGE_ID
 // Deletes the given image atomically. Running containers based on that image
 // have an undefined behaviour.
+
+#define USAGE "usage: plash rm IMAGE_ID\n"
 
 #include <plash.h>
 #include <stdio.h>
 #include <unistd.h>
 
 int rm_main(int argc, char *argv[]) {
-  if (argc != 2)
-    pl_usage();
+  if (argc != 2) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
 
   char *nodepath = pl_call("nodepath", argv[1]);
   char *tmp = pl_call("mkdtemp");

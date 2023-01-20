@@ -1,4 +1,3 @@
-// usage: plash map KEY [ CONTAINER ]
 // Map a container to a key. Use an empty container to delete a key.
 //
 // Example:
@@ -18,6 +17,8 @@
 //
 // $ plash map myfavorite
 // $
+
+#define USAGE "usage: plash map KEY [ IMAGE_ID ]\n"
 
 #define _GNU_SOURCE
 #include <assert.h>
@@ -71,7 +72,10 @@ int map_main(int argc, char *argv[]) {
   char *linkpath;
 
   if (argc < 2) {
-    pl_usage();
+    {
+      fputs(USAGE, stderr);
+      return 1;
+    }
   }
 
   plash_data = pl_call("data");
@@ -94,7 +98,9 @@ int map_main(int argc, char *argv[]) {
     del(linkpath);
   } else if (argc == 3) {
     set(linkpath, argv[2]);
-  } else
-    pl_usage();
+  } else {
+    fputs(USAGE, stderr);
+    return 1;
+  }
   return 0;
 }

@@ -1,6 +1,7 @@
-// usage: plash import-tar [ TARFILE ]
 // Create a container from a tar file.
 // If the TARFILE argument is ommited, the tar file is read from stdin.
+
+#define USAGE "usage: plash import-tar [ TARFILE ]\n"
 
 #include <plash.h>
 #include <stddef.h>

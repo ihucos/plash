@@ -1,4 +1,3 @@
-// usage: plash build --macro1 ar1 arg2 --macro2 arg1 ...
 // Builds an image. Command line options are evaluated as macros. Use `plash
 // help-macros` to list all available macros.
 //
@@ -23,6 +22,8 @@
 // Processing triggers for libc-bin (2.26-0ubuntu2) ...
 // --:
 // 68
+
+#define USAGE "usage: plash build --macro1 ar1 arg2 --macro2 arg1 ...\n"
 
 #define _GNU_SOURCE
 

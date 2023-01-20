@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-#define pl_call(...) pl_firstline(pl_check_output((char *[]){"plash", __VA_ARGS__, NULL}))
+#define pl_call(...)                                                           \
+  pl_firstline(pl_check_output((char *[]){"plash", __VA_ARGS__, NULL}))
 #define pl_run(...) _pl_run((char *[]){__VA_ARGS__, NULL})
 
 char *pl_check_output(char *argv[]);
@@ -42,6 +43,7 @@ void _pl_run(char *program[]);
 
 char *pl_get_default_root_shell();
 
-pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout, FILE **p_stderr);
+pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
+                       FILE **p_stderr);
 
 char *pl_nextline(FILE *fh);

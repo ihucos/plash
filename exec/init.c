@@ -1,6 +1,7 @@
-// usage: plash init
 //
 // Initialize build data. Run this on a new system before anything else.
+
+#define USAGE "usage: plash init\n"
 
 #include <errno.h>
 #include <fcntl.h>

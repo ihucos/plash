@@ -1,5 +1,6 @@
-// usage: plash build
 // Prints all commands
+
+#define USAGE "usage: plash help\n"
 
 #include <stdio.h>
 
@@ -41,4 +42,7 @@
   "plash with-mount    Execute parameters inside a mounted container\n"        \
   "plash -*            Fallback to `plash b run`\n"
 
-int help_main(int argc, char *argv[]) { fputs(HELP, stderr); return 0;}
+int help_main(int argc, char *argv[]) {
+  fputs(HELP, stderr);
+  return 0;
+}

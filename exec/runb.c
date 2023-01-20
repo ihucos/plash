@@ -1,5 +1,3 @@
-// usage: plash runb IMAGE_ID CHANGESDIR CMD1 [ CMD2 ... ] ]
-//
 // Run an image in the build environment. Filesystem changes are saved to
 // CHANGESDIR. This program might be merged together with `plash create` in the
 // future.
@@ -11,6 +9,8 @@
 // - /proc
 // - /home
 // - /root
+
+#define USAGE "usage: plash runb IMAGE_ID CHANGESDIR CMD1 [ CMD2 ... ] ]\n"
 
 #define _GNU_SOURCE
 #include <assert.h>
@@ -29,8 +29,10 @@
 
 int runb_main(int argc, char *argv[]) {
 
-  if (argc < 4)
-    pl_usage();
+  if (argc < 4) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
   char *container_id = argv[1];
   char *changesdir = argv[2];
   char *origpwd = get_current_dir_name();

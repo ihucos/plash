@@ -1,8 +1,9 @@
-// usage: plash purge [ --yes ]
 // Deletes all build data unatomically. Running containers that rely on the
 // build data will enter an undefined state. Plashs behaviour while this command
 // did not finish running returning an non zero exit code is undefined. The
 // data directory itself is not deleted as it could be a mountpoint.
+
+#define USAGE "usage: plash purge [ --yes ]\n"
 
 #include <stdio.h>
 #include <string.h>

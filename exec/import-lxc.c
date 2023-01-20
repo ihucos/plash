@@ -1,16 +1,17 @@
-// usage: plash import-lxc DISTRIBUTION:RELEASE [--dry]
 // Import an image from https://images.linuxcontainers.org/
 // if --dry is set, the image url is printed but not imported
+
+#define USAGE "usage: plash import-lxc DISTRIBUTION:RELEASE [--dry]\n"
 
 #define HOME_URL "https://images.linuxcontainers.org"
 #define INDEX_URL "https://images.linuxcontainers.org/meta/1.0/index-user"
 #define _GNU_SOURCE
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/utsname.h>
 #include <unistd.h>
-#include <errno.h>
 
 #include <plash.h>
 
@@ -34,8 +35,10 @@ int import_lxc_main(int argc, char *argv[]) {
       *line;
 
   // read args
-  if (argc < 2)
-    pl_usage();
+  if (argc < 2) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
   image_name = argv[1];
   int dry = argv[2] && strcmp(argv[2], "--dry") == 0;
 

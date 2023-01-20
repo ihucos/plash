@@ -1,4 +1,3 @@
-// usage: plash data [CMD1 [CMD2 ...]]
 //
 // Prints the location of the build data.
 // if arguments are given, these arguments will be execed insite the build data.
@@ -11,6 +10,8 @@
 //
 // $ plash data ls
 // id_counter  index  layer  map  mnt  tmp
+
+#define USAGE "usage: plash usage: plash data [CMD1 [CMD2 ...]]\n"
 
 #define _GNU_SOURCE
 

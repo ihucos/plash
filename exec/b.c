@@ -1,4 +1,3 @@
-// usage: plash b PLASHCMD *BUILDARGS [-- *CMDARGS]
 // Build then run utility. Builds the given build commands and calls the given
 // plash command with the builded container.
 //
@@ -6,18 +5,24 @@
 // $ plash b run -A
 // $ plash b run --eval-file ./plashfile -- ls
 
+#define USAGE "usage: plash b PLASHCMD *BUILDARGS [-- *CMDARGS]\n"
+
 #include <stdio.h>
 #include <string.h>
 
 #include <plash.h>
 
-int b_main(int argc, char *argv[]){
-  if (argc < 2) pl_usage();
+int b_main(int argc, char *argv[]) {
+  if (argc < 2) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
 
   char **buildargs = argv;
-  char **cmdargs = (char*[]){NULL};
+  char **cmdargs = (char *[]){NULL};
   char *cmd = strdup(argv[1]);
-  if (cmd == NULL) pl_fatal("strdup");
+  if (cmd == NULL)
+    pl_fatal("strdup");
 
   // reuse argv to build command to build the image
   *argv = "plash";
@@ -25,11 +30,11 @@ int b_main(int argc, char *argv[]){
   *argv = "build";
   argv++;
 
-  while(*(++argv)){
-    if ((*argv)[0] == '-' && (*argv)[1] == '-' && (*argv)[2] == '\0'){
+  while (*(++argv)) {
+    if ((*argv)[0] == '-' && (*argv)[1] == '-' && (*argv)[2] == '\0') {
       // "--" found, cut the array here
       *argv = NULL;
-      cmdargs = argv+1;
+      cmdargs = argv + 1;
     }
   }
 
@@ -37,6 +42,7 @@ int b_main(int argc, char *argv[]){
   pl_exec_add("plash");
   pl_exec_add(cmd);
   pl_exec_add(pl_firstline(pl_check_output(buildargs)));
-  while(*(cmdargs)) pl_exec_add(*cmdargs++);
+  while (*(cmdargs))
+    pl_exec_add(*cmdargs++);
   pl_exec_add(NULL);
 }

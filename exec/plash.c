@@ -346,36 +346,15 @@ char *pl_check_output(char *argv[]) {
   }
 }
 
-char *pl_firstline(char *str){
+char *pl_firstline(char *str) {
   str[strcspn(str, "\n")] = 0;
   return str;
 }
 
-void pl_usage() {
-
-  FILE *fp;
-  char c, *progc = NULL, *prog = realpath("/proc/self/exe", NULL);
-
-  if (prog == NULL)
-    pl_fatal("realpath");
-
-  if (asprintf(&progc, "%s.c", prog) == -1)
-    pl_fatal("asprintf");
-
-  if ((fp = fopen(progc, "r")) == NULL)
-    pl_fatal("fopen");
-
-  if (getc(fp) == EOF)
-    pl_fatal("getc");
-  if (getc(fp) == EOF)
-    pl_fatal("getc");
-  if (getc(fp) == EOF)
-    pl_fatal("getc");
-  while (c != '\n') {
-    if ((c = getc(fp)) == EOF)
-      pl_fatal("getc");
-    write(STDERR_FILENO, &c, 1);
-  }
+void pl_usage(const char *usage) {
+  fputs("usage: plash", stderr);
+  fputs(usage, stderr);
+  fputs("\n", stderr);
   exit(1);
 }
 
@@ -514,9 +493,8 @@ char *pl_get_default_root_shell() {
   }
 }
 
-
 pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
-                  FILE **p_stderr) {
+                       FILE **p_stderr) {
   int fd_stdin[2], fd_stdout[2], fd_stderr[2];
   pid_t pid;
 
@@ -582,7 +560,6 @@ pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
   return pid;
 }
 
-
 char *pl_nextline(FILE *fh) {
   static char *line = NULL;
   static size_t len = 0;
@@ -597,4 +574,3 @@ char *pl_nextline(FILE *fh) {
   line[strcspn(line, "\n")] = '\0';
   return line;
 }
-

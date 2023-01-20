@@ -1,20 +1,21 @@
-// usage: plash add-layer PARENT-CONTAINER IMPORT-DIR
-// Stack a layer on top of a container.  Please note that it uses the rename
+// Stack a layer on top of an image.  Please note that it uses the rename
 // syscall, this means your IMPORT-DIR will be moved into the plash data
-// directory.  The container "0" is the empty root container, use that to start
-// a container from scratch.
+// directory.  The image "0" is the empty root image, use that to start
+// a new image from scratch.
 //
 // This subcommand is very low-level, usually you would use `plash build`.
 //
 // Example:
 //
-// Create a container from a complete root file system:
+// Create an image from a complete root file system:
 // $ plash add-layer 0 /tmp/rootfs
 // 66
 //
-// Add a new layer on top of an existing container:
+// Add a new layer on top of an existing image:
 // $ plash add-layer 33 /tmp/mylayer
 // 67
+
+#define USAGE "usage: plash add-layer PARENT-CONTAINER IMPORT-DIR\n"
 
 #define _GNU_SOURCE
 #include <assert.h>
@@ -34,8 +35,10 @@ int add_layer_main(int argc, char *argv[]) {
   char *linkpath, *node_id_str, *nodepath, *plash_data, *prepared_new_node,
       *layer;
 
-  if (argc != 3)
-    pl_usage();
+  if (argc != 3) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
 
   plash_data = pl_call("data");
   assert(plash_data);

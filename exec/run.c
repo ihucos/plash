@@ -1,5 +1,3 @@
-// usage: plash run IMAGE_ID [ CMD1 [ CMD2 ... ] ]
-//
 // Run a container. If no command is specified, the containers default root
 // shell is executed.
 //
@@ -12,6 +10,8 @@
 // - /dev
 // - /proc
 // - /host (contains entire host filesystem)
+
+#define USAGE "usage: plash run IMAGE_ID [ CMD1 [ CMD2 ... ] ]\n"
 
 #define _GNU_SOURCE
 #include <assert.h>
@@ -96,8 +96,10 @@ void read_mounts_from_plashmounts() {
 
 int run_main(int argc, char *argv[]) {
 
-  if (argc < 2)
-    pl_usage();
+  if (argc < 2) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
   char *container_id = argv[1];
   char *origpwd = get_current_dir_name();
   char *plash_data = pl_call("data");

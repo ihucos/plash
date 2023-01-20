@@ -1,4 +1,3 @@
-// usage: plash with-mount CONTAINER [ CMD1 [ CMD2  ... ] ]
 //
 // Execute parameters inside a mounted container. Default parameter is the
 // default shell. Mounting happens inside an isolated mount namespace.
@@ -7,6 +6,8 @@
 // $ plash with-mount 70 du -sh
 // 7,2M    .
 
+#define USAGE "usage: plash with-mount CONTAINER [ CMD1 [ CMD2  ... ] ]\n"
+
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -14,8 +15,10 @@
 #include <plash.h>
 
 int with_mount_main(int argc, char *argv[]) {
-  if (argc < 2)
-    pl_usage();
+  if (argc < 2) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
   char *image_id = argv[1];
   char *cmd = argv[2];
 

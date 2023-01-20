@@ -1,11 +1,14 @@
-// usage: plash nodepath CONTAINER [--allow-root-container]
-// Prints the path of a given image. The --allow-root-container option
+// Prints the path of a given image.
+//
+// The --allow-root-container option
 // allows the root image ("0") to be specified as image.
 //
 // Example:
 // $ plash nodepath 19
 // /home/ihucos/.plashdata/layer/0/2/19
 // $ plash nodepath 19 | xargs tree
+
+#define USAGE "usage: plash nodepath CONTAINER [--allow-root-container]\n"
 
 #define _GNU_SOURCE
 #include <assert.h>
@@ -26,8 +29,10 @@ int nodepath_main(int argc, char *argv[]) {
   int i = 0;
   char *nodepath, *plash_data;
 
-  if (argc < 2)
-    pl_usage();
+  if (argc < 2) {
+    fputs(USAGE, stderr);
+    return 1;
+  }
 
   // validate/normalize input
   if (!argv[1][0] || strspn(argv[1], "0123456789") != strlen(argv[1]))

@@ -13,39 +13,40 @@
 
 #include <plash.h>
 
-#include <data.h>
-#include <mkdtemp.h>
-#include <nodepath.h>
-#include <import-lxc.h>
-#include <with-mount.h>
-#include <export-tar.h>
-#include <create.h>
-#include <import-tar.h>
-#include <init.h>
-#include <purge.h>
-#include <import-url.h>
-#include <sudo.h>
-#include <clean.h>
-#include <version.h>
-#include <parent.h>
 #include <add-layer.h>
-#include <map.h>
-#include <shrink.h>
-#include <run.h>
-#include <help.h>
-#include <help-macros.h>
-#include <runb.h>
-#include <eval.h>
-#include <rm.h>
-#include <mount.h>
-#include <copy.h>
 #include <b.h>
 #include <build.h>
-#include <import-docker.h>
+#include <clean.h>
+#include <copy.h>
+#include <create.h>
+#include <data.h>
 #include <eval-plashfile.h>
+#include <eval.h>
+#include <export-tar.h>
+#include <help-macros.h>
+#include <help.h>
+#include <import-docker.h>
+#include <import-lxc.h>
+#include <import-tar.h>
+#include <import-url.h>
+#include <init.h>
+#include <map.h>
+#include <mkdtemp.h>
+#include <mount.h>
+#include <nodepath.h>
+#include <parent.h>
+#include <purge.h>
+#include <rm.h>
+#include <run.h>
+#include <runb.h>
+#include <shrink.h>
+#include <sudo.h>
+#include <version.h>
+#include <with-mount.h>
 
-#define DISPATCH(command, func) \
-if (strcmp(argv[1], command) == 0) return func (argc - 1, argv + 1);
+#define DISPATCH(command, func)                                                \
+  if (strcmp(argv[1], command) == 0)                                           \
+    return func(argc - 1, argv + 1);
 
 void D(char *arr[]) {
   int ai;
@@ -93,7 +94,6 @@ int main(int argc, char *argv[]) {
       !(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help") ||
         !strcmp(argv[1], "--version") || !strcmp(argv[1], "--help-macros")))
     reexec_insert_run(argc, argv);
-
 
   //
   // setup environment variables
