@@ -91,6 +91,16 @@ int main(int argc, char *argv[]) {
         !strcmp(argv[1], "--version") || !strcmp(argv[1], "--help-macros")))
     reexec_insert_run(argc, argv);
 
+
+  //
+  // setup environment variables
+  //
+  char *bindir = pl_path("../bin"), *path_env = getenv("PATH"), *newpath;
+  if (asprintf(&newpath, "%s:%s", bindir, path_env) == -1)
+    pl_fatal("asprintf");
+  if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
+    pl_fatal("setenv");
+
   if (strcmp(argv[1], "data") == 0) return data_main(argc - 1, argv + 1);
   if (strcmp(argv[1], "mkdtemp") == 0) return mkdtemp_main(argc - 1, argv + 1);
   if (strcmp(argv[1], "nodepath") == 0)return nodepath_main(argc - 1, argv + 1);
