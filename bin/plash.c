@@ -44,6 +44,9 @@
 #include <import-docker.h>
 #include <eval-plashfile.h>
 
+#define DISPATCH(command, func) \
+if (strcmp(argv[1], command) == 0) return func (argc - 1, argv + 1);
+
 void D(char *arr[]) {
   int ai;
   for (ai = 0; arr[ai]; ai++)
@@ -101,36 +104,37 @@ int main(int argc, char *argv[]) {
   if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
     pl_fatal("setenv");
 
-  if (strcmp(argv[1], "data") == 0) return data_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "mkdtemp") == 0) return mkdtemp_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "nodepath") == 0)return nodepath_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "import-lxc") == 0) return import_lxc_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "with-mount") == 0) return with_mount_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "export-tar") == 0) return export_tar_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "create") == 0) return create_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "import-tar") == 0) return import_tar_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "init") == 0) return init_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "purge") == 0) return purge_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "import-url") == 0) return import_url_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "sudo") == 0) return sudo_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "clean") == 0) return clean_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "version") == 0) return version_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "parent") == 0) return parent_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "add-layer") == 0) return add_layer_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "map") == 0) return map_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "shrink") == 0) return shrink_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "run") == 0) return run_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "help") == 0) return help_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "help-macros") == 0) return help_macros_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "runb") == 0) return runb_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "eval") == 0) return eval_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "rm") == 0) return rm_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "mount") == 0) return mount_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "copy") == 0) return copy_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "b") == 0) return b_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "build") == 0) return build_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "import-docker") == 0) return import_docker_main(argc - 1, argv + 1);
-  if (strcmp(argv[1], "eval-plashfile") == 0) return eval_plashfile_main(argc - 1, argv + 1);
+  DISPATCH("data", data_main);
+  DISPATCH("mkdtemp", mkdtemp_main);
+  DISPATCH("nodepath", nodepath_main);
+  DISPATCH("import-lxc", import_lxc_main);
+  DISPATCH("with-mount", with_mount_main);
+  DISPATCH("export-tar", export_tar_main);
+  DISPATCH("create", create_main);
+  DISPATCH("import-tar", import_tar_main);
+  DISPATCH("init", init_main);
+  DISPATCH("purge", purge_main);
+  DISPATCH("import-url", import_url_main);
+  DISPATCH("sudo", sudo_main);
+  DISPATCH("clean", clean_main);
+  DISPATCH("version", version_main);
+  DISPATCH("parent", parent_main);
+  DISPATCH("add-layer", add_layer_main);
+  DISPATCH("map", map_main);
+  DISPATCH("shrink", shrink_main);
+  DISPATCH("run", run_main);
+  DISPATCH("help", help_main);
+  DISPATCH("help-macros", help_macros_main);
+  DISPATCH("runb", runb_main);
+  DISPATCH("eval", eval_main);
+  DISPATCH("rm", rm_main);
+  DISPATCH("mount", mount_main);
+  DISPATCH("copy", copy_main);
+  DISPATCH("b", b_main);
+  DISPATCH("build", build_main);
+  DISPATCH("import-docker", import_docker_main);
+  DISPATCH("eval-plashfile", eval_plashfile_main);
+
   errno = 0;
   pl_fatal("no such command: %s (try `plash help`)", argv[1]);
 }
