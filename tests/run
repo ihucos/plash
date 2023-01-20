@@ -5,8 +5,8 @@
 
 set -eu
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR="$DIR"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )")"
+PROJECT_DIR="$DIR/.."
 
 log=$(mktemp)
 program_exit=0
@@ -19,7 +19,7 @@ for script in $testfiles ; do
   export PLASH_DATA=$tmp
   plash init
   machine="$(uname --machine)"
-  plash import-tar $PROJECT_DIR/data/test-rootfs-"$machine".tar > /dev/null
+  plash import-tar $PROJECT_DIR/tests/data/test-rootfs-"$machine".tar > /dev/null
 
   printf "% -20s" ${script:2} # magic 2 is the length of "./"
   env "$script" > $log 2>&1 &
