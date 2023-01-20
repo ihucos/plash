@@ -95,4 +95,5 @@ int shrink_main(int argc, char *argv[]) {
     pl_call("rm", o);
   }
   printf("You have %d images.\n", count_images() - 1);
+  return 0;
 }

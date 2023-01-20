@@ -39,4 +39,5 @@ int init_main(int argc, char *argv[]) {
 
   if (symlink("../layer/0", "index/0") == -1 && errno != EEXIST)
     pl_fatal("symlink");
+  return 0;
 }

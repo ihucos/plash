@@ -96,4 +96,5 @@ int map_main(int argc, char *argv[]) {
     set(linkpath, argv[2]);
   } else
     pl_usage();
+  return 0;
 }

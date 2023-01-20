@@ -42,4 +42,5 @@ int with_mount_main(int argc, char *argv[]) {
       pl_fatal("execvp");
     }
   }
+  return 0;
 }

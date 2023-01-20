@@ -20,4 +20,5 @@ int rm_main(int argc, char *argv[]) {
 
   execlp("rm", "rm", "-rf", tmp, NULL);
   pl_fatal("execlp");
+  return 0;
 }

@@ -403,5 +403,6 @@ int eval_main(int argc, char *argv[]) {
     // Somehow because we are calling subprocesses we need this to ensure the
     //  order of lines written to stdout stays in the expected order.
     fflush(stdout);
+    return 0;
   }
 }

@@ -17,4 +17,5 @@ int copy_main(int argc, char *argv[]) {
   pl_call("with-mount", container, "cp", "-r", ".", tmpout);
   if (rename(tmpout, outdir) == -1)
     pl_fatal("rename %s %s", tmpout, outdir);
+  return 0;
 }

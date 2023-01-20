@@ -43,4 +43,5 @@ int purge_main(int argc, char *argv[]) {
   pl_run("rm", "-rf", "mnt");
   pl_run("rm", "-rf", "tmp");
   fputs("All deleted.\n", stderr);
+  return 0;
 }

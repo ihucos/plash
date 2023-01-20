@@ -24,4 +24,5 @@ int sudo_main(int argc, char *argv[]) {
     execvp(argv[1], argv + 1);
   }
   pl_fatal("could not exec \"%s\"", argv[1]);
+  return 0;
 }

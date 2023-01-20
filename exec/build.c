@@ -203,6 +203,6 @@ int build_main(int argc, char *argv[]) {
     // image is correct.
     pl_call("nodepath", image_id);
   }
-
   puts(image_id);
+  return 0;
 }

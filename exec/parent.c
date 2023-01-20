@@ -12,8 +12,7 @@
 int parent_main(int argc, char *argv[]) {
   if (argc != 2)
     pl_usage();
-
   char *nodepath = pl_call("nodepath", argv[1]);
-
   puts(basename(dirname(nodepath)));
+  return 0;
 }

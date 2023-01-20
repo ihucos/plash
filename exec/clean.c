@@ -115,4 +115,5 @@ int clean_main(int argc, char *argv[]) {
   fprintf(stderr, "removed_tmpdirs: ");
   count = delete_unused_tmpdirs_here();
   fprintf(stderr, "%ld\n", count);
+  return 0;
 }
