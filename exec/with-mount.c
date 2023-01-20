@@ -13,7 +13,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]) {
+int with_mount_main(int argc, char *argv[]) {
   if (argc < 2)
     pl_usage();
   char *image_id = argv[1];

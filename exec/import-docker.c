@@ -32,7 +32,7 @@ void call_docker_pull(char *image) {
   }
 }
 
-int main(int argc, char *argv[]) {
+int import_docker_main(int argc, char *argv[]) {
   if (argc < 2)
     pl_usage();
   char *image = argv[1];

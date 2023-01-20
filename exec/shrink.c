@@ -71,7 +71,7 @@ char *get_oldest_leave() {
   return oldest_leave_dup;
 }
 
-int main(int argc, char *argv[]) {
+int shrink_main(int argc, char *argv[]) {
   char *image_id;
   char *plash_data = pl_call("data");
   if (chdir(plash_data) == -1)

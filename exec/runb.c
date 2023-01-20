@@ -27,7 +27,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]) {
+int runb_main(int argc, char *argv[]) {
 
   if (argc < 4)
     pl_usage();

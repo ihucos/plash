@@ -11,7 +11,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]){
+int b_main(int argc, char *argv[]){
   if (argc < 2) pl_usage();
 
   char **buildargs = argv;

@@ -3,4 +3,4 @@
 
 #include <stdio.h>
 
-int main() { puts("$Format:%h$"); }
+int version_main(int argc, char *argv[]) { puts("$Format:%h$"); }

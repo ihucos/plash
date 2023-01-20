@@ -66,7 +66,7 @@ void set(char const *linkpath, char *container_id) {
     pl_fatal("rename");
 }
 
-int main(int argc, char *argv[]) {
+int map_main(int argc, char *argv[]) {
 
   char *linkpath;
 

@@ -9,7 +9,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]) {
+int export_tar_main(int argc, char *argv[]) {
   char *image_id, *file;
   if (!(image_id = argv[1]))
     pl_usage();

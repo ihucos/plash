@@ -21,7 +21,7 @@ int is_confirmed_via_argv(char **argv) {
   return (argv[1] && (strcmp(argv[1], "--yes") == 0));
 }
 
-int main(int argc, char *argv[]) {
+int purge_main(int argc, char *argv[]) {
 
   if (!(is_confirmed_via_argv(argv) || confirm_via_input())) {
     fputs("Action not confirmed\n", stderr);

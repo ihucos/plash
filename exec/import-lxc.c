@@ -28,7 +28,7 @@ char *getarch() {
   return dup;
 }
 
-int main(int argc, char *argv[]) {
+int import_lxc_main(int argc, char *argv[]) {
 
   char *prefix, *url_part, *rootfs_url, *resp, *image_name, *distro, *version,
       *line;

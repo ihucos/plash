@@ -13,7 +13,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]) {
+int sudo_main(int argc, char *argv[]) {
   struct passwd *pw = getpwuid(getuid());
   pl_unshare_user();
   pl_unshare_mount();

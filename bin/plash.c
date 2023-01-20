@@ -16,6 +16,33 @@
 #include <data.h>
 #include <mkdtemp.h>
 #include <nodepath.h>
+#include <import-lxc.h>
+#include <with-mount.h>
+#include <export-tar.h>
+#include <create.h>
+#include <import-tar.h>
+#include <init.h>
+#include <purge.h>
+#include <import-url.h>
+#include <sudo.h>
+#include <clean.h>
+#include <version.h>
+#include <parent.h>
+#include <add-layer.h>
+#include <map.h>
+#include <shrink.h>
+#include <run.h>
+#include <help.h>
+#include <help-macros.h>
+#include <runb.h>
+#include <eval.h>
+#include <rm.h>
+#include <mount.h>
+#include <copy.h>
+#include <b.h>
+#include <build.h>
+#include <import-docker.h>
+#include <eval-plashfile.h>
 
 void D(char *arr[]) {
   int ai;
@@ -53,7 +80,6 @@ void reexec_insert_run(int argc, char **argv) {
 }
 
 int main(int argc, char *argv[]) {
-  int flags;
 
   if (argc <= 1) {
     fprintf(stderr, "plash is a container build and run engine, try --help\n");
@@ -65,38 +91,36 @@ int main(int argc, char *argv[]) {
         !strcmp(argv[1], "--version") || !strcmp(argv[1], "--help-macros")))
     reexec_insert_run(argc, argv);
 
-  struct passwd *pwd;
-  char *bindir = pl_path("../bin"), *libexecdir = pl_path("../exec"),
-       *libexecrun = pl_path("../exec/run"), *path_env = getenv("PATH"),
-       *libexecfile, *newpath;
-
-  //
-  // setup environment variables
-  //
-  if (asprintf(&newpath, "%s:%s", bindir, path_env) == -1)
-    pl_fatal("asprintf");
-  if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
-    pl_fatal("setenv");
-
-  if (strcmp(argv[1], "data") == 0){
-    return data_main(argc - 1, argv + 1);
-  }
-  if (strcmp(argv[1], "mkdtemp") == 0){
-    return mkdtemp_main(argc - 1, argv + 1);
-  }
-  if (strcmp(argv[1], "nodepath") == 0){
-    return nodepath_main(argc - 1, argv + 1);
-  }
-
-  //
-  // exec lib/exec/<command>
-  //
-  if (asprintf(&libexecfile, "%s/%s", libexecdir, argv[1]) == -1)
-    pl_fatal("asprintf");
-  execvp(libexecfile, argv + 1);
-
-  if (errno != ENOENT)
-    pl_fatal("could not exec %s", libexecfile);
+  if (strcmp(argv[1], "data") == 0) return data_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "mkdtemp") == 0) return mkdtemp_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "nodepath") == 0)return nodepath_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "import-lxc") == 0) return import_lxc_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "with-mount") == 0) return with_mount_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "export-tar") == 0) return export_tar_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "create") == 0) return create_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "import-tar") == 0) return import_tar_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "init") == 0) return init_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "purge") == 0) return purge_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "import-url") == 0) return import_url_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "sudo") == 0) return sudo_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "clean") == 0) return clean_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "version") == 0) return version_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "parent") == 0) return parent_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "add-layer") == 0) return add_layer_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "map") == 0) return map_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "shrink") == 0) return shrink_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "run") == 0) return run_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "help") == 0) return help_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "help-macros") == 0) return help_macros_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "runb") == 0) return runb_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "eval") == 0) return eval_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "rm") == 0) return rm_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "mount") == 0) return mount_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "copy") == 0) return copy_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "b") == 0) return b_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "build") == 0) return build_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "import-docker") == 0) return import_docker_main(argc - 1, argv + 1);
+  if (strcmp(argv[1], "eval-plashfile") == 0) return eval_plashfile_main(argc - 1, argv + 1);
   errno = 0;
   pl_fatal("no such command: %s (try `plash help`)", argv[1]);
 }

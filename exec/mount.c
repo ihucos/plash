@@ -68,7 +68,7 @@ void validate_changesdir(char *changesdir) {
   }
 }
 
-int main(int argc, char *argv[]) {
+int mount_main(int argc, char *argv[]) {
 
   if (argc < 3) {
     pl_usage();

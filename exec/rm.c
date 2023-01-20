@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int main(int argc, char *argv[]) {
+int rm_main(int argc, char *argv[]) {
   if (argc != 2)
     pl_usage();
 

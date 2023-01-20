@@ -31,5 +31,13 @@ files = [
 ]
 
 
-for file ine files:
-    name = file.replace('-', '-')
+for file in files:
+    name = file.replace('-', '_')
+
+    l = f'int {name}_main(int argc, char *argv[]);\n'
+    open(file + '.h', 'w').write(l)
+
+    r = open(file + '.c', 'r').read()
+    r = r.replace("main(int argc, char *argv[])", f'int {name}_main(int argc, char *argv[])')
+    open(file + '.c', 'w').write(r)
+
