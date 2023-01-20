@@ -118,13 +118,16 @@ int main(int argc, char *argv[]) {
   DISPATCH("sudo", sudo_main);
   DISPATCH("clean", clean_main);
   DISPATCH("version", version_main);
+  DISPATCH("--version", version_main);
   DISPATCH("parent", parent_main);
   DISPATCH("add-layer", add_layer_main);
   DISPATCH("map", map_main);
   DISPATCH("shrink", shrink_main);
   DISPATCH("run", run_main);
   DISPATCH("help", help_main);
+  DISPATCH("--help", help_main);
   DISPATCH("help-macros", help_macros_main);
+  DISPATCH("--help-macros", help_macros_main);
   DISPATCH("runb", runb_main);
   DISPATCH("eval", eval_main);
   DISPATCH("rm", rm_main);
