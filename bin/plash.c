@@ -13,6 +13,10 @@
 
 #include <plash.h>
 
+#include <data.h>
+#include <mkdtemp.h>
+#include <nodepath.h>
+
 void D(char *arr[]) {
   int ai;
   for (ai = 0; arr[ai]; ai++)
@@ -73,6 +77,16 @@ int main(int argc, char *argv[]) {
     pl_fatal("asprintf");
   if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
     pl_fatal("setenv");
+
+  if (strcmp(argv[1], "data") == 0){
+    return data_main(argc - 1, argv + 1);
+  }
+  if (strcmp(argv[1], "mkdtemp") == 0){
+    return mkdtemp_main(argc - 1, argv + 1);
+  }
+  if (strcmp(argv[1], "nodepath") == 0){
+    return nodepath_main(argc - 1, argv + 1);
+  }
 
   //
   // exec lib/exec/<command>

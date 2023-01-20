@@ -21,7 +21,7 @@
 
 #include <plash.h>
 
-int main(int argc, char *argv[]) {
+int nodepath_main(int argc, char *argv[]) {
 
   int i = 0;
   char *nodepath, *plash_data;
@@ -47,4 +47,5 @@ int main(int argc, char *argv[]) {
     pl_fatal("no image: %s", argv[1]);
   }
   puts(nodepath);
+  return 0;
 }

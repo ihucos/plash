@@ -8,7 +8,7 @@
 
 #include <plash.h>
 
-int main() {
+int mkdtemp_main() {
   char *tmpdir, *tmpdir_templ;
   if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", pl_call("data"),
                getsid(0), getppid()) == -1)
@@ -17,4 +17,5 @@ int main() {
   if (tmpdir == NULL)
     pl_fatal("mkdtemp: %s", tmpdir_templ);
   puts(tmpdir);
+  return 0;
 }
