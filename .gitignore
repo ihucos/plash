@@ -1,38 +1,7 @@
 # compiled files
 bin/plash
 bin/plash-exec
-exec/add-layer
-exec/data
-exec/map
-exec/mkdtemp
-exec/nodepath
-exec/parent
-exec/run
-exec/runb
-exec/mount
-exec/sudo
-exec/rm
-exec/copy
-exec/eval
-exec/import-tar
-exec/export-tar
-exec/init
-exec/import-url
-exec/version
-exec/with-mount
-exec/eval-plashfile
-exec/create
-exec/b
-exec/shrink
-exec/purge
-exec/import-docker
-exec/import-lxc
-exec/clean
-exec/help-macros
-exec/build
-exec/help
 
-lib/plash.o
 tests/C/pl_parse_subid
 tests/C/pl_setup_user_ns
 
