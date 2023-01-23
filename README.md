@@ -10,7 +10,7 @@ Build and run layered root filesystems.
 cd $(mktemp -d)
 git clone git@github.com:ihucos/plash.git .
 make
-sudo cp bin/plash /usr/local/bin
+sudo cp dist/plash /usr/local/bin
 ```
 
 ## Uninstall
