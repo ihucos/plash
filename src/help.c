@@ -28,7 +28,6 @@
   "plash map           Map a container to a key\n"                             \
   "plash mkdtemp       Create a temporary directory in the plash data\n"       \
   "plash mount         Mount a container-filesystem\n"                         \
-  "plash mount.c       Mount a container-filesystem\n"                         \
   "plash nodepath      Prints the path to a given container\n"                 \
   "plash parent        Prints the containers parent container\n"               \
   "plash purge         Deletes all build data unatomically\n"                  \
@@ -40,7 +39,8 @@
   "plash test          Run unit tests\n"                                       \
   "plash version       Prints the version number\n"                            \
   "plash with-mount    Execute parameters inside a mounted container\n"        \
-  "plash -*            Fallback to `plash b run`\n"
+  "plash -*            Fallback to `plash b run`\n" \
+  "plash */*           Execute subcommand as file (for shebangs)\n"
 
 int help_main(int argc, char *argv[]) {
   fputs(HELP, stderr);
