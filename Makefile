@@ -12,7 +12,7 @@ dist/plash: %: src/*.c
 	$(CC) $(CFLAGS) $? -o dist/plash
 
 install:
-	cp dist/plash /usr/local/dist/plash
+	cp dist/plash /usr/local/bin/plash
 
 clean:
 	rm -f $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C) dist/plash
