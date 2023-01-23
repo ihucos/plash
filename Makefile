@@ -11,9 +11,6 @@ $(INCLUDES_PLASH_H): %: %.c $(filter-out src/main.c, $(wildcard src/*.c))
 bin/plash: %: src/*.c
 	$(CC) $(CFLAGS) $? -o bin/plash
 
-bin:
-	mkdir bin
-
 clean:
 	rm -f $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C) bin/plash
 

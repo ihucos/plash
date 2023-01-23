@@ -1,6 +1,5 @@
 # compiled files
 bin/plash
-bin/plash-exec
 
 tests/C/pl_parse_subid
 tests/C/pl_setup_user_ns
