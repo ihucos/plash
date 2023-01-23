@@ -87,7 +87,7 @@ void reexec_insert_run(int argc, char **argv) {
 int main(int argc, char *argv[]) {
 
   if (argc <= 1) {
-    fprintf(stderr, "plash is a container build and run engine, try --help\n");
+    fprintf(stderr, "build and run containers, try --help\n");
     return 1;
   }
 
