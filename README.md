@@ -7,12 +7,15 @@ Build and run layered root filesystems.
 
 ## Install
 ```
-sudo sh -c "curl -Lf https://raw.githubusercontent.com/ihucos/plash/master/setup.sh | sh"
+cd $(mktemp -d)
+git clone git@github.com:ihucos/plash.git .
+make
+sudo cp bin/plash /usr/local/bin
 ```
 
 ## Uninstall
 ```
-sudo rm -rf /usr/local/bin/plash /opt/plash/
+sudo rm /usr/local/bin/plash
 ```
 
 ## Requirements

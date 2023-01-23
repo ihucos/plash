@@ -11,6 +11,9 @@ $(INCLUDES_PLASH_H): %: %.c $(filter-out src/main.c, $(wildcard src/*.c))
 bin/plash: %: src/*.c
 	$(CC) $(CFLAGS) $? -o bin/plash
 
+install:
+	cp bin/plash /usr/local/bin/plash
+
 clean:
 	rm -f $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C) bin/plash
 
