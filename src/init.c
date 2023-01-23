@@ -33,7 +33,7 @@ int init_main(int argc, char *argv[]) {
   ensuredir("layer/0/_data", 0775);
   ensuredir("layer/0/_data/root", 0775);
 
-  int fd = open("id_counter", O_CREAT | O_WRONLY | O_EXCL);
+  int fd = open("id_counter", O_CREAT | O_WRONLY | O_EXCL, 0775);
   if (fd == -1 && errno != EEXIST)
     pl_fatal("open");
   close(fd);

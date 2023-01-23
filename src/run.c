@@ -140,7 +140,7 @@ int run_main(int argc, char *argv[]) {
   // mounting over it would not work as expected
   unlink("etc/resolv.conf");
   int fd;
-  if ((fd = open("etc/resolv.conf", O_CREAT | O_WRONLY)) < 0)
+  if ((fd = open("etc/resolv.conf", O_CREAT | O_WRONLY, 0775)) < 0)
     pl_fatal("open");
   close(fd);
   pl_bind_mount("/etc/resolv.conf", "etc/resolv.conf");
