@@ -1,4 +1,4 @@
-CFLAGS=-Isrc/ -Iheaders/
+CFLAGS=-Isrc/ -Iheaders/ -s -static
 
 INCLUDES_PLASH_H=tests/C/pl_setup_user_ns 
 INCLUDES_PLASH_C=tests/C/pl_parse_subid
@@ -11,6 +11,8 @@ $(INCLUDES_PLASH_H): %: %.c $(filter-out src/main.c, $(wildcard src/*.c))
 bin/plash: %: src/*.c
 	$(CC) $(CFLAGS) $? -o bin/plash
 
+bin:
+	mkdir bin
 
 clean:
 	rm -f $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C) bin/plash
