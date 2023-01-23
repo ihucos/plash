@@ -96,15 +96,6 @@ int main(int argc, char *argv[]) {
         !strcmp(argv[1], "--version") || !strcmp(argv[1], "--help-macros")))
     reexec_insert_run(argc, argv);
 
-  //
-  // setup environment variables
-  //
-  char *bindir = pl_path("../bin"), *path_env = getenv("PATH"), *newpath;
-  if (asprintf(&newpath, "%s:%s", bindir, path_env) == -1)
-    pl_fatal("asprintf");
-  if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
-    pl_fatal("setenv");
-
   // Check if plash is being used as shebang interpreter
   if (strchr(argv[1], '/') != NULL) return exec_main(argc, argv);
 
