@@ -3,7 +3,7 @@ set -eux
 
 : basic test
 plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
+printf '#!/usr/bin/env plash
 --from
 1
 --entrypoint
@@ -14,7 +14,7 @@ test $("$plashfile" printf_that) = printf_that
 
 : entrypoint not found
 plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
+printf '#!/usr/bin/env plash
 --from
 1
 --entrypoint
@@ -25,7 +25,7 @@ chmod 700 $plashfile
 
 : build error - bad build args
 plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
+printf '#!/usr/bin/env plash
 --from
 1
 --entrypoint
@@ -37,7 +37,7 @@ chmod 700 $plashfile
 
 : no --entrypoint
 plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
+printf '#!/usr/bin/env plash
 --from
 1' >> $plashfile
 chmod 700 $plashfile
@@ -45,7 +45,7 @@ chmod 700 $plashfile
 
 : test entrypoint-script macro
 plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
+printf '#!/usr/bin/env plash
 --from
 1
 --entrypoint-script
@@ -58,7 +58,7 @@ test "$($plashfile)" = "hello"
 : test cwd while building
 cd /
 plashfile=$(mktemp)
-printf '#!/usr/bin/env plash-exec
+printf '#!/usr/bin/env plash
 --from
 1
 --run

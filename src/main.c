@@ -43,6 +43,7 @@
 #include <sudo.h>
 #include <version.h>
 #include <with-mount.h>
+#include <exec.h>
 
 #define DISPATCH(command, func)                                                \
   if (strcmp(argv[1], command) == 0)                                           \
@@ -103,6 +104,9 @@ int main(int argc, char *argv[]) {
     pl_fatal("asprintf");
   if (setenv("PATH", path_env ? newpath : bindir, 1) == -1)
     pl_fatal("setenv");
+
+  // Check if plash is being used as shebang interpreter
+  if (strchr(argv[1], '/') != NULL) return exec_main(argc, argv);
 
   DISPATCH("data", data_main);
   DISPATCH("mkdtemp", mkdtemp_main);

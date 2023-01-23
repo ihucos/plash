@@ -21,4 +21,3 @@ cd /opt/plash
 make
 
 ln -sf /opt/plash/bin/plash      /usr/local/bin/plash
-ln -sf /opt/plash/bin/plash-exec /usr/local/bin/plash-exec

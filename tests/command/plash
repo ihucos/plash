@@ -15,7 +15,7 @@ set -e
 [[ "$(plash cmdnotfoundxxx 2>&1)" == *"no such command"* ]]
 
 : invoking command that could be a valid path
-[[ "$(plash ../blaaah 2>&1)" == *"no such command"* ]]
+[[ "$(plash ../blaaah 2>&1)" == *" No such file or directory"* ]]
 
 : test simple command call
 test "$(plash run 1 printf hi)" = "hi"

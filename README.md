@@ -12,7 +12,7 @@ sudo sh -c "curl -Lf https://raw.githubusercontent.com/ihucos/plash/master/setup
 
 ## Uninstall
 ```
-sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/
+sudo rm -rf /usr/local/bin/plash /opt/plash/
 ```
 
 ## Requirements
@@ -100,7 +100,7 @@ arg2
 
 
 ### Plash executable
-Take a build file, have `#!/usr/bin/env plash-exec` as its first line, mark it
+Take a build file, have `#!/usr/bin/env plash` as its first line, mark it
 as executable and specify it's entrypoint executable with the `entrypoint` macro.
 That is a plash executable. Now you you can build and run containerized
 software without knowing that containers or plash exist.
@@ -190,7 +190,7 @@ We could write a plash executable and ask users to run that. Save that file to
 `./runapp` and mark it as executable
 
 ```
-#!/usr/bin/env plash-exec
+#!/usr/bin/env plash
 --from alpine:edge
 --apk py3-pip
 --layer
@@ -212,7 +212,7 @@ We can also take this one step forward and containerize development tools.
 Create a directory called `devtools`, then add a file called `yapf` to it.
 
 ```
-#!/usr/bin/env plash-exec
+#!/usr/bin/env plash
 --from alpine:edge
 --apk py3-pip
 --layer

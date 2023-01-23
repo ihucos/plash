@@ -1,4 +1,4 @@
-#!/usr/bin/env plash-exec
+#!/usr/bin/env plash
 --from 1
 --# this is a comment
 --write-file /tesfile

@@ -103,7 +103,7 @@ section {
 sudo sh -c "curl -Lf https://raw.githubusercontent.com/ihucos/plash/master/setup.sh | sh"
 
 # uninstall
-sudo rm -rf /usr/local/bin/plash /usr/local/bin/plash-exec /opt/plash/</pre>
+sudo rm -rf /usr/local/bin/plash /opt/plash/</pre>
 
 <h2>Intro</h2>
 
@@ -207,14 +207,14 @@ bin  dev  etc  home  lib  media  mnt  proc  root  run  sbin  srv  sys  tmp  usr 
 
 <h3>Create an executable build file</h3>
 <pre>$ cat /tmp/yapf
-#!/usr/bin/env plash-exec
+#!/usr/bin/env plash
 --from-github ihucos/python
 --pip3 yapf
 --entrypoint /usr/bin/yapf
 $ /tmp/yapf myproject</pre>
 
 <h3>Example of a more complex executable build file</h3>
-<pre>#!/usr/bin/env plash-exec
+<pre>#!/usr/bin/env plash
 --from archlinux
 --pacman gtk3 python-gobject
 --layer

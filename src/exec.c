@@ -1,6 +1,6 @@
 // Used as shebang. It runs a plash buildfile.
 
-#define USAGE "usage: plash plash-exec file [arg1 [arg2 [arg3 ...]]]"
+#define USAGE "usage: plash exec file [arg1 [arg2 [arg3 ...]]]"
 
 #include <libgen.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 
 #include <utils.h>
 
-int main(int argc, char *argv[]) {
+int exec_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
     return 1;
