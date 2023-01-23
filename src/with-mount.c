@@ -42,8 +42,8 @@ int with_mount_main(int argc, char *argv[]) {
     if (errno == ENOENT) {
       fprintf(stderr, "%s: command not found\n", *argv);
       return 127;
-      pl_fatal("execvp");
     }
+    pl_fatal("execvp");
   }
   return 0;
 }
