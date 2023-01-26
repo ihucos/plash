@@ -13,6 +13,7 @@
 
 int confirm_via_input() {
   printf("Delete all build data? [y/N] ");
+  fflush(stdout);
   char inp[sizeof("y\n")];
   fgets(inp, sizeof(inp), stdin);
   return (strcmp(inp, "y\n") == 0);

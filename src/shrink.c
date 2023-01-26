@@ -81,19 +81,19 @@ int shrink_main(int argc, char *argv[]) {
 
   int images_count = count_images() - 1; // substract special root image
   if (!images_count) {
-    printf("You have no images\n");
+    fprintf(stderr, "You have no images\n");
     return 0;
   }
-  printf("You have %d images.\n", images_count);
+  fprintf(stderr, "You have %d images.\n", images_count);
   for (int to_delete = ((images_count + 1) / 2); to_delete; to_delete--) {
     char *o = get_oldest_leave();
     if (o[0] == '0' && o[1] == '\0') {
-      printf("Nothing to delete.\n");
+      fprintf(stderr, "Nothing to delete.\n");
       break;
     }
-    printf("Deleting image id: %s\n", o);
+    fprintf(stderr, "Deleting image id: %s\n", o);
     pl_cmd(rm_main, o);
   }
-  printf("You have %d images.\n", count_images() - 1);
+  fprintf(stderr, "You have %d images.\n", count_images() - 1);
   return 0;
 }
