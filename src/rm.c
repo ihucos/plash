@@ -3,11 +3,9 @@
 
 #define USAGE "usage: plash rm IMAGE_ID\n"
 
+#include <plash.h>
 #include <stdio.h>
 #include <unistd.h>
-
-#include <plash.h>
-
 
 int rm_main(int argc, char *argv[]) {
   if (argc != 2) {
