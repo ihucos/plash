@@ -39,7 +39,7 @@
   "plash test          Run unit tests\n"                                       \
   "plash version       Prints the version number\n"                            \
   "plash with-mount    Execute parameters inside a mounted container\n"        \
-  "plash -*            Fallback to `plash b run`\n"                            \
+  "plash -*            Fallback to `plash b run`\n" \
   "plash */*           Execute subcommand as file (for shebangs)\n"
 
 int help_main(int argc, char *argv[]) {

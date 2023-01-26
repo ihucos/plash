@@ -104,11 +104,9 @@ char *quote(char *str) {
   return quoted;
 }
 
-char *call_cached(char *cache_prefix, int (*main_func)(int, char *[]),
-                  char *arg) {
+char *call_cached(char *cache_prefix, int (*main_func)(int, char *[]), char *arg) {
   char *cache_key, *image_id;
-  asprintf(&cache_key, "%s:%s", cache_prefix, arg) != -1 ||
-      pl_fatal("asprintf");
+  asprintf(&cache_key, "%s:%s", cache_prefix, arg) != -1 || pl_fatal("asprintf");
 
   for (size_t i = 0; cache_key[i]; i++) {
     if (cache_key[i] == '/')
@@ -242,8 +240,7 @@ int eval_main(int argc, char *argv[]) {
       printhint("image", getarg());
 
     } else if (tokenis("--from-docker")) {
-      printhint("image",
-                call_cached("import-docker", import_docker_main, getarg()));
+      printhint("image", call_cached("import-docker", import_docker_main, getarg()));
 
     } else if (tokenis("--from-url")) {
       printhint("image", call_cached("import-url", import_url_main, getarg()));

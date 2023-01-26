@@ -77,8 +77,7 @@ int shrink_main(int argc, char *argv[]) {
   char *plash_data = pl_cmd(data_main);
   if (chdir(plash_data) == -1)
     pl_fatal("chdir %s", plash_data);
-  if (chdir("index") == -1)
-    pl_fatal("chdir index");
+  if (chdir("index") == -1) pl_fatal("chdir index");
 
   int images_count = count_images() - 1; // substract special root image
   if (!images_count) {

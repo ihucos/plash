@@ -65,8 +65,7 @@ int main(int argc, char *argv[]) {
     reexec_insert_run(argc, argv);
 
   // Check if plash is being used as shebang interpreter
-  if (strchr(argv[1], '/') != NULL)
-    return exec_main(argc, argv);
+  if (strchr(argv[1], '/') != NULL) return exec_main(argc, argv);
 
   DISPATCH("data", data_main);
   DISPATCH("mkdtemp", mkdtemp_main);
