@@ -33,7 +33,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 #define PLASH_HINT_IMAGE "### plash hint: image="
 #define PLASH_HINT_LAYER "### plash hint: layer"
@@ -110,12 +110,12 @@ char *cached_call_plash_create(char *base_image_id, char *shell_input) {
   char *cache_key = NULL;
   asprintf(&cache_key, "layer:%s:%lu\n", base_image_id, hash(shell_input)) ||
       pl_fatal("asprintf");
-  cached_image_id = pl_call("map", cache_key);
+  cached_image_id = pl_cmd(map_main, cache_key);
   if (strcmp(cached_image_id, "") != 0) {
     return cached_image_id;
   } else {
     image_id = call_plash_create(base_image_id, shell_input);
-    pl_call("map", cache_key, image_id);
+    pl_cmd(map_main, cache_key, image_id);
     return image_id;
   }
 }
@@ -202,7 +202,7 @@ int build_main(int argc, char *argv[]) {
   if (strcmp(base_image_id, image_id) == 0) {
     // This happens of "plash build -f 1" invocations. Let's just validate that
     // image is correct.
-    pl_call("nodepath", image_id);
+    pl_cmd(nodepath_main, image_id);
   }
   puts(image_id);
   return 0;

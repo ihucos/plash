@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 #define ITERDIR_BEGIN(path)                                                    \
   DIR *dirp;                                                                   \
@@ -74,27 +74,26 @@ char *get_oldest_leave() {
 
 int shrink_main(int argc, char *argv[]) {
   char *image_id;
-  char *plash_data = pl_call("data");
+  char *plash_data = pl_cmd(data_main);
   if (chdir(plash_data) == -1)
-    pl_fatal("chdir %s");
-  if (chdir("index") == -1)
-    pl_fatal("chdir %s");
+    pl_fatal("chdir %s", plash_data);
+  if (chdir("index") == -1) pl_fatal("chdir index");
 
   int images_count = count_images() - 1; // substract special root image
   if (!images_count) {
-    printf("You have no images\n");
+    fprintf(stderr, "You have no images\n");
     return 0;
   }
-  printf("You have %d images.\n", images_count);
+  fprintf(stderr, "You have %d images.\n", images_count);
   for (int to_delete = ((images_count + 1) / 2); to_delete; to_delete--) {
     char *o = get_oldest_leave();
     if (o[0] == '0' && o[1] == '\0') {
-      printf("Nothing to delete.\n");
+      fprintf(stderr, "Nothing to delete.\n");
       break;
     }
-    printf("Deleting image id: %s\n", o);
-    pl_call("rm", o);
+    fprintf(stderr, "Deleting image id: %s\n", o);
+    pl_cmd(rm_main, o);
   }
-  printf("You have %d images.\n", count_images() - 1);
+  fprintf(stderr, "You have %d images.\n", count_images() - 1);
   return 0;
 }

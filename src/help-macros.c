@@ -4,7 +4,7 @@
 
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int help_macros_main(int argc, char *argv[]) {
   execlp("plash", "plash", "eval", "--help", NULL);

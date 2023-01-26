@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int with_mount_main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -25,8 +25,8 @@ int with_mount_main(int argc, char *argv[]) {
   pl_unshare_user();
   pl_unshare_mount();
 
-  char *mountpoint = pl_call("mkdtemp");
-  pl_call("mount", image_id, mountpoint);
+  char *mountpoint = pl_cmd(mkdtemp_main);
+  pl_cmd(mount_main, image_id, mountpoint);
   if (chdir(mountpoint) == -1)
     pl_fatal("chdir");
 

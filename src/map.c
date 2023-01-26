@@ -29,7 +29,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 char *plash_data;
 
@@ -55,9 +55,9 @@ void del(char const *linkpath) {
 void set(char const *linkpath, char *container_id) {
   char *nodepath;
 
-  nodepath = pl_call("nodepath", container_id);
+  nodepath = pl_cmd(nodepath_main, container_id);
 
-  if (chdir(pl_call("mkdtemp")) == -1)
+  if (chdir(pl_cmd(mkdtemp_main)) == -1)
     pl_fatal("chdir");
   if (asprintf(&nodepath, "..%s", nodepath + strlen(plash_data)) == -1)
     pl_fatal("asprintf");
@@ -78,7 +78,7 @@ int map_main(int argc, char *argv[]) {
     }
   }
 
-  plash_data = pl_call("data");
+  plash_data = pl_cmd(data_main);
   assert(plash_data);
   assert(plash_data[0] == '/');
 
