@@ -14,7 +14,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 #define QUOTE_REPLACE "'\"'\"'"
 #define eval_with_args(...) eval_with_args_array((char *[]){__VA_ARGS__, NULL})
@@ -196,7 +196,7 @@ void eval_with_args_array(char **middel_args) {
   ];
 
   size_t index = 0;
-  args[index++] = "plash";
+  args[index++] = "/proc/self/exe";
   args[index++] = "eval";
   for (int j = 0; middel_args[j]; j++) {
     args[index++] = middel_args[j];
@@ -228,9 +228,9 @@ int eval_main(int argc, char *argv[]) {
           only_digits = 0;
       }
       if (only_digits) {
-        pl_run("plash", "eval", "--from-id", arg);
+        pl_run("/proc/self/exe", "eval", "--from-id", arg);
       } else {
-        pl_run("plash", "eval", "--from-lxc", arg);
+        pl_run("/proc/self/exe", "eval", "--from-lxc", arg);
       }
 
     } else if (tokenis("--hint")) {
@@ -253,7 +253,7 @@ int eval_main(int argc, char *argv[]) {
       printhint("image", image_id);
 
     } else if (tokenis("--entrypoint-script")) {
-      pl_run("plash", "eval", "--entrypoint", "/entrypoint");
+      pl_run("/proc/self/exe", "eval", "--entrypoint", "/entrypoint");
       eval_with_args("--write-script", "/entrypoint");
 
     } else if (tokenis("--write-file")) {
@@ -270,7 +270,7 @@ int eval_main(int argc, char *argv[]) {
     } else if (tokenis("--eval-url")) {
       pl_pipe(
           (char *[]){"curl", "--fail", "--no-progress-meter", getarg(), NULL},
-          (char *[]){"plash", "eval-plashfile", NULL});
+          (char *[]){"/proc/self/exe", "eval-plashfile", NULL});
 
     } else if (tokenis("--eval-github")) {
       char *url, *user_repo_pair, *file;
@@ -284,7 +284,7 @@ int eval_main(int argc, char *argv[]) {
                user_repo_pair, file) != -1 ||
           pl_fatal("asprintf");
       pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", url, NULL},
-              (char *[]){"plash", "eval-plashfile", NULL});
+              (char *[]){"/proc/self/exe", "eval-plashfile", NULL});
 
     } else if (tokenis("--hash-path")) {
       while (getarg_or_null()) {
@@ -312,10 +312,10 @@ int eval_main(int argc, char *argv[]) {
       eachline("echo %s >> /.plashmount\n");
 
     } else if (tokenis("--eval-file")) {
-      pl_run("plash", "eval-plashfile", getarg());
+      pl_run("/proc/self/exe", "eval-plashfile", getarg());
 
     } else if (tokenis("--eval-stdin")) {
-      pl_run("plash", "eval-plashfile");
+      pl_run("/proc/self/exe", "eval-plashfile");
 
     } else if (tokenis("--from-lxc")) {
       printhint("image", call_cached("import-lxc", getarg()));

@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
-int mkdtemp_main() {
+int mkdtemp_main(int argc, char *argv[]) {
   char *tmpdir, *tmpdir_templ;
   if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", pl_call("data"),
                getsid(0), getppid()) == -1)

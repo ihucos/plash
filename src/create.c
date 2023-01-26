@@ -28,7 +28,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int create_main(int argc, char *argv[]) {
 
@@ -47,7 +47,7 @@ int create_main(int argc, char *argv[]) {
 
   char *changesdir = pl_call("mkdtemp");
 
-  pl_exec_add("plash");
+  pl_exec_add("/proc/self/exe");
   pl_exec_add("runb");
   pl_exec_add(image_id);
   pl_exec_add(changesdir);
@@ -94,6 +94,6 @@ int create_main(int argc, char *argv[]) {
   char *changesdir_data = NULL;
   asprintf(&changesdir_data, "%s/data", changesdir) != -1 ||
       pl_fatal("asprintf");
-  execlp("plash", "plash", "add-layer", image_id, changesdir_data, NULL);
+  execlp("/proc/self/exe", "plash", "add-layer", image_id, changesdir_data, NULL);
   pl_fatal("execlp");
 }

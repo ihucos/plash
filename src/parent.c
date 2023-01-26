@@ -7,7 +7,7 @@
 #define USAGE "usage: plash parent IMAGE_ID\n"
 
 #include <libgen.h>
-#include <utils.h>
+#include <plash.h>
 #include <stdio.h>
 
 int parent_main(int argc, char *argv[]) {

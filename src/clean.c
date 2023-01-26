@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 size_t remove_broken_links_here() {
   size_t removed = 0;

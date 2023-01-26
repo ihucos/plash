@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int with_mount_main(int argc, char *argv[]) {
   if (argc < 2) {

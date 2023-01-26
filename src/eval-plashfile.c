@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int eval_plashfile_main(int argc, char *argv[]) {
   int is_first_line = 1;
@@ -24,7 +24,7 @@ int eval_plashfile_main(int argc, char *argv[]) {
       pl_fatal("fopen: %s", argv[1]);
   }
 
-  pl_exec_add("plash");
+  pl_exec_add("/proc/self/exe");
   pl_exec_add("eval");
 
   // for each line

@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 void read_envs_from_plashenv() {
   char *line = NULL;

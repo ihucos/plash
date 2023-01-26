@@ -33,7 +33,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 #define PLASH_HINT_IMAGE "### plash hint: image="
 #define PLASH_HINT_LAYER "### plash hint: layer"
@@ -78,7 +78,7 @@ char *call_plash_create(char *image_id, char *shell_input) {
   //// run plash create to create this layer
   FILE *create_stdin, *create_stdout;
   pid_t create_pid =
-      pl_spawn_process((char *[]){"plash", "create", image_id, "sh", NULL},
+      pl_spawn_process((char *[]){"/proc/self/exe", "create", image_id, "sh", NULL},
                        &create_stdin, &create_stdout, NULL);
 
   // send shell input to plash create
@@ -129,7 +129,7 @@ int build_main(int argc, char *argv[]) {
   // mold args for plash eval process
   char *args[argc + 1];
   size_t i = 0;
-  args[i++] = "plash";
+  args[i++] = "/proc/self/exe";
   args[i++] = "eval";
   argv++;
   while (*argv)

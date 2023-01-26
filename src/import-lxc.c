@@ -13,7 +13,7 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 char *getarch() {
   struct utsname unameData;
@@ -67,7 +67,7 @@ int import_lxc_main(int argc, char *argv[]) {
         puts(rootfs_url);
         return 0;
       } else {
-        execlp("plash", "plash", "import-url", rootfs_url, NULL);
+        execlp("/proc/self/exe", "plash", "import-url", rootfs_url, NULL);
         pl_fatal("execlp");
       }
     }

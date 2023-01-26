@@ -3,7 +3,7 @@
 
 #define USAGE "usage: plash import-tar [ TARFILE ]\n"
 
-#include <utils.h>
+#include <plash.h>
 #include <stddef.h>
 #include <unistd.h>
 
@@ -13,7 +13,7 @@ int import_tar_main(int argc, char *argv[]) {
     tarfile = "-";
   }
   char *tmpdir = pl_call("mkdtemp");
-  pl_run("plash", "sudo", "tar", "-C", tmpdir, "-xf", tarfile);
-  execlp("plash", "plash", "add-layer", "0", tmpdir, NULL);
+  pl_run("/proc/self/exe", "sudo", "tar", "-C", tmpdir, "-xf", tarfile);
+  execlp("/proc/self/exe", "plash", "add-layer", "0", tmpdir, NULL);
   pl_fatal("execlp");
 }
