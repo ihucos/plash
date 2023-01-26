@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 #define USAGE "usage: plash import-docker IMAGE\n"
 
@@ -43,6 +43,6 @@ int import_docker_main(int argc, char *argv[]) {
   char *container_id = pl_firstline(
       pl_check_output((char *[]){"docker", "create", image, "sh", NULL}));
   pl_pipe((char *[]){"docker", "export", container_id, NULL},
-          (char *[]){"plash", "import-tar", NULL});
+          (char *[]){"/proc/self/exe", "import-tar", NULL});
   return 0;
 }

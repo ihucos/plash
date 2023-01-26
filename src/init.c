@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 void ensuredir(char *pathname, mode_t mode) {
   if (mkdir(pathname, mode) == -1 && errno != EEXIST)

@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 #define USAGE "usage: plash mount IMAGE_ID MOUNTPOINT [ CHANGESDIR ]\n"
 

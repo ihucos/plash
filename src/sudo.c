@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int sudo_main(int argc, char *argv[]) {
   struct passwd *pw = getpwuid(getuid());

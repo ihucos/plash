@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int import_url_main(int argc, char *argv[]) {
   char *url = argv[1];
@@ -21,6 +21,6 @@ int import_url_main(int argc, char *argv[]) {
       pl_fatal("asprintf");
   pl_run("curl", "--progress-bar", "--fail", "--location", "--output", rootfs,
          url);
-  execlp("plash", "plash", "import-tar", rootfs, NULL);
+  execlp("/proc/self/exe", "plash", "import-tar", rootfs, NULL);
   pl_fatal("execlp");
 }

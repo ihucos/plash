@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int exec_main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -25,7 +25,7 @@ int exec_main(int argc, char *argv[]) {
   if (chdir(dirname(plashfileCopy)) == -1)
     pl_fatal("chdir");
 
-  pl_exec_add("plash");
+  pl_exec_add("/proc/self/exe");
   pl_exec_add("b");
   pl_exec_add("run");
   pl_exec_add("--eval-file");

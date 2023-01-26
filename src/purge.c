@@ -9,7 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int confirm_via_input() {
   printf("Delete all build data? [y/N] ");

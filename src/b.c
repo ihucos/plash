@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int b_main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -25,7 +25,7 @@ int b_main(int argc, char *argv[]) {
     pl_fatal("strdup");
 
   // reuse argv to build command to build the image
-  *argv = "plash";
+  *argv = "/proc/self/exe";
   argv++;
   *argv = "build";
   argv++;
@@ -39,7 +39,7 @@ int b_main(int argc, char *argv[]) {
   }
 
   // Run the requested command with the builded image
-  pl_exec_add("plash");
+  pl_exec_add("/proc/self/exe");
   pl_exec_add(cmd);
   pl_exec_add(pl_firstline(pl_check_output(buildargs)));
   while (*(cmdargs))

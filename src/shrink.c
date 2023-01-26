@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 #define ITERDIR_BEGIN(path)                                                    \
   DIR *dirp;                                                                   \

@@ -2,7 +2,7 @@
 
 #define USAGE "usage: plash copy IMAGE_ID DIR\n"
 
-#include <utils.h>
+#include <plash.h>
 #include <stdio.h>
 #include <unistd.h>
 

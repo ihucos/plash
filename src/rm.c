@@ -3,7 +3,7 @@
 
 #define USAGE "usage: plash rm IMAGE_ID\n"
 
-#include <utils.h>
+#include <plash.h>
 #include <stdio.h>
 #include <unistd.h>
 

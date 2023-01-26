@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int export_tar_main(int argc, char *argv[]) {
   char *image_id, *file;
@@ -19,6 +19,6 @@ int export_tar_main(int argc, char *argv[]) {
   if (!(file = argv[2]))
     file = "-";
   pl_unshare_user();
-  execvp("plash", (char *[]){"plash", "with-mount", image_id, "tar", "-cf",
+  execvp("/proc/self/exe", (char *[]){"plash", "with-mount", image_id, "tar", "-cf",
                              file, ".", NULL});
 }
