@@ -19,6 +19,6 @@ int export_tar_main(int argc, char *argv[]) {
   if (!(file = argv[2]))
     file = "-";
   pl_unshare_user();
-  return with_mount_main(
-      6, (char *[]){"with-mount", image_id, "tar", "-cf", file, ".", NULL});
+  execvp("plash", (char *[]){"plash", "with-mount", image_id, "tar", "-cf",
+                             file, ".", NULL});
 }
