@@ -13,7 +13,7 @@ int import_tar_main(int argc, char *argv[]) {
     tarfile = "-";
   }
   char *tmpdir = pl_cmd(mkdtemp_main);
-  pl_cmd(sudo_main, "tar", "-C", tmpdir, "-xf", tarfile);
-  puts(pl_cmd(add_layer_main, "0", tmpdir));
-  return 0;
+  pl_run("plash", "sudo", "tar", "-C", tmpdir, "-xf", tarfile);
+  execlp("plash", "plash", "add-layer", "0", tmpdir, NULL);
+  pl_fatal("execlp");
 }

@@ -23,7 +23,7 @@ int rm_main(int argc, char *argv[]) {
   if (rename(nodepath, tmp) == -1)
     pl_fatal("rename %s %s", nodepath, tmp);
 
-  execlp("rm", "rm", "-rf", tmp, NULL);
+  execlp("rm", "-rf", tmp, NULL);
   pl_fatal("execlp");
   return 0;
 }

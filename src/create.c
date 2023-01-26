@@ -94,6 +94,6 @@ int create_main(int argc, char *argv[]) {
   char *changesdir_data = NULL;
   asprintf(&changesdir_data, "%s/data", changesdir) != -1 ||
       pl_fatal("asprintf");
-  puts(pl_cmd(add_layer_main, image_id, changesdir_data));
-  return 0;
+  execlp("plash", "plash", "add-layer", image_id, changesdir_data, NULL);
+  pl_fatal("execlp");
 }
