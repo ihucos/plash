@@ -21,7 +21,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <utils.h>
+#include <plash.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,15 +40,15 @@ int add_layer_main(int argc, char *argv[]) {
     return 1;
   }
 
-  plash_data = pl_call("data");
+  plash_data = pl_cmd(data_main);
   assert(plash_data);
   assert(plash_data[0] == '/');
 
-  nodepath = pl_call("nodepath", argv[1], "--allow-root-container");
+  nodepath = pl_cmd(nodepath_main, argv[1], "--allow-root-container");
 
   pl_unshare_user();
 
-  prepared_new_node = pl_call("mkdtemp");
+  prepared_new_node = pl_cmd(mkdtemp_main);
 
   if ((layer = realpath(argv[2], NULL)) == NULL)
     pl_fatal("realpath(%s)", argv[2]);

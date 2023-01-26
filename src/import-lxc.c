@@ -13,7 +13,7 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 char *getarch() {
   struct utsname unameData;

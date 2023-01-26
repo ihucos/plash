@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int exec_main(int argc, char *argv[]) {
   if (argc < 2) {

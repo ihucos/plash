@@ -28,11 +28,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int create_main(int argc, char *argv[]) {
 
-  char *plash_data = pl_call("data");
+  char *plash_data = pl_cmd(data_main);
   char *image_id = argv[1];
   if (image_id == NULL) {
     fputs(USAGE, stderr);
@@ -40,12 +40,12 @@ int create_main(int argc, char *argv[]) {
   }
 
   // validate image exists
-  pl_call("nodepath", image_id);
+  pl_cmd(nodepath_main, image_id);
 
   argv++; // chop argv[0]
   argv++; // chop image_id
 
-  char *changesdir = pl_call("mkdtemp");
+  char *changesdir = pl_cmd(mkdtemp_main);
 
   pl_exec_add("plash");
   pl_exec_add("runb");

@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int eval_plashfile_main(int argc, char *argv[]) {
   int is_first_line = 1;

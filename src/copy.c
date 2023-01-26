@@ -2,7 +2,7 @@
 
 #define USAGE "usage: plash copy IMAGE_ID DIR\n"
 
-#include <utils.h>
+#include <plash.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -13,10 +13,10 @@ int copy_main(int argc, char *argv[]) {
   }
   char *container = argv[1];
   char *outdir = argv[2];
-  char *tmpout = pl_call("mkdtemp");
+  char *tmpout = pl_cmd(mkdtemp_main);
 
   pl_unshare_user();
-  pl_call("with-mount", container, "cp", "-r", ".", tmpout);
+  pl_cmd(with_mount_main, container, "cp", "-r", ".", tmpout);
   if (rename(tmpout, outdir) == -1)
     pl_fatal("rename %s %s", tmpout, outdir);
   return 0;

@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 #define USAGE "usage: plash mount IMAGE_ID MOUNTPOINT [ CHANGESDIR ]\n"
 
@@ -20,8 +20,8 @@
 
 char *prepare_lowerdir(char *image_id) {
   char *lowerdir = "";
-  char *plash_data = pl_call("data");
-  char *nodepath = pl_call("nodepath", image_id);
+  char *plash_data = pl_cmd(data_main, NULL);
+  char *nodepath = pl_cmd(nodepath_main, image_id);
   int offset = strlen(plash_data) + strlen("/layer/");
   if (strlen(nodepath) < offset) {
     pl_fatal("Unexpected interal error: nodepath command output is shorter "

@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int main() {
   if (getuid())

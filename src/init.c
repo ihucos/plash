@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 void ensuredir(char *pathname, mode_t mode) {
   if (mkdir(pathname, mode) == -1 && errno != EEXIST)
@@ -19,7 +19,7 @@ void ensuredir(char *pathname, mode_t mode) {
 
 int init_main(int argc, char *argv[]) {
 
-  char *plash_data = pl_call("data");
+  char *plash_data = pl_cmd(data_main);
 
   ensuredir(plash_data, 0700);
   if (chdir(plash_data) == -1)

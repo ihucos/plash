@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <unistd.h>
 
-#include <utils.h>
+#include <plash.h>
 
 int export_tar_main(int argc, char *argv[]) {
   char *image_id, *file;

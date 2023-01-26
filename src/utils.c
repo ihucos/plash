@@ -574,3 +574,50 @@ char *pl_nextline(FILE *fh) {
   line[strcspn(line, "\n")] = '\0';
   return line;
 }
+
+char* pl_cmd_array(int (*main_func)(int, char *[]), char *args[]) {
+  int link[2];
+  int status;
+  pid_t pid;
+  char *output = calloc(PL_CHECK_OUTPUT_BUFFER, sizeof(char *));
+
+  if (pipe(link) == -1)
+    pl_fatal("pipe");
+
+  switch (pid = fork()) {
+  case -1:
+    pl_fatal("fork");
+
+  case 0:
+    if (dup2(link[1], STDOUT_FILENO) == -1)
+      pl_fatal("dup2");
+    if (close(link[0]) == -1)
+      pl_fatal("close");
+    if (close(link[1]) == -1)
+      pl_fatal("close");
+    int argc = 0;
+    while(args[argc]) argc++;
+    int exit_status = main_func(argc, args);
+    if (exit_status != 0) {
+      exit(1);
+    }
+    exit(0);
+
+  default:
+    if (close(link[1]) == -1)
+      pl_fatal("close");
+
+    waitpid(pid, &status, 0);
+    if (!WIFEXITED(status))
+      pl_fatal("child exited abnormally");
+    if (WEXITSTATUS(status))
+      exit(1);
+
+    if (read(link[0], output, PL_CHECK_OUTPUT_BUFFER) == -1)
+      pl_fatal("read");
+    close(link[0]);
+    close(link[1]);
+    output[strcspn(output, "\n")] = 0;
+    return output;
+  }
+}
