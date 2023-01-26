@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
-int mkdtemp_main(int argc, char *argv[]) {
+int mkdtemp_main() {
   char *tmpdir, *tmpdir_templ;
-  if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", pl_cmd(data_main),
+  if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", pl_call("data"),
                getsid(0), getppid()) == -1)
     pl_fatal("asprintf");
   tmpdir = mkdtemp(tmpdir_templ);

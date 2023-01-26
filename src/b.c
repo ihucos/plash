@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <plash.h>
+#include <utils.h>
 
 int b_main(int argc, char *argv[]) {
   if (argc < 2) {

@@ -1,4 +1,4 @@
-CFLAGS=-Isrc/
+CFLAGS=-Isrc/ -Iheaders/
 
 INCLUDES_PLASH_H=tests/C/pl_setup_user_ns 
 INCLUDES_PLASH_C=tests/C/pl_parse_subid

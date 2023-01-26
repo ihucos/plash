@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
 size_t remove_broken_links_here() {
   size_t removed = 0;
@@ -79,7 +79,7 @@ int clean_main(int argc, char *argv[]) {
   size_t count;
   pl_unshare_user();
   char *pid, *sid;
-  char *plash_data = pl_cmd(data_main);
+  char *plash_data = pl_call("data");
 
   fprintf(stderr, "output_stable: false\n");
 

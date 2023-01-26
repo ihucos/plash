@@ -9,11 +9,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
 int confirm_via_input() {
   printf("Delete all build data? [y/N] ");
-  fflush(stdout);
   char inp[sizeof("y\n")];
   fgets(inp, sizeof(inp), stdin);
   return (strcmp(inp, "y\n") == 0);
@@ -32,7 +31,7 @@ int purge_main(int argc, char *argv[]) {
 
   pl_unshare_user();
 
-  char *plash_data = pl_cmd(data_main);
+  char *plash_data = pl_call("data");
   if (chdir(plash_data) == -1)
     pl_fatal("chdir %s", plash_data);
 

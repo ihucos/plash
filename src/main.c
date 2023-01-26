@@ -11,7 +11,39 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
+
+#include <add-layer.h>
+#include <b.h>
+#include <build.h>
+#include <clean.h>
+#include <copy.h>
+#include <create.h>
+#include <data.h>
+#include <eval-plashfile.h>
+#include <eval.h>
+#include <export-tar.h>
+#include <help-macros.h>
+#include <help.h>
+#include <import-docker.h>
+#include <import-lxc.h>
+#include <import-tar.h>
+#include <import-url.h>
+#include <init.h>
+#include <map.h>
+#include <mkdtemp.h>
+#include <mount.h>
+#include <nodepath.h>
+#include <parent.h>
+#include <purge.h>
+#include <rm.h>
+#include <run.h>
+#include <runb.h>
+#include <shrink.h>
+#include <sudo.h>
+#include <version.h>
+#include <with-mount.h>
+#include <exec.h>
 
 #define DISPATCH(command, func)                                                \
   if (strcmp(argv[1], command) == 0)                                           \

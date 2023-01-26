@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
 char *get_home_dir() {
   struct passwd *pwd;

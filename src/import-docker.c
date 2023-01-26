@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
 #define USAGE "usage: plash import-docker IMAGE\n"
 

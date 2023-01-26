@@ -14,7 +14,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
 #define QUOTE_REPLACE "'\"'\"'"
 #define eval_with_args(...) eval_with_args_array((char *[]){__VA_ARGS__, NULL})
@@ -104,19 +104,19 @@ char *quote(char *str) {
   return quoted;
 }
 
-char *call_cached(char *cache_prefix, int (*main_func)(int, char *[]), char *arg) {
+char *call_cached(char *subcommand, char *arg) {
   char *cache_key, *image_id;
-  asprintf(&cache_key, "%s:%s", cache_prefix, arg) != -1 || pl_fatal("asprintf");
+  asprintf(&cache_key, "%s:%s", subcommand, arg) != -1 || pl_fatal("asprintf");
 
   for (size_t i = 0; cache_key[i]; i++) {
     if (cache_key[i] == '/')
       cache_key[i] = '%';
   }
 
-  image_id = pl_cmd(map_main, cache_key);
+  image_id = pl_call("map", cache_key);
   if (strlen(image_id) == 0) {
-    image_id = pl_cmd(main_func, arg);
-    pl_cmd(map_main, cache_key, image_id);
+    image_id = pl_call(subcommand, arg);
+    pl_call("map", cache_key, image_id);
   }
   return image_id;
 }
@@ -240,13 +240,13 @@ int eval_main(int argc, char *argv[]) {
       printhint("image", getarg());
 
     } else if (tokenis("--from-docker")) {
-      printhint("image", call_cached("import-docker", import_docker_main, getarg()));
+      printhint("image", call_cached("import-docker", getarg()));
 
     } else if (tokenis("--from-url")) {
-      printhint("image", call_cached("import-url", import_url_main, getarg()));
+      printhint("image", call_cached("import-url", getarg()));
 
     } else if (tokenis("--from-map")) {
-      char *image_id = pl_cmd(map_main, getarg());
+      char *image_id = pl_call("map", getarg());
       if (image_id[0] == '\0') {
         pl_fatal("No such map: %s", arg);
       }
@@ -318,7 +318,7 @@ int eval_main(int argc, char *argv[]) {
       pl_run("plash", "eval-plashfile");
 
     } else if (tokenis("--from-lxc")) {
-      printhint("image", call_cached("import-lxc", import_lxc_main, getarg()));
+      printhint("image", call_cached("import-lxc", getarg()));
 
     } else if (tokenis("--run-stdin")) {
       int c;

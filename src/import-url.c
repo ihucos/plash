@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
 int import_url_main(int argc, char *argv[]) {
   char *url = argv[1];
@@ -17,7 +17,7 @@ int import_url_main(int argc, char *argv[]) {
   }
 
   char *rootfs = NULL;
-  asprintf(&rootfs, "%s/rootfs", pl_cmd(mkdtemp_main)) != -1 ||
+  asprintf(&rootfs, "%s/rootfs", pl_call("mkdtemp")) != -1 ||
       pl_fatal("asprintf");
   pl_run("curl", "--progress-bar", "--fail", "--location", "--output", rootfs,
          url);

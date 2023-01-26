@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
 int runb_main(int argc, char *argv[]) {
 
@@ -36,7 +36,7 @@ int runb_main(int argc, char *argv[]) {
   char *container_id = argv[1];
   char *changesdir = argv[2];
   char *origpwd = get_current_dir_name();
-  char *plash_data = pl_cmd(data_main);
+  char *plash_data = pl_call("data");
   //
   // get "userspace root"
   //
@@ -54,7 +54,7 @@ int runb_main(int argc, char *argv[]) {
   //
   // mount root filesystem at the empty mountpoint
   //
-  pl_cmd(mount_main, container_id, "mnt", changesdir);
+  pl_call("mount", container_id, "mnt", changesdir);
 
   //
   // mount

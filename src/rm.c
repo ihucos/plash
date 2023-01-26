@@ -3,7 +3,7 @@
 
 #define USAGE "usage: plash rm IMAGE_ID\n"
 
-#include <plash.h>
+#include <utils.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -13,8 +13,8 @@ int rm_main(int argc, char *argv[]) {
     return 1;
   }
 
-  char *nodepath = pl_cmd(nodepath_main, argv[1]);
-  char *tmp = pl_cmd(mkdtemp_main);
+  char *nodepath = pl_call("nodepath", argv[1]);
+  char *tmp = pl_call("mkdtemp");
 
   pl_unshare_user();
 

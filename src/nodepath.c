@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <plash.h>
+#include <utils.h>
 
 int nodepath_main(int argc, char *argv[]) {
 
@@ -43,7 +43,7 @@ int nodepath_main(int argc, char *argv[]) {
     pl_fatal("image must not be the special root image ('0')");
   }
 
-  plash_data = pl_cmd(data_main);
+  plash_data = pl_call("data");
   if (chdir(plash_data) == -1 || chdir("index") == -1)
     pl_fatal("run `plash init`: chdir: %s", plash_data);
 
