@@ -67,8 +67,8 @@ int import_lxc_main(int argc, char *argv[]) {
         puts(rootfs_url);
         return 0;
       } else {
-        execlp("plash", "plash", "import-url", rootfs_url, NULL);
-        pl_fatal("execlp");
+	puts(pl_cmd(import_url_main, rootfs_url));
+	return 0;
       }
     }
 
