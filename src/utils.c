@@ -575,7 +575,7 @@ char *pl_nextline(FILE *fh) {
   return line;
 }
 
-char* pl_cmd_array(int (*main_func)(int, char *[]), char *args[]) {
+char *pl_cmd_array(int (*main_func)(int, char *[]), char *args[]) {
   int link[2];
   int status;
   pid_t pid;
@@ -596,7 +596,8 @@ char* pl_cmd_array(int (*main_func)(int, char *[]), char *args[]) {
     if (close(link[1]) == -1)
       pl_fatal("close");
     int argc = 0;
-    while(args[argc]) argc++;
+    while (args[argc])
+      argc++;
     int exit_status = main_func(argc, args);
     if (exit_status != 0) {
       exit(1);

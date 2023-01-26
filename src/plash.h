@@ -2,11 +2,10 @@
 #include <sys/types.h>
 
 #define pl_run(...) _pl_run((char *[]){__VA_ARGS__, NULL})
-#define pl_cmd(main_func, ...) pl_cmd_array(main_func, (char *[]){"plash", ## __VA_ARGS__, NULL})
+#define pl_cmd(main_func, ...)                                                 \
+  pl_cmd_array(main_func, (char *[]){"plash", ##__VA_ARGS__, NULL})
 
-
-
-char* pl_cmd_array(int (*main_func)(int, char *[]), char *args[]);
+char *pl_cmd_array(int (*main_func)(int, char *[]), char *args[]);
 
 char *pl_check_output(char *argv[]);
 
@@ -50,7 +49,6 @@ pid_t pl_spawn_process(char **cmd, FILE **p_stdin, FILE **p_stdout,
                        FILE **p_stderr);
 
 char *pl_nextline(FILE *fh);
-
 
 // all the mains
 int version_main(int argc, char *argv[]);
