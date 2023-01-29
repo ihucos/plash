@@ -37,7 +37,7 @@ int add_layer_main(int argc, char *argv[]) {
 
   if (argc != 3) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   plash_data = pl_call("data");
@@ -83,5 +83,5 @@ int add_layer_main(int argc, char *argv[]) {
     pl_fatal("rename");
   if (puts(node_id_str) == EOF)
     pl_fatal("puts");
-  return 0;
+  return EXIT_SUCCESS;
 }

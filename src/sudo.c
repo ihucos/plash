@@ -10,6 +10,7 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -24,5 +25,5 @@ int sudo_main(int argc, char *argv[]) {
     execvp(argv[1], argv + 1);
   }
   pl_fatal("could not exec \"%s\"", argv[1]);
-  return 0;
+  return EXIT_SUCCESS;
 }

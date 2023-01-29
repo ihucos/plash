@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -40,5 +42,5 @@ int init_main(int argc, char *argv[]) {
 
   if (symlink("../layer/0", "index/0") == -1 && errno != EEXIST)
     pl_fatal("symlink");
-  return 0;
+  return EXIT_SUCCESS;
 }

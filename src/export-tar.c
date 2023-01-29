@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -14,7 +15,7 @@ int export_tar_main(int argc, char *argv[]) {
   char *image_id, *file;
   if (!(image_id = argv[1])) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
   if (!(file = argv[2]))
     file = "-";

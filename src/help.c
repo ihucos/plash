@@ -3,6 +3,7 @@
 #define USAGE "usage: plash help\n"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define HELP                                                                   \
   "plash --help        Alias for `plash help`\n"                               \
@@ -44,5 +45,5 @@
 
 int help_main(int argc, char *argv[]) {
   fputs(HELP, stderr);
-  return 0;
+  return EXIT_SUCCESS;
 }

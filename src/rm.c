@@ -6,11 +6,12 @@
 #include <plash.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 int rm_main(int argc, char *argv[]) {
   if (argc != 2) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   char *nodepath = pl_call("nodepath", argv[1]);
@@ -23,5 +24,5 @@ int rm_main(int argc, char *argv[]) {
 
   execlp("rm", "rm", "-rf", tmp, NULL);
   pl_fatal("execlp");
-  return 0;
+  return EXIT_SUCCESS;
 }

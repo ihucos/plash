@@ -12,7 +12,7 @@
 int exec_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   // cd to the dir where the plashfile is to build here

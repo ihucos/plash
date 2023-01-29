@@ -31,7 +31,7 @@ int runb_main(int argc, char *argv[]) {
 
   if (argc < 4) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
   char *container_id = argv[1];
   char *changesdir = argv[2];

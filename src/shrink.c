@@ -83,7 +83,7 @@ int shrink_main(int argc, char *argv[]) {
   int images_count = count_images() - 1; // substract special root image
   if (!images_count) {
     printf("You have no images\n");
-    return 0;
+    return EXIT_SUCCESS;
   }
   printf("You have %d images.\n", images_count);
   for (int to_delete = ((images_count + 1) / 2); to_delete; to_delete--) {
@@ -96,5 +96,5 @@ int shrink_main(int argc, char *argv[]) {
     pl_call("rm", o);
   }
   printf("You have %d images.\n", count_images() - 1);
-  return 0;
+  return EXIT_SUCCESS;
 }

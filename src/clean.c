@@ -35,11 +35,11 @@ size_t remove_broken_links_here() {
 
 int is_process_still_running(pid_t pid, pid_t sid) {
   if (getsid(pid) != sid) {
-    return 0;
+    return EXIT_SUCCESS;
   }
   if (kill(pid, 0) == 0)
-    return 1;
-  return 0;
+    return EXIT_FAILURE;
+  return EXIT_SUCCESS;
 }
 
 size_t delete_unused_tmpdirs_here() {
@@ -115,5 +115,5 @@ int clean_main(int argc, char *argv[]) {
   fprintf(stderr, "removed_tmpdirs: ");
   count = delete_unused_tmpdirs_here();
   fprintf(stderr, "%ld\n", count);
-  return 0;
+  return EXIT_SUCCESS;
 }

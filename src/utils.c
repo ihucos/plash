@@ -65,7 +65,7 @@ char *pl_path(const char *relpath) {
 int pl_printf_to_file(const char *file, const char *format, ...) {
   FILE *fd;
   if (!(fd = fopen(file, "w")))
-    return 0;
+    return EXIT_SUCCESS;
   va_list args;
   va_start(args, format);
   vfprintf(fd, format, args) >= 0 || pl_fatal("vfprintf %s", file);
@@ -73,7 +73,7 @@ int pl_printf_to_file(const char *file, const char *format, ...) {
   if (errno)
     pl_fatal("could not write to %s", file);
   fclose(fd);
-  return 1;
+  return EXIT_FAILURE;
 }
 
 int pl_parse_subid(const char *file, const char *query1, const char *query2,
@@ -84,7 +84,7 @@ int pl_parse_subid(const char *file, const char *query1, const char *query2,
   // try to open file
   if (!(fd = fopen(file, "r"))) {
     errno = 0;
-    return 0;
+    return EXIT_SUCCESS;
   }
   for (;;) {
     if ((read = getdelim(&label, &user_size, ':', fd)) == -1)
@@ -103,12 +103,12 @@ int pl_parse_subid(const char *file, const char *query1, const char *query2,
     if ((query1 && 0 == strcmp(query1, label)) ||
         (query2 && 0 == strcmp(query2, label))) {
       free(label);
-      return 1;
+      return EXIT_FAILURE;
     }
   }
   if (label)
     free(label);
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 void pl_whitelist_env(char *env_name) {

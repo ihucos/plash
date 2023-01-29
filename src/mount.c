@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -74,7 +75,7 @@ int mount_main(int argc, char *argv[]) {
   if (argc < 3) {
     {
       fputs(USAGE, stderr);
-      return 1;
+      return EXIT_FAILURE;
     }
   }
   char *image_id = argv[1];

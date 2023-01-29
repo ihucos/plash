@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -26,7 +27,7 @@ int purge_main(int argc, char *argv[]) {
 
   if (!(is_confirmed_via_argv(argv) || confirm_via_input())) {
     fputs("Action not confirmed\n", stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   pl_unshare_user();
@@ -44,5 +45,5 @@ int purge_main(int argc, char *argv[]) {
   pl_run("rm", "-rf", "mnt");
   pl_run("rm", "-rf", "tmp");
   fputs("All deleted.\n", stderr);
-  return 0;
+  return EXIT_SUCCESS;
 }

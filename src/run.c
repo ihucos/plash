@@ -98,7 +98,7 @@ int run_main(int argc, char *argv[]) {
 
   if (argc < 2) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
   char *container_id = argv[1];
   char *origpwd = get_current_dir_name();

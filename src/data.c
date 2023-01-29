@@ -49,7 +49,7 @@ int data_main(int argc, char *argv[]) {
   // if no arguments, print the plash data directory
   if (argc == 1) {
     puts(plash_data);
-    return 0;
+    return EXIT_SUCCESS;
   }
 
   // if arguments given, cd to plash data and exec the arguments

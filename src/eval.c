@@ -123,10 +123,10 @@ char *call_cached(char *subcommand, char *arg) {
 
 int isarg(char *val) {
   if (val == NULL)
-    return 0;
+    return EXIT_SUCCESS;
   if (val[0] == '-')
-    return 0;
-  return 1;
+    return EXIT_SUCCESS;
+  return EXIT_FAILURE;
 }
 
 char *getarg_or_null() {
@@ -213,7 +213,7 @@ int eval_main(int argc, char *argv[]) {
   // handle help flag
   if (argv[1] && (strcmp(argv[1], "--help")) == 0) {
     fprintf(stderr, "%s", HELP);
-    return 0;
+    return EXIT_SUCCESS;
   }
 
   tokens = argv;
@@ -417,5 +417,5 @@ int eval_main(int argc, char *argv[]) {
     //  order of lines written to stdout stays in the expected order.
     fflush(stdout);
   }
-  return 0;
+  return EXIT_SUCCESS;
 }

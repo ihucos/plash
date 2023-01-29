@@ -74,7 +74,7 @@ int map_main(int argc, char *argv[]) {
   if (argc < 2) {
     {
       fputs(USAGE, stderr);
-      return 1;
+      return EXIT_FAILURE;
     }
   }
 
@@ -100,7 +100,7 @@ int map_main(int argc, char *argv[]) {
     set(linkpath, argv[2]);
   } else {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
-  return 0;
+  return EXIT_SUCCESS;
 }

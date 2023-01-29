@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/utsname.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -37,7 +38,7 @@ int import_lxc_main(int argc, char *argv[]) {
   // read args
   if (argc < 2) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
   image_name = argv[1];
   int dry = argv[2] && strcmp(argv[2], "--dry") == 0;
@@ -65,7 +66,7 @@ int import_lxc_main(int argc, char *argv[]) {
       // we got the root file system process with it how the user requested
       if (dry) {
         puts(rootfs_url);
-        return 0;
+        return EXIT_SUCCESS;
       } else {
         execlp("/proc/self/exe", "plash", "import-url", rootfs_url, NULL);
         pl_fatal("execlp");

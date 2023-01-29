@@ -18,5 +18,5 @@ int mkdtemp_main(int argc, char *argv[]) {
   if (tmpdir == NULL)
     pl_fatal("mkdtemp: %s", tmpdir_templ);
   puts(tmpdir);
-  return 0;
+  return EXIT_SUCCESS;
 }

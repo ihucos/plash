@@ -205,5 +205,5 @@ int build_main(int argc, char *argv[]) {
     pl_call("nodepath", image_id);
   }
   puts(image_id);
-  return 0;
+  return EXIT_SUCCESS;
 }

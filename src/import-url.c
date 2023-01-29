@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -13,7 +14,7 @@ int import_url_main(int argc, char *argv[]) {
   char *url = argv[1];
   if (url == NULL) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   char *rootfs = NULL;

@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -36,7 +37,7 @@ void call_docker_pull(char *image) {
 int import_docker_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
   char *image = argv[1];
   call_docker_pull(image);
@@ -44,5 +45,5 @@ int import_docker_main(int argc, char *argv[]) {
       pl_check_output((char *[]){"docker", "create", image, "sh", NULL}));
   pl_pipe((char *[]){"docker", "export", container_id, NULL},
           (char *[]){"/proc/self/exe", "import-tar", NULL});
-  return 0;
+  return EXIT_SUCCESS;
 }

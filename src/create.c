@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
@@ -36,7 +37,7 @@ int create_main(int argc, char *argv[]) {
   char *image_id = argv[1];
   if (image_id == NULL) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   // validate image exists

@@ -9,13 +9,14 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
 int b_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   char **buildargs = argv;

@@ -27,7 +27,7 @@ void D(char *arr[]) {
 int is_cli_param(char *param) {
   switch (strlen(param)) {
   case 1:
-    return 0;
+    return EXIT_SUCCESS;
   case 2:
     return param[0] == '-' && param[1] != '-';
   default:
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 
   if (argc <= 1) {
     fprintf(stderr, "build and run containers, try --help\n");
-    return 1;
+    return EXIT_FAILURE;
   }
 
   if (is_cli_param(argv[1]) &&

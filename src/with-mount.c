@@ -11,13 +11,15 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdlib.h>
 
 #include <plash.h>
 
 int with_mount_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
   char *image_id = argv[1];
   char *cmd = argv[2];
@@ -45,5 +47,5 @@ int with_mount_main(int argc, char *argv[]) {
     }
     pl_fatal("execvp");
   }
-  return 0;
+  return EXIT_SUCCESS;
 }

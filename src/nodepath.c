@@ -31,7 +31,7 @@ int nodepath_main(int argc, char *argv[]) {
 
   if (argc < 2) {
     fputs(USAGE, stderr);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   // validate/normalize input
@@ -52,5 +52,5 @@ int nodepath_main(int argc, char *argv[]) {
     pl_fatal("no image: %s", argv[1]);
   }
   puts(nodepath);
-  return 0;
+  return EXIT_SUCCESS;
 }
