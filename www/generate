@@ -41,6 +41,13 @@ COMMANDS = [
     "with-mount",
 ]
 
+ALIASES = [
+    ("--help", "help"),
+    ("-h", "help"),
+    ("--help-macros", "help"),
+    ("--version", "version"),
+]
+
 USAGE_DEF = '#define USAGE "usage: '
 PROJECT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 TESTS_DIR = path.join(PROJECT_DIR, "tests")
@@ -55,13 +62,12 @@ def parse_source(source_file):
     usage = None
     for line in open(source_file):
         if line.startswith("//") and not found_code:
-            doc.append(line.lstrip('/ '))
+            doc.append(line.lstrip("/ "))
         else:
             found_code = True
             code.append(line)
             if line.startswith(USAGE_DEF):
-                usage = line[len(USAGE_DEF):-4]
-
+                usage = line[len(USAGE_DEF) : -4]
 
     doc_str = "".join(doc)
     code_str = "".join(code)
@@ -120,7 +126,7 @@ def main():
     ).stderr.decode()
     macros_list = [
         (a.strip(), b.strip())
-        for (a, b) in [line.split("=") for line in macros.splitlines() if "=" in line]
+        for (a, b) in [line.split(None, 1) for line in macros.splitlines()]
     ]
     help_out = subprocess.run(
         [PLASH_EXECUTABLE, "help"], stderr=subprocess.PIPE
@@ -145,10 +151,14 @@ def main():
                     "command.html",
                     **dict(
                         cmd=cmd,
-                        **parse_source(source_file), test_patterns=parse_test(test_file)
+                        **parse_source(source_file),
+                        test_patterns=parse_test(test_file)
                     )
                 )
             )
+
+    for from_, to in ALIASES:
+        os.link(path.join(out_dir, to + ".html"), path.join(out_dir, from_ + ".html"))
 
 
 if __name__ == "__main__":
