@@ -123,8 +123,7 @@ code {
   <div class="wordart slate"><span class="text">Tested Behaviour</span></div>
   {% for type, line in test_patterns %}
     {% if type == "code" %}
-      <pre style="display: inline; margin: 0px; opacity: 0.5;"><code class="language-bash">{{ line|e }}
-</code></pre>
+      <pre style="display: inline; margin: 0px; opacity: 0.5;"><code class="language-bash">{{ line|e }}</code></pre>
     {% else %}
       <h3>• {{ line|e }}</h3>
     {% endif %}

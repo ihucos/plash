@@ -41,32 +41,37 @@ COMMANDS = [
     "with-mount",
 ]
 
-
+USAGE_DEF = '#define USAGE "usage: '
 PROJECT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 TESTS_DIR = path.join(PROJECT_DIR, "tests")
-TEMPL_DIR = path.join(PROJECT_DIR, 'www', 'templates')
-PLASH_EXECUTABLE = os.path.join("dist", 'plash')
+TEMPL_DIR = path.join(PROJECT_DIR, "www", "templates")
+PLASH_EXECUTABLE = os.path.join("dist", "plash")
+
 
 def parse_source(source_file):
     doc = []
     code = []
     found_code = False
+    usage = None
     for line in open(source_file):
         if line.startswith("//") and not found_code:
-            doc.append(line)
+            doc.append(line.lstrip('/ '))
         else:
             found_code = True
             code.append(line)
+            if line.startswith(USAGE_DEF):
+                usage = line[len(USAGE_DEF):-4]
 
-    doc_str = "\n".join(doc)
-    code_str = "\n".join(code)
+
+    doc_str = "".join(doc)
+    code_str = "".join(code)
 
     try:
         doc_str, example = doc_str.split("Example:")
     except ValueError:
         example = ""
 
-    return dict(doc=doc_str, code=code_str, example=example)
+    return dict(doc=doc_str, code=code_str, example=example, usage=usage)
 
 
 def parse_test(test_file):
@@ -78,10 +83,15 @@ def parse_test(test_file):
             test_patterns.append(("code", line))
     return test_patterns
 
+
 def render(tpl_path, **context):
     path, filename = os.path.split(tpl_path)
-    return jinja2.Environment(loader=jinja2.FileSystemLoader(
-        TEMPL_DIR)).get_template(filename).render(context)
+    return (
+        jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPL_DIR))
+        .get_template(filename)
+        .render(context)
+    )
+
 
 def main():
 
@@ -91,21 +101,37 @@ def main():
         print("usage: generate OUTDIR", file=sys.stderr)
         sys.exit(1)
 
+    #
+    # Copy images
+    #
+    shutil.copytree(
+        path.join(PROJECT_DIR, "www", "images"),
+        path.join(out_dir, "images"),
+        dirs_exist_ok=True,
+    )
 
-    #check_call([path.join(TEMPL_DIR, "graph"), path.join(out_dir, "graph.svg")])
+    # check_call([path.join(TEMPL_DIR, "graph"), path.join(out_dir, "graph.svg")])
 
     #
     # generate the index.html
     #
-
-    macros = subprocess.run([PLASH_EXECUTABLE, 'help-macros'], stderr=subprocess.PIPE).stderr.decode()
-    macros_list = [(a.strip(), b.strip()) for (a, b) in [line.split("=") for line in macros.splitlines() if '=' in line]]
-
-    help_out = subprocess.run([PLASH_EXECUTABLE, 'help'], stderr=subprocess.PIPE).stderr.decode()
+    macros = subprocess.run(
+        [PLASH_EXECUTABLE, "help-macros"], stderr=subprocess.PIPE
+    ).stderr.decode()
+    macros_list = [
+        (a.strip(), b.strip())
+        for (a, b) in [line.split("=") for line in macros.splitlines() if "=" in line]
+    ]
+    help_out = subprocess.run(
+        [PLASH_EXECUTABLE, "help"], stderr=subprocess.PIPE
+    ).stderr.decode()
     progs = [i.split(None, 2)[1:] for i in help_out.splitlines()][:-1]
-    with open(path.join(out_dir, 'index.html'), 'w') as f:
-        f.write(render('index.html', progs=progs, macros=macros_list, generated=date.today()))
-
+    with open(path.join(out_dir, "index.html"), "w") as f:
+        f.write(
+            render(
+                "index.html", progs=progs, macros=macros_list, generated=date.today()
+            )
+        )
 
     #
     # generate the html for the commands
@@ -117,7 +143,10 @@ def main():
             f.write(
                 render(
                     "command.html",
-                    **dict(**parse_source(source_file), test_patterns=parse_test(test_file))
+                    **dict(
+                        cmd=cmd,
+                        **parse_source(source_file), test_patterns=parse_test(test_file)
+                    )
                 )
             )
 
