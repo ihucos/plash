@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from subprocess import check_output, check_call
+import subprocess
 import os
 import sys
 from os import path
@@ -8,113 +8,119 @@ import jinja2
 from datetime import date
 import shutil
 
-try:
-    docs_out = sys.argv[1]
-except IndexError:
-    print('needs arg', file=sys.stderr)
-    sys.exit(1)
+
+COMMANDS = [
+    "add-layer",
+    "b",
+    "build",
+    "clean",
+    "copy",
+    "create",
+    "data",
+    "eval",
+    "export-tar",
+    "help",
+    "help-macros",
+    "import-docker",
+    "import-lxc",
+    "import-tar",
+    "import-url",
+    "init",
+    "map",
+    "mkdtemp",
+    "mount",
+    "nodepath",
+    "parent",
+    "purge",
+    "rm",
+    "run",
+    "runb",
+    "shrink",
+    "sudo",
+    "version",
+    "with-mount",
+]
+
 
 PROJECT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
-TEMPL_DIR = path.join(PROJECT_DIR, 'www')
-EXEC_DIR = path.join(PROJECT_DIR, 'exec')
-BIN_DIR = path.join(PROJECT_DIR, 'bin')
-TESTS_DIR = path.join(PROJECT_DIR, 'tests')
-PLASH_EXECUTABLE = os.path.join(BIN_DIR, 'plash')
+TESTS_DIR = path.join(PROJECT_DIR, "tests")
+TEMPL_DIR = path.join(PROJECT_DIR, 'www', 'templates')
+PLASH_EXECUTABLE = os.path.join("dist", 'plash')
 
-shutil.copytree(path.join(TEMPL_DIR, 'images'), path.join(docs_out, 'images'), dirs_exist_ok=True)
+def parse_source(source_file):
+    doc = []
+    code = []
+    found_code = False
+    for line in open(source_file):
+        if line.startswith("//") and not found_code:
+            doc.append(line)
+        else:
+            found_code = True
+            code.append(line)
 
+    doc_str = "\n".join(doc)
+    code_str = "\n".join(code)
+
+    try:
+        doc_str, example = doc_str.split("Example:")
+    except ValueError:
+        example = ""
+
+    return dict(doc=doc_str, code=code_str, example=example)
+
+
+def parse_test(test_file):
+    test_patterns = []
+    for line in open(test_file):
+        if line.startswith(": "):
+            test_patterns.append(("label", line[2:]))
+        else:
+            test_patterns.append(("code", line))
+    return test_patterns
 
 def render(tpl_path, **context):
     path, filename = os.path.split(tpl_path)
     return jinja2.Environment(loader=jinja2.FileSystemLoader(
         TEMPL_DIR)).get_template(filename).render(context)
 
-
-out = check_output([PLASH_EXECUTABLE, 'help'])
-out = out.decode()
-progs = [i.split(None, 2)[1:] for i in out.splitlines()][:-1]
-macros = check_output([PLASH_EXECUTABLE, 'help-macros']).decode()
-
-macros_list = [(a.strip(), b.strip()) for (a, b) in [line.split("=") for line in macros.splitlines() if '=' in line]]
-
-check_call([path.join(TEMPL_DIR, "graph"), path.join(docs_out, "graph.svg")])
-
-with open(path.join(docs_out, 'index.html'), 'w') as f:
-    f.write(render('index.html', progs=progs, macros=macros_list, generated=date.today()))
-
-filedocs = []
-binfiles = [i for i in os.listdir(EXEC_DIR) if not i.startswith('.')
-                if os.access(path.join(EXEC_DIR, i), os.X_OK)]
-for subcommand in binfiles:
-
-
-    fname = path.join(EXEC_DIR, subcommand)
-    try:
-        link = os.readlink(fname)
-        fname = path.join(EXEC_DIR, link)
-    except OSError:
-        pass
-
-    testfile = path.join(os.path.join(TESTS_DIR, "command", subcommand))
-
-    if os.access(fname + ".c", os.F_OK):
-        fname += ".c"
+def main():
 
     try:
-        with open(testfile) as f:
-            test_code = f.read()
-    except FileNotFoundError:
-        test_code = ''
+        out_dir = sys.argv[1]
+    except IndexError:
+        print("usage: generate OUTDIR", file=sys.stderr)
+        sys.exit(1)
 
-    test_patterns = []
-    for line in test_code.splitlines():
-        if line.startswith(": "):
-            test_patterns.append(('label', line[2:]))
-        else:
-            test_patterns.append(('code', line))
 
-    with open(fname) as f:
-        read = f.read()
-    lines = read.splitlines()
+    #check_call([path.join(TEMPL_DIR, "graph"), path.join(out_dir, "graph.svg")])
 
-    # get doc out of source code
-    doc = []
-    if lines[0].startswith("#!/"):
-        before_doc = [lines.pop(0)]
-    else:
-        before_doc = []
-    while lines:
-        line = lines.pop(0)
-        if not line.startswith('#') and not line.startswith("//"):
-            break
-        doc.append(line)
+    #
+    # generate the index.html
+    #
 
-    #remove comment markers
-    doc = [i.lstrip('/#')[1:] for i in doc]
-    while not doc[0]:
-        doc.pop(0)
+    macros = subprocess.run([PLASH_EXECUTABLE, 'help-macros'], stderr=subprocess.PIPE).stderr.decode()
+    macros_list = [(a.strip(), b.strip()) for (a, b) in [line.split("=") for line in macros.splitlines() if '=' in line]]
 
-    usage = doc.pop(0)[len("usage: "):]
+    help_out = subprocess.run([PLASH_EXECUTABLE, 'help'], stderr=subprocess.PIPE).stderr.decode()
+    progs = [i.split(None, 2)[1:] for i in help_out.splitlines()][:-1]
+    with open(path.join(out_dir, 'index.html'), 'w') as f:
+        f.write(render('index.html', progs=progs, macros=macros_list, generated=date.today()))
 
-    doc = '\n'.join(doc)
 
-    try:
-        doc, example = doc.split("Example:")
-    except ValueError:
-        example = ''
+    #
+    # generate the html for the commands
+    #
+    for cmd in COMMANDS:
+        source_file = path.join(PROJECT_DIR, "src", cmd + ".c")
+        test_file = path.join(os.path.join(TESTS_DIR, "command", cmd))
+        with open(path.join(out_dir, cmd + ".html"), "w") as f:
+            f.write(
+                render(
+                    "command.html",
+                    **dict(**parse_source(source_file), test_patterns=parse_test(test_file))
+                )
+            )
 
-    filedocs.append({
-        'code': read,
-        'usage': usage,
-        'example': example.strip(' \n'),
-        'before_doc': '\n'.join(before_doc),
-        'doc': doc.strip(" \n"),
-        'after_doc': '\n'.join(lines),
-        'prog': subcommand,
-        'test_code': test_code,
-        'test_patterns': test_patterns,
-    })
 
-for item in filedocs:
-    with open(path.join(docs_out, item['prog'] + '.html'), 'w') as f:
-        f.write(render('command.html', **item))
+if __name__ == "__main__":
+    main()
