@@ -158,7 +158,10 @@ def main():
             )
 
     for from_, to in ALIASES:
-        os.link(path.join(out_dir, to + ".html"), path.join(out_dir, from_ + ".html"))
+        try:
+            os.link(path.join(out_dir, to + ".html"), path.join(out_dir, from_ + ".html"))
+        except FileExistsError:
+            pass
 
 
 if __name__ == "__main__":
