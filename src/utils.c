@@ -43,7 +43,7 @@ int pl_fatal(char *format, ...) {
   if (errno != 0)
     fprintf(stderr, ": %s", strerror(errno));
   fprintf(stderr, "\n");
-  exit(1);
+  exit(EXIT_FAILURE);
 }
 
 char *pl_path(const char *relpath) {
@@ -336,7 +336,7 @@ char *pl_check_output(char *argv[]) {
     if (!WIFEXITED(status))
       pl_fatal("child exited abnormally");
     if (WEXITSTATUS(status))
-      exit(1);
+      exit(EXIT_FAILURE);
 
     if (read(link[0], output, PL_CHECK_OUTPUT_BUFFER) == -1)
       pl_fatal("read");
@@ -355,7 +355,7 @@ void pl_usage(const char *usage) {
   fputs("usage: plash", stderr);
   fputs(usage, stderr);
   fputs("\n", stderr);
-  exit(1);
+  exit(EXIT_FAILURE);
 }
 
 void pl_setup_mount_ns() {
@@ -456,7 +456,7 @@ void pl_pipe(char *program1[], char *program2[]) {
       fprintf(stderr, "%s ", failed[i]);
     }
     fprintf(stderr, "\n");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -474,13 +474,13 @@ void _pl_run(char *program[]) {
     pl_fatal("waitpid");
   if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
     if (strcmp(program[0], "plash") == 0)
-      exit(1);
+      exit(EXIT_FAILURE);
     fprintf(stderr, "plash error: subprocess program: ");
     for (int i = 0; program[i] != NULL; i++) {
       fprintf(stderr, "%s ", program[i]);
     }
     fprintf(stderr, "\n");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 }
 

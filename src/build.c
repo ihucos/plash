@@ -48,7 +48,7 @@ void handle_plash_create_exit(pid_t pid) {
   }
   int exit_status = WEXITSTATUS(status);
   if (exit_status != 0)
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
 void handle_plash_eval_exit(pid_t pid) {
@@ -58,7 +58,7 @@ void handle_plash_eval_exit(pid_t pid) {
     pl_fatal("subprocess exited abornmally");
   }
   if (WEXITSTATUS(status) != 0) {
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 }
 
