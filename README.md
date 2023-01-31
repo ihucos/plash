@@ -52,7 +52,6 @@ In general, the more to the left something is on the spectrum, the less flexible
 ### Resources plash containers share with it's caller
 - Network access, including access to the hosts localhost
 - The user's home directory (/home is mapped)
-- In fact the whole hosts filesystem (as /host)
 - The /tmp directory (during runtime, not during building)
 - The Linux kernel (as with traditional containers)
 
