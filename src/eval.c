@@ -23,8 +23,6 @@
   "--entrypoint         hint default command for this build\n"                 \
   "--entrypoint-script  write lines to /entrypoint and hint it as default "    \
   "command\n"                                                                  \
-  "--env                Use env from host when running image\n"                \
-  "--env-prefix         Use all envs with given prefix when running image\n"   \
   "--eval-file          evaluate file content as expressions\n"                \
   "--eval-github        eval a file (default 'plashfile') from a github "      \
   "repo\n"                                                                     \
@@ -302,12 +300,6 @@ int eval_main(int argc, char *argv[]) {
       }
       printf("echo ' \"$@\"' >> /.plashentrypoint\n");
 
-    } else if (tokenis("--env")) {
-      eachline("echo %s >> /.plashenvs\n");
-
-    } else if (tokenis("--env-prefix")) {
-      eachline("echo %s >> /.plashenvsprefix\n");
-
     } else if (tokenis("--mount")) {
       eachline("echo %s >> /.plashmount\n");
 
@@ -405,6 +397,8 @@ int eval_main(int argc, char *argv[]) {
       while (getarg_or_null())
         ;
 
+    } else if (strcmp(*tokens, "") == 0) {
+      // ignore newlines floating around
     } else if (isarg(*tokens)) {
       errno = 0;
       pl_fatal("expected macro, got value: %s", *tokens);

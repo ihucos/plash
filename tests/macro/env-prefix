@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-set -eux
-
-: The env-prefix macro imports env vars with a given prefix into the container
-test "$(FOO_A=123 FOO_B=abc plash -f 1 -- printenv FOO_A FOO_B)" == ''
-test "$(FOO_A=123 FOO_B=abc plash -f 1 --env-prefix FOO_ -- printenv FOO_A FOO_B)" == '123
-abc'
