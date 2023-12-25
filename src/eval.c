@@ -397,6 +397,8 @@ int eval_main(int argc, char *argv[]) {
       while (getarg_or_null())
         ;
 
+    } else if (strcmp(*tokens, "") == 0) {
+      // ignore newlines floating around
     } else if (isarg(*tokens)) {
       errno = 0;
       pl_fatal("expected macro, got value: %s", *tokens);

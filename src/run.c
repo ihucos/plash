@@ -95,7 +95,7 @@ int run_main(int argc, char *argv[]) {
   pl_bind_mount("/etc/resolv.conf", "etc/resolv.conf");
 
   //
-  // Prefix all envs with HOST_
+  // Prefix all envs with _HOST_
   // Keep the following envs: TERM, DISPLAY and PLASH_DATA
   // Keep any env inside PLASH_EXPORT
   //
@@ -110,7 +110,7 @@ int run_main(int argc, char *argv[]) {
 
   while (*env != NULL) {
 
-    if (asprintf(&hostPrefixedEnv, "HOST_%s", *env) == -1)
+    if (asprintf(&hostPrefixedEnv, "_HOST_%s", *env) == -1)
       pl_fatal("asprintf");
 
     if (putenv(hostPrefixedEnv) != 0)
