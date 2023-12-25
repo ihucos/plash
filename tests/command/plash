@@ -9,7 +9,7 @@ test $? = 1
 set -e
 
 : help message when no arguments
-[[ "$(plash 2>&1)" == *"plash is a container build"* ]]
+[[ "$(plash 2>&1)" == *"build and run containers"* ]]
 
 : invoking with unknown command
 [[ "$(plash cmdnotfoundxxx 2>&1)" == *"no such command"* ]]

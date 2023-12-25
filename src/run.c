@@ -28,70 +28,19 @@
 
 #include <plash.h>
 
-void read_envs_from_plashenv() {
-  char *line = NULL;
-  char *lineCopy = NULL;
-  size_t len = 0;
-  FILE *fp = fopen(".plashenvs", "r");
-  if (fp == NULL)
-    return;
-  while ((getline(&line, &len, fp)) != -1) {
-    line[strcspn(line, "\n")] = 0; // chop newline char
-    lineCopy = strdup(line);
-    if (!lineCopy) {
-      pl_fatal("strdup");
-    }
-    pl_whitelist_env(lineCopy);
-  }
-  fclose(fp);
-}
 
-void read_envs_from_plashenvprefix() {
-  char *line = NULL;
-  char *lineCopy = NULL;
-  size_t len = 0;
-  FILE *fp = fopen(".plashenvsprefix", "r");
-  if (fp == NULL)
-    return;
-  while ((getline(&line, &len, fp)) != -1) {
-    line[strcspn(line, "\n")] = 0; // chop newline char
-    lineCopy = strdup(line);
-    if (!lineCopy) {
-      pl_fatal("strdup");
+int is_delimited_substring(char *haystack, char *needle, char *delim) {
+  char *str = strdup(haystack);
+  char *token = strtok(str, delim);
+  while (token) {
+    if (strcmp(needle, token) == 0){
+      free(str);
+      return 1;
     }
-    pl_whitelist_env_prefix(lineCopy);
+    token = strtok(NULL, ":");
   }
-  fclose(fp);
-}
-
-void read_mounts_from_plashmounts() {
-  char *line = NULL;
-  char *lineCopy = NULL;
-  size_t len = 0;
-  char *mount;
-  FILE *fp = fopen(".plashmounts", "r");
-  if (fp == NULL)
-    return;
-  while ((getline(&line, &len, fp)) != -1) {
-    line[strcspn(line, "\n")] = 0; // chop newline char
-    lineCopy = strdup(line);
-    if (!lineCopy) {
-      pl_fatal("strdup");
-    }
-    mount = strsep(&lineCopy, ":");
-    errno = 0;
-    if (mount[0] != '/')
-      pl_fatal("src mount in /.plashmounts must start with a slash");
-    if (lineCopy == NULL) {
-      pl_bind_mount(mount, mount + 1);
-    } else {
-      pl_bind_mount(mount, lineCopy + 1);
-      errno = 0;
-      if (lineCopy[0] != '/')
-        pl_fatal("dst mount in /.plashmounts must start with a slash");
-    }
-  }
-  fclose(fp);
+  free(str);
+  return 0;
 }
 
 int run_main(int argc, char *argv[]) {
@@ -145,18 +94,46 @@ int run_main(int argc, char *argv[]) {
   close(fd);
   pl_bind_mount("/etc/resolv.conf", "etc/resolv.conf");
 
-  read_mounts_from_plashmounts();
+  //
+  // Prefix all envs with HOST_
+  // Keep the following envs: TERM, DISPLAY and PLASH_DATA
+  // Keep any env inside PLASH_EXPORT
+  //
+  char **env = environ;
+  char *name;
+  char *hostPrefixedEnv;
+  char *plash_export_vars = getenv("PLASH_EXPORT");
 
-  //
-  // Import envs
-  //
-  pl_whitelist_env("TERM");
-  pl_whitelist_env("DISPLAY");
-  pl_whitelist_env("PLASH_DATA");
-  pl_whitelist_envs_from_env("PLASH_EXPORT");
-  read_envs_from_plashenv();
-  read_envs_from_plashenvprefix();
-  pl_whitelist_env(NULL);
+  if (!plash_export_vars)
+    plash_export_vars = "";
+
+
+  while (*env != NULL) {
+
+    if (asprintf(&hostPrefixedEnv, "HOST_%s", *env) == -1)
+      pl_fatal("asprintf");
+
+    if (putenv(hostPrefixedEnv) != 0)
+      pl_fatal("putenv");
+
+    name = strtok(strdup(*env), "=");
+
+    if (name == NULL)
+      pl_fatal("strtok");
+
+ 
+    if (!(strcmp(name, "TERM") == 0 ||
+          strcmp(name, "DISPLAY") == 0 ||
+          strcmp(name, "PLASH_DATA") == 0)
+        && !is_delimited_substring(plash_export_vars, name, ":")) {
+
+      if (unsetenv(name) != 0)
+        pl_fatal("unsetenv");
+
+      free(name);
+    }
+    env++;
+  }
 
   //
   // chroot, then reconstruct working directory
