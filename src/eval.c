@@ -32,7 +32,6 @@
   "building\n"                                                                 \
   "--invalidate-layer   invalidate the cache of the current layer\n"           \
   "--layer              hints the start of a new layer\n"                      \
-  "--mount              Mount filesystem when running image (\"src:dst\" "     \
   "supported)\n"                                                               \
   "--run                directly emit shell script\n"                          \
   "--run-stdin          run commands read from stdin\n"                        \
@@ -299,9 +298,6 @@ int eval_main(int argc, char *argv[]) {
         printf("echo -n %s ' ' >> /.plashentrypoint\n", quote(quote(arg)));
       }
       printf("echo ' \"$@\"' >> /.plashentrypoint\n");
-
-    } else if (tokenis("--mount")) {
-      eachline("echo %s >> /.plashmount\n");
 
     } else if (tokenis("--eval-file")) {
       pl_run("/proc/self/exe", "eval-plashfile", getarg());
