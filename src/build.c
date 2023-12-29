@@ -35,8 +35,8 @@
 
 #include <plash.h>
 
-#define PLASH_HINT_IMAGE "### plash hint: image="
-#define PLASH_HINT_LAYER "### plash hint: layer"
+#define IMAGE_MARKER "@from-id "
+#define LAYER_MARKER "@layer"
 
 #define MAX_BYTES_PER_LAYER 1024 * 4
 
@@ -148,13 +148,13 @@ int build_main(int argc, char *argv[]) {
 
   // First line must be the image id hint
   if (line == NULL ||
-      strncmp(line, PLASH_HINT_IMAGE, strlen(PLASH_HINT_IMAGE)) != 0) {
+      strncmp(line, IMAGE_MARKER, strlen(IMAGE_MARKER)) != 0) {
     pl_fatal("First thing given must be the base image to use");
   }
 
   // parse image id from first output line. We need to know which is the base
   // image id in order to start building
-  base_image_id = line + strlen(PLASH_HINT_IMAGE);
+  base_image_id = line + strlen(IMAGE_MARKER);
   base_image_id = strdup(base_image_id);
   if (base_image_id == NULL)
     pl_fatal("strdup");
@@ -166,7 +166,7 @@ int build_main(int argc, char *argv[]) {
     line = pl_nextline(eval_stdout);
 
     // This is an empty layer, skip it.
-    if (line == NULL || (strcmp(line, PLASH_HINT_LAYER) == 0))
+    if (line == NULL || (strcmp(line, LAYER_MARKER) == 0))
       continue;
 
     FILE *create_stdin =
@@ -187,7 +187,7 @@ int build_main(int argc, char *argv[]) {
     fputs(line, create_stdin);
     fputs("\n", create_stdin);
     while ((line = pl_nextline(eval_stdout)) &&
-           strcmp(line, PLASH_HINT_LAYER) != 0) {
+           strcmp(line, LAYER_MARKER) != 0) {
       fputs(line, create_stdin);
       fputs("\n", create_stdin);
     }

@@ -251,6 +251,7 @@ One advantage is that every developer will have the same `yapf` version.
 - Only eat your own dog food if you are hungry.
 - Work towards a timeless, finished product that will require no maintenance.
 - Don't write C just because it looks cool, use the right tool for the right job.
+- Cognitive load for endusers does matter after all
 - The right guidelines for the right situation.
 
 

@@ -24,15 +24,8 @@ void D(char *arr[]) {
   fprintf(stderr, "\n");
 }
 
-int is_cli_param(char *param) {
-  switch (strlen(param)) {
-  case 1:
-    return EXIT_SUCCESS;
-  case 2:
-    return param[0] == '-' && param[1] != '-';
-  default:
-    return param[0] == '-';
-  }
+int build_cmd(char *param) {
+  return param[0] == '@';
 }
 
 void reexec_insert_run(int argc, char **argv) {
@@ -59,9 +52,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  if (is_cli_param(argv[1]) &&
-      !(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help") ||
-        !strcmp(argv[1], "--version") || !strcmp(argv[1], "--help-macros")))
+  if (build_cmd(argv[1]))
     reexec_insert_run(argc, argv);
 
   // Check if plash is being used as shebang interpreter

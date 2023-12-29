@@ -38,7 +38,7 @@ int eval_plashfile_main(int argc, char *argv[]) {
     if (is_first_line && lineCopy[0] == '#' && lineCopy[1] == '!')
       continue;
 
-    if (lineCopy[0] == '-') {
+    if (lineCopy[0] == '@') {
 
       // tokenize line
       char *token = strtok(lineCopy, " ");
