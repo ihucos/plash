@@ -23,12 +23,6 @@ sudo rm /usr/local/bin/plash
   - Linux Kernel >= 5.11
   - Optional `newuidmap` and `newgidmap` for setuid/setgid support with non-root users (needed by e.G. `apt`)
 
-## Documentation
-```plash --from alpine --apk xeyes -- xeyes```
-
-https://ihucos.github.io/plash-docs-deploy/
-
-
 ## Caveats
 
 - Plash processes have the same operating system access rights than the process
