@@ -90,17 +90,6 @@ A plash macro may also be referred as a build command. Macros are instructions u
 ### Plash build file
 A plash build file is a file containing a set of macros. Building an image from a build file can be achieved with following command `plash build --eval-file ./my-plash-build-file`.  Interestingely `eval-file` which is used to "run" build files is itself a macro. As macros emit shell code so do plash build files.
 
-The syntax of plash build files is inspired by command line arguments which would typically be passed directly to `plash build`. Example
-
-```
-$ cat ./my-plash-build-file
---macro1
-arg1
-arg2
---macro2 arg1 arg2
-```
-
-
 ### Plash executable
 Take a build file, have `#!/usr/bin/env plash` as its first line, mark it
 as executable and specify it's entrypoint executable with the `entrypoint` macro.
@@ -108,58 +97,6 @@ That is a plash executable. Now you you can build and run containerized
 software without knowing that containers or plash exist.
 
 
-
-
-## Simple Tutorial
-
-
-Let's build an image
-
-```
-$ plash build --from alpine:edge --run 'apk update' --run 'apk add git'
-4
-```
-
-We have now an alpine image with git installed. Let's run it.
-```
-$ plash run 4 git status
-```
-
-As long as we are in the home folder our file system will be transparently mapped to the container and be seemingness integrated.
-
-Can we have that shorter? Yes.
-```
-$ plash build --from alpine:edge --apk add
-```
-
-Can we have building and running in one line? Of course!
-
-```
-plash --from alpine:edge --apk git -- git status
-```
-
-Still little long, let's use the `-A` macro, which allows us to specify Alpine Linux and it's package manager at once.
-
-```
-plash --A git -- git status
-```
-
-Now let's look at something completely different, layers.
-
-What if we wanted to use the dotfile program which is distributed via pip
-
-```
-plash --A py3-pip --pip3 dotfiles -- dotfiles --sync
-```
-
-Great, but now if we install a different pip package via the same method, it would download the `py3-pip` package again. The solution is layers, which in plash are explicit.
-
-```
-plash --A py3-pip --layer --pip3 dotfiles
-plash --A py3-pip --layer --pip3 pyexample # won't install py3-pip again.
-```
-
-Congratulation you absolved the Simple Tutorial. Your personal identification token is: `adfjk3s9hh`. Use it to prove your participation.
 
 
 ## Use Case: Containerzied Project Environment
@@ -193,15 +130,15 @@ We could write a plash executable and ask users to run that. Save that file to
 
 ```
 #!/usr/bin/env plash
---from alpine:edge
---apk py3-pip
---layer
---hash-path ./requirements.txt
---run
+FROM lxc alpine:edge
+apk update
+apk add py3-pip
+LAYER
+HASH ./requirements.txt
 pip3 install -r ./requirements.txt
 
---entrypoint
-python3 app.py
+SCRIPT /entrypoint
+exec python3 app.py
 ```
 
 
@@ -215,11 +152,11 @@ Create a directory called `devtools`, then add a file called `yapf` to it.
 
 ```
 #!/usr/bin/env plash
---from alpine:edge
---apk py3-pip
---layer
---pip3 yapf==0.32.0
---entrypoint yapf
+FROM alpine:edge
+apk update
+apk add py3-pip
+pip3 install yapf==0.32.0
+ln -s /usr/local/bin/yapf /entrypoint
 ```
 
 Add the `devtools` directory to your `PATH` environment variable. Now every time
