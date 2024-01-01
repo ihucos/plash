@@ -2,6 +2,9 @@
 
 #define USAGE "usage: plash eval-file [ FILE ]\n"
 
+
+#define _GNU_SOURCE
+
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,6 +45,11 @@ int eval_plashfile_main(int argc, char *argv[]) {
 
       // tokenize line
       char *token = strtok(lineCopy, " ");
+
+
+      if (asprintf(&token, "--%s", token + 1) == -1)
+        pl_fatal("asprintf");
+
       pl_exec_add(token);
       while (token = strtok(NULL, " "))
         pl_exec_add(token);

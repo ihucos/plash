@@ -11,7 +11,6 @@
   "plash --version     Alias for `plash version`\n"                            \
   "plash -h            Alias for `plash help`\n"                               \
   "plash add-layer     Stack a layer on top of a container\n"                  \
-  "plash b             Build then run utility\n"                               \
   "plash build         Builds an image\n"                                      \
   "plash clean         Cleans up plashs internal data\n"                       \
   "plash copy          Copy the container's root filesystem to directory\n"    \

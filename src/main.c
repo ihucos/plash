@@ -17,43 +17,12 @@
   if (strcmp(argv[1], command) == 0)                                           \
     return func(argc - 1, argv + 1);
 
-void D(char *arr[]) {
-  int ai;
-  for (ai = 0; arr[ai]; ai++)
-    fprintf(stderr, "%s, ", arr[ai]);
-  fprintf(stderr, "\n");
-}
-
-int build_cmd(char *param) {
-  return param[0] == '@';
-}
-
-void reexec_insert_run(int argc, char **argv) {
-  //  it: plash -A xeyes -- xeyes
-  // out: plash b -A xeyes -- xeyes
-
-  char *newargv_array[argc + 3];
-  char **newargv = newargv_array;
-
-  *(newargv++) = *(argv++);
-  *(newargv++) = "b";
-  *(newargv++) = "run";
-  while (*(newargv++) = *(argv++))
-    ;
-
-  execvp(newargv_array[0], newargv_array);
-  pl_fatal("execvp");
-}
-
 int main(int argc, char *argv[]) {
 
   if (argc <= 1) {
     fprintf(stderr, "build and run containers, try --help\n");
     return EXIT_FAILURE;
   }
-
-  if (build_cmd(argv[1]))
-    reexec_insert_run(argc, argv);
 
   // Check if plash is being used as shebang interpreter
   if (strchr(argv[1], '/') != NULL) return exec_main(argc, argv);
@@ -88,7 +57,6 @@ int main(int argc, char *argv[]) {
   DISPATCH("rm", rm_main);
   DISPATCH("mount", mount_main);
   DISPATCH("copy", copy_main);
-  DISPATCH("b", b_main);
   DISPATCH("build", build_main);
   DISPATCH("import-docker", import_docker_main);
   DISPATCH("eval-plashfile", eval_plashfile_main);

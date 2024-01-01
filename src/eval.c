@@ -18,15 +18,15 @@
 
 #define QUOTE_REPLACE "'\"'\"'"
 #define HELP \
-"@from {id,docker,url,lxc,map} <id>\n" \
-"@include        Include a Plash script\n" \
-"@file           Write to a file\n" \
-"@script         Write an executable file\n" \
-"@hash           Generate a hash of a file to use as a cache key\n" \
-"@env            Import environment variables\n" \
-"@polute         Invalidate the cache\n" \
-"@layer          Create a new layer\n" \
-"@pass           Used to end other macros\n"
+"--from {id,docker,url,lxc,map} <id>\n" \
+"--include        Include a Plash script\n" \
+"--file           Write to a file\n" \
+"--script         Write an executable file\n" \
+"--hash           Generate a hash of a file to use as a cache key\n" \
+"--env            Import environment variables\n" \
+"--polute         Invalidate the cache\n" \
+"--layer          Create a new layer\n" \
+"--pass           Used to end other macros\n"
 
 #define CMD(cmd) } else if (strcmp(*tokens, cmd) == 0) {
 #define CMDARG(cmd, arg) } else if ((strcmp(*tokens, cmd) == 0) && (strcmp(*(tokens+1), arg) == 0)) {tokens++;
@@ -79,7 +79,7 @@ char *call_cached(char *subcommand, char *arg) {
 int is_build_cmd(char *val) {
   if (val == NULL)
     return 1;
-  if (val[0] == '@')
+  if (val[0] == '-') // XXXXXXXXXXXXXXXXXXXXX
     return 1;
   return 0;
 }
@@ -115,7 +115,7 @@ size_t countargs() {
 void next_token(){
     if (0){
 
-    CMDARG("@from", "id")
+    CMDARG("--from", "id")
       printf("@from-id %s\n", getarg());
 
     /* CMD("@from") */
@@ -126,32 +126,32 @@ void next_token(){
     /*       only_digits = 0; */
     /*   } */
     /*   if (only_digits) { */
-    /*     pl_run("/proc/self/exe", "eval", "@from-id", arg); */
+    /*     pl_run("/proc/self/exe", "eval", "--from-id", arg); */
     /*   } else { */
-    /*     pl_run("/proc/self/exe", "eval", "@from-lxc", arg); */
+    /*     pl_run("/proc/self/exe", "eval", "--from-lxc", arg); */
     /*   } */
 
 
-    CMDARG("@from", "docker")
+    CMDARG("--from", "docker")
       printf("@from-id %s\n", call_cached("import-docker", getarg()));
 
-    CMDARG("@from", "url")
+    CMDARG("--from", "url")
       printf("@from-id %s\n", call_cached("import-url", getarg()));
 
-    CMDARG("@from", "lxc")
+    CMDARG("--from", "lxc")
       printf("@from-id %s\n", call_cached("import-lxc", getarg()));
 
-    CMD("@from")
-	    pl_fatal("@from: second arg unknown: %s", getarg());
+    CMD("--from")
+	    pl_fatal("--from: second arg unknown: %s", getarg());
 
-    CMD("@from-map")
+    CMD("--from-map")
       char *image_id = pl_call("map", getarg());
       if (image_id[0] == '\0') {
         pl_fatal("No such map: %s", arg);
       }
       printf("@from-id %s\n", image_id);
 
-    /* CMD("@include-github") */
+    /* CMD("--include-github") */
     /*   char *url, *user_repo_pair, *file; */
     /*   user_repo_pair = getarg(); */
     /*   if (strchr(user_repo_pair, '/') == NULL) */
@@ -165,7 +165,7 @@ void next_token(){
     /*   pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", url, NULL}, */
     /*           (char *[]){"/proc/self/exe", "eval-plashfile", NULL}); */
 
-    CMD("@include")
+    CMD("--include")
       char *url = getarg();
       if (url[0] == '/' || (url[0] == '.' && url[1] == '/')) {
         pl_run("/proc/self/exe", "eval-plashfile", url);
@@ -176,20 +176,20 @@ void next_token(){
       }
 
 
-    CMD("@file")
+    CMD("--file")
       char *filename = getarg();
       printf("touch %s\n", quote(filename));
       while (getarg_or_null())
         printf("echo %s >> %s\n", quote(arg), quote(filename));
 
-    CMD("@script")
+    CMD("--script")
       char *filename = getarg();
       printf("touch %s\n", quote(filename));
       while (getarg_or_null())
         printf("echo %s >> %s\n", quote(arg), quote(filename));
       printf("chmod 755 %s\n", quote(filename));
 
-    CMD("@hash")
+    CMD("--hash")
       while (getarg_or_null()) {
         printf(": hash %s", arg);
         fflush(stdout);
@@ -197,7 +197,7 @@ void next_token(){
                 (char *[]){"sha512sum", NULL});
       }
 
-    CMD("@env")
+    CMD("--env")
       char *env, *export_as, *env_val;
       while (getarg_or_null()) {
         env = strtok(arg, ":");
@@ -212,15 +212,15 @@ void next_token(){
         }
       }
 
-    CMD("@polute")
+    CMD("--polute")
       struct timespec tp;
       clock_gettime(CLOCK_MONOTONIC, &tp);
       printf(": invalidate cache with %ld\n", tp.tv_nsec);
 
-    CMD("@layer")
+    CMD("--layer")
       printf("@layer\n");
 
-    CMD("@pass")
+    CMD("--pass")
       
 
     CMD("") // ignore newlines

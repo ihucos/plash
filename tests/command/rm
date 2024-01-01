@@ -9,6 +9,3 @@ plash rm $newcont
 
 : Specifying an unknown container errors
 (! plash rm 9999999)
-
-: Can be used together with the "b" subcommand
-plash b rm -f 1 --run 'touch /plash-rm-test-file'
