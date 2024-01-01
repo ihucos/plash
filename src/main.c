@@ -92,6 +92,7 @@ int main(int argc, char *argv[]) {
   DISPATCH("build", build_main);
   DISPATCH("import-docker", import_docker_main);
   DISPATCH("eval-plashfile", eval_plashfile_main);
+  DISPATCH("this", this_main);
 
   errno = 0;
   pl_fatal("no such command: %s (try `plash help`)", argv[1]);

@@ -204,6 +204,14 @@ int build_main(int argc, char *argv[]) {
     // image is correct.
     pl_call("nodepath", image_id);
   }
+
+  // save this
+  /* char *cache_key; */
+  /* if (asprintf(&cache_key, "this:%d", getsid(0)) == -1) */
+  /*   pl_fatal("asprintf"); */
+  /* pl_call("map", cache_key, image_id, NULL); */
+  pl_call("this", image_id, NULL);
+
   puts(image_id);
   return EXIT_SUCCESS;
 }

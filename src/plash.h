@@ -84,3 +84,4 @@ int runb_main(int argc, char *argv[]);
 int run_main(int argc, char *argv[]);
 int shrink_main(int argc, char *argv[]);
 int sudo_main(int argc, char *argv[]);
+int this_main(int argc, char *argv[]);
