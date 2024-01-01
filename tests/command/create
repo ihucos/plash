@@ -26,17 +26,17 @@ test $(basename $np1) = $(basename $(dirname $np2))
 
 : working directory when building is current working directory from caller
 cd /home
-plash build -f 1 --invalidate-layer -x 'test $(pwd) == /home'
+plash build --from id 1 --polute 'test $(pwd) == /home'
 cd -
 
 : home is mounted when building
-cont=$(plash build -f 1 -x 'ls -1 /home > /tmp/out')
+cont=$(plash build --from id 1 'ls -1 /home > /tmp/out')
 np=$(plash nodepath $cont)
 cmp $np/_data/root/tmp/out <(ls -1 /home)
 
 : tmp is not mounted when building
 mktemp /tmp/XXXXXXXXXXX
-cont=$(plash build -f 1 -x 'test -z $(ls /tmp)')
+cont=$(plash build --from id 1 'test -z $(ls /tmp)')
 
 : any build error returns exit code 1
 set +e
@@ -53,4 +53,4 @@ stdout=$(mktemp)
 test "$(PLASH_EXPORT=A A=a plash create 1 sh -c 'echo MARKER$A' 2>&1 | grep MARKER | grep -v +)" = 'MARKER'
 
 : HOME is exported
-test "$(HOME=a plash create 1 sh -c 'echo MARKER$HOME' --invalidate-layer 2>&1 | grep MARKER | grep -v +)" = MARKERa
+test "$(HOME=a plash create 1 sh -c 'echo MARKER$HOME' --polute 2>&1 | grep MARKER | grep -v +)" = MARKERa

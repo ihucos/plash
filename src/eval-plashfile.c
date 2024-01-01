@@ -2,17 +2,30 @@
 
 #define USAGE "usage: plash eval-file [ FILE ]\n"
 
+
+#define _GNU_SOURCE
+
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <plash.h>
 
-int eval_plashfile_main(int argc, char *argv[]) {
+#define CMD(bcmd, cmd) } else if (strncmp(bcmd " ", line, strlen(bcmd " ")) == 0 || strcmp(bcmd, line) == 0) {pl_exec_add(cmd); passargs(line);
+
+void passargs(char *line){
+  char *lineCopy = strdup(line);
+  if (lineCopy == NULL)
+    pl_fatal("strdup");
+  char *token = strtok(lineCopy, " ");
+  while (token = strtok(NULL, " "))
+    pl_exec_add(token);
+}
+
+int import_plashfile(int argc, char *argv[]) {
   int is_first_line = 1;
   size_t read;
   char *line = NULL;
-  char *lineCopy = NULL;
   size_t len = 0;
   FILE *fp;
 
@@ -29,28 +42,28 @@ int eval_plashfile_main(int argc, char *argv[]) {
 
   // for each line
   while ((read = getline(&line, &len, fp)) != -1) {
-    lineCopy = strdup(line);
-    if (lineCopy == NULL)
-      pl_fatal("strdup");
-    lineCopy[strcspn(line, "\n")] = 0; // chop newline char
+    line[strcspn(line, "\n")] = 0; // chop newline char
 
     // ignore shebang
-    if (is_first_line && lineCopy[0] == '#' && lineCopy[1] == '!')
+    if (is_first_line && line[0] == '#' && line[1] == '!')
       continue;
 
-    if (lineCopy[0] == '-') {
+    if (0){
 
-      // tokenize line
-      char *token = strtok(lineCopy, " ");
-      pl_exec_add(token);
-      while (token = strtok(NULL, " "))
-        pl_exec_add(token);
+    CMD("FROM", "--from")
+    CMD("LAYER", "--layer")
+    CMD("SCRIPT", "--script")
+    CMD("FILE", "--file")
+    CMD("HASH", "--hash")
+    CMD("ENV", "--env")
+    CMD("POLUTE", "--polute")
+    CMD("PASS", "--pass")
+    CMD("INCLUDE", "--include")
 
     } else {
-      // line is token
-      pl_exec_add(lineCopy);
+      pl_exec_add(strdup(line));
     }
-    is_first_line = 0;
   }
+  is_first_line = 0;
   pl_exec_add(NULL);
 }

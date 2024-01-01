@@ -25,13 +25,12 @@ int exec_main(int argc, char *argv[]) {
   if (chdir(dirname(plashfileCopy)) == -1)
     pl_fatal("chdir");
 
+  pl_call("build", "--include", plashfile, NULL);
+
   pl_exec_add("/proc/self/exe");
-  pl_exec_add("b");
+  pl_exec_add("this");
   pl_exec_add("run");
-  pl_exec_add("--eval-file");
-  pl_exec_add(plashfile);
-  pl_exec_add("--");
-  pl_exec_add("/.plashentrypoint");
+  pl_exec_add("/entrypoint");
   argv++;
   while (*argv++)
     pl_exec_add(*argv);

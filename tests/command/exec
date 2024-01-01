@@ -4,9 +4,8 @@ set -eux
 : basic test
 plashfile=$(mktemp)
 printf '#!/usr/bin/env plash
---from
-1
---entrypoint
+FROM id 1
+SCRIPT /entrypoint
 /usr/bin/printf
 ' >> $plashfile
 chmod 700 $plashfile

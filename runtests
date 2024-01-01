@@ -21,7 +21,7 @@ for script in $testfiles ; do
   machine="$(uname --machine)"
   plash import-tar $PROJECT_DIR/data/test-rootfs-"$machine".tar > /dev/null
 
-  printf "% -20s" ${script:2} # magic 2 is the length of "./"
+  printf "% -20s" tests/${script:2} # magic 2 is the length of "./"
   env "$script" > $log 2>&1 &
   if wait $!; then
     echo ' PASS'

@@ -17,52 +17,12 @@
   if (strcmp(argv[1], command) == 0)                                           \
     return func(argc - 1, argv + 1);
 
-void D(char *arr[]) {
-  int ai;
-  for (ai = 0; arr[ai]; ai++)
-    fprintf(stderr, "%s, ", arr[ai]);
-  fprintf(stderr, "\n");
-}
-
-int is_cli_param(char *param) {
-  switch (strlen(param)) {
-  case 1:
-    return EXIT_SUCCESS;
-  case 2:
-    return param[0] == '-' && param[1] != '-';
-  default:
-    return param[0] == '-';
-  }
-}
-
-void reexec_insert_run(int argc, char **argv) {
-  //  it: plash -A xeyes -- xeyes
-  // out: plash b -A xeyes -- xeyes
-
-  char *newargv_array[argc + 3];
-  char **newargv = newargv_array;
-
-  *(newargv++) = *(argv++);
-  *(newargv++) = "b";
-  *(newargv++) = "run";
-  while (*(newargv++) = *(argv++))
-    ;
-
-  execvp(newargv_array[0], newargv_array);
-  pl_fatal("execvp");
-}
-
 int main(int argc, char *argv[]) {
 
   if (argc <= 1) {
     fprintf(stderr, "build and run containers, try --help\n");
     return EXIT_FAILURE;
   }
-
-  if (is_cli_param(argv[1]) &&
-      !(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help") ||
-        !strcmp(argv[1], "--version") || !strcmp(argv[1], "--help-macros")))
-    reexec_insert_run(argc, argv);
 
   // Check if plash is being used as shebang interpreter
   if (strchr(argv[1], '/') != NULL) return exec_main(argc, argv);
@@ -97,10 +57,10 @@ int main(int argc, char *argv[]) {
   DISPATCH("rm", rm_main);
   DISPATCH("mount", mount_main);
   DISPATCH("copy", copy_main);
-  DISPATCH("b", b_main);
   DISPATCH("build", build_main);
   DISPATCH("import-docker", import_docker_main);
-  DISPATCH("eval-plashfile", eval_plashfile_main);
+  DISPATCH("this", this_main);
+  DISPATCH("eval-plashfile", import_plashfile);
 
   errno = 0;
   pl_fatal("no such command: %s (try `plash help`)", argv[1]);
