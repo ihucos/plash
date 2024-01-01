@@ -38,7 +38,7 @@ int import_plashfile(int argc, char *argv[]) {
   }
 
   pl_exec_add("/proc/self/exe");
-  pl_exec_add("build");
+  pl_exec_add("eval");
 
   // for each line
   while ((read = getline(&line, &len, fp)) != -1) {
@@ -58,6 +58,7 @@ int import_plashfile(int argc, char *argv[]) {
     CMD("ENV", "--env")
     CMD("POLUTE", "--polute")
     CMD("PASS", "--pass")
+    CMD("INCLUDE", "--include")
 
     } else {
       pl_exec_add(strdup(line));
@@ -66,41 +67,3 @@ int import_plashfile(int argc, char *argv[]) {
   is_first_line = 0;
   pl_exec_add(NULL);
 }
-
-
-
-
-
-
-
-  /* while ((read = getline(&line, &len, fp)) != -1) { */
-  /*   lineCopy = strdup(line); */
-  /*   if (lineCopy == NULL) */
-  /*     pl_fatal("strdup"); */
-  /*   lineCopy[strcspn(line, "\n")] = 0; // chop newline char */
-
-  /*   // ignore shebang */
-  /*   if (is_first_line && lineCopy[0] == '#' && lineCopy[1] == '!') */
-  /*     continue; */
-
-  /*   if (lineCopy[0] == '@') { */
-
-  /*     // tokenize line */
-  /*     char *token = strtok(lineCopy, " "); */
-
-
-  /*     if (asprintf(&token, "--%s", token + 1) == -1) */
-  /*       pl_fatal("asprintf"); */
-
-  /*     pl_exec_add(token); */
-  /*     while (token = strtok(NULL, " ")) */
-  /*       pl_exec_add(token); */
-
-  /*   } else { */
-  /*     // line is token */
-  /*     pl_exec_add(lineCopy); */
-  /*   } */
-  /*   is_first_line = 0; */
-  /* } */
-  /* pl_exec_add(NULL); */
-/* } */

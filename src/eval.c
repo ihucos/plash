@@ -135,9 +135,6 @@ void next_token(){
     CMDARG("--from", "docker")
       printf("@from-id %s\n", call_cached("import-docker", getarg()));
 
-    CMDARG("--from", "plashfile")
-      printf("@from-id %s\n", pl_call("import-plashfile", getarg()));
-
     CMDARG("--from", "url")
       printf("@from-id %s\n", call_cached("import-url", getarg()));
 
@@ -167,6 +164,16 @@ void next_token(){
     /*       pl_fatal("asprintf"); */
     /*   pl_pipe((char *[]){"curl", "--fail", "--no-progress-meter", url, NULL}, */
     /*           (char *[]){"/proc/self/exe", "eval-plashfile", NULL}); */
+
+    CMD("--include")
+      char *url = getarg();
+      if (url[0] == '/' || (url[0] == '.' && url[1] == '/')) {
+        pl_run("/proc/self/exe", "eval-plashfile", url);
+      } else {
+        pl_pipe(
+            (char *[]){"curl", "--fail", "--no-progress-meter", url, NULL},
+            (char *[]){"/proc/self/exe", "eval-plashfile", NULL});
+      }
 
     CMD("--file")
       char *filename = getarg();

@@ -25,7 +25,7 @@ int exec_main(int argc, char *argv[]) {
   if (chdir(dirname(plashfileCopy)) == -1)
     pl_fatal("chdir");
 
-  pl_call("build", "--from", "plashfile", plashfile, NULL);
+  pl_call("build", "--include", plashfile, NULL);
 
   pl_exec_add("/proc/self/exe");
   pl_exec_add("this");
