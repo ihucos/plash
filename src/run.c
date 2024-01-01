@@ -84,6 +84,9 @@ int run_main(int argc, char *argv[]) {
   pl_bind_mount("/sys", "sys");
   pl_bind_mount("/dev", "dev");
   pl_bind_mount("/proc", "proc");
+  if (mkdir("host", 0755) == -1)
+    pl_fatal("mkdir");
+  pl_bind_mount("/", "host");
 
   // ensure /etc/resolv.conf is a normal file. Because if it where a symlink,
   // mounting over it would not work as expected
