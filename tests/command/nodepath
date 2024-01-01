@@ -3,11 +3,11 @@ set -exu
 
 (! plash nodepath mynoexistentimage)
 
-newcont=$(plash build -f 1 --invalidate-layer)
+newcont=$(plash build --form id 1 --invalidate-layer)
 nodepath=$(plash nodepath $newcont)
 echo $nodepath | grep $newcont
 
-layerup=$(plash build -f $newcont --layer --invalidate-layer)
+layerup=$(plash build --form id $newcont --layer --invalidate-layer)
 nodepath=$(plash nodepath $layerup)
 echo $nodepath | grep $newcont
 echo $nodepath | grep $layerup

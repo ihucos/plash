@@ -1,7 +1,7 @@
 #!/bin/sh
 set -exu
 # build container 2 and 3
-plash build -f 1 --invalidate-layer
+plash build --from id 1 --polute
 
 : A simple invocation succeeds
 plash clean
@@ -14,7 +14,7 @@ out_after=$(ls "$PLASH_DATA"/index)
 test "$out_before" != "$out_after"
 
 : $PLASH_DATA/map is cleaned up
-cont=$(plash build -f 1 --invalidate-layer)
+cont=$(plash build --from id 1 --polute)
 plash map key1 "$cont"
 plash map key2 "$cont"
 plash map key3 "$cont"
@@ -30,7 +30,8 @@ test "$out" = ""
 : $PLASH_DATA/tmp is cleaned up
 out=$(ls "$PLASH_DATA"/tmp)
 test "$out" = "" # assert empty tmp
-plash b run -f 1 -- true
+plash build --from id 1
+plash this run true
 out=$(ls "$PLASH_DATA"/tmp)
 echo "$out" | grep plashtmp # assert output contains plashtmp
 plash clean --clean-tmp

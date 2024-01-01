@@ -2,39 +2,39 @@
 set -xeu
 
 : Building an image with a simple macro succeeds
-plash build -f 1 --invalidate-layer
+plash build --from id 1 --polute
 
 : Building an image with with multiple layers succeeds
-id=$(plash build -f 1 -l --invalidate-layer -l --invalidate-layer -l --invalidate-layer)
+id=$(plash build --from id 1 --layer --polute --layer --polute --layer --polute)
 plash nodepath $id
 plash nodepath $id | grep -E "^$(plash data)/layer/0/[0-9]+/[0-9]+/[0-9]+/[0-9]+$"
 
 
 : A file created while building indeed appears in the builded image
-cont=$(plash build -f 1 --invalidate-layer)
-newcont=$(plash build -f $cont -x 'touch /hellow')
+cont=$(plash build --from id 1 --polute)
+newcont=$(plash build --from id $cont 'touch /hellow')
 plash run $newcont stat /hellow
 
 : Building two times the same leads to the second build being cached
-cont=$(plash build -f 1 --invalidate-layer)
+cont=$(plash build --from id 1 --polute)
 stderr=$(mktemp)
-plash build -f $cont -x 'touch /a' 2> $stderr
+plash build --from id $cont 'touch /a' 2> $stderr
 test -s $stderr # its not empty
-plash build -f $cont -x 'touch /a' 2> $stderr
+plash build --from id $cont 'touch /a' 2> $stderr
 (! test -s $stderr) # its empty
 
 : If the actual build command fails with any non-zero exit code, `plash build` return the exit code 1
-cont=$(plash build -f 1 --invalidate-layer)
+cont=$(plash build --from id 1 --polute)
 set +e
-plash build -f $cont -x 'exit 42'
+plash build --from id $cont 'exit 42'
 test 1 -eq $? || exit 1
 set -e
 
 : Building a non-existent image leads to a non-zero exit code
-(! plash build -f 999)
+(! plash build --from id 999)
 
 : Building on a base container with no macros given returns that base container
-out=$(plash build -f 1)
+out=$(plash build --from id 1)
 test "$out" = 1
 
 : Using a unknown macro leads to a non-zero exit code
