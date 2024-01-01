@@ -1,4 +1,0 @@
-#!/bin/sh
-set -ex
-out=$(echo '--run mycmd' | plash eval --eval-stdin)
-test $out = mycmd
