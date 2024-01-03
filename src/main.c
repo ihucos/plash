@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
   DISPATCH("build", build_main);
   DISPATCH("import-docker", import_docker_main);
   DISPATCH("this", this_main);
+  DISPATCH("cache", cache_main);
   DISPATCH("eval-plashfile", import_plashfile);
 
   errno = 0;

@@ -83,4 +83,5 @@ int run_main(int argc, char *argv[]);
 int shrink_main(int argc, char *argv[]);
 int sudo_main(int argc, char *argv[]);
 int this_main(int argc, char *argv[]);
+int cache_main(int argc, char *argv[]);
 int import_plashfile(int argc, char *argv[]);

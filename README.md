@@ -199,17 +199,8 @@ One advantage is that every developer will have the same `yapf` version.
 
 
 ## User Interface Guidelines
-- Interface follows code
-- Code supplements documentation
-- Don't make difficult things seem easy
-- Don't be too verbose, usually only information about success or failure matter
-- Avoid too many features slowly getting in
-- The UI is not a marketing instrument
-- Just a prise of pragmatism
-- Users don't know what they want
-- user errors are the user's fault
-- Rude is better than sorry
-- Technical descriptions do not get outdated, reasoning and interpretations do.
+- Elegance in minimalism
+- User interface needs break Development Guidelines
 
 ## FAQ
 
