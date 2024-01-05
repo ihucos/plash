@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include <unistd.h>
 
-int import_tar_main(int argc, char *argv[]) {
+int pull_tarfile_main(int argc, char *argv[]) {
   char *tarfile = argv[1];
   if (tarfile == NULL) {
     tarfile = "-";

@@ -8,7 +8,6 @@
 
 #include <plash.h>
 
-
 // djb2 non-cryptografic hash function found here:
 // http://www.cse.yorku.ca/~oz/hash.html
 unsigned long myhash(unsigned char *str) {
@@ -21,21 +20,20 @@ unsigned long myhash(unsigned char *str) {
   return hash;
 }
 
-char* get_cache_key(char **args){
+char *get_cache_key(char **args) {
   unsigned long h = 0;
   char *cache_key;
 
-  while (*args){
+  while (*args) {
     h += myhash(*args);
     args++;
   }
-  asprintf(&cache_key, "cached:%lu", h) ||
-      pl_fatal("asprintf");
+  asprintf(&cache_key, "cached:%lu", h) || pl_fatal("asprintf");
   return cache_key;
 }
 
 int cache_main(int argc, char *argv[]) {
-  char *cache_key = get_cache_key(argv+1);
+  char *cache_key = get_cache_key(argv + 1);
   char *image_id = pl_call("map", cache_key);
   if (strcmp(image_id, "") != 0) {
     puts(image_id);

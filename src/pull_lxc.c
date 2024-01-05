@@ -9,10 +9,10 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/utsname.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include <plash.h>
 
@@ -30,7 +30,7 @@ char *getarch() {
   return dup;
 }
 
-int import_lxc_main(int argc, char *argv[]) {
+int pull_lxc_main(int argc, char *argv[]) {
 
   char *prefix, *url_part, *rootfs_url, *resp, *image_name, *distro, *version,
       *line;

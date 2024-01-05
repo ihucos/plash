@@ -4,10 +4,10 @@
 
 #include <plash.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-int copy_main(int argc, char *argv[]) {
+int push_dir_main(int argc, char *argv[]) {
   if (argc != 3) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;

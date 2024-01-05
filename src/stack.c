@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-int add_layer_main(int argc, char *argv[]) {
+int stack_main(int argc, char *argv[]) {
 
   off_t node_id;
   int fd;

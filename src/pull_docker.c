@@ -1,10 +1,10 @@
 // Import image from local docker instance into.
 
 #include <stddef.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include <plash.h>
 
@@ -34,7 +34,7 @@ void call_docker_pull(char *image) {
   }
 }
 
-int import_docker_main(int argc, char *argv[]) {
+int pull_docker_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;

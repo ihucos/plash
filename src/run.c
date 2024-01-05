@@ -28,12 +28,11 @@
 
 #include <plash.h>
 
-
 int is_delimited_substring(char *haystack, char *needle, char *delim) {
   char *str = strdup(haystack);
   char *token = strtok(str, delim);
   while (token) {
-    if (strcmp(needle, token) == 0){
+    if (strcmp(needle, token) == 0) {
       free(str);
       return 1;
     }
@@ -110,7 +109,6 @@ int run_main(int argc, char *argv[]) {
   if (!plash_export_vars)
     plash_export_vars = "";
 
-
   while (*env != NULL) {
 
     if (asprintf(&hostPrefixedEnv, "_HOST_%s", *env) == -1)
@@ -124,11 +122,9 @@ int run_main(int argc, char *argv[]) {
     if (name == NULL)
       pl_fatal("strtok");
 
- 
-    if (!(strcmp(name, "TERM") == 0 ||
-          strcmp(name, "DISPLAY") == 0 ||
-          strcmp(name, "PLASH_DATA") == 0)
-        && !is_delimited_substring(plash_export_vars, name, ":")) {
+    if (!(strcmp(name, "TERM") == 0 || strcmp(name, "DISPLAY") == 0 ||
+          strcmp(name, "PLASH_DATA") == 0) &&
+        !is_delimited_substring(plash_export_vars, name, ":")) {
 
       if (unsetenv(name) != 0)
         pl_fatal("unsetenv");

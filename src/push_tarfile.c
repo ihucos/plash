@@ -6,12 +6,12 @@
 #define USAGE "usage: plash export-tar CONTAINER [ FILE | - ]\n"
 
 #include <stddef.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <plash.h>
 
-int export_tar_main(int argc, char *argv[]) {
+int push_tarfile_main(int argc, char *argv[]) {
   char *image_id, *file;
   if (!(image_id = argv[1])) {
     fputs(USAGE, stderr);
@@ -20,6 +20,6 @@ int export_tar_main(int argc, char *argv[]) {
   if (!(file = argv[2]))
     file = "-";
   pl_unshare_user();
-  execvp("/proc/self/exe", (char *[]){"plash", "with-mount", image_id, "tar", "-cf",
-                             file, ".", NULL});
+  execvp("/proc/self/exe", (char *[]){"plash", "with-mount", image_id, "tar",
+                                      "-cf", file, ".", NULL});
 }

@@ -5,12 +5,12 @@
 #define _GNU_SOURCE
 #include <stddef.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <plash.h>
 
-int import_url_main(int argc, char *argv[]) {
+int pull_url_main(int argc, char *argv[]) {
   char *url = argv[1];
   if (url == NULL) {
     fputs(USAGE, stderr);

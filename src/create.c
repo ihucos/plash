@@ -24,10 +24,10 @@
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include <plash.h>
 
@@ -95,6 +95,7 @@ int create_main(int argc, char *argv[]) {
   char *changesdir_data = NULL;
   asprintf(&changesdir_data, "%s/data", changesdir) != -1 ||
       pl_fatal("asprintf");
-  execlp("/proc/self/exe", "plash", "add-layer", image_id, changesdir_data, NULL);
+  execlp("/proc/self/exe", "plash", "add-layer", image_id, changesdir_data,
+         NULL);
   pl_fatal("execlp");
 }

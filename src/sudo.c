@@ -8,9 +8,9 @@
 #define USAGE "usage: plash sudo [CMD1 [CMD2 ..]]\n"
 
 #include <pwd.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include <plash.h>
 

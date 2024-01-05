@@ -6,41 +6,34 @@
 #include <stdlib.h>
 
 #define HELP                                                                   \
-  "plash --help        Alias for `plash help`\n"                               \
-  "plash --help-macros Alias for `plash help-macros`\n"                        \
-  "plash --version     Alias for `plash version`\n"                            \
-  "plash -h            Alias for `plash help`\n"                               \
-  "plash add-layer     Stack a layer on top of a container\n"                  \
-  "plash build         Builds an image\n"                                      \
-  "plash clean         Cleans up plashs internal data\n"                       \
-  "plash copy          Copy the container's root filesystem to directory\n"    \
-  "plash create        Creates a new container from a command\n"               \
-  "plash data          Prints the location of the build data\n"                \
-  "plash eval          Generates a build script\n"                             \
-  "plash export-tar    Export container as tar archive\n"                      \
-  "plash help          Prints help\n"                                          \
-  "plash help-macros   Lists all available macros\n"                           \
-  "plash import-docker Import image from local docker instance into\n"         \
-  "plash import-lxc    Import an image from https://images\n"                  \
-  "plash import-tar    Create a container from a tar file\n"                   \
-  "plash import-url    Import a container from an url\n"                       \
-  "plash init          Initialize build data\n"                                \
-  "plash map           Map a container to a key\n"                             \
-  "plash mkdtemp       Create a temporary directory in the plash data\n"       \
-  "plash mount         Mount a container-filesystem\n"                         \
-  "plash nodepath      Prints the path to a given container\n"                 \
-  "plash parent        Prints the containers parent container\n"               \
-  "plash purge         Deletes all build data unatomically\n"                  \
-  "plash rm            Deletes the given image atomically\n"                   \
-  "plash run           Run a container\n"                                      \
-  "plash runb          Run an image in the build environment\n"                \
-  "plash shrink        Delete half of the older containers\n"                  \
-  "plash sudo          Setup a Linux user namespace\n"                         \
-  "plash test          Run unit tests\n"                                       \
-  "plash version       Prints the version number\n"                            \
-  "plash with-mount    Execute parameters inside a mounted container\n"        \
-  "plash -*            Fallback to `plash b run`\n" \
-  "plash */*           Execute subcommand as file (for shebangs)\n"
+  "USAGE: plash ...\n"                                                         \
+  "  [cached] pull docker IMAGE[:TAG]  -  Pull image from docker cli\n"        \
+  "  [cached] pull lxc DISTRO:VERSION  -  Download image from "                \
+  "images.linuxcontainers.org\n"                                               \
+  "  [cached] pull tarfile ARG         -  Import the image from an file\n"     \
+  "  [cached] pull url ARG             -  Download image from an url\n"        \
+  "  [noid] push [ID] dir ARG          -  Export image to a directory\n"       \
+  "  [noid] push [ID] tarfile ARG      -  Export image to a file\n"            \
+  "  [noid] [cached] create [ID] CODE  -  Create a new image\n"                \
+  "  [noid] mount [ID] MOUNTDIR        -  Mount image to the host "            \
+  "filesystem\n"                                                               \
+  "  [noid] mounted [ID] [CMD ...]     -  Run command on a mounted image\n"    \
+  "  [noid] nodepath [--allow-0] [ID]  -  Print filesystem path of an image\n" \
+  "  [noid] parent [ID]                -  Print the parents image\n"           \
+  "  [noid] rm [ID]                    -  Remove image and its children\n"     \
+  "  [noid] run [ID] [CMD ...]         -  Run command in image\n"              \
+  "  [noid] stack [ID] DIR             -  Create a new image specyfing its "   \
+  "layer\n"                                                                    \
+  "  clean                             -  Remove internal unsused files \n"    \
+  "  mkdtemp                           -  Create tempory data directory \n"    \
+  "  data                              -  Print application data path\n"       \
+  "  purge                             -  Remove all application data\n"       \
+  "  shrink                            -  Remove half of all images \n"        \
+  "  help                              -  print help message\n"                \
+  "  map KEY [ID]                      -  map lorem ipsum\n"                   \
+  "  sudo ...                          -  run program as \"userspace root\"\n" \
+  "  version                           -  print version\n" \
+  "  init                           -  initialize data dir\n"
 
 int help_main(int argc, char *argv[]) {
   fputs(HELP, stderr);

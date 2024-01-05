@@ -6,11 +6,10 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <stdlib.h>
 
 #include <plash.h>
 
