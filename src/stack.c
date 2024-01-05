@@ -81,14 +81,15 @@ int stack_main(int argc, char *argv[]) {
     pl_fatal("symlink");
   if (rename(prepared_new_node, linkpath) == -1)
     pl_fatal("rename");
-  if (puts(node_id_str) == EOF)
-    pl_fatal("puts");
 
   // set map for noid command
   char * cache_key;
   if (asprintf(&cache_key, "this:%d", getsid(0)) == -1)
     pl_fatal("asprintf");
   pl_call("map", cache_key, node_id_str);
+
+  if (puts(node_id_str) == EOF)
+    pl_fatal("puts");
 
   return EXIT_SUCCESS;
 }
