@@ -95,7 +95,7 @@ int create_main(int argc, char *argv[]) {
   char *changesdir_data = NULL;
   asprintf(&changesdir_data, "%s/data", changesdir) != -1 ||
       pl_fatal("asprintf");
-  execlp("/proc/self/exe", "plash", "add-layer", image_id, changesdir_data,
+  execlp("/proc/self/exe", "plash", "stack", image_id, changesdir_data,
          NULL);
   pl_fatal("execlp");
 }

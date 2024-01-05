@@ -22,6 +22,6 @@ int pull_url_main(int argc, char *argv[]) {
       pl_fatal("asprintf");
   pl_run("curl", "--progress-bar", "--fail", "--location", "--output", rootfs,
          url);
-  execlp("/proc/self/exe", "plash", "import-tar", rootfs, NULL);
+  execlp("/proc/self/exe", "plash", "pull", "tarfile", rootfs, NULL);
   pl_fatal("execlp");
 }

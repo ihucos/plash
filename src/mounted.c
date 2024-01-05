@@ -15,7 +15,7 @@
 
 #include <plash.h>
 
-int with_mount_main(int argc, char *argv[]) {
+int mounted_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;

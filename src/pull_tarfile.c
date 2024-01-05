@@ -14,6 +14,6 @@ int pull_tarfile_main(int argc, char *argv[]) {
   }
   char *tmpdir = pl_call("mkdtemp");
   pl_run("/proc/self/exe", "sudo", "tar", "-C", tmpdir, "-xf", tarfile);
-  execlp("/proc/self/exe", "plash", "add-layer", "0", tmpdir, NULL);
+  execlp("/proc/self/exe", "plash", "stack", "0", tmpdir, NULL);
   pl_fatal("execlp");
 }

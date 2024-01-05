@@ -32,7 +32,7 @@ char *get_cache_key(char **args) {
   return cache_key;
 }
 
-int cache_main(int argc, char *argv[]) {
+int cached_main(int argc, char *argv[]) {
   char *cache_key = get_cache_key(argv + 1);
   char *image_id = pl_call("map", cache_key);
   if (strcmp(image_id, "") != 0) {
