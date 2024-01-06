@@ -36,17 +36,19 @@ int cached_main(int argc, char *argv[]) {
   char *cache_key = get_cache_key(argv + 1);
   char *image_id = pl_call("map", cache_key);
   if (strcmp(image_id, "") != 0) {
-    puts(image_id);
-  } else {
-    argv[0] = "/proc/self/exe";
-    image_id = pl_firstline(pl_check_output(argv));
-    pl_call("map", cache_key, image_id);
 
   // set map for noid command
   char * cache_key;
   if (asprintf(&cache_key, "this:%d", getsid(0)) == -1)
     pl_fatal("asprintf");
   pl_call("map", cache_key, image_id);
+
+    puts(image_id);
+  } else {
+    argv[0] = "/proc/self/exe";
+    image_id = pl_firstline(pl_check_output(argv));
+    pl_call("map", cache_key, image_id);
+
 
     puts(image_id);
 
