@@ -68,7 +68,7 @@ int pull_lxc_main(int argc, char *argv[]) {
         puts(rootfs_url);
         return EXIT_SUCCESS;
       } else {
-        execlp("/proc/self/exe", "plash", "pull", "url", rootfs_url, NULL);
+        execlp("/proc/self/exe", "plash", "pull:url", rootfs_url, NULL);
         pl_fatal("execlp");
       }
     }

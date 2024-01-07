@@ -17,10 +17,6 @@
   if (strcmp(argv[1], command) == 0)                                           \
     return func(argc - 1, argv + 1);
 
-#define DISPATCH2(cmd1, cmd2, func)                                                \
-  if ((strcmp(argv[1], cmd1) == 0) && argv[2] && (strcmp(argv[2], cmd2) == 0))                                          \
-    return func(argc - 2, argv + 2);
-
 int main(int argc, char *argv[]) {
 
   if (argc <= 1) {
@@ -45,13 +41,13 @@ int main(int argc, char *argv[]) {
   DISPATCH("mounted", mounted_main);
   DISPATCH("nodepath", nodepath_main);
   DISPATCH("noid", noid_main);
-  DISPATCH2("pull", "docker", pull_docker_main);
-  DISPATCH2("pull", "lxc", pull_lxc_main);
-  DISPATCH2("pull", "tarfile", pull_tarfile_main);
-  DISPATCH2("pull", "url", pull_url_main);
+  DISPATCH("pull:docker", pull_docker_main);
+  DISPATCH("pull:lxc", pull_lxc_main);
+  DISPATCH("pull:tarfile", pull_tarfile_main);
+  DISPATCH("pull:url", pull_url_main);
   DISPATCH("purge", purge_main);
-  DISPATCH2("push", "dir", push_dir_main);
-  DISPATCH2("push", "tarfile", push_tarfile_main);
+  DISPATCH("push:dir", push_dir_main);
+  DISPATCH("push:tarfile", push_tarfile_main);
   DISPATCH("rm", rm_main);
   DISPATCH("run", run_main);
   DISPATCH("runb", runb_main); // ID ONT WANT HTIS ONE

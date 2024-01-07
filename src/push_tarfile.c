@@ -20,6 +20,6 @@ int push_tarfile_main(int argc, char *argv[]) {
   if (!(file = argv[2]))
     file = "-";
   pl_unshare_user();
-  execvp("/proc/self/exe", (char *[]){"plash", "with-mount", image_id, "tar",
+  execvp("/proc/self/exe", (char *[]){"plash", "mounted", image_id, "tar",
                                       "-cf", file, ".", NULL});
 }
