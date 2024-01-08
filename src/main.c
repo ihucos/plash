@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
   DISPATCH("cached", cached_main);
   DISPATCH("clean", clean_main);
   DISPATCH("create", create_main);
+  DISPATCH("parent", parent_main);
   DISPATCH("data", data_main);
   DISPATCH("help", help_main);
   DISPATCH("init", init_main);

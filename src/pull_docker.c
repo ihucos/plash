@@ -44,6 +44,6 @@ int pull_docker_main(int argc, char *argv[]) {
   char *container_id = pl_firstline(
       pl_check_output((char *[]){"docker", "create", image, "sh", NULL}));
   pl_pipe((char *[]){"docker", "export", container_id, NULL},
-          (char *[]){"/proc/self/exe", "import-tar", NULL});
+          (char *[]){"/proc/self/exe", "pull:tarfile", NULL});
   return EXIT_SUCCESS;
 }
