@@ -4,6 +4,42 @@
 
 Build and run layered root filesystems.
 
+```
+USAGE: plash ...
+
+  Import Image:
+    [cached] pull:docker IMAGE[:TAG]  -  Pull image from docker cli
+    [cached] pull:lxc DISTRO:VERSION  -  Download image from images.linuxcontainers.org
+    [cached] pull:tarfile ARG         -  Import the image from an file
+    [cached] pull:url ARG             -  Download image from an url
+
+  Export Image:
+    [noid] push:dir [ID] ARG          -  Export image to a directory
+    [noid] push:tarfile [ID] ARG      -  Export image to a file
+
+  Image Commands:
+    [noid] [cached] create [ID] CODE  -  Create a new image
+    [noid] mount [ID] MOUNTDIR        -  Mount image to the host filesystem
+    [noid] mounted [ID] [CMD ...]     -  Run command on a mounted image
+    [noid] nodepath [--allow-0] [ID]  -  Print filesystem path of an image
+    [noid] parent [ID]                -  Print the parents image
+    [noid] rm [ID]                    -  Remove image and its children
+    [noid] run [ID] [CMD ...]         -  Run command in image
+    [noid] stack [ID] DIR             -  Create a new image specyfing its layer
+
+  Other Commands:
+    clean         -  Remove internal unsused files
+    mkdtemp       -  Create tempory data directory
+    data          -  Print application data path
+    purge         -  Remove all application data
+    shrink        -  Remove half of all images
+    help          -  print help message
+    map KEY [ID]  -  map lorem ipsum
+    sudo ...      -  run program as 'userspace root'
+    version       -  print version
+    init          -  initialize data dir
+```
+
 
 ## Install
 ```
@@ -53,123 +89,12 @@ In general, the more to the left something is on the spectrum, the less flexible
 - The mount namespace
 - The root folder, allowing running a different linux distribution
 
-### Let's look at an example
-
-I want to edit an image at my Desktop with the gimp image editor.
-
-```
-$ plash build --from lxc alpine:edge "apk add gimp"
-112
-$ plash run 112 gimp
-```
-
-Gimp automatically has access to my X-Server and pop ups on my screen. It also has access to my home folder and all my files. But it does run on an alpine distribution and pretty much only in that regard is independent from its host operating system.
-
-### Conclusion
 
 Plash containers are just a normal Linux process that happen to run on a different root filesystem. This means that they have their own set of benefits and drawbacks and may be more or less suitable for a particular use case.
 
-## Basic concepts
-
-
-### Plash image
-A plash image refers to the file system of an operating system that was created usually by `plash build`. Plash images have a numeric id that can be passed to `plash run` in order to run an image. A image that is running may be referred as container. You could import a docker image into plash by calling `plash import-docker mydockerimage`.
-
-### Plash container
-A plash containers is a Linux processes that was started with the help of
-plash. Typically you start a plash container with the `plash run` subcommand.
-E. G. `plash run 23 cowsay hi`. Since plash containers are just Linux processes
-you can list them with `ps` or `top` and kill them with `kill`.  
-
-### Plash macro
-A plash macro may also be referred as a build command. Macros are instructions
-used to build images. One example is the `apt` macro which installs any given
-package or packages with the `apt` package manager. A more complete example for
-the usage of the `apt` macro could be: `plash build --from ubuntu:focal --apt
-nmap`. Internally a macro does nothing more than to emit shell code that is
-executed when an image is build. Use `plash --help-macros` to list all macros.
-
-### Plash build file
-A plash build file is a file containing a set of macros. Building an image from
-a build file can be achieved with following command `plash build --eval-file
-./my-plash-build-file`.  Interestingely `eval-file` which is used to "run"
-build files is itself a macro. As macros emit shell code so do plash build
-files.
-
-### Plash executable
-Take a build file, have `#!/usr/bin/env plash` as its first line, mark it
-as executable and specify it's entrypoint executable with the `entrypoint` macro.
-That is a plash executable. Now you you can build and run containerized
-software without knowing that containers or plash exist.
-
-
-
-
-## Use Case: Containerzied Project Environment
-
-When developing software together with other developers, for example in the
-context of a company, it might make sense to standartize how the developed
-software is run for development. Tooling needed for development might also be
-containerized. The advantages are faster onboarding of new developers and
-better reproducability of the software along the differnet development
-computers.
-
-
-Let's take a look at the following software.
-
-```
-# app.py
-from flask import Flask
-app = Flask(__name__)
-@app.route('/')
-def index():
-    return 'Web App with Python Flask'
-app.run(host='127.0.0.0.1', port=8080)
-```
-
-We could instruct developers do download `python3` and install `flask`, which might
-be specified at the `requirements.txt` file. Or better let's use a container to
-run that software without involving any manual setup steps.
-
-We could write a plash executable and ask users to run that. Save that file to
-`./runapp` and mark it as executable
-
-```
-#!/usr/bin/env plash
-FROM lxc alpine:edge
-apk update
-apk add py3-pip
-LAYER
-HASH ./requirements.txt
-pip3 install -r ./requirements.txt
-
-SCRIPT /entrypoint
-exec python3 app.py
-```
-
-
-Now developers can run the application simply by executing `./runapp`. When the
-`requirements.txt` file changes, all steps after the `--hash-path` build
-command are rerun so that modification in the requirements file can take
-effect.
-
-We can also take this one step forward and containerize development tools.
-Create a directory called `devtools`, then add a file called `yapf` to it.
-
-```
-#!/usr/bin/env plash
-FROM alpine:edge
-apk update
-apk add py3-pip
-pip3 install yapf==0.32.0
-ln -s /usr/local/bin/yapf /entrypoint
-```
-
-Add the `devtools` directory to your `PATH` environment variable. Now every time
-you type in `yapf` into your terminal, this containerized version will be used.
-One advantage is that every developer will have the same `yapf` version.
-
-
+## User Interface Guidelines
+- Elegance in minimalism
+- User interface needs break Development Guidelines
 
 ## Development Guidelines
 
@@ -197,10 +122,6 @@ One advantage is that every developer will have the same `yapf` version.
 - Cognitive load for endusers does matter after all
 - The right guidelines for the right situation.
 
-
-## User Interface Guidelines
-- Elegance in minimalism
-- User interface needs break Development Guidelines
 
 ## FAQ
 
