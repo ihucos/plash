@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/ihucos/plash.svg?branch=master)](https://travis-ci.org/ihucos/plash) 
-
 # Plash
 
 Build and run layered root filesystems.
