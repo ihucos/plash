@@ -7,6 +7,7 @@
 
 int help_main(int argc, char *argv[]) {
   fputs(
+      "Build and run layered root filesystems.\n\n"
       "USAGE: plash ...\n\n"
       "  Import Image:\n"
       "    [cached] pull:docker IMAGE[:TAG]  -  Pull image from docker cli\n"
