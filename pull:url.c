@@ -18,7 +18,7 @@ int pull_url_main(int argc, char *argv[]) {
   }
 
   char *rootfs = NULL;
-  asprintf(&rootfs, "%s/rootfs", pl_call("mkdtemp")) != -1 ||
+  asprintf(&rootfs, "%s/rootfs", plash("mkdtemp")) != -1 ||
       pl_fatal("asprintf");
   pl_run("curl", "--progress-bar", "--fail", "--location", "--output", rootfs,
          url);

@@ -36,7 +36,7 @@ int runb_main(int argc, char *argv[]) {
   char *container_id = argv[1];
   char *changesdir = argv[2];
   char *origpwd = get_current_dir_name();
-  char *plash_data = pl_call("data");
+  char *plash_data = plash("data");
   //
   // get "userspace root"
   //
@@ -54,7 +54,7 @@ int runb_main(int argc, char *argv[]) {
   //
   // mount root filesystem at the empty mountpoint
   //
-  pl_call("mount", container_id, "mnt", changesdir);
+  plash("mount", container_id, "mnt", changesdir);
 
   //
   // mount

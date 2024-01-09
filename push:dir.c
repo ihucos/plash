@@ -14,10 +14,10 @@ int push_dir_main(int argc, char *argv[]) {
   }
   char *container = argv[1];
   char *outdir = argv[2];
-  char *tmpout = pl_call("mkdtemp");
+  char *tmpout = plash("mkdtemp");
 
   pl_unshare_user();
-  pl_call("mounted", container, "cp", "-r", ".", tmpout);
+  plash("mounted", container, "cp", "-r", ".", tmpout);
   if (rename(tmpout, outdir) == -1)
     pl_fatal("rename %s %s", tmpout, outdir);
   return EXIT_SUCCESS;

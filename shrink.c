@@ -74,7 +74,7 @@ char *get_oldest_leave() {
 
 int shrink_main(int argc, char *argv[]) {
   char *image_id;
-  char *plash_data = pl_call("data");
+  char *plash_data = plash("data");
   if (chdir(plash_data) == -1)
     pl_fatal("chdir %s");
   if (chdir("index") == -1)
@@ -93,7 +93,7 @@ int shrink_main(int argc, char *argv[]) {
       break;
     }
     printf("Deleting image id: %s\n", o);
-    pl_call("rm", o);
+    plash("rm", o);
   }
   printf("You have %d images.\n", count_images() - 1);
   return EXIT_SUCCESS;

@@ -50,8 +50,8 @@ int run_main(int argc, char *argv[]) {
   }
   char *container_id = argv[1];
   char *origpwd = get_current_dir_name();
-  char *plash_data = pl_call("data");
-  char *changesdir = pl_call("mkdtemp");
+  char *plash_data = plash("data");
+  char *changesdir = plash("mkdtemp");
 
   //
   // get "userspace root"
@@ -70,7 +70,7 @@ int run_main(int argc, char *argv[]) {
   //
   // mount root filesystem at the empty mountpoint
   //
-  pl_call("mount", container_id, "mnt", changesdir);
+  plash("mount", container_id, "mnt", changesdir);
 
   //
   // mount

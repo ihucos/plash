@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-#define pl_call(...)                                                           \
+#define plash(...)                                                           \
   pl_firstline(pl_check_output((char *[]){"/proc/self/exe", __VA_ARGS__, NULL}))
 #define pl_run(...) _pl_run((char *[]){__VA_ARGS__, NULL})
 

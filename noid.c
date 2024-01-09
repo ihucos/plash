@@ -17,7 +17,7 @@ int noid_main(int argc, char *argv[]) {
   if (asprintf(&cache_key, "this:%d", getsid(0)) == -1)
     pl_fatal("asprintf");
 
-  char *image_id = pl_call("map", cache_key);
+  char *image_id = plash("map", cache_key);
 
   if (strcmp(image_id, "") == 0) {
     errno = 0;

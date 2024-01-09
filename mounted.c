@@ -26,8 +26,8 @@ int mounted_main(int argc, char *argv[]) {
   pl_unshare_user();
   pl_unshare_mount();
 
-  char *mountpoint = pl_call("mkdtemp");
-  pl_call("mount", image_id, mountpoint);
+  char *mountpoint = plash("mkdtemp");
+  plash("mount", image_id, mountpoint);
   if (chdir(mountpoint) == -1)
     pl_fatal("chdir");
 

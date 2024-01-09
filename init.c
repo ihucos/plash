@@ -20,7 +20,7 @@ void ensuredir(char *pathname, mode_t mode) {
 
 int init_main(int argc, char *argv[]) {
 
-  char *plash_data = pl_call("data");
+  char *plash_data = plash("data");
 
   ensuredir(plash_data, 0700);
   if (chdir(plash_data) == -1)

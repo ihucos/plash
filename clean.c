@@ -79,7 +79,7 @@ int clean_main(int argc, char *argv[]) {
   size_t count;
   pl_unshare_user();
   char *pid, *sid;
-  char *plash_data = pl_call("data");
+  char *plash_data = plash("data");
 
   fprintf(stderr, "output_stable: false\n");
 

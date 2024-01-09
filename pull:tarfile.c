@@ -12,7 +12,7 @@ int pull_tarfile_main(int argc, char *argv[]) {
   if (tarfile == NULL) {
     tarfile = "-";
   }
-  char *tmpdir = pl_call("mkdtemp");
+  char *tmpdir = plash("mkdtemp");
   pl_run("/proc/self/exe", "sudo", "tar", "-C", tmpdir, "-xf", tarfile);
   execlp("/proc/self/exe", "plash", "stack", "0", tmpdir, NULL);
   pl_fatal("execlp");

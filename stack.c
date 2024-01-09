@@ -40,15 +40,15 @@ int stack_main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  plash_data = pl_call("data");
+  plash_data = plash("data");
   assert(plash_data);
   assert(plash_data[0] == '/');
 
-  nodepath = pl_call("nodepath", argv[1], "--allow-root-container");
+  nodepath = plash("nodepath", argv[1], "--allow-root-container");
 
   pl_unshare_user();
 
-  prepared_new_node = pl_call("mkdtemp");
+  prepared_new_node = plash("mkdtemp");
 
   if ((layer = realpath(argv[2], NULL)) == NULL)
     pl_fatal("realpath(%s)", argv[2]);
@@ -86,7 +86,7 @@ int stack_main(int argc, char *argv[]) {
   char * cache_key;
   if (asprintf(&cache_key, "this:%d", getsid(0)) == -1)
     pl_fatal("asprintf");
-  pl_call("map", cache_key, node_id_str);
+  plash("map", cache_key, node_id_str);
 
   if (puts(node_id_str) == EOF)
     pl_fatal("puts");

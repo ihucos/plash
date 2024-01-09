@@ -55,9 +55,9 @@ void del(char const *linkpath) {
 void set(char const *linkpath, char *container_id) {
   char *nodepath;
 
-  nodepath = pl_call("nodepath", container_id);
+  nodepath = plash("nodepath", container_id);
 
-  if (chdir(pl_call("mkdtemp")) == -1)
+  if (chdir(plash("mkdtemp")) == -1)
     pl_fatal("chdir");
   if (asprintf(&nodepath, "..%s", nodepath + strlen(plash_data)) == -1)
     pl_fatal("asprintf");
@@ -78,7 +78,7 @@ int map_main(int argc, char *argv[]) {
     }
   }
 
-  plash_data = pl_call("data");
+  plash_data = plash("data");
   assert(plash_data);
   assert(plash_data[0] == '/');
 
