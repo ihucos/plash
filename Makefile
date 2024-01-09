@@ -18,4 +18,4 @@ clean:
 	rm -f $(INCLUDES_PLASH_H) $(INCLUDES_PLASH_C) dist/plash
 
 format:
-	find . -iname *.h -o -iname *.c | xargs clang-format -i -style="{CommentPragmas: '^ usage:'}"
+	clang-format -i *.c
