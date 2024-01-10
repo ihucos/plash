@@ -28,20 +28,21 @@ int help_main(int argc, char *argv[]) {
       "image\n"
       "    [noid] parent [ID]                -  Print the parents image\n"
       "    [noid] rm [ID]                    -  Remove image and its children\n"
-      "    [noid] run [ID] [CMD ...]         -  Run command in image\n"
+      "    [noid] run [--save DIR] [ID] [CMD ...]         -  Run command in image\n"
       "    [noid] stack [ID] DIR             -  Create a new image specyfing "
       "its layer\n\n"
       "  Other Commands:\n"
-      "    clean         -  Remove internal unsused files\n"
-      "    mkdtemp       -  Create tempory data directory\n"
-      "    data          -  Print application data path\n"
-      "    purge         -  Remove all application data\n"
-      "    shrink        -  Remove half of all images\n"
-      "    help          -  print help message\n"
-      "    map KEY [ID]  -  map lorem ipsum\n"
-      "    sudo ...      -  run program as 'userspace root'\n"
-      "    version       -  print version\n"
-      "    init          -  initialize data dir\n",
+      "    chroot DIR [CMD ...] -  Flavored chroot\n"
+      "    clean                -  Remove internal unsused files\n"
+      "    data                 -  Print application data path\n"
+      "    help                 -  print help message\n"
+      "    init                 -  initialize data dir\n"
+      "    map KEY [ID]         -  map lorem ipsum\n"
+      "    mkdtemp              -  Create tempory data directory\n"
+      "    purge                -  Remove all application data\n"
+      "    shrink               -  Remove half of all images\n"
+      "    sudo ...             -  run program as 'userspace root'\n"
+      "    version              -  print version\n",
       stderr);
   return EXIT_SUCCESS;
 }

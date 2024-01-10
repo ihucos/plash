@@ -51,6 +51,7 @@ int main(int argc, char *argv[]) {
   DISPATCH("push:tarfile", push_tarfile_main);
   DISPATCH("rm", rm_main);
   DISPATCH("run", run_main);
+  DISPATCH("chroot", chroot_main);
   DISPATCH("runb", runb_main); // ID ONT WANT HTIS ONE
   DISPATCH("shrink", shrink_main);
   DISPATCH("stack", stack_main);

@@ -74,6 +74,7 @@ int push_dir_main(int argc, char *argv[]);
 int push_tarfile_main(int argc, char *argv[]);
 int rm_main(int argc, char *argv[]);
 int run_main(int argc, char *argv[]);
+int chroot_main(int argc, char *argv[]);
 int runb_main(int argc, char *argv[]);
 int shrink_main(int argc, char *argv[]);
 int stack_main(int argc, char *argv[]);
