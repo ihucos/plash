@@ -30,8 +30,15 @@ int noid_main(int argc, char *argv[]) {
   }
 
   pl_exec_add("/proc/self/exe");
-  pl_exec_add(argv[1]);
-  pl_exec_add(image_id);
+  if (strcmp(argv[1], "cached") == 0) {
+    pl_exec_add(argv[1]);
+    pl_exec_add(argv[2]);
+    pl_exec_add(image_id);
+    argv++;
+  } else {
+    pl_exec_add(argv[1]);
+    pl_exec_add(image_id);
+  }
   argv++;
   while (*(argv++))
     pl_exec_add(*argv);
