@@ -85,8 +85,10 @@ int run_main(int argc, char *argv[]) {
     pl_fatal("open %s", resolv_file);
   close(fd);
 
-  // Something else to prepare for "plash chroot"
-  mkdir("host", 0755);
+  /* // Something else to prepare for "plash chroot" */
+  /* char *host_file; */
+  /* asprintf(&resolv_file, "%s/host", mnt); */
+  /* mkdir(host_file, 0755); */
 
 
   pl_exec_add("/proc/self/exe");

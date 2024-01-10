@@ -55,7 +55,7 @@ int chroot_main(int argc, char *argv[]) {
   pl_bind_mount("/sys", "sys");
   pl_bind_mount("/dev", "dev");
   pl_bind_mount("/proc", "proc");
-  pl_bind_mount("/", "host");
+  pl_bind_mount("/", "mnt");
   pl_bind_mount("/etc/resolv.conf", "etc/resolv.conf");
 
   //

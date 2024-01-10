@@ -6,6 +6,8 @@
 // $ plash with-mount 70 du -sh
 // 7,2M    .
 
+#define _GNU_SOURCE
+
 #define USAGE "usage: plash with-mount CONTAINER [ CMD1 [ CMD2  ... ] ]\n"
 
 #include <errno.h>
@@ -26,7 +28,8 @@ int mounted_main(int argc, char *argv[]) {
   pl_unshare_user();
   pl_unshare_mount();
 
-  char *mountpoint = plash("mkdtemp");
+  char *mountpoint;
+  asprintf(&mountpoint, "%s/mnt", plash("data"));
   plash("mount", image_id, mountpoint);
   if (chdir(mountpoint) == -1)
     pl_fatal("chdir");
