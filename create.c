@@ -49,7 +49,7 @@ int create_main(int argc, char *argv[]) {
   char *changesdir = plash("mkdtemp");
 
   pl_exec_add("/proc/self/exe");
-  pl_exec_add("runb");
+  pl_exec_add("run:persist");
   pl_exec_add(image_id);
   pl_exec_add(changesdir);
 
@@ -85,7 +85,7 @@ int create_main(int argc, char *argv[]) {
     pl_fatal("waitpid");
 
   if (!WIFEXITED(status))
-    pl_fatal("plash runb subprocess exited abnormally");
+    pl_fatal("plash run:persist subprocess exited abnormally");
   int exit = WEXITSTATUS(status);
   if (exit != 0) {
     errno = 0;

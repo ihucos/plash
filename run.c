@@ -48,10 +48,20 @@ int run_main(int argc, char *argv[]) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;
   }
+
+  // set the changesdir
+  char *changesdir;
+  if (strcmp(argv[0], "run:persist") == 0){
+    changesdir = argv[2];
+    argv[2] = argv[1]; // push the img id parameter forward
+    argv++;
+  } else {
+    changesdir = plash("mkdtemp");
+  }
+
   char *container_id = argv[1];
   char *origpwd = get_current_dir_name();
   char *plash_data = plash("data");
-  char *changesdir = plash("mkdtemp");
   char *mnt;
 
   //

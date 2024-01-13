@@ -28,7 +28,7 @@ int help_main(int argc, char *argv[]) {
       "image\n"
       "    [noid] parent [ID]                -  Print the parents image\n"
       "    [noid] rm [ID]                    -  Remove image and its children\n"
-      "    [noid] run [--save DIR] [ID] [CMD ...]         -  Run command in image\n"
+      "    [noid] run [ID][--save DIR] ...   -  Run command in image\n"
       "    [noid] stack [ID] DIR             -  Create a new image specyfing "
       "its layer\n\n"
       "  Other Commands:\n"
