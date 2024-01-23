@@ -51,4 +51,5 @@ int cached_main(int argc, char *argv[]) {
 
     puts(image_id);
   }
+  return EXIT_SUCCESS;
 }
