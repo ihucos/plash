@@ -57,6 +57,8 @@ int main(int argc, char *argv[]) {
   DISPATCH("stack", stack_main);
   DISPATCH("sudo", sudo_main);
   DISPATCH("version", version_main);
+  DISPATCH("LAYER", layer_main);
+  DISPATCH("CHECK", check_main);
 
   errno = 0;
   pl_fatal("no such command: %s (try `plash help`)", argv[1]);

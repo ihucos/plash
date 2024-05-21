@@ -1,0 +1,23 @@
+FROM alpine:edge
+
+
+apk add py3-pip
+
+LAYER
+# first_block_install
+
+
+CHECK
+md5sum requirements.txt
+echo $_HOST_MYVAR
+
+LAYER
+
+pip3 install -r requirements.txt
+
+
+
+
+ENTRYPOINT
+exec ./myporg
+

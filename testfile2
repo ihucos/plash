@@ -1,0 +1,33 @@
+
+. "$(plash script)"
+
+from {
+  echo "alpine:edge"
+}
+
+
+install_pip {
+  apk add py3-pip
+}
+
+do_first_block {
+  # first_block_install
+}
+
+
+check_reqs {
+  md5sum requirements.txt
+  echo $_HOST_MYVAR
+}
+
+install_reqs {
+  pip3 install -r requirements.txt
+}
+
+
+
+entrypoint {
+  exec ./myporg
+}
+
+
