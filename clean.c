@@ -81,8 +81,6 @@ int clean_main(int argc, char *argv[]) {
   char *pid, *sid;
   char *plash_data = plash("data");
 
-  fprintf(stderr, "output_stable: false\n");
-
   // cd index
   if (chdir(plash_data) == -1)
     pl_fatal("chdir");
@@ -90,7 +88,7 @@ int clean_main(int argc, char *argv[]) {
     pl_fatal("chdir");
 
   // remove broken indexes
-  fprintf(stderr, "unlinked_indexes: ");
+  fprintf(stderr, "unlinked indexes: ");
   count = remove_broken_links_here();
   fprintf(stderr, "%ld\n", count);
 
@@ -101,7 +99,7 @@ int clean_main(int argc, char *argv[]) {
     pl_fatal("chdir");
 
   // remove broken maps
-  fprintf(stderr, "unlinked_maps: ");
+  fprintf(stderr, "unlinked maps: ");
   count = remove_broken_links_here();
   fprintf(stderr, "%ld\n", count);
 
@@ -112,7 +110,7 @@ int clean_main(int argc, char *argv[]) {
     pl_fatal("chdir");
 
   // remove unused tmp dirs
-  fprintf(stderr, "removed_tmpdirs: ");
+  fprintf(stderr, "removed tmpdirs: ");
   count = delete_unused_tmpdirs_here();
   fprintf(stderr, "%ld\n", count);
   return EXIT_SUCCESS;
