@@ -11,10 +11,7 @@
 #define USAGE "usage: plash nodepath CONTAINER [--allow-root-container]\n"
 
 #define _GNU_SOURCE
-#include <assert.h>
-#include <ctype.h>
 #include <errno.h>
-#include <inttypes.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
