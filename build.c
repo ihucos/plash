@@ -1,4 +1,4 @@
-// Creates a new container from a command. If no command is passed, a shell is
+// Builds a new container from a command. If no command is passed, a shell is
 // started. The new container is printed to stdout, all other output goes to
 // stderr. Note that a new container is only returned if the build command
 // returns 0 (success) as exit code.  For most cases use `plash build` for a
@@ -6,18 +6,18 @@
 //
 // Example:
 //
-// $ plash create 7 ./buildscript.sh
+// $ plash build 7 ./buildscript.sh
 // 42
 //
-// $ sudo plash create 3
+// $ sudo plash build 3
 // /home/fulano # echo 'hello' > /file
 // /home/fulano # exit 0
 // 71
 //
-// $ plash b create -f ubuntu -- touch /myfile
+// $ plash b build -f ubuntu -- touch /myfile
 // 44
 
-#define USAGE "usage: plash create CONTAINER [ CMD1 [ CMD2 ... ] ]\n"
+#define USAGE "usage: plash build CONTAINER [ CMD1 [ CMD2 ... ] ]\n"
 
 #define _GNU_SOURCE
 
@@ -31,7 +31,7 @@
 
 #include <plash.h>
 
-int create_main(int argc, char *argv[]) {
+int build_main(int argc, char *argv[]) {
 
   char *plash_data = plash("data");
   char *image_id = argv[1];

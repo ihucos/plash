@@ -19,7 +19,7 @@ int help_main(int argc, char *argv[]) {
       "    plash [recall] push:dir [ID] ARG          -  Export image to a directory\n"
       "    plash [recall] push:tarfile [ID] ARG      -  Export image to a file\n\n"
       "  Image Commands:\n"
-      "    plash [recall] [cached] create [ID] CODE  -  Create a new image\n"
+      "    plash [recall] [cached] build [ID] CODE  -  Build a new image\n"
       "    plash [recall] mount [ID] MOUNTDIR        -  Mount image to the host "
       "filesystem\n"
       "    plash [recall] mounted [ID] [CMD ...]     -  Run command on a mounted "

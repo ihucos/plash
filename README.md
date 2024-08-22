@@ -18,7 +18,7 @@ USAGE:
     plash [recall] push:tarfile [ID] ARG      -  Export image to a file
 
   Image Commands:
-    plash [recall] [cached] create [ID] CODE  -  Create a new image
+    plash [recall] [cached] build [ID] CODE  -  Build a new image
     plash [recall] mount [ID] MOUNTDIR        -  Mount image to the host filesystem
     plash [recall] mounted [ID] [CMD ...]     -  Run command on a mounted image
     plash [recall] nodepath [--allow-0] [ID]  -  Print filesystem path of an image
