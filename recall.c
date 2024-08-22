@@ -11,7 +11,7 @@
 
 #include <plash.h>
 
-int noid_main(int argc, char *argv[]) {
+int recall_main(int argc, char *argv[]) {
   char *cache_key;
 
   if (asprintf(&cache_key, "this:%d", getsid(0)) == -1)

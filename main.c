@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   DISPATCH("mount", mount_main);
   DISPATCH("mounted", mounted_main);
   DISPATCH("nodepath", nodepath_main);
-  DISPATCH("noid", noid_main);
+  DISPATCH("recall", recall_main);
   DISPATCH("pull:docker", pull_docker_main);
   DISPATCH("pull:lxc", pull_lxc_main);
   DISPATCH("pull:tarfile", pull_tarfile_main);

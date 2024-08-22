@@ -64,7 +64,7 @@ int mkdtemp_main(int argc, char *argv[]);
 int mount_main(int argc, char *argv[]);
 int mounted_main(int argc, char *argv[]);
 int nodepath_main(int argc, char *argv[]);
-int noid_main(int argc, char *argv[]);
+int recall_main(int argc, char *argv[]);
 int pull_docker_main(int argc, char *argv[]);
 int pull_lxc_main(int argc, char *argv[]);
 int pull_tarfile_main(int argc, char *argv[]);
