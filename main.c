@@ -20,7 +20,7 @@
 int main(int argc, char *argv[]) {
 
   if (argc <= 1) {
-    fprintf(stderr, "build and run containers, try `plash --help`\n");
+    fprintf(stderr, "Build and run containers, try `plash help`\n");
     return EXIT_FAILURE;
   }
 
