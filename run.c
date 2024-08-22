@@ -105,6 +105,12 @@ int run_main(int argc, char *argv[]) {
   pl_exec_add("chroot");
   pl_exec_add(mnt);
 
+  // Use login shell
+  pl_exec_add("/bin/sh");
+  pl_exec_add("-lc");
+  pl_exec_add("exec env \"$@\"");
+  pl_exec_add("--");
+
   //
   // build up the arguments to run
   //
