@@ -21,7 +21,7 @@ int recall_main(int argc, char *argv[]) {
 
   if (strcmp(image_id, "") == 0) {
     errno = 0;
-    pl_fatal("current image not set");
+    pl_fatal("Cannot recall any image id");
   }
 
   if (!argv[1]) {

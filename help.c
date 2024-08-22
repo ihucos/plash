@@ -36,14 +36,14 @@ int help_main(int argc, char *argv[]) {
       "    plash chroot DIR [CMD ...] -  Flavored chroot\n"
       "    plash clean                -  Remove internal unsused files\n"
       "    plash data                 -  Print application data path\n"
-      "    plash help                 -  print help message\n"
-      "    plash init                 -  initialize data dir\n"
-      "    plash map KEY [ID]         -  map lorem ipsum\n"
+      "    plash help                 -  Print help message\n"
+      "    plash init                 -  Initialize data dir\n"
+      "    plash map KEY [ID]         -  Map lorem ipsum\n"
       "    plash mkdtemp              -  Create tempory data directory\n"
       "    plash purge                -  Remove all application data\n"
       "    plash shrink               -  Remove half of all images\n"
-      "    plash sudo ...             -  run program as 'userspace root'\n"
-      "    plash version              -  print version\n",
+      "    plash sudo ...             -  Run program as 'userspace root'\n"
+      "    plash version              -  Print version\n",
       stderr);
   return EXIT_SUCCESS;
 }
