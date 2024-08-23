@@ -82,12 +82,6 @@ int stack_main(int argc, char *argv[]) {
   if (rename(prepared_new_node, linkpath) == -1)
     pl_fatal("rename");
 
-  // set map for recall command
-  char *cache_key;
-  if (asprintf(&cache_key, "this:%d", getsid(0)) == -1)
-    pl_fatal("asprintf");
-  plash("map", cache_key, node_id_str);
-
   if (puts(node_id_str) == EOF)
     pl_fatal("puts");
 

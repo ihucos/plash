@@ -37,12 +37,6 @@ int cached_main(int argc, char *argv[]) {
   char *image_id = plash("map", cache_key);
   if (strcmp(image_id, "") != 0) {
 
-    // set map for recall command
-    char *cache_key;
-    if (asprintf(&cache_key, "this:%d", getsid(0)) == -1)
-      pl_fatal("asprintf");
-    plash("map", cache_key, image_id);
-
     puts(image_id);
   } else {
     argv[0] = "/proc/self/exe";
