@@ -11,6 +11,8 @@ char *pl_check_output(char *argv[]);
 
 char *pl_firstline(char *str);
 
+char *pl_run_add(char *arg);
+
 int pl_fatal(char *format, ...);
 
 char *pl_path(const char *relpath);
