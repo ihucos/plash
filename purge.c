@@ -37,7 +37,7 @@ int purge_main(int argc, char *argv[]) {
     pl_fatal("chdir %s", plash_data);
 
   // this one first
-  pl_run("rm", "rm", "-rf", "id_counter", NULL);
+  pl_run("rm", "rm", "-rf", "id_counter");
 
   pl_run("rm", "-rf", "index");
   pl_run("rm", "-rf", "layer");
