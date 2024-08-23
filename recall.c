@@ -29,20 +29,21 @@ int recall_main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
   }
 
-  pl_run_add("/proc/self/exe");
+  pl_array_add("/proc/self/exe");
   if (strcmp(argv[1], "cached") == 0) {
-    pl_run_add(argv[1]);
-    pl_run_add(argv[2]);
-    pl_run_add(image_id);
+    pl_array_add(argv[1]);
+    pl_array_add(argv[2]);
+    pl_array_add(image_id);
     argv++;
   } else {
-    pl_run_add(argv[1]);
-    pl_run_add(image_id);
+    pl_array_add(argv[1]);
+    pl_array_add(image_id);
   }
   argv++;
   while (*(argv++))
-    pl_run_add(*argv);
-  char *new_image_id = pl_firstline(pl_run_add(NULL));
+    pl_array_add(*argv);
+  pl_array_add(NULL);
+  char *new_image_id = pl_firstline(pl_check_output(pl_array));
 
   plash("map", cache_key, new_image_id);
 

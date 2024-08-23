@@ -48,19 +48,19 @@ int build_main(int argc, char *argv[]) {
 
   char *changesdir = plash("mkdtemp");
 
-  pl_exec_add("/proc/self/exe");
-  pl_exec_add("run:persist");
-  pl_exec_add(image_id);
-  pl_exec_add(changesdir);
+  pl_array_add("/proc/self/exe");
+  pl_array_add("run:persist");
+  pl_array_add(image_id);
+  pl_array_add(changesdir);
 
   if (*argv) {
 
     while (*argv) {
-      pl_exec_add(*argv);
+      pl_array_add(*argv);
       argv++;
     }
   } else {
-    pl_exec_add("/bin/sh");
+    pl_array_add("/bin/sh");
   }
 
   pid_t pid = fork();
@@ -70,8 +70,14 @@ int build_main(int argc, char *argv[]) {
     if (dup2(STDERR_FILENO, STDOUT_FILENO) == -1)
       pl_fatal("dup2");
 
+    pl_array_add(NULL);
+
     // exec away
-    pl_exec_add(NULL);
+    execvp(pl_array[0], pl_array);
+
+    pl_fatal("execvp");
+
+
   }
 
   int status;

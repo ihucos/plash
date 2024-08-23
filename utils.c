@@ -318,20 +318,6 @@ char *pl_check_output(char *argv[]) {
   }
 }
 
-char *pl_run_add(char *arg) {
-
-  static char **array = NULL;
-  static size_t size = -1;
-
-  array = realloc(array, (size + 1) * sizeof(char *));
-  if (array == NULL)
-    pl_fatal("realloc");
-  array[size++] = arg;
-  if (arg == NULL)
-    return pl_check_output(array);
-  return NULL;
-}
-
 char *pl_firstline(char *str) {
   str[strcspn(str, "\n")] = 0;
   return str;
@@ -371,25 +357,14 @@ void pl_unshare_mount() {
   pl_setup_mount_ns();
 }
 
-void pl_exec_add(char *cmd) {
-  static char **array = NULL;
-  static size_t size = 0;
-
-  array = realloc(array, (size + 1) * sizeof(char *));
-  if (array == NULL)
-    pl_fatal("realloc");
-  array[size++] = cmd;
-
-  if (cmd == NULL) {
-    execvp(array[0], array);
-    pl_fatal("execvp");
-  }
-}
-
 char **pl_array = NULL;
 size_t pl_array_size = 0;
 
 void pl_array_add(char *item) {
+  pl_array = realloc(pl_array, (pl_array_size + 1) * sizeof(char *));
+  if (pl_array == NULL)
+    pl_fatal("realloc");
+  pl_array[pl_array_size++] = item;
 }
 
 // function to pipe two programs together

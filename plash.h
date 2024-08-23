@@ -5,13 +5,16 @@
   pl_firstline(pl_check_output((char *[]){"/proc/self/exe", __VA_ARGS__, NULL}))
 #define pl_run(...) _pl_run((char *[]){__VA_ARGS__, NULL})
 
+extern char **pl_array;
+extern char **pl_array_size;
+
+char *pl_array_add(char *item);
+
 char *pl_cmd_array(int (*main_func)(int, char *[]), char *args[]);
 
 char *pl_check_output(char *argv[]);
 
 char *pl_firstline(char *str);
-
-char *pl_run_add(char *arg);
 
 int pl_fatal(char *format, ...);
 
@@ -38,8 +41,6 @@ void pl_bind_mount(const char *src, const char *dst);
 void pl_chdir(const char *newdir);
 
 void pl_chroot(const char *rootfs);
-
-void pl_exec_add(char *arg);
 
 char *pl_pipe(char *const program1[], char *const program2[]);
 

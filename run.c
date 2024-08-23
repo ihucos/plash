@@ -101,23 +101,24 @@ int run_main(int argc, char *argv[]) {
   /* mkdir(host_file, 0755); */
 
 
-  pl_exec_add("/proc/self/exe");
-  pl_exec_add("chroot");
-  pl_exec_add(mnt);
+  pl_array_add("/proc/self/exe");
+  pl_array_add("chroot");
+  pl_array_add(mnt);
 
   // Use login shell
-  pl_exec_add("/bin/sh");
-  pl_exec_add("-lc");
-  pl_exec_add("exec env \"$@\"");
-  pl_exec_add("--");
+  pl_array_add("/bin/sh");
+  pl_array_add("-lc");
+  pl_array_add("exec env \"$@\"");
+  pl_array_add("--");
 
   //
   // build up the arguments to run
   //
   char **run_args = argv + 2;
   for (int i = 0; run_args[i]; i++) {
-    pl_exec_add(run_args[i]);
+    pl_array_add(run_args[i]);
   }
-  pl_exec_add(NULL);
+  pl_array_add(NULL);
+  execvp(pl_array[0], pl_array);
   pl_fatal("execvp");
 }
