@@ -14,32 +14,33 @@ USAGE:
     plash [cached] pull:url ARG             -  Download image from an url
 
   Export Image:
-    plash [recall] push:dir [ID] ARG          -  Export image to a directory
-    plash [recall] push:tarfile [ID] ARG      -  Export image to a file
+    plash push:dir ID ARG          -  Export image to a directory
+    plash push:tarfile ID ARG      -  Export image to a file
 
   Image Commands:
-    plash [recall] [cached] build [ID] CODE  -  Build a new image
-    plash [recall] mount [ID] MOUNTDIR        -  Mount image to the host filesystem
-    plash [recall] mounted [ID] [CMD ...]     -  Run command on a mounted image
-    plash [recall] nodepath [--allow-0] [ID]  -  Print filesystem path of an image
-    plash [recall] parent [ID]                -  Print the parents image
-    plash [recall] rm [ID]                    -  Remove image and its children
-    plash [recall] run [ID] ...               -  Run command in image
-    plash [recall] run:persist [ID] DIR ...   -  Run and persist fs changes at DIR
-    plash [recall] stack [ID] DIR             -  Create a new image specyfing its layer
+    plash [cached] build ID CODE   -  Build a new image
+    plash mount ID MOUNTDIR        -  Mount image to the host filesystem
+    plash mounted ID [CMD ...]     -  Run command on a mounted image
+    plash nodepath [--allow-0] ID  -  Print filesystem path of an image
+    plash parent ID                -  Print the parents image
+    plash rm ID                    -  Remove image and its children
+    plash run ID ...               -  Run command in image
+    plash run:persist ID DIR ...   -  Run and persist fs changes at DIR
+    plash stack ID DIR             -  Create a new image specyfing its layer
 
   Other Commands:
-    plash chroot DIR [CMD ...] -  Flavored chroot
-    plash clean                -  Remove internal unsused files
-    plash data                 -  Print application data path
-    plash help                 -  print help message
-    plash init                 -  initialize data dir
-    plash map KEY [ID]         -  map lorem ipsum
-    plash mkdtemp              -  Create tempory data directory
-    plash purge                -  Remove all application data
-    plash shrink               -  Remove half of all images
-    plash sudo ...             -  run program as 'userspace root'
-    plash version              -  print version
+    plash recall PLASHCMD *ARGS -  Save returned ID and/or reuse last saved ID
+    plash chroot DIR [CMD ...]  -  Flavored chroot
+    plash clean                 -  Remove internal unsused files
+    plash data                  -  Print application data path
+    plash help                  -  Print help message
+    plash init                  -  Initialize data dir
+    plash map KEY [ID]          -  Map lorem ipsum
+    plash mkdtemp               -  Create tempory data directory
+    plash purge                 -  Remove all application data
+    plash shrink                -  Remove half of all images
+    plash sudo ...              -  Run program as 'userspace root'
+    plash version               -  Print version
 ```
 
 
