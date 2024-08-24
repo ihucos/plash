@@ -77,4 +77,5 @@ int recall_main(int argc, char *argv[]) {
     execvp(pl_array[0], pl_array);
     pl_fatal("execvp");
   }
+  return EXIT_SUCCESS;
 }
