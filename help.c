@@ -31,6 +31,7 @@ int help_main(int argc, char *argv[]) {
       "    plash run ID ...               -  Run command in image\n"
       "    plash run:persist ID DIR ...   -  Run and persist fs changes at DIR\n"
       "    plash stack ID DIR             -  Create a new image specyfing "
+      "    plash check ID PATH            -  Invalidate ongoing caches if PATH changed.\n"
       "its layer\n\n"
       "  Other Commands:\n"
       "    plash recall PLASHCMD *ARGS -  Save returned ID and/or reuse last saved ID\n"

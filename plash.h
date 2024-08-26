@@ -83,3 +83,4 @@ int stack_main(int argc, char *argv[]);
 int sudo_main(int argc, char *argv[]);
 int version_main(int argc, char *argv[]);
 int parent_main(int argc, char *argv[]);
+int check_main(int argc, char *argv[]);
