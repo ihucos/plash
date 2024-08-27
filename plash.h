@@ -55,7 +55,7 @@ char *pl_nextline(FILE *fh);
 
 // all the mains
 int version_main(int argc, char *argv[]);
-int cached_main(int argc, char *argv[]);
+int cache_main(int argc, char *argv[]);
 int clean_main(int argc, char *argv[]);
 int build_main(int argc, char *argv[]);
 int data_main(int argc, char *argv[]);

@@ -1,4 +1,4 @@
-#define USAGE "usage: plash cached PLASH_CMD ...\n"
+#define USAGE "usage: plash cache PLASH_CMD ...\n"
 #define _GNU_SOURCE
 
 #include <stdio.h>
@@ -46,11 +46,11 @@ char *get_cache_key(char **args) {
     h += myhash(*args);
     args++;
   }
-  asprintf(&cache_key, "cached:%lu", h) || pl_fatal("asprintf");
+  asprintf(&cache_key, "cache:%lu", h) || pl_fatal("asprintf");
   return cache_key;
 }
 
-int cached_main(int argc, char *argv[]) {
+int cache_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;

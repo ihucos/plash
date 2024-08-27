@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   /*   return exec_main(argc, argv); */
 
   DISPATCH("version", version_main);
-  DISPATCH("cached", cached_main);
+  DISPATCH("cache", cache_main);
   DISPATCH("clean", clean_main);
   DISPATCH("build", build_main);
   DISPATCH("parent", parent_main);

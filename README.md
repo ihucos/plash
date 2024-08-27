@@ -8,25 +8,28 @@ Build and run layered root filesystems.
 USAGE:
 
   Import Image:
-    plash [cached] pull:docker IMAGE[:TAG]  -  Pull image from docker cli
-    plash [cached] pull:lxc DISTRO:VERSION  -  Download image from images.linuxcontainers.org
-    plash [cached] pull:tarfile ARG         -  Import the image from an file
-    plash [cached] pull:url ARG             -  Download image from an url
+    plash pull:docker IMAGE[:TAG]  -  Pull image from docker cli
+    plash pull:lxc DISTRO:VERSION  -  Download image from images.linuxcontainers.org
+    plash pull:tarfile ARG         -  Import the image from an file
+    plash pull:url ARG             -  Download image from an url
 
   Export Image:
     plash push:dir ID ARG          -  Export image to a directory
     plash push:tarfile ID ARG      -  Export image to a file
 
   Image Commands:
-    plash [cached] build ID CODE   -  Build a new image
+    plash build ID CODE   -  Build a new image
     plash mount ID MOUNTDIR        -  Mount image to the host filesystem
     plash mounted ID [CMD ...]     -  Run command on a mounted image
     plash nodepath [--allow-0] ID  -  Print filesystem path of an image
     plash parent ID                -  Print the parents image
     plash rm ID                    -  Remove image and its children
     plash run ID ...               -  Run command in image
+    plash do PLASH_CMD ...         -  Shortcut for `plash recall cache ...`
+    plash cache PLASH_CMD ...      -  Cache image id output by argv
     plash run:persist ID DIR ...   -  Run and persist fs changes at DIR
     plash stack ID DIR             -  Create a new image specyfing its layer
+    plash check ID PATH            -  Invalidate ongoing caches if PATH changed.
 
   Other Commands:
     plash recall PLASHCMD *ARGS -  Save returned ID and/or reuse last saved ID

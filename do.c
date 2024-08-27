@@ -18,7 +18,7 @@ int do_main(int argc, char *argv[]) {
 
   // XXXXXXX meh
   if (strcmp(argv[1], "check") != 0 && strcmp(argv[1], "run") != 0 && strcmp(argv[1], "nodepath") != 0) {
-    pl_array_add("cached");
+    pl_array_add("cache");
   }
   for (int i = 1; argv[i]; i++) {
     pl_array_add(argv[i]);

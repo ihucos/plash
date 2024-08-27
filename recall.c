@@ -48,7 +48,7 @@ int recall_main(int argc, char *argv[]) {
   }
 
   pl_array_add("/proc/self/exe");
-  if (strcmp(argv[1], "cached") == 0) {
+  if (strcmp(argv[1], "cache") == 0) {
     pl_array_add(argv[1]);
     pl_array_add(argv[2]);
     cmd = argv[2];
