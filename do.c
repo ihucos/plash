@@ -16,6 +16,7 @@ int do_main(int argc, char *argv[]) {
   pl_array_add("/proc/self/exe");
   pl_array_add("recall");
 
+  // XXXXXXX meh
   if (strcmp(argv[1], "check") != 0 && strcmp(argv[1], "run") != 0 && strcmp(argv[1], "nodepath") != 0) {
     pl_array_add("cached");
   }
