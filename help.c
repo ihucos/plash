@@ -29,6 +29,7 @@ int help_main(int argc, char *argv[]) {
       "    plash parent ID                -  Print the parents image\n"
       "    plash rm ID                    -  Remove image and its children\n"
       "    plash run ID ...               -  Run command in image\n"
+      "    plash do PLASH_CMD ...         -  Shortcut for `plash recall cached ...`\n"
       "    plash run:persist ID DIR ...   -  Run and persist fs changes at DIR\n"
       "    plash stack ID DIR             -  Create a new image specyfing "
       "its layer\n"
