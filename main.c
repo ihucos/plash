@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
   DISPATCH("version", version_main);
   DISPATCH("check", check_main);
   DISPATCH("do", do_main);
+  DISPATCH("id", id_main);
 
   errno = 0;
   pl_fatal("no such command: %s (try `plash help`)", argv[1]);

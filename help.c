@@ -28,6 +28,7 @@ int help_main(int argc, char *argv[]) {
       "image\n"
       "    plash parent ID                -  Print the parents image\n"
       "    plash rm ID                    -  Remove image and its children\n"
+      "    plash id ID                    -  prints given iamge id\n"
       "    plash run ID ...               -  Run command in image\n"
       "    plash do PLASH_CMD ...         -  Apply `recall` and `cache` automatically\n"
       "    plash cache PLASH_CMD ...      -  Cache image id output by argv\n"

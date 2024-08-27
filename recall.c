@@ -18,7 +18,8 @@ int command_accepts_image_id(char *cmd) {
     (strcmp(cmd, "run") == 0) ||
     (strcmp(cmd, "run:persist") == 0) ||
     (strcmp(cmd, "check") == 0) ||
-    (strcmp(cmd, "stack") == 0)
+    (strcmp(cmd, "stack") == 0) ||
+    (strcmp(cmd, "id") == 0)
   );
 }
 
@@ -30,6 +31,7 @@ int command_prints_image_id(char *cmd) {
     (strcmp(cmd, "pull:url") == 0) ||
     (strcmp(cmd, "build") == 0) ||
     (strcmp(cmd, "check") == 0) ||
+    // (strcmp(cmd, "id") == 0) ||
     (strcmp(cmd, "parent") == 0)
   );
 }
