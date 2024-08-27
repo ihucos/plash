@@ -16,8 +16,10 @@ int do_main(int argc, char *argv[]) {
   pl_array_add("/proc/self/exe");
   pl_array_add("recall");
 
-  // XXXXXXX meh
-  if (strcmp(argv[1], "check") != 0 && strcmp(argv[1], "run") != 0 && strcmp(argv[1], "nodepath") != 0) {
+  if (
+    strcmp(argv[1], "build") == 0 ||
+    strncmp(argv[1], "pull:", strlen("pull:")) == 0
+  ) {
     pl_array_add("cache");
   }
   for (int i = 1; argv[i]; i++) {

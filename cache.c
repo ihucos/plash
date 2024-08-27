@@ -9,23 +9,6 @@
 
 #include <plash.h>
 
-char *cacheable_commands[] = {
-  "build",
-  "pull:docker",
-  "pull:lxc",
-  "pull:tarfile",
-  "pull:url",
-  NULL
-};
-
-int is_cacheable_command(char *cmd) {
-  for (int i = 0; cacheable_commands[i]; i++) {
-    if (strcmp(cacheable_commands[i], cmd) == 0)
-      return 1;
-  }
-  return 0;
-}
-
 // djb2 non-cryptografic hash function found here:
 // http://www.cse.yorku.ca/~oz/hash.html
 unsigned long myhash(unsigned char *str) {
@@ -54,11 +37,6 @@ int cache_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;
-  }
-
-  if (!is_cacheable_command(argv[1])) {
-    pl_fatal("Not a cacheable plash command: %s", argv[1]);
-    return EXIT_SUCCESS;
   }
 
   char *cache_key = get_cache_key(argv + 1);
