@@ -61,7 +61,7 @@ int run_main(int argc, char *argv[]) {
 
   char *container_id = argv[1];
   char *origpwd = get_current_dir_name();
-  char *plash_data = plash("data");
+  char *plash_data = data_call();
   char *mnt;
 
   //

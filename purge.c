@@ -32,7 +32,7 @@ int purge_main(int argc, char *argv[]) {
 
   pl_unshare_user();
 
-  char *plash_data = plash("data");
+  char *plash_data = data_call();
   if (chdir(plash_data) == -1)
     pl_fatal("chdir %s", plash_data);
 

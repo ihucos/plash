@@ -40,11 +40,11 @@ int stack_main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  plash_data = plash("data");
+  plash_data = data_call();
   assert(plash_data);
   assert(plash_data[0] == '/');
 
-  nodepath = plash("nodepath", argv[1], "--allow-root-container");
+  nodepath = nodepath_call(argv[1], "--allow-root-container");
 
   pl_unshare_user();
 

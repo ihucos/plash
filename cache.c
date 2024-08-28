@@ -40,13 +40,13 @@ int cache_main(int argc, char *argv[]) {
   }
 
   char *cache_key = get_cache_key(argv + 1);
-  char *image_id = plash("map", cache_key);
-  if (strcmp(image_id, "") != 0) {
+  char *image_id = map_call(cache_key, NULL);
+  if (image_id != NULL) {
     puts(image_id);
   } else {
     argv[0] = "/proc/self/exe";
     image_id = pl_firstline(pl_check_output(argv));
-    plash("map", cache_key, image_id);
+    map_call(cache_key, image_id);
     puts(image_id);
   }
   return EXIT_SUCCESS;

@@ -21,33 +21,35 @@
 
 #include <plash.h>
 
-int nodepath_main(int argc, char *argv[]) {
+char * nodepath_call(char *id, char *flag) {
 
   int i = 0;
   char *nodepath, *plash_data;
 
+  // validate/normalize input
+  if (!id[0] || strspn(id, "0123456789") != strlen(id))
+    pl_fatal("image arg must be a positive number, got: %s", id);
+
+  if (0 == strcmp(id, "0") &&
+      (flag != NULL && strcmp(flag, "--allow-root-container") != 0)) {
+    pl_fatal("image must not be the special root image ('0')");
+  }
+
+  plash_data = data_call();
+  if (chdir(plash_data) == -1 || chdir("index") == -1)
+    pl_fatal("run `plash init`: chdir: %s", plash_data);
+
+  if (!(nodepath = realpath(id, NULL))) {
+    errno = 0;
+    pl_fatal("no image: %s", id);
+  }
+  return nodepath;
+}
+
+int nodepath_main(int argc, char *argv[]) {
   if (argc < 2) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;
   }
-
-  // validate/normalize input
-  if (!argv[1][0] || strspn(argv[1], "0123456789") != strlen(argv[1]))
-    pl_fatal("image arg must be a positive number, got: %s", argv[1]);
-
-  if (0 == strcmp(argv[1], "0") &&
-      (argc <= 2 || 0 != strcmp(argv[2], "--allow-root-container"))) {
-    pl_fatal("image must not be the special root image ('0')");
-  }
-
-  plash_data = plash("data");
-  if (chdir(plash_data) == -1 || chdir("index") == -1)
-    pl_fatal("run `plash init`: chdir: %s", plash_data);
-
-  if (!(nodepath = realpath(argv[1], NULL))) {
-    errno = 0;
-    pl_fatal("no image: %s", argv[1]);
-  }
-  puts(nodepath);
-  return EXIT_SUCCESS;
+  puts(nodepath_call(argv[1], argv[2]));
 }

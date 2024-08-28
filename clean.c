@@ -79,7 +79,7 @@ int clean_main(int argc, char *argv[]) {
   size_t count;
   pl_unshare_user();
   char *pid, *sid;
-  char *plash_data = plash("data");
+  char *plash_data = data_call();
 
   // cd index
   if (chdir(plash_data) == -1)

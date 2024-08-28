@@ -34,7 +34,7 @@ char *get_home_dir() {
   return home_env;
 }
 
-char *get_plash_data() {
+char *data_call() {
   char *plash_data;
   if (!(plash_data = getenv("PLASH_DATA"))) {
     if (asprintf(&plash_data, "%s/.plashdata", get_home_dir()) == -1)
@@ -44,7 +44,7 @@ char *get_plash_data() {
 }
 
 int data_main(int argc, char *argv[]) {
-  char *plash_data = get_plash_data();
+  char *plash_data = data_call();
 
   // if no arguments, print the plash data directory
   if (argc == 1) {

@@ -367,6 +367,11 @@ void pl_array_add(char *item) {
   pl_array[pl_array_size++] = item;
 }
 
+void pl_array_init() {
+  pl_array = NULL;
+  pl_array_size = 0;
+}
+
 // function to pipe two programs together
 void pl_pipe(char *program1[], char *program2[]) {
   int pipe_fd[2];

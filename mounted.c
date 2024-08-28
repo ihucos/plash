@@ -29,7 +29,7 @@ int mounted_main(int argc, char *argv[]) {
   pl_unshare_mount();
 
   char *mountpoint;
-  asprintf(&mountpoint, "%s/mnt", plash("data"));
+  asprintf(&mountpoint, "%s/mnt", data_call());
   plash("mount", image_id, mountpoint);
   if (chdir(mountpoint) == -1)
     pl_fatal("chdir");

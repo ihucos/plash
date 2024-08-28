@@ -10,6 +10,8 @@ extern char **pl_array_size;
 
 char *pl_array_add(char *item);
 
+void pl_array_init();
+
 char *pl_cmd_array(int (*main_func)(int, char *[]), char *args[]);
 
 char *pl_check_output(char *argv[]);
@@ -86,3 +88,7 @@ int parent_main(int argc, char *argv[]);
 int check_main(int argc, char *argv[]);
 int do_main(int argc, char *argv[]);
 int id_main(int argc, char *argv[]);
+
+char *data_call();
+char *map_call(char *key, char *id);
+char *nodepath_call(char *id, char *flag);

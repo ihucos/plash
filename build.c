@@ -33,7 +33,7 @@
 
 int build_main(int argc, char *argv[]) {
 
-  char *plash_data = plash("data");
+  char *plash_data = data_call();
   char *image_id = argv[1];
   if (image_id == NULL) {
     fputs(USAGE, stderr);
@@ -41,13 +41,14 @@ int build_main(int argc, char *argv[]) {
   }
 
   // validate image exists
-  plash("nodepath", image_id);
+  nodepath_call(image_id, NULL);
 
   argv++; // chop argv[0]
   argv++; // chop image_id
 
   char *changesdir = plash("mkdtemp");
 
+  pl_array_init();
   pl_array_add("/proc/self/exe");
   pl_array_add("run:persist");
   pl_array_add(image_id);

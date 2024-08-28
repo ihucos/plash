@@ -11,7 +11,7 @@
 
 int mkdtemp_main(int argc, char *argv[]) {
   char *tmpdir, *tmpdir_templ;
-  if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", plash("data"),
+  if (asprintf(&tmpdir_templ, "%s/tmp/plashtmp_%d_%d_XXXXXX", data_call(),
                getsid(0), getppid()) == -1)
     pl_fatal("asprintf");
   tmpdir = mkdtemp(tmpdir_templ);

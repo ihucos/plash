@@ -13,6 +13,7 @@ int do_main(int argc, char *argv[]) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;
   }
+  pl_array_init();
   pl_array_add("/proc/self/exe");
   pl_array_add("recall");
 

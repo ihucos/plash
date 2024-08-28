@@ -21,8 +21,8 @@
 
 char *prepare_lowerdir(char *image_id) {
   char *lowerdir = "";
-  char *plash_data = plash("data");
-  char *nodepath = plash("nodepath", image_id);
+  char *plash_data = data_call();
+  char *nodepath = nodepath_call(image_id, NULL);
   int offset = strlen(plash_data) + strlen("/layer/");
   if (strlen(nodepath) < offset) {
     pl_fatal("Unexpected interal error: nodepath command output is shorter "

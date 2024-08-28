@@ -37,13 +37,13 @@ int check_main(int argc, char *argv[]) {
     pl_fatal("asprintf");
   }
 
-  char *existing_image_id = plash("map", cache_key);
-  if (strcmp(existing_image_id, "") != 0) {
+  char *existing_image_id = map_call(cache_key, NULL);
+  if (existing_image_id != NULL) {
     puts(existing_image_id);
     return EXIT_SUCCESS;
   } else {
     char *fresh_image_id = plash("stack", image_id, plash("mkdtemp"));
-    plash("map", cache_key, fresh_image_id);
+    map_call(cache_key, fresh_image_id);
     puts(fresh_image_id);
   }
 

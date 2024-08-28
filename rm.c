@@ -14,7 +14,7 @@ int rm_main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  char *nodepath = plash("nodepath", argv[1]);
+  char *nodepath = nodepath_call(argv[1], NULL);
   char *tmp = plash("mkdtemp");
 
   pl_unshare_user();

@@ -61,8 +61,8 @@ int recall_main(int argc, char *argv[]) {
   }
 
   if (command_accepts_image_id(cmd)) {
-    char *input_image_id = plash("map", cache_key);
-    if (strcmp(input_image_id, "") == 0) {
+    char *input_image_id = map_call(cache_key, NULL);
+    if (input_image_id == NULL) {
       errno = 0;
       pl_fatal("Cannot recall any image id. Try` plash recall pull...`");
     }
@@ -75,7 +75,8 @@ int recall_main(int argc, char *argv[]) {
 
   if (command_prints_image_id(cmd)) {
     char *output_image_id = pl_firstline(pl_check_output(pl_array));
-    plash("map", cache_key, output_image_id);
+    map_call(cache_key, output_image_id);
+    puts(output_image_id);
   } else {
     // noo deed to call a subprocess, we can exec right away
     execvp(pl_array[0], pl_array);

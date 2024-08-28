@@ -16,7 +16,7 @@ int parent_main(int argc, char *argv[]) {
     fputs(USAGE, stderr);
     return EXIT_FAILURE;
   }
-  char *nodepath = plash("nodepath", argv[1]);
+  char *nodepath = nodepath_call(argv[1], NULL);
   puts(basename(dirname(nodepath)));
   return EXIT_SUCCESS;
 }
