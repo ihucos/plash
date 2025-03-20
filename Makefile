@@ -3,6 +3,7 @@ CFLAGS=-I.
 all: dist/plash
 
 dist/plash: %: *.c
+	make dist
 	$(CC) $(CFLAGS) *.c -o dist/plash
 
 install:
